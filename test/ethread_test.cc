@@ -410,19 +410,11 @@ class AVxEncoderThreadTest
   std::vector<std::string> md5_dec_;
 };
 
-TEST_P(AVxEncoderThreadTest, EncoderResultTest) {
-  cfg_.large_scale_tile = 0;
-  decoder_->Control(AV1_SET_TILE_MODE, 0);
-  DoTest();
-}
+TEST_P(AVxEncoderThreadTest, EncoderResultTest) { DoTest(); }
 
 class AVxEncoderThreadTestLarge : public AVxEncoderThreadTest {};
 
-TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
-  cfg_.large_scale_tile = 0;
-  decoder_->Control(AV1_SET_TILE_MODE, 0);
-  DoTest();
-}
+TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) { DoTest(); }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AVxFirstPassEncoderThreadTest);
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AVxEncoderThreadTest);

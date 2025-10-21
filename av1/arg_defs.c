@@ -232,9 +232,6 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
 #endif  // !CONFIG_F322_OBUER_ERM
   .lag_in_frames =
       ARG_DEF(NULL, "lag-in-frames", 1, "Max number of frames to lag"),
-  .large_scale_tile = ARG_DEF(
-      NULL, "large-scale-tile", 1,
-      "Large scale tile coding (0: off (default), 1: on (ivf output only))"),
   .monochrome =
       ARG_DEF(NULL, "monochrome", 0, "Monochrome video (no chroma planes)"),
   .full_still_picture_hdr = ARG_DEF(NULL, "full-still-picture-hdr", 0,

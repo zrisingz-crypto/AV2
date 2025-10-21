@@ -1779,12 +1779,6 @@ static aom_codec_err_t ctrl_get_accounting(aom_codec_alg_priv_t *ctx,
 #endif
 }
 
-static aom_codec_err_t ctrl_set_tile_mode(aom_codec_alg_priv_t *ctx,
-                                          va_list args) {
-  ctx->tile_mode = va_arg(args, unsigned int);
-  return AOM_CODEC_OK;
-}
-
 static aom_codec_err_t ctrl_set_is_annexb(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
   ctx->is_annexb = va_arg(args, unsigned int);
@@ -1833,7 +1827,6 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AV1_INVERT_TILE_DECODE_ORDER, ctrl_set_invert_tile_order },
   { AV1_SET_BYTE_ALIGNMENT, ctrl_set_byte_alignment },
   { AV1_SET_SKIP_LOOP_FILTER, ctrl_set_skip_loop_filter },
-  { AV1_SET_TILE_MODE, ctrl_set_tile_mode },
   { AV1D_SET_IS_ANNEXB, ctrl_set_is_annexb },
   { AV1D_SET_OPERATING_POINT, ctrl_set_operating_point },
   { AV1D_SET_OUTPUT_ALL_LAYERS, ctrl_set_output_all_layers },

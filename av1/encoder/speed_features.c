@@ -277,9 +277,8 @@ static void set_good_speed_features_framesize_independent(
       boosted || gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
   const int allow_screen_content_tools =
       cm->features.allow_screen_content_tools;
-  if (!cpi->oxcf.tile_cfg.enable_large_scale_tile) {
-    sf->hl_sf.high_precision_mv_usage = LAST_MV_DATA;
-  }
+
+  sf->hl_sf.high_precision_mv_usage = LAST_MV_DATA;
 
   if (cm->seq_params.enable_flex_mvres) {
     sf->flexmv_sf.terminate_early_4_pel_precision = 1;

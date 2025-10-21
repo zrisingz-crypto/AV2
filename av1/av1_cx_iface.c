@@ -731,7 +731,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, noise_sensitivity, 6);
   RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
               AOM_SUPERBLOCK_SIZE_DYNAMIC);
-  RANGE_CHECK_HI(cfg, large_scale_tile, 1);
 
   RANGE_CHECK_HI(extra_cfg, row_mt, 1);
 
@@ -746,11 +745,6 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, crop_win_top_offset, 65535);
   RANGE_CHECK_HI(extra_cfg, crop_win_bottom_offset, 65535);
 #endif  // CONFIG_CROP_WIN_CWG_F220
-
-  if (cfg->large_scale_tile && extra_cfg->aq_mode)
-    ERROR(
-        "Adaptive quantization are not supported in large scale tile "
-        "coding.");
 
   RANGE_CHECK_HI(extra_cfg, sharpness, 7);
   RANGE_CHECK_HI(extra_cfg, arnr_max_frames, 15);
@@ -1400,9 +1394,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   // FIXME(debargha): Should this be:
   // tool_cfg->enable_ref_frame_mvs  = extra_cfg->allow_ref_frame_mvs &
   //                                         extra_cfg->enable_order_hint ?
-  // Disallow using temporal MVs while large_scale_tile = 1.
-  tool_cfg->enable_ref_frame_mvs =
-      extra_cfg->allow_ref_frame_mvs && !cfg->large_scale_tile;
+  tool_cfg->enable_ref_frame_mvs = extra_cfg->allow_ref_frame_mvs;
   tool_cfg->reduced_ref_frame_mvs_mode = extra_cfg->reduced_ref_frame_mvs_mode;
   tool_cfg->superblock_size = extra_cfg->superblock_size;
   tool_cfg->enable_monochrome = cfg->monochrome;
@@ -1639,19 +1631,12 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tune_cfg->vmaf_model_path = extra_cfg->vmaf_model_path;
   tune_cfg->content = extra_cfg->content;
 
-  if (cfg->large_scale_tile) {
-    tune_cfg->film_grain_test_vector = 0;
-    tune_cfg->film_grain_table_filename = NULL;
+  tune_cfg->film_grain_test_vector = extra_cfg->film_grain_test_vector;
+  tune_cfg->film_grain_table_filename = extra_cfg->film_grain_table_filename;
 #if CONFIG_FGS_BLOCK_SIZE
-    tune_cfg->film_grain_block_size = 0;
+  tune_cfg->film_grain_block_size = extra_cfg->film_grain_block_size;
 #endif
-  } else {
-    tune_cfg->film_grain_test_vector = extra_cfg->film_grain_test_vector;
-    tune_cfg->film_grain_table_filename = extra_cfg->film_grain_table_filename;
-#if CONFIG_FGS_BLOCK_SIZE
-    tune_cfg->film_grain_block_size = extra_cfg->film_grain_block_size;
-#endif
-  }
+
 #if CONFIG_DENOISE
   oxcf->noise_level = extra_cfg->noise_level;
   oxcf->noise_block_size = extra_cfg->noise_block_size;
@@ -1659,10 +1644,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   // Set Tile related configuration.
   tile_cfg->num_tile_groups = extra_cfg->num_tg;
-  // In large-scale tile encoding mode, num_tile_groups is always 1.
-  if (cfg->large_scale_tile) tile_cfg->num_tile_groups = 1;
   tile_cfg->mtu = extra_cfg->mtu_size;
-  tile_cfg->enable_large_scale_tile = cfg->large_scale_tile;
   tile_cfg->tile_columns = extra_cfg->tile_columns;
   tile_cfg->tile_rows = extra_cfg->tile_rows;
   tile_cfg->tile_width_count = AOMMIN(cfg->tile_width_count, MAX_TILE_COLS);
@@ -1672,14 +1654,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   }
   for (int i = 0; i < tile_cfg->tile_height_count; i++) {
     tile_cfg->tile_heights[i] = AOMMAX(cfg->tile_heights[i], 1);
-  }
-
-  if (tile_cfg->enable_large_scale_tile) {
-    // The superblock_size must be fixed when enable_large_scale_tile = 1.
-    // If superblock_size = AOM_SUPERBLOCK_SIZE_DYNAMIC, hard set it to
-    // AOM_SUPERBLOCK_SIZE_64X64 (default value in large_scale_tile).
-    if (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_DYNAMIC)
-      tool_cfg->superblock_size = AOM_SUPERBLOCK_SIZE_64X64;
   }
 
   // Set reference frame related configuration.
@@ -4680,7 +4654,6 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
     9999,         // kf_max_dist
     0,            // sframe_dist
     1,            // sframe_mode
-    0,            // large_scale_tile
     0,            // monochrome
     0,            // full_still_picture_hdr
     1,            // enable_tcq

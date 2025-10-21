@@ -374,7 +374,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 #if !CWG_F215_CONFIG_REMOVE_FRAME_ID
   seq->frame_id_numbers_present_flag =
       !(seq->still_picture && seq->single_picture_hdr_flag) &&
-      !oxcf->tile_cfg.enable_large_scale_tile && tool_cfg->error_resilient_mode;
+      tool_cfg->error_resilient_mode;
 #endif  // !CWG_F215_CONFIG_REMOVE_FRAME_ID
   if (seq->still_picture && seq->single_picture_hdr_flag) {
 #if !CONFIG_CWG_F243_REMOVE_ENABLE_ORDER_HINT
@@ -449,8 +449,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 #if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   seq->tile_params.allow_tile_info_change = 0;
 #endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
-  if (!oxcf->tile_cfg.enable_large_scale_tile && !seq->still_picture &&
-      oxcf->kf_cfg.key_freq_max > 0) {
+  if (!seq->still_picture && oxcf->kf_cfg.key_freq_max > 0) {
     av1_set_seq_tile_info(seq, oxcf);
     seq->seq_tile_info_present_flag = 1;
   } else {
@@ -1001,8 +1000,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
       (oxcf->tool_cfg.frame_parallel_decoding_mode)
           ? REFRESH_FRAME_CONTEXT_DISABLED
           : REFRESH_FRAME_CONTEXT_BACKWARD;
-  if (oxcf->tile_cfg.enable_large_scale_tile)
-    cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
   if (x->palette_buffer == NULL) {
     CHECK_MEM_ERROR(cm, x->palette_buffer,
@@ -1078,8 +1075,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   rc->worst_quality = rc_cfg->worst_allowed_q;
   rc->best_quality = rc_cfg->best_allowed_q;
 
-  cm->features.interp_filter =
-      oxcf->tile_cfg.enable_large_scale_tile ? EIGHTTAP_REGULAR : SWITCHABLE;
+  cm->features.interp_filter = SWITCHABLE;
 
   cm->features.opfl_refine_type = REFINE_SWITCHABLE;
 
@@ -4274,7 +4270,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;
 
-  cm->tiles.large_scale = tile_cfg->enable_large_scale_tile;
+  cm->tiles.large_scale = 0;
 
   features->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
   // features->allow_ref_frame_mvs needs to be written into the frame header
@@ -5001,8 +4997,6 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
       oxcf->tool_cfg.frame_parallel_decoding_mode
           ? REFRESH_FRAME_CONTEXT_DISABLED
           : REFRESH_FRAME_CONTEXT_BACKWARD;
-  if (oxcf->tile_cfg.enable_large_scale_tile)
-    cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 
   // Initialize fields related to forward keyframes
   cpi->no_show_fwd_kf = 0;

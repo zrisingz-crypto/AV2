@@ -1024,14 +1024,6 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int sframe_mode;
 
-  /*!\brief Tile coding mode
-   *
-   * This value indicates the tile coding mode.
-   * A value of 0 implies a normal non-large-scale tile coding. A value of 1
-   * implies a large-scale tile coding.
-   */
-  unsigned int large_scale_tile;
-
   /*!\brief Monochrome mode
    *
    * If this is nonzero, the encoder will generate a monochrome stream

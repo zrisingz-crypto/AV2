@@ -86,9 +86,6 @@ enum {
   NV12,   // Tile output in NV12 format.
 } UENUM1BYTE(OUTPUT_FORMAT);
 
-// The fourcc for large_scale_tile encoding is "LSTC".
-#define LST_FOURCC 0x4354534c
-
 struct FileTypeDetectionBuffer {
   char buf[4];
   size_t buf_read;

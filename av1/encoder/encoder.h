@@ -611,8 +611,6 @@ typedef struct {
   int tile_widths[MAX_TILE_COLS];
   // Indicates the tile heights, and may be empty.
   int tile_heights[MAX_TILE_ROWS];
-  // Indicates if large scale tile coding should be used.
-  bool enable_large_scale_tile;
 } TileConfig;
 
 typedef struct {

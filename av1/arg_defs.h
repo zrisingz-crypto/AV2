@@ -80,7 +80,6 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t timebase;
   arg_def_t global_error_resilient;
   arg_def_t lag_in_frames;
-  arg_def_t large_scale_tile;
   arg_def_t monochrome;
   arg_def_t full_still_picture_hdr;
   arg_def_t enable_tcq;

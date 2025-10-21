@@ -280,7 +280,6 @@ const arg_def_t *global_args[] = {
   &g_av1_codec_arg_defs.bitdeptharg,
   &g_av1_codec_arg_defs.inbitdeptharg,
   &g_av1_codec_arg_defs.lag_in_frames,
-  &g_av1_codec_arg_defs.large_scale_tile,
   &g_av1_codec_arg_defs.monochrome,
   &g_av1_codec_arg_defs.full_still_picture_hdr,
   &g_av1_codec_arg_defs.enable_tcq,
@@ -1215,11 +1214,6 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.g_error_resilient = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.lag_in_frames, argi)) {
       config->cfg.g_lag_in_frames = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &g_av1_codec_arg_defs.large_scale_tile, argi)) {
-      config->cfg.large_scale_tile = arg_parse_uint(&arg);
-      if (config->cfg.large_scale_tile) {
-        global->codec = get_aom_encoder_by_short_name("av1");
-      }
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.monochrome, argi)) {
       config->cfg.monochrome = 1;
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.full_still_picture_hdr,
@@ -1826,10 +1820,6 @@ static void initialize_encoder(struct stream_state *stream,
     aom_codec_dec_init(&stream->decoder, decoder, &cfg, 0);
 
     if (strcmp(get_short_name_by_aom_encoder(global->codec), "av1") == 0) {
-      AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1_SET_TILE_MODE,
-                                    stream->config.cfg.large_scale_tile);
-      ctx_exit_on_error(&stream->decoder, "Failed to set decode_tile_mode");
-
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1D_SET_IS_ANNEXB,
                                     stream->config.cfg.save_as_annexb);
       ctx_exit_on_error(&stream->decoder, "Failed to set is_annexb");
@@ -2166,10 +2156,6 @@ int main(int argc, const char **argv_) {
   FOREACH_STREAM(stream, streams) {
     check_encoder_config(global.disable_warning_prompt, &global,
                          &stream->config.cfg);
-
-    // If large_scale_tile = 1, only support to output to ivf format.
-    if (stream->config.cfg.large_scale_tile && !stream->config.write_ivf)
-      die("only support ivf output format while large-scale-tile=1\n");
   }
 
   /* Handle non-option arguments */

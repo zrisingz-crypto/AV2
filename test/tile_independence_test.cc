@@ -121,12 +121,7 @@ class TileIndependenceTest
 // run an encode with 2 or 4 tiles, and do the decode both in normal and
 // inverted tile ordering. Ensure that the MD5 of the output in both cases
 // is identical. If so, tiles are considered independent and the test passes.
-TEST_P(TileIndependenceTest, MD5Match) {
-  cfg_.large_scale_tile = 0;
-  fw_dec_->Control(AV1_SET_TILE_MODE, 0);
-  inv_dec_->Control(AV1_SET_TILE_MODE, 0);
-  DoTest();
-}
+TEST_P(TileIndependenceTest, MD5Match) { DoTest(); }
 
 class TileIndependenceTestLarge : public TileIndependenceTest {
   virtual void SetCpuUsed(libaom_test::Encoder *encoder) {
@@ -134,12 +129,7 @@ class TileIndependenceTestLarge : public TileIndependenceTest {
   }
 };
 
-TEST_P(TileIndependenceTestLarge, MD5Match) {
-  cfg_.large_scale_tile = 0;
-  fw_dec_->Control(AV1_SET_TILE_MODE, 0);
-  inv_dec_->Control(AV1_SET_TILE_MODE, 0);
-  DoTest();
-}
+TEST_P(TileIndependenceTestLarge, MD5Match) { DoTest(); }
 
 AV1_INSTANTIATE_TEST_SUITE(TileIndependenceTest, ::testing::Values(0, 1),
                            ::testing::Values(0, 1), ::testing::Values(1, 2, 4));

@@ -283,13 +283,6 @@ enum aom_dec_control_id {
    */
   AOMD_GET_LAST_QUANTIZER,
 
-  /*!\brief Codec control function to set the tile coding mode, int parameter
-   *
-   * - 0 = tiles are coded in normal tile mode
-   * - 1 = tiles are coded in large-scale tile mode
-   */
-  AV1_SET_TILE_MODE,
-
   /*!\brief Codec control function to set the external references' pointers in
    * the decoder, av1_ext_ref_frame_t* parameter.
    *
@@ -494,9 +487,6 @@ AOM_CTRL_USE_TYPE(AV1_INVERT_TILE_DECODE_ORDER, int)
 
 AOM_CTRL_USE_TYPE(AV1_GET_ACCOUNTING, Accounting **)
 #define AOM_CTRL_AV1_GET_ACCOUNTING
-
-AOM_CTRL_USE_TYPE(AV1_SET_TILE_MODE, unsigned int)
-#define AOM_CTRL_AV1_SET_TILE_MODE
 
 AOM_CTRL_USE_TYPE(AV1D_SET_EXT_REF_PTR, av1_ext_ref_frame_t *)
 #define AOM_CTRL_AV1D_SET_EXT_REF_PTR

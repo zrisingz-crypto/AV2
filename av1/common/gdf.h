@@ -95,7 +95,7 @@ void gdf_filter_frame(AV1_COMMON *cm);
 /*!\brief Function to check whether GDF allowed.
  */
 static inline int is_allow_gdf(const AV1_COMMON *cm) {
-  return !cm->features.coded_lossless && !cm->tiles.large_scale;
+  return !cm->features.coded_lossless;
 }
 
 /*!\brief Function to check whether GDF enabled.

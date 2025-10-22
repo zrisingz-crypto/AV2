@@ -111,7 +111,6 @@ set_aom_config_var(CONFIG_INSPECTION 0 "Enables bitstream inspection.")
 set_aom_config_var(CONFIG_INTERNAL_STATS 0 "Enables internal encoder stats.")
 set_aom_config_var(CONFIG_MAX_DECODE_PROFILE 2
                    "Max profile to support decoding.")
-set_aom_config_var(CONFIG_NORMAL_TILE_MODE 0 "Only enables normal tile mode.")
 set_aom_config_var(CONFIG_SIZE_LIMIT 0 "Limit max decode width/height.")
 set_aom_config_var(CONFIG_SPATIAL_RESAMPLING 1 "Spatial resampling.")
 set_aom_config_var(DECODE_HEIGHT_LIMIT 0 "Set limit for decode height.")

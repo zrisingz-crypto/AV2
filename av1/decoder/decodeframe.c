@@ -5061,10 +5061,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   const int tile_rows = tiles->rows;
   const int n_tiles = tile_cols * tile_rows;
   TileBufferDec(*const tile_buffers)[MAX_TILE_COLS] = pbi->tile_buffers;
-  const int dec_tile_row = AOMMIN(pbi->dec_tile_row, tile_rows);
-  const int single_row = pbi->dec_tile_row >= 0;
-  const int dec_tile_col = AOMMIN(pbi->dec_tile_col, tile_cols);
-  const int single_col = pbi->dec_tile_col >= 0;
   int tile_rows_start;
   int tile_rows_end;
   int tile_cols_start;
@@ -5073,25 +5069,14 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
   int inv_row_order;
   int tile_row, tile_col;
   uint8_t allow_update_cdf;
-  const uint8_t *raw_data_end = NULL;
 
-  if (tiles->large_scale) {
-    tile_rows_start = single_row ? dec_tile_row : 0;
-    tile_rows_end = single_row ? dec_tile_row + 1 : tile_rows;
-    tile_cols_start = single_col ? dec_tile_col : 0;
-    tile_cols_end = single_col ? tile_cols_start + 1 : tile_cols;
-    inv_col_order = pbi->inv_tile_order && !single_col;
-    inv_row_order = pbi->inv_tile_order && !single_row;
-    allow_update_cdf = 0;
-  } else {
-    tile_rows_start = 0;
-    tile_rows_end = tile_rows;
-    tile_cols_start = 0;
-    tile_cols_end = tile_cols;
-    inv_col_order = pbi->inv_tile_order;
-    inv_row_order = pbi->inv_tile_order;
-    allow_update_cdf = 1;
-  }
+  tile_rows_start = 0;
+  tile_rows_end = tile_rows;
+  tile_cols_start = 0;
+  tile_cols_end = tile_cols;
+  inv_col_order = pbi->inv_tile_order;
+  inv_row_order = pbi->inv_tile_order;
+  allow_update_cdf = 1;
 
   // No tiles to decode.
   if (tile_rows_end <= tile_rows_start || tile_cols_end <= tile_cols_start ||
@@ -5179,14 +5164,6 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
     }
   }
 
-  if (tiles->large_scale) {
-    if (n_tiles == 1) {
-      // Find the end of the single tile buffer
-      return aom_reader_find_end(&pbi->tile_data->bit_reader);
-    }
-    // Return the end of the last tile buffer
-    return raw_data_end;
-  }
   TileDataDec *const tile_data = pbi->tile_data + end_tile;
 #if CONFIG_THROUGHPUT_ANALYSIS
   if (pbi->acct_enabled) {
@@ -5272,7 +5249,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
   }
   thread_data->error_info.setjmp = 1;
 
-  allow_update_cdf = cm->tiles.large_scale ? 0 : 1;
+  allow_update_cdf = 1;
   allow_update_cdf = allow_update_cdf && !cm->features.disable_cdf_update;
 
   set_decode_func_pointers(td, 0x3);
@@ -5530,7 +5507,7 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
   }
   thread_data->error_info.setjmp = 1;
 
-  allow_update_cdf = cm->tiles.large_scale ? 0 : 1;
+  allow_update_cdf = 1;
   allow_update_cdf = allow_update_cdf && !cm->features.disable_cdf_update;
 
   set_decode_func_pointers(td, 0x1);
@@ -5882,29 +5859,18 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   const int tile_rows = tiles->rows;
   const int n_tiles = tile_cols * tile_rows;
   TileBufferDec(*const tile_buffers)[MAX_TILE_COLS] = pbi->tile_buffers;
-  const int dec_tile_row = AOMMIN(pbi->dec_tile_row, tile_rows);
-  const int single_row = pbi->dec_tile_row >= 0;
-  const int dec_tile_col = AOMMIN(pbi->dec_tile_col, tile_cols);
-  const int single_col = pbi->dec_tile_col >= 0;
   int tile_rows_start;
   int tile_rows_end;
   int tile_cols_start;
   int tile_cols_end;
   int tile_count_tg;
   int num_workers;
-  const uint8_t *raw_data_end = NULL;
 
-  if (tiles->large_scale) {
-    tile_rows_start = single_row ? dec_tile_row : 0;
-    tile_rows_end = single_row ? dec_tile_row + 1 : tile_rows;
-    tile_cols_start = single_col ? dec_tile_col : 0;
-    tile_cols_end = single_col ? tile_cols_start + 1 : tile_cols;
-  } else {
-    tile_rows_start = 0;
-    tile_rows_end = tile_rows;
-    tile_cols_start = 0;
-    tile_cols_end = tile_cols;
-  }
+  tile_rows_start = 0;
+  tile_rows_end = tile_rows;
+  tile_cols_start = 0;
+  tile_cols_end = tile_cols;
+
   tile_count_tg = end_tile - start_tile + 1;
   num_workers = AOMMIN(pbi->max_threads, tile_count_tg);
 
@@ -5948,14 +5914,6 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
 
-  if (tiles->large_scale) {
-    if (n_tiles == 1) {
-      // Find the end of the single tile buffer
-      return aom_reader_find_end(&pbi->tile_data->bit_reader);
-    }
-    // Return the end of the last tile buffer
-    return raw_data_end;
-  }
   TileDataDec *const tile_data = pbi->tile_data + end_tile;
 
   return aom_reader_find_end(&tile_data->bit_reader);
@@ -6048,10 +6006,6 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
   const int tile_rows = tiles->rows;
   const int n_tiles = tile_cols * tile_rows;
   TileBufferDec(*const tile_buffers)[MAX_TILE_COLS] = pbi->tile_buffers;
-  const int dec_tile_row = AOMMIN(pbi->dec_tile_row, tile_rows);
-  const int single_row = pbi->dec_tile_row >= 0;
-  const int dec_tile_col = AOMMIN(pbi->dec_tile_col, tile_cols);
-  const int single_col = pbi->dec_tile_col >= 0;
   int tile_rows_start;
   int tile_rows_end;
   int tile_cols_start;
@@ -6059,20 +6013,13 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
   int tile_count_tg;
   int num_workers = 0;
   int max_threads;
-  const uint8_t *raw_data_end = NULL;
   int max_sb_rows = 0;
 
-  if (tiles->large_scale) {
-    tile_rows_start = single_row ? dec_tile_row : 0;
-    tile_rows_end = single_row ? dec_tile_row + 1 : tile_rows;
-    tile_cols_start = single_col ? dec_tile_col : 0;
-    tile_cols_end = single_col ? tile_cols_start + 1 : tile_cols;
-  } else {
-    tile_rows_start = 0;
-    tile_rows_end = tile_rows;
-    tile_cols_start = 0;
-    tile_cols_end = tile_cols;
-  }
+  tile_rows_start = 0;
+  tile_rows_end = tile_rows;
+  tile_cols_start = 0;
+  tile_cols_end = tile_cols;
+
   tile_count_tg = end_tile - start_tile + 1;
   max_threads = pbi->max_threads;
 
@@ -6145,14 +6092,6 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
 
-  if (tiles->large_scale) {
-    if (n_tiles == 1) {
-      // Find the end of the single tile buffer
-      return aom_reader_find_end(&pbi->tile_data->bit_reader);
-    }
-    // Return the end of the last tile buffer
-    return raw_data_end;
-  }
   TileDataDec *const tile_data = pbi->tile_data + end_tile;
 
   return aom_reader_find_end(&tile_data->bit_reader);
@@ -9901,9 +9840,8 @@ static AOM_INLINE void process_tip_mode(AV1Decoder *pbi) {
     memset(&cm->seg, 0, sizeof(cm->seg));
     cm->seg.enable_ext_seg = cm->seq_params.enable_ext_seg;
     segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
-    if (!cm->tiles.large_scale) {
-      cm->cur_frame->frame_context = *cm->fc;
-    }
+
+    cm->cur_frame->frame_context = *cm->fc;
   }
 }
 #if CONFIG_F106_OBU_TILEGROUP
@@ -9916,11 +9854,10 @@ static int32_t read_tile_indices_in_tilegroup(AV1Decoder *pbi,
   int tile_start_and_end_present_flag = 0;
   const int num_tiles = tiles->rows * tiles->cols;
 
-  if (!tiles->large_scale && num_tiles > 1) {
+  if (num_tiles > 1) {
     tile_start_and_end_present_flag = aom_rb_read_bit(rb);
   }
-  if (tiles->large_scale || num_tiles == 1 ||
-      !tile_start_and_end_present_flag) {
+  if (num_tiles == 1 || !tile_start_and_end_present_flag) {
     *start_tile = 0;
     *end_tile = num_tiles - 1;
   } else {
@@ -10034,10 +9971,6 @@ int32_t av1_read_tilegroup_header(
                                        cm->show_frame);
 #endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 #endif
-    if (pbi->dec_tile_row >= 0 || pbi->dec_tile_col >= 0) {
-      pbi->dec_tile_row = -1;
-      pbi->dec_tile_col = -1;
-    }
 
     // aom_rb_bytes_read()= (rb->bit_offset + 7) >> 3;
     const uint32_t uncomp_hdr_size =
@@ -10248,11 +10181,6 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 #endif
 
   if (trailing_bits_present) av1_check_trailing_bits(pbi, rb);
-
-  if (pbi->dec_tile_row >= 0 || pbi->dec_tile_col >= 0) {
-    pbi->dec_tile_row = -1;
-    pbi->dec_tile_col = -1;
-  }
 
   const uint32_t uncomp_hdr_size =
       (uint32_t)aom_rb_bytes_read(rb);  // Size of the uncompressed header
@@ -10468,10 +10396,10 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       AOM_DEC_BORDER_IN_PIXELS, cm->features.byte_alignment, NULL, NULL, NULL,
       false);
 #endif  // CONFIG_INSPECTION
-  if (pbi->max_threads > 1 && !tiles->large_scale && pbi->row_mt)
+  if (pbi->max_threads > 1 && pbi->row_mt)
     *p_data_end =
         decode_tiles_row_mt(pbi, data, data_end, start_tile, end_tile);
-  else if (pbi->max_threads > 1 && tile_count_tg > 1 && !tiles->large_scale)
+  else if (pbi->max_threads > 1 && tile_count_tg > 1)
     *p_data_end = decode_tiles_mt(pbi, data, data_end, start_tile, end_tile);
   else
     *p_data_end = decode_tiles(pbi, data, data_end, start_tile, end_tile);
@@ -10510,7 +10438,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (cm->bru.enabled && pbi->bru_opt_mode &&
       cm->current_frame.frame_type != KEY_FRAME) {
     dec_bru_swap_stage(cm, xd);
-    if (cm->bru.frame_inactive_flag && !tiles->large_scale) {
+    if (cm->bru.frame_inactive_flag) {
       cm->cur_frame->frame_context = *cm->fc;
 #if CONFIG_PARAKIT_COLLECT_DATA
       for (int i = 0; i < MAX_NUM_CTX_GROUPS; i++)
@@ -10692,17 +10620,15 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_INSPECTION
 
   // Non frame parallel update frame context here.
-  if (!tiles->large_scale) {
-    cm->cur_frame->frame_context = *cm->fc;
+  cm->cur_frame->frame_context = *cm->fc;
 #if CONFIG_PARAKIT_COLLECT_DATA
-    for (int i = 0; i < MAX_NUM_CTX_GROUPS; i++)
-      for (int j = 0; j < MAX_DIMS_CONTEXT3; j++)
-        for (int k = 0; k < MAX_DIMS_CONTEXT2; k++)
-          for (int l = 0; l < MAX_DIMS_CONTEXT1; l++)
-            for (int h = 0; h < MAX_DIMS_CONTEXT0; h++)
-              beginningFrameFlag[i][j][k][l][h] = 1;
+  for (int i = 0; i < MAX_NUM_CTX_GROUPS; i++)
+    for (int j = 0; j < MAX_DIMS_CONTEXT3; j++)
+      for (int k = 0; k < MAX_DIMS_CONTEXT2; k++)
+        for (int l = 0; l < MAX_DIMS_CONTEXT1; l++)
+          for (int h = 0; h < MAX_DIMS_CONTEXT0; h++)
+            beginningFrameFlag[i][j][k][l][h] = 1;
 #endif
-  }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(pbi, av1_decode_tg_tiles_and_wrapup_time);

@@ -2409,7 +2409,7 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
           cm->features.byte_alignment, NULL, NULL, NULL, cpi->alloc_pyramid))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
-  const int use_cdef = cm->seq_params.enable_cdef && !cm->tiles.large_scale;
+  const int use_cdef = cm->seq_params.enable_cdef;
   if (!is_stat_generation_stage(cpi) && use_cdef) {
     AV1CdefWorkerData *cdef_worker = NULL;
     AV1CdefSync cdef_sync = { 0 };
@@ -2814,7 +2814,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
   uint16_t *ref_buffer;
   const YV12_BUFFER_CONFIG *ref = cpi->source;
   int ref_stride;
-  const int use_ccso = !cm->features.coded_lossless && !cm->tiles.large_scale &&
+  const int use_ccso = !cm->features.coded_lossless &&
                        !cm->bru.frame_inactive_flag &&
 #if CONFIG_CWG_F317
                        !cm->bridge_frame_info.is_bridge_frame &&
@@ -3008,27 +3008,27 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
                  cm->features.coded_lossless && cm->features.all_lossless));
 
-  const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->bru.frame_inactive_flag &&
-      !cm->tiles.large_scale && cpi->oxcf.tool_cfg.enable_deblocking;
+  const int use_loopfilter = !cm->features.coded_lossless &&
+                             !cm->bru.frame_inactive_flag &&
+                             cpi->oxcf.tool_cfg.enable_deblocking;
   const int use_cdef = cm->seq_params.enable_cdef &&
                        !cm->bru.frame_inactive_flag &&
 #if CONFIG_CWG_F317
                        !cm->bridge_frame_info.is_bridge_frame &&
 #endif  // CONFIG_CWG_F317
-                       !cm->features.coded_lossless && !cm->tiles.large_scale;
+                       !cm->features.coded_lossless;
   const int use_gdf = cm->seq_params.enable_gdf &&
                       !cm->bru.frame_inactive_flag &&
 #if CONFIG_CWG_F317
                       !cm->bridge_frame_info.is_bridge_frame &&
 #endif  // CONFIG_CWG_F317
-                      !cm->features.all_lossless && !cm->tiles.large_scale;
-  const int use_restoration =
-      cm->seq_params.enable_restoration && !cm->bru.frame_inactive_flag &&
+                      !cm->features.all_lossless;
+  const int use_restoration = cm->seq_params.enable_restoration &&
+                              !cm->bru.frame_inactive_flag &&
 #if CONFIG_CWG_F317
-      !cm->bridge_frame_info.is_bridge_frame &&
+                              !cm->bridge_frame_info.is_bridge_frame &&
 #endif  // CONFIG_CWG_F317
-      !cm->features.all_lossless && !cm->tiles.large_scale;
+                              !cm->features.all_lossless;
 
   struct loopfilter *lf = &cm->lf;
 
@@ -3830,9 +3830,7 @@ static INLINE int finalize_tip_mode(AV1_COMP *cpi, uint8_t *dest, size_t *size,
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Uninitialized entropy context.");
 
-    if (!cm->tiles.large_scale) {
-      cm->cur_frame->frame_context = *cm->fc;
-    }
+    cm->cur_frame->frame_context = *cm->fc;
 
     const int num_planes = av1_num_planes(cm);
     ThreadData *const td = &cpi->td;
@@ -4042,7 +4040,7 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
                  cm->features.derived_primary_ref_frame == PRIMARY_REF_NONE));
 
   if (cm->features.primary_ref_frame != PRIMARY_REF_NONE &&
-      !cm->tiles.large_scale && !cpi->error_resilient_frame_seen) {
+      !cpi->error_resilient_frame_seen) {
     const int n_refs = cm->ref_frames_info.num_total_refs;
     //    int frame_size[REF_FRAMES];
     int best_ref_idx = -1;
@@ -4270,13 +4268,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;
 
-  cm->tiles.large_scale = 0;
-
   features->allow_ref_frame_mvs &= frame_might_allow_ref_frame_mvs(cm);
-  // features->allow_ref_frame_mvs needs to be written into the frame header
-  // while cm->tiles.large_scale is 1, therefore, "cm->tiles.large_scale=1" case
-  // is separated from frame_might_allow_ref_frame_mvs().
-  features->allow_ref_frame_mvs &= !cm->tiles.large_scale;
+
   features->allow_warpmv_mode = features->enabled_motion_modes;
   // temporal set of frame level enable_bawp flag.
   features->enable_bawp = seq_params->enable_bawp;
@@ -4526,9 +4519,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     if (!cm->bru.frame_inactive_flag) av1_reset_cdf_symbol_counters(cm->fc);
 #endif  // CONFIG_CWG_F317
   }
-  if (!cm->tiles.large_scale) {
-    cm->cur_frame->frame_context = *cm->fc;
-  }
+
+  cm->cur_frame->frame_context = *cm->fc;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, encode_frame_to_data_rate_time);

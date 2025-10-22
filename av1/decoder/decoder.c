@@ -725,41 +725,37 @@ static void update_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
             ((1 << cm->seq_params.ref_frames) - 1))
       output_trailing_frames(pbi);
 
-    // In ext-tile decoding, the camera frame header is only decoded once. So,
-    // we don't update the references here.
-    if (!pbi->camera_frame_header_ready) {
-      // The following for loop needs to release the reference stored in
-      // cm->ref_frame_map[ref_index] before storing a reference to
-      // cm->cur_frame in cm->ref_frame_map[ref_index].
-      for (int mask = cm->current_frame.refresh_frame_flags; mask; mask >>= 1) {
-        if (mask & 1) {
-          if (pbi->bru_opt_mode && cm->bru.enabled) {
-            if (ref_index == cm->bru.explicit_ref_idx) {
-              ++ref_index;
-              continue;  // skip refresh BRU ref
-            }
-          }
-          if (
-#if !CONFIG_F253_REMOVE_OUTPUTFLAG
-              cm->seq_params.enable_frame_output_order &&
-#endif  // !CONFIG_F253_REMOVE_OUTPUTFLAG
-              is_frame_eligible_for_output(cm->ref_frame_map[ref_index]))
-            output_frame_buffers(pbi, ref_index);
-          decrease_ref_count(cm->ref_frame_map[ref_index], pool);
-          if ((cm->current_frame.frame_type == KEY_FRAME &&
-               cm->show_frame == 1) &&
-              ref_index > 0) {
-            cm->ref_frame_map[ref_index] = NULL;
-          } else {
-            cm->ref_frame_map[ref_index] = cm->cur_frame;
-            ++cm->cur_frame->ref_count;
+    // The following for loop needs to release the reference stored in
+    // cm->ref_frame_map[ref_index] before storing a reference to
+    // cm->cur_frame in cm->ref_frame_map[ref_index].
+    for (int mask = cm->current_frame.refresh_frame_flags; mask; mask >>= 1) {
+      if (mask & 1) {
+        if (pbi->bru_opt_mode && cm->bru.enabled) {
+          if (ref_index == cm->bru.explicit_ref_idx) {
+            ++ref_index;
+            continue;  // skip refresh BRU ref
           }
         }
-        ++ref_index;
+        if (
+#if !CONFIG_F253_REMOVE_OUTPUTFLAG
+            cm->seq_params.enable_frame_output_order &&
+#endif  // !CONFIG_F253_REMOVE_OUTPUTFLAG
+            is_frame_eligible_for_output(cm->ref_frame_map[ref_index]))
+          output_frame_buffers(pbi, ref_index);
+        decrease_ref_count(cm->ref_frame_map[ref_index], pool);
+        if ((cm->current_frame.frame_type == KEY_FRAME &&
+             cm->show_frame == 1) &&
+            ref_index > 0) {
+          cm->ref_frame_map[ref_index] = NULL;
+        } else {
+          cm->ref_frame_map[ref_index] = cm->cur_frame;
+          ++cm->cur_frame->ref_count;
+        }
       }
-      update_subgop_stats(cm, &pbi->subgop_stats, cm->cur_frame->order_hint,
-                          pbi->enable_subgop_stats);
+      ++ref_index;
     }
+    update_subgop_stats(cm, &pbi->subgop_stats, cm->cur_frame->order_hint,
+                        pbi->enable_subgop_stats);
     if (
 #if !CONFIG_CWG_F243_REMOVE_ENABLE_ORDER_HINT
         cm->seq_params.order_hint_info.enable_order_hint &&
@@ -821,11 +817,9 @@ static void update_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
   }
   cm->cur_frame = NULL;
 
-  if (!pbi->camera_frame_header_ready) {
-    // Invalidate these references until the next frame starts.
-    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
-      cm->remapped_ref_idx[ref_index] = INVALID_IDX;
-    }
+  // Invalidate these references until the next frame starts.
+  for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
+    cm->remapped_ref_idx[ref_index] = INVALID_IDX;
   }
 }
 

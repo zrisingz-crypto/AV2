@@ -4728,25 +4728,6 @@ static AOM_INLINE void write_tile_info(AV1_COMMON *const cm,
   }
 }
 
-static AOM_INLINE void write_ext_tile_info(
-    const AV1_COMMON *const cm, struct aom_write_bit_buffer *saved_wb,
-    struct aom_write_bit_buffer *wb) {
-  // This information is stored as a separate byte.
-  int mod = wb->bit_offset % CHAR_BIT;
-  if (mod > 0) aom_wb_write_literal(wb, 0, CHAR_BIT - mod);
-  assert(aom_wb_is_byte_aligned(wb));
-
-  *saved_wb = *wb;
-  if (cm->tiles.rows * cm->tiles.cols > 1) {
-    // Note that the last item in the uncompressed header is the data
-    // describing tile configuration.
-    // Number of bytes in tile column size - 1
-    aom_wb_write_literal(wb, 0, 2);
-    // Number of bytes in tile size - 1
-    aom_wb_write_literal(wb, 0, 2);
-  }
-}
-
 // Stores the location and size of a tile's data in the bitstream.  Used for
 // later identifying identical tiles
 typedef struct TileBufferEnc {
@@ -6922,9 +6903,9 @@ static AOM_INLINE void write_uncompressed_header_obu
     if (seq_params->film_grain_params_present &&
         (cm->show_frame || cm->showable_frame))
       write_film_grain_params(cpi, wb);
-    if (!cm->tiles.large_scale) {
-      cm->cur_frame->frame_context = *cm->fc;
-    }
+
+    cm->cur_frame->frame_context = *cm->fc;
+
     return;
   }
 
@@ -6968,8 +6949,6 @@ static AOM_INLINE void write_uncompressed_header_obu
 #endif  // CONFIG_CWG_F317
     const int might_bwd_adapt = !(seq_params->single_picture_hdr_flag) &&
                                 !(features->disable_cdf_update);
-    if (cm->tiles.large_scale)
-      assert(features->refresh_frame_context == REFRESH_FRAME_CONTEXT_DISABLED);
 
     if (might_bwd_adapt) {
       aom_wb_write_bit(wb, features->refresh_frame_context ==
@@ -7104,8 +7083,6 @@ static AOM_INLINE void write_uncompressed_header_obu
 #endif
   )
     write_film_grain_params(cpi, wb);
-
-  if (cm->tiles.large_scale) write_ext_tile_info(cm, saved_wb, wb);
 }
 
 static int choose_size_bytes(uint32_t size, int spare_msbs) {
@@ -7148,16 +7125,9 @@ static int remux_tiles(const CommonTileParams *const tiles, uint8_t *dst,
   int tsb;
   int tcsb;
 
-  if (tiles->large_scale) {
-    // The top bit in the tile size field indicates tile copy mode, so we
-    // have 1 less bit to code the tile size
-    tsb = choose_size_bytes(max_tile_size, 1);
-    tcsb = choose_size_bytes(max_tile_col_size, 0);
-  } else {
-    tsb = choose_size_bytes(max_tile_size, 0);
-    tcsb = 4;  // This is ignored
-    (void)max_tile_col_size;
-  }
+  tsb = choose_size_bytes(max_tile_size, 0);
+  tcsb = 4;  // This is ignored
+  (void)max_tile_col_size;
 
   assert(tsb > 0);
   assert(tcsb > 0);
@@ -7169,52 +7139,6 @@ static int remux_tiles(const CommonTileParams *const tiles, uint8_t *dst,
   uint32_t wpos = 0;
   uint32_t rpos = 0;
 
-  if (tiles->large_scale) {
-    int tile_row;
-    int tile_col;
-
-    for (tile_col = 0; tile_col < tiles->cols; tile_col++) {
-      // All but the last column has a column header
-      if (tile_col < tiles->cols - 1) {
-        uint32_t tile_col_size = mem_get_le32(dst + rpos);
-        rpos += 4;
-
-        // Adjust the tile column size by the number of bytes removed
-        // from the tile size fields.
-        tile_col_size -= (4 - tsb) * tiles->rows;
-
-        mem_put_varsize(dst + wpos, tcsb, tile_col_size);
-        wpos += tcsb;
-      }
-
-      for (tile_row = 0; tile_row < tiles->rows; tile_row++) {
-        // All, including the last row has a header
-        uint32_t tile_header = mem_get_le32(dst + rpos);
-        rpos += 4;
-
-        // If this is a copy tile, we need to shift the MSB to the
-        // top bit of the new width, and there is no data to copy.
-        if (tile_header >> 31 != 0) {
-          if (tsb < 4) tile_header >>= 32 - 8 * tsb;
-          mem_put_varsize(dst + wpos, tsb, tile_header);
-          wpos += tsb;
-        } else {
-          mem_put_varsize(dst + wpos, tsb, tile_header);
-          wpos += tsb;
-
-          tile_header += AV1_MIN_TILE_SIZE_BYTES;
-          memmove(dst + wpos, dst + rpos, tile_header);
-          rpos += tile_header;
-          wpos += tile_header;
-        }
-      }
-    }
-
-    assert(rpos > wpos);
-    assert(rpos == data_size);
-
-    return wpos;
-  }
   const int n_tiles = tiles->cols * tiles->rows;
   int n;
 
@@ -7836,8 +7760,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
   const int n_log2_tiles = tiles->log2_rows + tiles->log2_cols;
   // Fixed size tile groups for the moment
   const int num_tg_hdrs = cpi->num_tg;
-  const int tg_size =
-      tiles->large_scale ? 1 : (num_tiles + num_tg_hdrs - 1) / num_tg_hdrs;
+  const int tg_size = (num_tiles + num_tg_hdrs - 1) / num_tg_hdrs;
   int tile_count = 0;
   int curr_tg_data_size = 0;
   uint8_t *data = dst;
@@ -8560,7 +8483,6 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
 #endif  // CONFIG_CWG_F317
   const int num_tiles = cm->tiles.cols * cm->tiles.rows;
   const int max_tg_num = AOMMIN(cpi->num_tg, num_tiles);
-  assert(!cm->tiles.large_scale);
   const int num_tiles_per_tg = num_tiles / max_tg_num;
   const int extra_tiles = num_tiles % max_tg_num;
   struct aom_write_bit_buffer saved_wb_first_tg = { NULL, 0 };

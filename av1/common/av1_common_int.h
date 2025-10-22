@@ -616,8 +616,6 @@ typedef struct CommonTileParams {
    */
   int scale_sb; /*!< whether sb size is scaled down from seq level. */
 
-  unsigned int large_scale;
-
   /*!
    * Used when BRU is on, each bit indicates active mode of a tile
    */

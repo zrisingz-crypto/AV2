@@ -3232,16 +3232,6 @@ void av1_setup_frame_contexts(AV1_COMMON *cm) {
   // default probs, either by av1_setup_past_independence or after manually
   // initializing them
   *cm->default_frame_context = *cm->fc;
-  // TODO(jack.haughton@argondesign.com): don't think this should be necessary,
-  // but could do with fuller testing
-  if (cm->tiles.large_scale) {
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-      RefCntBuffer *const buf = get_ref_frame_buf(cm, i);
-      if (buf != NULL) buf->frame_context = *cm->fc;
-    }
-    for (int i = 0; i < FRAME_BUFFERS; ++i)
-      cm->buffer_pool->frame_bufs[i].frame_context = *cm->fc;
-  }
 }
 
 void av1_setup_past_independence(AV1_COMMON *cm) {

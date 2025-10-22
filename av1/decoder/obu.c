@@ -561,7 +561,7 @@ static int32_t read_tile_group_header(AV1Decoder *pbi,
     return 0;
   }
 
-  if (!tiles->large_scale && num_tiles > 1) {
+  if (num_tiles > 1) {
     tile_start_and_end_present_flag = aom_rb_read_bit(rb);
     if (tile_start_implicit && tile_start_and_end_present_flag) {
       aom_internal_error(
@@ -570,8 +570,7 @@ static int32_t read_tile_group_header(AV1Decoder *pbi,
       return -1;
     }
   }
-  if (tiles->large_scale || num_tiles == 1 ||
-      !tile_start_and_end_present_flag) {
+  if (num_tiles == 1 || !tile_start_and_end_present_flag) {
     *start_tile = 0;
     *end_tile = num_tiles - 1;
   } else {
@@ -1183,9 +1182,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     return -1;
   }
 
-  // Reset pbi->camera_frame_header_ready to 0 if cm->tiles.large_scale = 0.
-  if (!cm->tiles.large_scale) pbi->camera_frame_header_ready = 0;
-
 #if OBU_ORDER_IN_TU
   OBU_TYPE prev_obu_type = 0;
   OBU_TYPE curr_obu_type = 0;
@@ -1448,8 +1444,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         }
 #endif  // !CONFIG_REMOVAL_REDUNDANT_FRAME_HEADER
         // Only decode first frame header received
-        if (!pbi->seen_frame_header ||
-            (cm->tiles.large_scale && !pbi->camera_frame_header_ready)) {
+        if (!pbi->seen_frame_header) {
 #if CONFIG_CWG_F317
           int trailing_bits_present = (obu_header.type != OBU_FRAME) ? 1 : 0;
           frame_header_size = read_frame_header_obu(pbi, &rb, data, p_data_end,
@@ -1466,7 +1461,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 #endif  // CONFIG_CWG_F317
           pbi->seen_frame_header = 1;
-          if (cm->tiles.large_scale) pbi->camera_frame_header_ready = 1;
         } else {
           // TODO(wtc): Verify that the frame_header_obu is identical to the
           // original frame_header_obu. For now just skip frame_header_size

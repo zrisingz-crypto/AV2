@@ -326,7 +326,6 @@ typedef struct AV1Decoder {
 
   int tile_size_bytes;
   int tile_col_size_bytes;
-  int dec_tile_row, dec_tile_col;  // always -1 for non-VR tile encoding
 #if CONFIG_ACCOUNTING
   int acct_enabled;
   Accounting accounting;
@@ -348,9 +347,6 @@ typedef struct AV1Decoder {
   // The expected start_tile (tg_start syntax element) of the next tile group.
   int next_start_tile;
 
-  // State if the camera frame header is already decoded while
-  // large_scale_tile = 1.
-  int camera_frame_header_ready;
 #if CONFIG_F106_OBU_TILEGROUP
   uint32_t uncomp_hdr_size_in_bits;
 #else

@@ -52,7 +52,6 @@ struct aom_codec_alg_priv {
   int skip_loop_filter;
   int skip_film_grain;
   int bru_opt_mode;
-  unsigned int tile_mode;
   unsigned int row_mt;
   EXTERNAL_REFERENCES ext_refs;
   unsigned int is_annexb;
@@ -109,10 +108,6 @@ static aom_codec_err_t decoder_init(aom_codec_ctx_t *ctx) {
 
     priv->is_annexb = 1;
 
-    // Turn on normal tile coding mode by default.
-    // 0 is for normal tile coding mode, and 1 is for large scale tile coding
-    // mode(refer to lightfield example).
-    priv->tile_mode = 0;
     init_ibp_info(ctx->priv->ibp_directional_weights);
   }
 
@@ -719,10 +714,7 @@ static aom_codec_err_t init_decoder(aom_codec_alg_priv_t *ctx) {
   // thread or loopfilter thread.
   frame_worker_data->pbi->max_threads = ctx->cfg.threads;
   frame_worker_data->pbi->inv_tile_order = ctx->invert_tile_order;
-  frame_worker_data->pbi->common.tiles.large_scale = ctx->tile_mode;
   frame_worker_data->pbi->is_annexb = ctx->is_annexb;
-  frame_worker_data->pbi->dec_tile_row = -1;
-  frame_worker_data->pbi->dec_tile_col = -1;
   frame_worker_data->pbi->operating_point = ctx->operating_point;
   frame_worker_data->pbi->output_all_layers = ctx->output_all_layers;
   frame_worker_data->pbi->row_mt = ctx->row_mt;
@@ -786,9 +778,6 @@ static aom_codec_err_t decode_one(aom_codec_alg_priv_t *ctx,
   frame_worker_data->user_priv = user_priv;
   frame_worker_data->received_frame = 1;
 
-  frame_worker_data->pbi->common.tiles.large_scale = ctx->tile_mode;
-  frame_worker_data->pbi->dec_tile_row = -1;
-  frame_worker_data->pbi->dec_tile_col = -1;
   frame_worker_data->pbi->row_mt = ctx->row_mt;
   frame_worker_data->pbi->ext_refs = ctx->ext_refs;
 
@@ -1039,7 +1028,6 @@ static aom_image_t *decoder_get_frame_(aom_codec_alg_priv_t *ctx,
     FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
     AV1Decoder *const pbi = frame_worker_data->pbi;
     AV1_COMMON *const cm = &pbi->common;
-    CommonTileParams *const tiles = &cm->tiles;
     // Wait for the frame from worker thread.
     if (winterface->sync(worker)) {
       // Check if worker has received any frames.
@@ -1058,15 +1046,6 @@ static aom_image_t *decoder_get_frame_(aom_codec_alg_priv_t *ctx,
         yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
         move_decoder_metadata_to_img(pbi, &ctx->img);
         copy_frame_hash_metadata_to_img(pbi, &ctx->img, output_frame_buf);
-        if (tiles->large_scale) {
-          if (update_iter)
-            *index += 1;  // Advance the iterator to point to the next image
-          aom_img_remove_metadata(&ctx->img);
-          yuvconfig2image(&ctx->img, &pbi->tile_list_outbuf, NULL);
-          move_decoder_metadata_to_img(pbi, &ctx->img);
-          img = &ctx->img;
-          return img;
-        }
 
         ctx->img.fb_priv = output_frame_buf->raw_frame_buffer.priv;
         img = &ctx->img;

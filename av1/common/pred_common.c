@@ -332,12 +332,6 @@ void choose_primary_secondary_ref_frame(const AV1_COMMON *const cm,
     return;
   }
 
-  if (cm->tiles.large_scale) {
-    ref_frame[0] = 0;
-    ref_frame[1] = 0;
-    return;
-  }
-
   // initialize
   RefCandidate primary_cand = { -1, INT_MAX, -1, -1, -1 };
   RefCandidate secondary_cand = { -1, INT_MAX, -1, -1, -1 };

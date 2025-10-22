@@ -1638,7 +1638,7 @@ void av1_init_tile_data(AV1_COMP *cpi) {
         tplist = token_info->tplist[tile_row][tile_col];
         tplist_count = av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
       }
-      tile_data->allow_update_cdf = !cm->tiles.large_scale;
+      tile_data->allow_update_cdf = 1;
       tile_data->allow_update_cdf =
           tile_data->allow_update_cdf && !cm->features.disable_cdf_update;
       tile_data->tctx = *cm->fc;
@@ -2480,7 +2480,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
       current_frame->reference_mode = REFERENCE_MODE_SELECT;
 
     features->interp_filter = SWITCHABLE;
-    if (cm->tiles.large_scale) features->interp_filter = EIGHTTAP_REGULAR;
 
     rdc->compound_ref_used_flag = 0;
     rdc->skip_mode_used_flag = 0;
@@ -2524,11 +2523,9 @@ void av1_encode_frame(AV1_COMP *cpi) {
     if (skip_mode_info->skip_mode_flag && rdc->skip_mode_used_flag == 0)
       skip_mode_info->skip_mode_flag = 0;
 
-    if (!cm->tiles.large_scale) {
-      if (features->tx_mode == TX_MODE_SELECT &&
-          cpi->td.mb.txfm_search_info.txb_split_count == 0)
-        features->tx_mode = TX_MODE_LARGEST;
-    }
+    if (features->tx_mode == TX_MODE_SELECT &&
+        cpi->td.mb.txfm_search_info.txb_split_count == 0)
+      features->tx_mode = TX_MODE_LARGEST;
   } else {
     encode_frame_internal(cpi);
   }

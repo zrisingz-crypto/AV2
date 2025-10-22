@@ -796,6 +796,8 @@ static INLINE int is_any_mv_refinement_allowed_in_tip(
 static INLINE int is_unequal_weighted_tip_allowed(const AV1_COMMON *const cm) {
   if (!cm->has_both_sides_refs) return 1;
 
+  if (!cm->seq_params.enable_tip_refinemv) return 1;
+
 #if CONFIG_FIX_OPFL_AUTO
   if (cm->features.opfl_refine_type == REFINE_NONE &&
       !cm->seq_params.enable_refinemv)

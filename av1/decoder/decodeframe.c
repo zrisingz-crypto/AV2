@@ -7866,8 +7866,10 @@ static void read_frame_opfl_refine_type(AV1_COMMON *const cm,
                                         struct aom_read_bit_buffer *rb) {
   if (cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
     cm->features.opfl_refine_type =
-        cm->seq_params.enable_opfl_refine == AOM_OPFL_REFINE_NONE ? REFINE_NONE
-                                                                  : REFINE_ALL;
+        (cm->seq_params.enable_opfl_refine == AOM_OPFL_REFINE_NONE ||
+         !cm->seq_params.enable_tip_refinemv)
+            ? REFINE_NONE
+            : REFINE_ALL;
     return;
   }
 

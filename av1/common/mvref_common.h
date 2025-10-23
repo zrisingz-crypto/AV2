@@ -1312,43 +1312,12 @@ static AOM_INLINE void tip_get_mv_projection(MV *output, MV ref,
   output->col = (MV_COMP_DATA_TYPE)clamp(mv_col, clamp_min, clamp_max);
 }
 
-// Compute TMVP unit offset related to block mv
-static AOM_INLINE int derive_block_mv_tpl_offset(const AV1_COMMON *const cm,
-                                                 const int blk_tpl_row,
-                                                 const int blk_tpl_col) {
-  const int frame_mvs_tpl_cols =
-      ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
-  const int frame_mvs_tpl_rows =
-      ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
-
-  int tpl_row_offset = 0;
-  int tpl_col_offset = 0;
-  if (blk_tpl_row + tpl_row_offset >= frame_mvs_tpl_rows) {
-    tpl_row_offset = frame_mvs_tpl_rows - 1 - blk_tpl_row;
-  } else if (blk_tpl_row + tpl_row_offset < 0) {
-    tpl_row_offset = -blk_tpl_row;
-  }
-
-  if (blk_tpl_col + tpl_col_offset >= frame_mvs_tpl_cols) {
-    tpl_col_offset = frame_mvs_tpl_cols - 1 - blk_tpl_col;
-  } else if (blk_tpl_col + tpl_col_offset < 0) {
-    tpl_col_offset = -blk_tpl_col;
-  }
-
-  const int tpl_offset = tpl_row_offset * frame_mvs_tpl_cols + tpl_col_offset;
-
-  return tpl_offset;
-}
-
 static AOM_INLINE void get_tip_mv(const AV1_COMMON *cm, const MV *block_mv,
                                   int blk_col, int blk_row, int_mv tip_mv[2]) {
   const int mvs_stride =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
 
-  const int offset_to_within_frame =
-      derive_block_mv_tpl_offset(cm, blk_row, blk_col);
-  const int tpl_offset =
-      blk_row * mvs_stride + blk_col + offset_to_within_frame;
+  const int tpl_offset = blk_row * mvs_stride + blk_col;
   const TPL_MV_REF *tpl_mvs = cm->tpl_mvs + tpl_offset;
 
   if (tpl_mvs->mfmv0.as_int != 0 && tpl_mvs->mfmv0.as_int != INVALID_MV) {
@@ -1368,6 +1337,28 @@ static AOM_INLINE void get_tip_mv(const AV1_COMMON *cm, const MV *block_mv,
       tip_mv[1].as_mv.row + block_mv->row, MV_LOW + 1, MV_UPP - 1);
   tip_mv[1].as_mv.col = (MV_COMP_DATA_TYPE)clamp(
       tip_mv[1].as_mv.col + block_mv->col, MV_LOW + 1, MV_UPP - 1);
+}
+
+static AOM_INLINE void derive_non_tip_mode_smvp_from_tip(const AV1_COMMON *cm,
+                                                         const MB_MODE_INFO *mi,
+                                                         int mi_row, int mi_col,
+                                                         int is_tip_16_16,
+                                                         int_mv ref_mv[2]) {
+  const int tpl_row_start = (mi->mi_row_start >> TMVP_SHIFT_BITS);
+  const int tpl_col_start = (mi->mi_col_start >> TMVP_SHIFT_BITS);
+
+  const int tpl_row_offset =
+      (((mi_row - mi->mi_row_start) >> TMVP_SHIFT_BITS) >> is_tip_16_16)
+      << is_tip_16_16;
+  const int tpl_col_offset =
+      (((mi_col - mi->mi_col_start) >> TMVP_SHIFT_BITS) >> is_tip_16_16)
+      << is_tip_16_16;
+
+  const int tpl_row = tpl_row_start + tpl_row_offset;
+  const int tpl_col = tpl_col_start + tpl_col_offset;
+  int_mv mv = mi->mv[0];
+
+  get_tip_mv(cm, &mv.as_mv, tpl_col, tpl_row, ref_mv);
 }
 
 #ifdef __cplusplus

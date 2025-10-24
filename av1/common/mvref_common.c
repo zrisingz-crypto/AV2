@@ -936,8 +936,12 @@ static AOM_INLINE void add_ref_mv_candidate(
                  candidate->ref_frame[1] == tip_ref->ref_frame[1] &&
                  cm->features.tip_frame_mode) {
         int_mv cand_mvs[2];
-        cand_mvs[0] = candidate->mv[0];
-        cand_mvs[1] = candidate->mv[1];
+        for (int cand_ref = 0; cand_ref < 2; ++cand_ref) {
+          if (is_global_mv_block(candidate, gm_params[rf[cand_ref]].wmtype))
+            cand_mvs[cand_ref] = gm_mv_candidates[cand_ref];
+          else
+            cand_mvs[cand_ref] = get_block_mv(candidate, submi, cand_ref);
+        }
 
         int_mv cand_linear_mv;
         cand_linear_mv.as_mv.row =

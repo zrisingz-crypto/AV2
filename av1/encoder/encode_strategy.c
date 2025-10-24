@@ -65,13 +65,12 @@ void av1_get_ref_frames_enc(AV1_COMMON *cm, int cur_frame_disp,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   AV1_COMMON *const cm = &cpi->common;
-  assert(cm->seq_params.explicit_ref_frame_map ||
 #if CONFIG_F322_OBUER_ERM
-         frame_is_sframe(cm)
+  assert(cm->seq_params.explicit_ref_frame_map || frame_is_sframe(cm));
 #else
-         cm->features.error_resilient_mode || cpi->switch_frame_mode == 1
+  assert(cm->seq_params.explicit_ref_frame_map ||
+         cm->features.error_resilient_mode || cpi->switch_frame_mode == 1);
 #endif
-  );
 #else   // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   assert(cm->seq_params.explicit_ref_frame_map);
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME

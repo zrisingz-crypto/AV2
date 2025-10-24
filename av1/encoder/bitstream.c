@@ -5595,7 +5595,7 @@ void write_sequence_inter_group_tool_flags(
     aom_wb_write_bit(wb, seq_params->enable_tip_refinemv);
   }
 
-  aom_wb_write_bit(wb, (int)(seq_params->enable_bru > 0));
+  aom_wb_write_bit(wb, seq_params->enable_bru > 0);
   aom_wb_write_bit(wb, seq_params->enable_mvd_sign_derive);
 
   aom_wb_write_bit(wb, seq_params->enable_flex_mvres);
@@ -5953,7 +5953,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
     aom_wb_write_bit(wb, seq_params->enable_tip_refinemv);
   }
 
-  aom_wb_write_bit(wb, (int)(seq_params->enable_bru > 0));
+  aom_wb_write_bit(wb, seq_params->enable_bru > 0);
   aom_wb_write_bit(wb, seq_params->enable_mvd_sign_derive);
 
   aom_wb_write_bit(wb, seq_params->enable_flex_mvres);

@@ -191,7 +191,7 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
     const int res_ratio_log2 = -get_msb(cur_ref.width * cur_ref.height);
     // The current frame can only refer to a reference with the same layer id or
     // a reference with lower layer ids. The continue statement above makes sure
-    // that 'ref_layer_id <= cur_mlayer_id' is always true
+    // that 'ref_mlayer_id <= cur_mlayer_id' is always true
     const int layer_diff = cur_mlayer_id - ref_mlayer_id;
     assert(layer_diff >= 0);
     int tdist = abs(disp_diff) + layer_diff;

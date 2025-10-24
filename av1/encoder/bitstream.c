@@ -5648,7 +5648,7 @@ static AOM_INLINE void write_sequence_header(
 #else
   aom_wb_write_bit(wb, seq_params->enable_intra_dip);
   aom_wb_write_bit(wb, seq_params->enable_intra_edge_filter);
-#endif  // !CONFIG_REORDER_SEQ_FLAGS
+#endif  // CONFIG_REORDER_SEQ_FLAGS
   if (!seq_params->single_picture_hdr_flag) {
 #if !CONFIG_REORDER_SEQ_FLAGS
     // Encode allowed motion modes
@@ -5938,8 +5938,8 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   aom_wb_write_literal(wb, seq_params->number_of_bits_for_lt_frame_id, 3);
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   aom_wb_write_bit(wb, seq_params->enable_ext_seg);
-
 #endif  // !CONFIG_REORDER_SEQ_FLAGS //transformgroup
+
 #if CONFIG_QM_DEBUG
   printf("[ENC-SEQ] user_defined_qmatrix=%d\n",
          seq_params->user_defined_qmatrix);

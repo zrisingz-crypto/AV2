@@ -180,7 +180,7 @@ typedef enum aom_metadata_insert_flags {
 /*!\brief Array of aom_metadata structs for an image. */
 typedef struct aom_metadata_array aom_metadata_array_t;
 
-#if CONFIG_SHORT_METADATA
+#if CONFIG_SHORT_METADATA || CONFIG_METADATA
 /*!\brief Metadata necessity indicator
  *
  * Indicates the importance level of the metadata for proper decoding
@@ -233,7 +233,7 @@ typedef enum aom_metadata_layer {
   AOM_LAYER_VALUES = 3,
   // 4-15 are reserved for AOM use
 } aom_metadata_layer_t;
-#endif  // CONFIG_SHORT_METADATA
+#endif  // CONFIG_SHORT_METADATA || CONFIG_METADATA
 
 /*!\brief Metadata payload. */
 typedef struct aom_metadata {
@@ -241,7 +241,7 @@ typedef struct aom_metadata {
   uint8_t *payload;                        /**< Metadata payload data */
   size_t sz;                               /**< Metadata payload size */
   aom_metadata_insert_flags_t insert_flag; /**< Metadata insertion flag */
-#if CONFIG_SHORT_METADATA
+#if CONFIG_SHORT_METADATA || CONFIG_METADATA
   uint8_t is_suffix;                            /**< Metadata suffix flag */
   aom_metadata_necessity_t necessity_idc;       /**< Metadata necessity */
   aom_metadata_application_id_t application_id; /**< Metadata application id */
@@ -249,9 +249,9 @@ typedef struct aom_metadata {
   uint8_t priority;                             /**< Metadata priority */
   aom_metadata_persistence_t persistence_idc;   /**< Metadata persistence */
   aom_metadata_layer_t layer_idc;               /**< Metadata layers mode */
-  uint32_t xlayer_map;                          /**< Extended layer map */
-  uint8_t mlayer_map[31];                       /**< Multi-layer map */
-#endif                                          // CONFIG_SHORT_METADATA
+  uint32_t xlayer_map;                          /**< Metadata x_layer mapping */
+  uint8_t mlayer_map[31];                       /**< Metadata m_layer mapping */
+#endif  // CONFIG_SHORT_METADATA || CONFIG_METADATA
 
 } aom_metadata_t;
 

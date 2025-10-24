@@ -6700,9 +6700,7 @@ void init_single_picture_header_flags(struct SequenceHeader *seq_params) {
   seq_params->order_hint_info.enable_ref_frame_mvs = 0;
   seq_params->force_screen_content_tools = 2;  // SELECT_SCREEN_CONTENT_TOOLS
   seq_params->force_integer_mv = 2;            // SELECT_INTEGER_MV
-  seq_params->enable_tcq = 1;
   seq_params->order_hint_info.order_hint_bits_minus_1 = -1;
-  seq_params->enable_opfl_refine = AOM_OPFL_REFINE_NONE;
   seq_params->enable_six_param_warp_delta = 0;
   seq_params->enable_global_motion = 0;
 #if CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
@@ -6953,9 +6951,7 @@ void av1_read_sequence_header(struct aom_read_bit_buffer *rb,
     seq_params->order_hint_info.enable_ref_frame_mvs = 0;
     seq_params->force_screen_content_tools = 2;  // SELECT_SCREEN_CONTENT_TOOLS
     seq_params->force_integer_mv = 2;            // SELECT_INTEGER_MV
-    seq_params->enable_tcq = 1;
     seq_params->order_hint_info.order_hint_bits_minus_1 = -1;
-    seq_params->enable_opfl_refine = AOM_OPFL_REFINE_NONE;
     seq_params->enable_six_param_warp_delta = 0;
 #if CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
     seq_params->seq_frame_motion_modes_present_flag = 0;

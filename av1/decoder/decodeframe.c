@@ -6694,19 +6694,6 @@ static void read_multi_frame_header_tile_info(MultiFrameHeader *mfh_param,
 }
 #endif  // CONFIG_MFH_SIGNAL_TILE_INFO && CONFIG_MULTI_FRAME_HEADER
 #if CONFIG_REORDER_SEQ_FLAGS
-void init_single_picture_header_flags(struct SequenceHeader *seq_params) {
-  seq_params->seq_enabled_motion_modes = (1 << SIMPLE_TRANSLATION);
-  seq_params->enable_masked_compound = 0;
-  seq_params->order_hint_info.enable_ref_frame_mvs = 0;
-  seq_params->force_screen_content_tools = 2;  // SELECT_SCREEN_CONTENT_TOOLS
-  seq_params->force_integer_mv = 2;            // SELECT_INTEGER_MV
-  seq_params->order_hint_info.order_hint_bits_minus_1 = -1;
-  seq_params->enable_six_param_warp_delta = 0;
-  seq_params->enable_global_motion = 0;
-#if CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
-  seq_params->seq_frame_motion_modes_present_flag = 0;
-#endif  // CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
-}
 void read_sequence_intra_group_tool_flags(struct SequenceHeader *seq_params,
                                           struct aom_read_bit_buffer *rb) {
   seq_params->enable_intra_dip = aom_rb_read_bit(rb);
@@ -6721,7 +6708,16 @@ void read_sequence_intra_group_tool_flags(struct SequenceHeader *seq_params,
 }
 void read_sequence_inter_group_tool_flags(struct SequenceHeader *seq_params,
                                           struct aom_read_bit_buffer *rb) {
-  if (!seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_hdr_flag) {
+#if CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
+    seq_params->seq_frame_motion_modes_present_flag = 0;
+#endif  // CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
+    seq_params->enable_six_param_warp_delta = 0;
+    seq_params->seq_enabled_motion_modes = (1 << SIMPLE_TRANSLATION);
+    seq_params->enable_masked_compound = 0;
+    seq_params->order_hint_info.enable_ref_frame_mvs = 0;
+    seq_params->order_hint_info.order_hint_bits_minus_1 = -1;
+  } else {
     int seq_enabled_motion_modes = (1 << SIMPLE_TRANSLATION);
 #if CONFIG_MOTION_MODE_FRAME_HEADERS_OPT
     uint8_t motion_mode_enabled = 0;
@@ -6832,29 +6828,36 @@ void read_sequence_inter_group_tool_flags(struct SequenceHeader *seq_params,
 
   seq_params->enable_mvd_sign_derive = aom_rb_read_bit(rb);
   seq_params->enable_flex_mvres = aom_rb_read_bit(rb);
-  if (!seq_params->single_picture_hdr_flag)
+  if (seq_params->single_picture_hdr_flag) {
+    seq_params->enable_global_motion = 0;
+  } else {
     seq_params->enable_global_motion = aom_rb_read_bit(rb);
+  }
 
   seq_params->enable_short_refresh_frame_flags = aom_rb_read_bit(rb);
 }
 
 void read_sequence_filter_group_tool_flags(struct SequenceHeader *seq_params,
                                            struct aom_read_bit_buffer *rb) {
-  if (!seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_hdr_flag) {
+    seq_params->force_screen_content_tools = 2;  // SELECT_SCREEN_CONTENT_TOOLS
+    seq_params->force_integer_mv = 2;            // SELECT_INTEGER_MV
+  } else {
     if (aom_rb_read_bit(rb)) {
-      seq_params->force_screen_content_tools = 2;
+      seq_params->force_screen_content_tools =
+          2;  // SELECT_SCREEN_CONTENT_TOOLS
     } else {
       seq_params->force_screen_content_tools = aom_rb_read_bit(rb);
     }
 
     if (seq_params->force_screen_content_tools > 0) {
       if (aom_rb_read_bit(rb)) {
-        seq_params->force_integer_mv = 2;
+        seq_params->force_integer_mv = 2;  // SELECT_INTEGER_MV
       } else {
         seq_params->force_integer_mv = aom_rb_read_bit(rb);
       }
     } else {
-      seq_params->force_integer_mv = 2;
+      seq_params->force_integer_mv = 2;  // SELECT_INTEGER_MV
     }
   }
 #if CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
@@ -6933,9 +6936,6 @@ void av1_read_sequence_header(struct aom_read_bit_buffer *rb,
 #endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 #if CONFIG_REORDER_SEQ_FLAGS
-  if (seq_params->single_picture_hdr_flag) {
-    init_single_picture_header_flags(seq_params);
-  }
   read_sequence_intra_group_tool_flags(seq_params, rb);
   read_sequence_inter_group_tool_flags(seq_params, rb);
   read_sequence_filter_group_tool_flags(seq_params, rb);

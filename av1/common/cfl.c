@@ -878,10 +878,12 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size,
 }
 
 #define NON_LINEAR(V, M, BD) ((V * V + M) >> BD)
-void mhccp_derive_multi_param_hv(MACROBLOCKD *const xd, int plane,
-                                 int above_lines, int left_lines, int ref_width,
-                                 int ref_height, int dir,
-                                 int is_top_sb_boundary) {
+// Derives multi-parameter chroma prediction coefficients from neighboring luma
+// and chroma reference samples.
+void av1_mhccp_derive_multi_param_hv_c(MACROBLOCKD *const xd, int plane,
+                                       int above_lines, int left_lines,
+                                       int ref_width, int ref_height, int dir,
+                                       int is_top_sb_boundary) {
   CFL_CTX *const cfl = &xd->cfl;
   MB_MODE_INFO *mbmi = xd->mi[0];
 

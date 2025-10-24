@@ -1998,9 +1998,9 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
         mhccp_implicit_fetch_neighbor_chroma(
             xd, plane, blk_row, blk_col, tx_size, above_lines, left_lines,
             is_top_sb_boundary, ref_width, ref_height);
-        mhccp_derive_multi_param_hv(xd, plane, above_lines, left_lines,
-                                    ref_width, ref_height, mbmi->mh_dir,
-                                    is_top_sb_boundary);
+        av1_mhccp_derive_multi_param_hv(xd, plane, above_lines, left_lines,
+                                        ref_width, ref_height, mbmi->mh_dir,
+                                        is_top_sb_boundary);
       }
     }
     cfl_predict_block(cm->seq_params.enable_cfl_intra,

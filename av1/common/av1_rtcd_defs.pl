@@ -448,6 +448,8 @@ if (aom_config("CONFIG_MHCCP_SOLVER_BITS") eq "yes") {
 if ((aom_config("MHCCP_CONVOLVE_SIMPLIFY") eq "yes") && 0) {
   specialize qw/mhccp_predict_hv_hbd sse4_1/;
 }
+add_proto qw/void av1_mhccp_derive_multi_param_hv/, "MACROBLOCKD *const xd, int plane,int above_lines, int left_lines, int ref_width,int ref_height, int dir, int is_top_sb_boundary";
+specialize qw/av1_mhccp_derive_multi_param_hv avx2/;
 
 add_proto qw/cfl_subtract_average_fn cfl_get_subtract_average_fn/, "TX_SIZE tx_size";
 specialize qw/cfl_get_subtract_average_fn sse2 avx2 neon vsx/;

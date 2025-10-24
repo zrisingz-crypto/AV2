@@ -670,6 +670,145 @@ INSTANTIATE_TEST_SUITE_P(
 #endif  // HAVE_AVX2
 #endif  // CONFIG_MHCCP_SOLVER_BITS
 
+typedef void (*av1_mhccp_derive_multi_param_hv_fn)(
+    MACROBLOCKD *const xd, int plane, int above_lines, int left_lines,
+    int ref_width, int ref_height, int dir, int is_top_sb_boundary);
+
+typedef std::tuple<int, int, int, int, int, int, int,
+                   av1_mhccp_derive_multi_param_hv_fn>
+    mhccp_derive_param;
+
+class MhccpDeriveMultiParamHVTest
+    : public ::testing::TestWithParam<mhccp_derive_param> {
+ public:
+  void SetUp() override {
+    plane_ = std::get<0>(GetParam());
+    above_lines_ = std::get<1>(GetParam());
+    left_lines_ = std::get<2>(GetParam());
+    ref_width_ = std::get<3>(GetParam());
+    ref_height_ = std::get<4>(GetParam());
+    dir_ = std::get<5>(GetParam());
+    bd_ = std::get<6>(GetParam());
+
+    tgt_fn_ = std::get<7>(GetParam());
+    ref_fn_ = av1_mhccp_derive_multi_param_hv_c;
+
+    memset(&xd_ref_, 0, sizeof(xd_ref_));
+    memset(&xd_tgt_, 0, sizeof(xd_tgt_));
+    initXDs();
+
+    rnd_.Reset(0x1234abcd);
+  }
+
+ protected:
+  av1_mhccp_derive_multi_param_hv_fn tgt_fn_;
+  av1_mhccp_derive_multi_param_hv_fn ref_fn_;
+  MACROBLOCKD xd_ref_;
+  MACROBLOCKD xd_tgt_;
+  int plane_, above_lines_, left_lines_, ref_width_, ref_height_, dir_, bd_;
+  ACMRandom rnd_;
+
+  void initXDs() {
+    xd_ref_.bd = bd_;
+    xd_tgt_.bd = bd_;
+
+    for (int p = 0; p < MAX_MB_PLANE; ++p) {
+      const int in_precision = (p == 0) ? (bd_ + 3) : bd_;
+      const uint16_t mask = (1 << in_precision) - 1;
+
+      for (int i = 0; i < CFL_BUF_SQUARE * 4; ++i) {
+        uint16_t val = this->rnd_.Rand16() & mask;
+        xd_ref_.cfl.mhccp_ref_buf_q3[p][i] = val;
+        xd_tgt_.cfl.mhccp_ref_buf_q3[p][i] = val;
+      }
+    }
+
+    // Allocate the pointer arrays first
+    xd_ref_.mi = (MB_MODE_INFO **)calloc(1, sizeof(*xd_ref_.mi));
+    xd_tgt_.mi = (MB_MODE_INFO **)calloc(1, sizeof(*xd_ref_.mi));
+
+    if (xd_ref_.mi)
+      xd_ref_.mi[0] = (MB_MODE_INFO *)calloc(1, sizeof(**xd_ref_.mi));
+    if (xd_tgt_.mi)
+      xd_tgt_.mi[0] = (MB_MODE_INFO *)calloc(1, sizeof(**xd_ref_.mi));
+  }
+
+  void TearDown() override {
+    free(xd_ref_.mi[0]);
+    free(xd_ref_.mi);
+    free(xd_tgt_.mi[0]);
+    free(xd_tgt_.mi);
+  }
+
+  void assertEqParams() {
+    for (int p = 0; p < MHCCP_NUM_PARAMS; ++p) {
+      const int64_t ref_val =
+          xd_ref_.mi[0]->mhccp_implicit_param[plane_ - 1][p];
+      const int64_t tgt_val =
+          xd_tgt_.mi[0]->mhccp_implicit_param[plane_ - 1][p];
+      ASSERT_EQ(ref_val, tgt_val)
+          << "Mismatch at param[" << p << "] plane=" << plane_
+          << " ref=" << ref_val << " tgt=" << tgt_val;
+    }
+  }
+};
+
+TEST_P(MhccpDeriveMultiParamHVTest, CompareCAndAVX2) {
+  const int is_top_sb_boundary = rnd_(2);
+
+  ref_fn_(&xd_ref_, plane_, above_lines_, left_lines_, ref_width_, ref_height_,
+          dir_, is_top_sb_boundary);
+
+  tgt_fn_(&xd_tgt_, plane_, above_lines_, left_lines_, ref_width_, ref_height_,
+          dir_, is_top_sb_boundary);
+
+  assertEqParams();
+}
+
+TEST_P(MhccpDeriveMultiParamHVTest, DISABLED_SpeedTest) {
+  const int is_top_sb_boundary = 0;
+  aom_usec_timer ref_timer, tgt_timer;
+
+  aom_usec_timer_start(&ref_timer);
+  for (int i = 0; i < NUM_ITERATIONS_SPEED; ++i) {
+    ref_fn_(&xd_ref_, plane_, above_lines_, left_lines_, ref_width_,
+            ref_height_, dir_, is_top_sb_boundary);
+  }
+  aom_usec_timer_mark(&ref_timer);
+  const int ref_time = (int)aom_usec_timer_elapsed(&ref_timer);
+
+  aom_usec_timer_start(&tgt_timer);
+  for (int i = 0; i < NUM_ITERATIONS_SPEED; ++i) {
+    tgt_fn_(&xd_tgt_, plane_, above_lines_, left_lines_, ref_width_,
+            ref_height_, dir_, is_top_sb_boundary);
+  }
+  aom_usec_timer_mark(&tgt_timer);
+  const int tgt_time = (int)aom_usec_timer_elapsed(&tgt_timer);
+
+  printSpeed(ref_time, tgt_time, ref_width_, ref_height_);
+  // This assertion ensures that intrinsic function time is less than C function
+  // time. Since the intrinsic function calls C code for smaller blocks or
+  // blocks with no above/left lines this check is done conditionally.
+  if ((above_lines_ != 0 || left_lines_ != 0) &&
+      (ref_width_ != 8 && ref_height_ != 8)) {
+    assertFaster(ref_time, tgt_time);
+  }
+}
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, MhccpDeriveMultiParamHVTest,
+    ::testing::Combine(
+        ::testing::Values(1, 2),             // plane
+        ::testing::Values(0, LINE_NUM + 1),  // above_lines
+        ::testing::Values(0, LINE_NUM + 1),  // left_lines
+        ::testing::Values(8, 16, 32, 64),    // ref_width
+        ::testing::Values(8, 16, 32, 64),    // ref_height
+        ::testing::Values(0, 1, 2),          // dir
+        ::testing::Values(8, 10, 12),        // bd
+        ::testing::Values(av1_mhccp_derive_multi_param_hv_avx2)));
+#endif  // HAVE_AVX2
+
 #if HAVE_SSE2
 const sub_avg_param sub_avg_sizes_sse2[] = { ALL_CFL_TX_SIZES(
     cfl_get_subtract_average_fn_sse2) };

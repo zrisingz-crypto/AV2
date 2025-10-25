@@ -647,9 +647,8 @@ typedef struct {
   int br_ops_id[MAX_NUM_XLAYERS];
   int br_ops_cnt[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID];
   int br_decoder_model_present_op_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                                      [MAX_NUM_OPS_COUNT];
-  int br_buffer_removal_time[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                            [MAX_NUM_OPS_COUNT];
+                                      [MAX_OPS_COUNT];
+  int br_buffer_removal_time[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
 } BufferRemovalTimingInfo;
 #endif  // CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
 
@@ -814,44 +813,39 @@ typedef struct AtlasSegmentInfo {
 } AtlasSegmentInfo;
 
 typedef struct OpsColorInfo {
-  int ops_color_description_idc[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                               [MAX_NUM_OPS_COUNT];
-  int ops_color_primaries[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
+  int ops_color_description_idc[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_color_primaries[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
   int ops_transfer_characteristics[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                                  [MAX_NUM_OPS_COUNT];
-  int ops_matrix_coefficients[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                             [MAX_NUM_OPS_COUNT];
-  int ops_full_range_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
+                                  [MAX_OPS_COUNT];
+  int ops_matrix_coefficients[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_full_range_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
 } OpsColorInfo;
 
 typedef struct OpsDecoderModelInfo {
-  int ops_decoder_buffer_delay[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                              [MAX_NUM_OPS_COUNT];
-  int ops_encoder_buffer_delay[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                              [MAX_NUM_OPS_COUNT];
-  int ops_low_delay_mode_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                             [MAX_NUM_OPS_COUNT];
+  int ops_decoder_buffer_delay[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_encoder_buffer_delay[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_low_delay_mode_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
 } OpsDecoderModelInfo;
 
 typedef struct OpsDecModelInfo {
   uint32_t ops_num_units_in_decoder_tick[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                                        [MAX_NUM_OPS_COUNT];
+                                        [MAX_OPS_COUNT];
 } OpsDecModelInfo;
 
 typedef struct OPSMLayerInfo {
   // mlayer
-  int ops_mlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int ops_mlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                     [MAX_NUM_XLAYERS];
-  int OpsMlayerID[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int OpsMlayerID[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                  [MAX_NUM_XLAYERS][MAX_NUM_MLAYERS];
-  int OPMLayerCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int OPMLayerCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                    [MAX_NUM_XLAYERS];
   // tlayer
-  int ops_tlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int ops_tlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                     [MAX_NUM_XLAYERS][MAX_NUM_MLAYERS];
-  int OpsTlayerID[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int OpsTlayerID[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                  [MAX_NUM_XLAYERS][MAX_NUM_TLAYERS];
-  int OPTLayerCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int OPTLayerCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                    [MAX_NUM_XLAYERS][MAX_NUM_MLAYERS];
 } OPSMLayerInfo;
 
@@ -867,23 +861,21 @@ typedef struct OperatingPointSet {
   int ops_decoder_model_info_present_flag[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID];
 
   int ops_mlayer_info_idc[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID];
-  uint32_t ops_data_size[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
-  int ops_intent_op[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
+  uint32_t ops_data_size[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_intent_op[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
   int ops_operational_profile_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                                [MAX_NUM_OPS_COUNT];
-  int ops_operational_level_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                              [MAX_NUM_OPS_COUNT];
-  int ops_operational_tier_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID]
-                             [MAX_NUM_OPS_COUNT];
+                                [MAX_OPS_COUNT];
+  int ops_operational_level_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_operational_tier_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
 
-  int ops_xlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
-  int ops_embedded_mapping[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int ops_xlayer_map[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  int ops_embedded_mapping[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                           [MAX_NUM_XLAYERS];
-  int ops_embedded_op_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int ops_embedded_op_id[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                         [MAX_NUM_XLAYERS];
-  int OpsxLayerId[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT]
+  int OpsxLayerId[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                  [MAX_NUM_XLAYERS];
-  int XCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_NUM_OPS_COUNT];
+  int XCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
   // mlayer, color, delay and model information
   struct OPSMLayerInfo *ops_mlayer_info;
   struct OpsColorInfo *ops_col_info;

@@ -203,7 +203,8 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
   int xAId = atlas_params->atlas_segment_id[obu_xLayer_id];
   aom_wb_write_uvlc(&wb,
                     atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId]);
-  if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] == ENH_ATLAS) {
+  if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
+      ENHANCED_ATLAS) {
     write_ats_region_info(&atlas_params->ats_reg_params, obu_xLayer_id, xAId,
                           &wb);
     write_ats_region_to_segment_mapping(

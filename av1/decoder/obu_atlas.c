@@ -250,7 +250,8 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
                        "Unsupported atlas_segment_mode_idc, whose value should "
                        "be smaller than ATLAS_TYPES");
   }
-  if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] == ENH_ATLAS) {
+  if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
+      ENHANCED_ATLAS) {
     read_ats_region_info(&atlas_params->ats_reg_params, obu_xLayer_id, xAId,
                          rb);
     read_ats_region_to_segment_mapping(

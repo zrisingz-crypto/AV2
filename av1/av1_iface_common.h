@@ -105,15 +105,16 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
     img->w_conf_win_top_offset = yv12->w_win_top_offset;
     img->w_conf_win_bottom_offset = yv12->w_win_bottom_offset;
 
-    // Determine subsampling factors
-    const int ss_x = img->monochrome ? img->x_chroma_shift : 0;
-    const int ss_y = img->monochrome ? img->y_chroma_shift : 0;
-
     // Convert
-    const int plane_left_offset = img->w_conf_win_left_offset >> ss_x;
-    const int plane_right_offset = img->w_conf_win_right_offset >> ss_x;
-    const int plane_top_offset = img->w_conf_win_top_offset >> ss_y;
-    const int plane_bottom_offset = img->w_conf_win_bottom_offset >> ss_y;
+    const int plane_left_offset =
+        (img->w_conf_win_left_offset * yv12->y_crop_width) / yv12->max_width;
+    const int plane_right_offset =
+        (img->w_conf_win_right_offset * yv12->y_crop_width) / yv12->max_width;
+    const int plane_top_offset =
+        (img->w_conf_win_top_offset * yv12->y_crop_height) / yv12->max_height;
+    const int plane_bottom_offset =
+        (img->w_conf_win_bottom_offset * yv12->y_crop_height) /
+        yv12->max_height;
 
     // Calculate cropping positions
     int left_pos_x = plane_left_offset;
@@ -128,6 +129,30 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
     img->h = img->d_h;
     img->d_w = img->crop_width;
     img->d_h = img->crop_height;
+
+    const int scaled_left_offset =
+        (yv12->w_win_left_offset * yv12->y_crop_width) / yv12->max_width;
+    const int scaled_top_offset =
+        (yv12->w_win_top_offset * yv12->y_crop_height) / yv12->max_height;
+
+    // Adjust plane pointers to point to the cropped region
+    const int bytes_per_sample = (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1;
+
+    // Adjust Y plane pointer
+    img->planes[AOM_PLANE_Y] += (scaled_top_offset * img->stride[AOM_PLANE_Y]) +
+                                (scaled_left_offset * bytes_per_sample);
+
+    const int chroma_left_offset = scaled_left_offset >> img->x_chroma_shift;
+    const int chroma_top_offset = scaled_top_offset >> img->y_chroma_shift;
+
+    if (!img->monochrome) {
+      img->planes[AOM_PLANE_U] +=
+          (chroma_top_offset * img->stride[AOM_PLANE_U]) +
+          (chroma_left_offset * bytes_per_sample);
+      img->planes[AOM_PLANE_V] +=
+          (chroma_top_offset * img->stride[AOM_PLANE_V]) +
+          (chroma_left_offset * bytes_per_sample);
+    }
   } else {
     img->w_conf_win_bottom_offset = 0;
     img->w_conf_win_left_offset = 0;

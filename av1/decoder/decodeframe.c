@@ -9856,7 +9856,6 @@ int32_t av1_read_tilegroup_header(
   assert(rb->bit_offset == 0);
 
   AV1_COMMON *const cm = &pbi->common;
-  const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &pbi->dcb.xd;
 
   int is_first_tile_group = 1;
@@ -9885,7 +9884,7 @@ int32_t av1_read_tilegroup_header(
       cm->cur_frame->global_motion[i] = default_warp_params;
     }
 
-    for (int p = 0; p < num_planes; ++p) {
+    for (int p = 0; p < MAX_MB_PLANE; ++p) {
       cm->cur_frame->rst_info[p].frame_filters_on = 0;
     }
 
@@ -10038,7 +10037,7 @@ int32_t av1_read_tilegroup_header(
     }
 
     av1_setup_block_planes(xd, cm->seq_params.subsampling_x,
-                           cm->seq_params.subsampling_y, num_planes);
+                           cm->seq_params.subsampling_y, av1_num_planes(cm));
     if (cm->features.primary_ref_frame == PRIMARY_REF_NONE) {
       // use the default frame context values
       *cm->fc = *cm->default_frame_context;

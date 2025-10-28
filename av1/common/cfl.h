@@ -18,6 +18,18 @@
 
 #define CFL_ADD_BITS_ALPHA 5
 
+/* Returns floor(log2(x)) for 32-bit unsigned x — i.e., the index (0..31) of the
+ * highest set bit.*/
+static INLINE int ilog2_32(uint32_t x) {
+#if defined(_MSC_VER)
+  unsigned long idx;
+  if (_BitScanReverse(&idx, x | 1u)) return (int)idx;  // x|1 to avoid UB on 0
+  return 0;
+#else
+  return 31 - __builtin_clz(x | 1u);  // x|1 to avoid UB on 0
+#endif  // defined(_MSC_VER)
+}
+
 // Linear modeal Y = alpha * X + beta has been used in a few coding tools.
 // This function derives parameter alpha. The equation is:
 // alpha = (sum_xy - sum_x * sum_y / n) / (sum_xx - sum_x * sum_x / n)

@@ -447,6 +447,7 @@ specialize qw/av1_upsample_intra_edge_high sse4_1/;
 # CFL
 if (aom_config("CONFIG_MHCCP_SOLVER_BITS") eq "yes") {
   add_proto qw/void mhccp_predict_hv_hbd/, "const uint16_t *input, uint16_t *dst, bool have_top, bool have_left, int dst_stride, int *alpha_q3, int bit_depth, int width, int height, int dir";
+  specialize qw/mhccp_predict_hv_hbd avx2/;
 } else {
   add_proto qw/void mhccp_predict_hv_hbd/, "const uint16_t *input, uint16_t *dst, bool have_top, bool have_left, int dst_stride, int64_t *alpha_q3, int bit_depth, int width, int height, int dir";
 }

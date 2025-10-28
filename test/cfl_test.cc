@@ -565,16 +565,14 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(cfl_subsample_colocated_hbd_avx2_params));
 #endif
 
-// Temporarily disable the sse4 function since it might overflow.
-// Re-enable the test when the parameter range is restricted to 32 bits,
-// or an updated sse4 function could handle intermediate 64 bits.
-#if HAVE_SSE4_1 && 0
+#if CONFIG_MHCCP_SOLVER_BITS
 typedef void (*mhccp_predict_hv_hbd_fn)(const uint16_t *input, uint16_t *dst,
                                         bool have_top, bool have_left,
-                                        int dst_stride, int64_t *alpha_q3,
+                                        int dst_stride, int32_t *alpha_q3,
                                         int bit_depth, int width, int height,
                                         int dir);
-typedef std::tuple<bool, bool, int, int, int, int> mhccp_param;
+typedef std::tuple<bool, bool, int, int, int, int, mhccp_predict_hv_hbd_fn>
+    mhccp_param;
 class MhccpPredictHVHBDTest : public ::testing::TestWithParam<mhccp_param> {
  public:
   virtual void SetUp() {
@@ -584,7 +582,7 @@ class MhccpPredictHVHBDTest : public ::testing::TestWithParam<mhccp_param> {
     width_ = std::get<3>(this->GetParam());
     height_ = std::get<4>(this->GetParam());
     dir_ = std::get<5>(this->GetParam());
-    tgt_fn_ = mhccp_predict_hv_hbd_sse4_1;
+    tgt_fn_ = std::get<6>(this->GetParam());
     ref_fn_ = mhccp_predict_hv_hbd_c;
     memset(tgt_buffer_, 0, sizeof(uint16_t) * CFL_BUF_SQUARE);
     memset(ref_buffer_, 0, sizeof(uint16_t) * CFL_BUF_SQUARE);
@@ -596,24 +594,28 @@ class MhccpPredictHVHBDTest : public ::testing::TestWithParam<mhccp_param> {
   mhccp_predict_hv_hbd_fn ref_fn_;
   bool have_top_;
   bool have_left_;
-  int64_t alpha_q3_[MHCCP_NUM_PARAMS];
+  int32_t alpha_q3_[MHCCP_NUM_PARAMS];
   int bit_depth_;
   int width_;
   int height_;
   int dir_;
-  uint16_t input_buffer_[(LINE_NUM + 1 + CFL_BUF_LINE * 2) *
-                         (LINE_NUM + 1 + CFL_BUF_LINE * 2)];
+  uint16_t input_buffer_[(CFL_BUF_LINE * 2 + LINE_NUM) *
+                         (CFL_BUF_LINE * 2 + LINE_NUM)];
   uint16_t tgt_buffer_[CFL_BUF_SQUARE];
   uint16_t ref_buffer_[CFL_BUF_SQUARE];
   ACMRandom rnd_;
 
   void randData() {
+    const int input_stride = 2 * CFL_BUF_LINE;
+    const int in_precision = bit_depth_ + 3;
     for (int i = 0; i < MHCCP_NUM_PARAMS; ++i) {
-      alpha_q3_[i] = this->rnd_(33);
+      int value = this->rnd_.Rand8();
+      alpha_q3_[i] = this->rnd_(2) ? -value : value;
     }
-    for (int j = 0; j < height_; j++) {
-      for (int i = 0; i < width_; i++) {
-        input_buffer_[j * CFL_BUF_LINE + i] = this->rnd_.Rand16();
+    for (int j = 0; j < (height_ + LINE_NUM); j++) {
+      for (int i = 0; i < (width_ + LINE_NUM); i++) {
+        input_buffer_[j * input_stride + i] =
+            this->rnd_.Rand16() & ((1 << in_precision) - 1);
       }
     }
   }
@@ -621,7 +623,7 @@ class MhccpPredictHVHBDTest : public ::testing::TestWithParam<mhccp_param> {
 
 TEST_P(MhccpPredictHVHBDTest, PredictTest) {
   const int input_stride = 2 * CFL_BUF_LINE;
-  const int offset = (LINE_NUM + 1) + (LINE_NUM + 1) * input_stride;
+  const int offset = LINE_NUM * input_stride + LINE_NUM;
   for (int it = 0; it < NUM_ITERATIONS; it++) {
     randData();
     tgt_fn_(input_buffer_ + offset, tgt_buffer_, have_top_, have_left_,
@@ -638,7 +640,7 @@ TEST_P(MhccpPredictHVHBDTest, DISABLED_PredictSpeedTest) {
   randData();
   aom_usec_timer_start(&ref_timer);
   const int input_stride = 2 * CFL_BUF_LINE;
-  const int offset = (LINE_NUM + 1) + (LINE_NUM + 1) * input_stride;
+  const int offset = LINE_NUM * input_stride + LINE_NUM;
   for (int k = 0; k < NUM_ITERATIONS_SPEED; k++) {
     ref_fn_(input_buffer_ + offset, tgt_buffer_, have_top_, have_left_,
             CFL_BUF_LINE, alpha_q3_, bit_depth_, width_, height_, dir_);
@@ -656,14 +658,17 @@ TEST_P(MhccpPredictHVHBDTest, DISABLED_PredictSpeedTest) {
   assertFaster(ref_elapsed_time, elapsed_time);
 }
 
-INSTANTIATE_TEST_SUITE_P(SSE4_1, MhccpPredictHVHBDTest,
-                         ::testing::Combine(::testing::Bool(),
-                                            ::testing::Bool(),
-                                            ::testing::Values(10, 12),
-                                            ::testing::Values(4, 8, 16, 32, 64),
-                                            ::testing::Values(4, 8, 16, 32, 64),
-                                            ::testing::Values(0, 1)));
-#endif  // HAVE_SSE4_1
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, MhccpPredictHVHBDTest,
+    ::testing::Combine(::testing::Bool(), ::testing::Bool(),
+                       ::testing::Values(8, 10, 12),
+                       ::testing::Values(4, 8, 16, 32, 64),
+                       ::testing::Values(4, 8, 16, 32, 64),
+                       ::testing::Values(0, 1, 2),
+                       ::testing::Values(mhccp_predict_hv_hbd_avx2)));
+#endif  // HAVE_AVX2
+#endif  // CONFIG_MHCCP_SOLVER_BITS
 
 #if HAVE_SSE2
 const sub_avg_param sub_avg_sizes_sse2[] = { ALL_CFL_TX_SIZES(

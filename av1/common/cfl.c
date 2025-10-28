@@ -21,18 +21,6 @@
 
 #define LOCAL_FIXED_MULT(x, y, round, bits) (((x) * (y) + round) >> bits)
 
-/* Returns floor(log2(x)) for 32-bit unsigned x — i.e., the index (0..31) of the
- * highest set bit.*/
-static INLINE int ilog2_32(uint32_t x) {
-#if defined(_MSC_VER)
-  unsigned long idx;
-  if (_BitScanReverse(&idx, x | 1u)) return (int)idx;  // x|1 to avoid UB on 0
-  return 0;
-#else
-  return 31 - __builtin_clz(x | 1u);  // x|1 to avoid UB on 0
-#endif  // defined(_MSC_VER)
-}
-
 /*
  * Approximate ((a * b) + round) >> shift using only 32-bit intermediates.
  * Strategy:

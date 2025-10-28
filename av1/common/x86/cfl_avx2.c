@@ -1364,3 +1364,191 @@ cfl_subtract_average_fn cfl_get_subtract_average_fn_avx2(TX_SIZE tx_size) {
   // index the function pointer array out of bounds.
   return sub_avg[tx_size % TX_SIZES_ALL];
 }
+
+#if CONFIG_MHCCP_SOLVER_BITS
+static INLINE __m256i convert_int64_to_int32_avx2(__m256i a, __m256i b) {
+  // Extract low 32-bit  of each 64-bit element from a and b
+  const __m256 low32 = _mm256_shuffle_ps(
+      _mm256_castsi256_ps(a), _mm256_castsi256_ps(b), _MM_SHUFFLE(2, 0, 2, 0));
+
+  // a0 a1 a2 a3 b0 b1 b2 b3
+  const __m256d ordered =
+      _mm256_permute4x64_pd(_mm256_castps_pd(low32), _MM_SHUFFLE(3, 1, 2, 0));
+
+  return _mm256_castpd_si256(ordered);
+}
+
+static INLINE __m256i floor_log2_uint32_avx2(__m256i x) {
+  const __m256i zero_mask = _mm256_cmpeq_epi32(x, _mm256_setzero_si256());
+
+  const __m128i x_lo = _mm256_castsi256_si128(x);
+  const __m128i x_hi = _mm256_extracti128_si256(x, 1);
+
+  // Convert int32 to double to access exponent bits
+  const __m256d d_lo = _mm256_cvtepi32_pd(x_lo);
+  const __m256d d_hi = _mm256_cvtepi32_pd(x_hi);
+
+  const __m256i bits_lo = _mm256_castpd_si256(d_lo);
+  const __m256i bits_hi = _mm256_castpd_si256(d_hi);
+
+  // Extract exponent bits [52..62]
+  const __m256i exp_lo = _mm256_srli_epi64(bits_lo, 52);
+  const __m256i exp_hi = _mm256_srli_epi64(bits_hi, 52);
+
+  __m256i exp = convert_int64_to_int32_avx2(exp_lo, exp_hi);
+  // Subtract exponent bias
+  exp = _mm256_sub_epi32(exp, _mm256_set1_epi32(1023));
+  // Set result to 0 for input x = 0
+  exp = _mm256_andnot_si256(zero_mask, exp);
+  return exp;
+}
+
+static INLINE __m256i mul_fixed32_adapt_avx2(__m256i a, __m256i b,
+                                             __m256i shift, __m256i bits_a) {
+  const __m256i zero = _mm256_setzero_si256();
+  const __m256i one = _mm256_set1_epi32(1);
+
+  // Compute the bit-width of |b|
+  __m256i bits_b = floor_log2_uint32_avx2(_mm256_abs_epi32(b));
+  bits_b = _mm256_add_epi32(bits_b, one);
+
+  const int bits_limit = 29;
+  // Decide how many bits to drop in total to avoid mul overflow
+  __m256i need = _mm256_sub_epi32(_mm256_add_epi32(bits_a, bits_b),
+                                  _mm256_set1_epi32(bits_limit));
+  need = _mm256_max_epi32(need, zero);
+
+  // Split the drop across a and b to minimize error
+  const __m256i s1 = _mm256_srai_epi32(need, 1);
+  const __m256i s2 = _mm256_sub_epi32(need, s1);
+
+  // Adjust dropped bits in final shift
+  const __m256i adj = _mm256_sub_epi32(shift, need);
+
+  // Safe 32-bit product
+  __m256i prod =
+      _mm256_mullo_epi32(_mm256_srav_epi32(a, s1), _mm256_srav_epi32(b, s2));
+
+  // Compute bias and bias=0 when adj is 0
+  const __m256i bias_mask = _mm256_cmpgt_epi32(adj, zero);
+  const __m256i adj_minus_1 =
+      _mm256_max_epi32(_mm256_sub_epi32(adj, one), zero);
+  const __m256i bias =
+      _mm256_and_si256(bias_mask, _mm256_sllv_epi32(one, adj_minus_1));
+
+  // Final right shift with symmetric rounding to nearest
+  const __m256i sign = _mm256_srai_epi32(prod, 31);
+  prod = _mm256_add_epi32(_mm256_add_epi32(prod, bias), sign);
+  return _mm256_srav_epi32(prod, adj);
+}
+
+#define CONVOLVE_FIXED32_AND_STORE                                            \
+  {                                                                           \
+    __m256i sum =                                                             \
+        mul_fixed32_adapt_avx2(alpha[0], v, mhccp_decim_bits, bits_alpha[0]); \
+    sum = _mm256_add_epi32(                                                   \
+        sum, mul_fixed32_adapt_avx2(alpha[1], v2, mhccp_decim_bits,           \
+                                    bits_alpha[1]));                          \
+    sum = _mm256_add_epi32(                                                   \
+        sum, mul_fixed32_adapt_avx2(alpha[2], mid, mhccp_decim_bits,          \
+                                    bits_alpha[2]));                          \
+    sum = _mm256_max_epi32(sum, zero);                                        \
+    sum = _mm256_min_epi32(sum, pixel_max);                                   \
+                                                                              \
+    const __m128i res_lo = _mm256_castsi256_si128(sum);                       \
+    const __m128i res_hi = _mm256_extracti128_si256(sum, 1);                  \
+    const __m128i res = _mm_packs_epi32(res_lo, res_hi);                      \
+                                                                              \
+    if (width > 4)                                                            \
+      _mm_storeu_si128((__m128i *)(dst + i), res);                            \
+    else                                                                      \
+      _mm_storeu_si64((__m128i *)(dst + i), res);                             \
+  }
+
+static INLINE __m256i load_and_shift(const uint16_t *ptr) {
+  __m256i v = _mm256_cvtepu16_epi32(_mm_loadu_si128((__m128i const *)ptr));
+  v = _mm256_srli_epi32(v, 3);
+  return v;
+}
+
+static INLINE __m256i non_linear_avx2(__m256i v, __m256i mid, int bit_depth) {
+  __m256i v2 = _mm256_mullo_epi32(v, v);
+  v2 = _mm256_add_epi32(v2, mid);
+  v2 = _mm256_srai_epi32(v2, bit_depth);
+  return v2;
+}
+
+void mhccp_predict_hv_hbd_avx2(const uint16_t *input, uint16_t *dst,
+                               bool have_top, bool have_left, int dst_stride,
+                               int32_t *alpha_q3, int bit_depth, int width,
+                               int height, int dir) {
+  const __m256i mid = _mm256_set1_epi32(1 << (bit_depth - 1));
+  const __m256i pixel_max = _mm256_set1_epi32((1 << bit_depth) - 1);
+  const __m256i mhccp_decim_bits = _mm256_set1_epi32(MHCCP_DECIM_BITS);
+  const __m256i zero = _mm256_setzero_si256();
+  assert(MHCCP_NUM_PARAMS == 3);
+
+  __m256i alpha[MHCCP_NUM_PARAMS];
+  __m256i bits_alpha[MHCCP_NUM_PARAMS];
+
+  for (int i = 0; i < MHCCP_NUM_PARAMS; i++) {
+    alpha[i] = _mm256_set1_epi32(alpha_q3[i]);
+
+    const uint32_t abs_a =
+        (uint32_t)(alpha_q3[i] < 0 ? -alpha_q3[i] : alpha_q3[i]);
+    const int bits_a = ilog2_32(abs_a) + 1;
+    bits_alpha[i] = _mm256_set1_epi32(bits_a);
+  }
+
+  if (dir == 0) {
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i += 8) {
+        const __m256i v = load_and_shift(input + i);
+
+        const __m256i v2 = non_linear_avx2(v, mid, bit_depth);
+
+        CONVOLVE_FIXED32_AND_STORE
+      }
+      input += CFL_BUF_LINE * 2;
+      dst += dst_stride;
+    }
+  } else if (dir == 1) {
+    const uint16_t *top_row = !have_top ? input : &input[-2 * CFL_BUF_LINE];
+    const uint16_t *cur_row = input;
+
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i += 8) {
+        const __m256i v = load_and_shift(top_row + i);
+
+        const __m256i v2 =
+            non_linear_avx2(load_and_shift(cur_row + i), mid, bit_depth);
+
+        CONVOLVE_FIXED32_AND_STORE
+      }
+      top_row = cur_row;
+      cur_row += CFL_BUF_LINE * 2;
+      dst += dst_stride;
+    }
+  } else {
+    assert(dir == 2);
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i += 8) {
+        const __m256i cur = load_and_shift(input + i);
+        __m256i v;
+        if (i == 0 && !have_left) {
+          const __m256i idx = _mm256_setr_epi32(0, 0, 1, 2, 3, 4, 5, 6);
+          v = _mm256_permutevar8x32_epi32(cur, idx);
+        } else {
+          v = load_and_shift(input + i - 1);
+        }
+
+        const __m256i v2 = non_linear_avx2(cur, mid, bit_depth);
+
+        CONVOLVE_FIXED32_AND_STORE
+      }
+      input += CFL_BUF_LINE * 2;
+      dst += dst_stride;
+    }
+  }
+}
+#endif  // CONFIG_MHCCP_SOLVER_BITS

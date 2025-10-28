@@ -308,12 +308,9 @@ enum {
 #define ATLAS_LABEL_SEG_ID_BITS 8
 #define MAX_NUM_ATLAS_SEGMENTS (1 << ATLAS_LABEL_SEG_ID_BITS)
 
+// Enabling this macro removes the prompting in lcr_profile_tier_level() to be
+// included after profile, tier and level definitions are finalized.
 #define CONFIG_MULTILAYER_HLS_REMOVE_LOGS 1
-// This macro is an encoder only change that writes LCR, OPS and Atlas
-// information to the bitstream. Set this macro to 1 to enable encoder to
-// signal.
-// TODO(hegilmez): add unit tests by enabling this macro.
-#define CONFIG_MULTILAYER_HLS_ENABLE_SIGNALING 0
 
 enum { AUX_LAYER, LAYER_TYPES };
 

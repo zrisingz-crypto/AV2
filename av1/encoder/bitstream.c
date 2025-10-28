@@ -8660,10 +8660,11 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   }
 #endif  // CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
 
-#if CONFIG_MULTILAYER_HLS && CONFIG_MULTILAYER_HLS_ENABLE_SIGNALING
+#if CONFIG_MULTILAYER_HLS
   if (av1_is_shown_keyframe(cpi, cm->current_frame.frame_type)) {
+    const LayerCfg *const layer_cfg = &cpi->oxcf.layer_cfg;
     // Layer Configuration Record
-    if (cpi->write_lcr) {
+    if (layer_cfg->enable_lcr) {
       struct LayerConfigurationRecord *lcr = &cpi->lcr_list[0];
       av1_set_lcr_params(cpi, lcr, 0, 0);
       obu_header_size = av1_write_obu_header(
@@ -8680,26 +8681,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
       data += obu_header_size + obu_payload_size + length_field_size;
     }
 
-    // Atlas Segment Info
-    if (cpi->write_atlas) {
-      int xlayer_id = 0;
-      struct AtlasSegmentInfo *atlas_params = &cpi->atlas_list[0];
-      av1_set_atlas_segment_info_params(cpi, atlas_params, xlayer_id);
-      obu_header_size =
-          av1_write_obu_header(level_params, OBU_ATLAS_SEGMENT, 0, 0, data);
-      obu_payload_size = av1_write_atlas_segment_info_obu(
-          cpi, xlayer_id, data + obu_header_size);
-      const size_t length_field_size =
-          obu_memmove(obu_header_size, obu_payload_size, data);
-      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
-          AOM_CODEC_OK) {
-        return AOM_CODEC_ERROR;
-      }
-      data += obu_header_size + obu_payload_size + length_field_size;
-    }
-
-    // Operating Point Info
-    if (cpi->write_ops) {
+    // Operating Point Set
+    if (layer_cfg->enable_ops) {
       int xlayer_id = 0;
       struct OperatingPointSet *ops = &cpi->ops_list[0];
       av1_set_ops_params(cpi, ops, xlayer_id);
@@ -8715,8 +8698,26 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
       }
       data += obu_header_size + obu_payload_size + length_field_size;
     }
+
+    // Atlas Segment
+    if (layer_cfg->enable_lcr && layer_cfg->enable_atlas) {
+      int xlayer_id = 0;
+      struct AtlasSegmentInfo *atlas_params = &cpi->atlas_list[0];
+      av1_set_atlas_segment_info_params(cpi, atlas_params, xlayer_id);
+      obu_header_size =
+          av1_write_obu_header(level_params, OBU_ATLAS_SEGMENT, 0, 0, data);
+      obu_payload_size = av1_write_atlas_segment_info_obu(
+          cpi, xlayer_id, data + obu_header_size);
+      const size_t length_field_size =
+          obu_memmove(obu_header_size, obu_payload_size, data);
+      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) !=
+          AOM_CODEC_OK) {
+        return AOM_CODEC_ERROR;
+      }
+      data += obu_header_size + obu_payload_size + length_field_size;
+    }
   }
-#endif  // CONFIG_MULTILAYER_HLS && CONFIG_MULTILAYER_HLS_ENABLE_SIGNALING
+#endif  // CONFIG_MULTILAYER_HLS
 
   // write sequence header obu if KEY_FRAME, preceded by 4-byte size
   if (av1_is_shown_keyframe(cpi, cm->current_frame.frame_type)) {

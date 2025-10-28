@@ -684,7 +684,16 @@ typedef struct {
   // Indicates if a limited color range or full color range should be used.
   aom_color_range_t color_range;
 } ColorCfg;
-
+#if CONFIG_MULTILAYER_HLS
+typedef struct {
+  // Indicates the LCR OBU (OBU_LAYER_CONFIGURATION_RECORD) is enabled.
+  bool enable_lcr;
+  // Indicates the OPS OBU (OBU_OPERATING_POINT_SET) is enabled.
+  bool enable_ops;
+  // Indicates the Atlas Segment OBU (OBU_ATLAS_SEGMENT) is enabled.
+  bool enable_atlas;
+} LayerCfg;
+#endif  // CONFIG_MULTILAYER_HLS
 typedef struct {
   // Indicates if extreme motion vector unit test should be enabled or not.
   unsigned int motion_vector_unit_test;
@@ -1193,7 +1202,10 @@ typedef struct AV1EncoderConfig {
   // Indicates the temporal delimiter is signaled.
   bool signal_td;
 #endif  // CONFIG_F160_TD
-
+#if CONFIG_MULTILAYER_HLS
+  // Configuration related to layering information.
+  LayerCfg layer_cfg;
+#endif  // CONFIG_MULTILAYER_HLS
   /*!\endcond */
 } AV1EncoderConfig;
 
@@ -3024,25 +3036,13 @@ typedef struct AV1_COMP {
 #endif  // CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
 #if CONFIG_MULTILAYER_HLS
   /*!
-   * flag to write Layer Config Record (LCR) OBU
-   */
-  int write_lcr;
-  /*!
    * list for Layer Config Record (LCR) information
    */
   struct LayerConfigurationRecord lcr_list[MAX_NUM_LCR];
   /*!
-   * flag to write Operating Point Set (OPS) OBU
-   */
-  int write_ops;
-  /*!
    * list for Operating Point Set (OPS) information
    */
   struct OperatingPointSet ops_list[MAX_NUM_OPS_ID];
-  /*!
-   * flag to write Atlas OBU
-   */
-  int write_atlas;
   /*!
    * list for Atlas information
    */

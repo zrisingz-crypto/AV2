@@ -24,18 +24,13 @@
 #include "av1/common/obu_util.h"
 #include "av1/common/enums.h"
 
-#define OBU_BUFFER_SIZE (500 * 1024)
-
 /*!\brief Maximum OBU header size in bytes. */
-#define OBU_HEADER_SIZE 2
+#define OBU_HEADER_SIZE 1
 #define OBU_EXTENSION_SIZE 1
 #define OBU_MAX_LENGTH_FIELD_SIZE 8
 
-#define OBU_MAX_HEADER_SIZE \
-  (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + 2 * OBU_MAX_LENGTH_FIELD_SIZE)
-
 #define OBU_DETECTION_SIZE \
-  (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + 4 * OBU_MAX_LENGTH_FIELD_SIZE)
+  (OBU_HEADER_SIZE + OBU_EXTENSION_SIZE + OBU_MAX_LENGTH_FIELD_SIZE)
 
 // Reads unsigned LEB128 integer and returns 0 upon successful read and decode.
 // Stores raw bytes in 'value_buffer', length of the number in 'value_length',
@@ -64,16 +59,21 @@ static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
   return aom_uleb_decode(value_buffer, len, value, NULL);
 }
 
-static int read_nbyte_from_file(FILE *f, size_t obu_header_size,
-                                uint8_t *buffer, ObuHeader *obu_header) {
+// Returns the OBU header size (1 or 2) on success. Returns -1 on EOF. Returns
+// -2 on error.
+static int read_obu_header_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
+                                     ObuHeader *obu_header) {
   if (!f) {
     return -2;
   }
 
-  size_t bytes_read = fread(buffer, sizeof(uint8_t), obu_header_size, f);
+  if (obu_size < 1) {
+    return -2;
+  }
+  size_t bytes_read = fread(&buffer[0], sizeof(uint8_t), 1, f);
   if (feof(f) && bytes_read == 0) {
     return -1;
-  } else if (bytes_read != obu_header_size) {
+  } else if (bytes_read != 1) {
     fprintf(stderr, "obudec: Failure reading OBU header.\n");
     return -2;
   }
@@ -82,6 +82,15 @@ static int read_nbyte_from_file(FILE *f, size_t obu_header_size,
   obu_header->type = (buffer[0] >> 2) & 31;               // obu_type
   obu_header->obu_tlayer_id = (buffer[0]) & 3;            // obu_temporal
   if (obu_header->obu_extension_flag) {
+    if (obu_size < 2) {
+      return -2;
+    }
+    bytes_read = fread(&buffer[1], sizeof(uint8_t), 1, f);
+    if (bytes_read != 1) {
+      fprintf(stderr, "obudec: Failure reading OBU extension header.\n");
+      return -2;
+    }
+
     obu_header->obu_mlayer_id = (buffer[1] >> 5) & 7;  // obu_layer (mlayer)
     obu_header->obu_xlayer_id = (buffer[1]) & 31;      // obu_layer (xlayer)
   } else {
@@ -94,10 +103,10 @@ static int read_nbyte_from_file(FILE *f, size_t obu_header_size,
       obu_header->obu_xlayer_id = 0;  // obu_layer (xlayer)
   }
 
-  return 0;
+  return obu_header->obu_extension_flag ? 2 : 1;
 }
 
-static int peek_obu_from_file(FILE *f, size_t obu_header_size, uint8_t *buffer,
+static int peek_obu_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
                               ObuHeader *obu_header
 #if CONFIG_F160_TD && CONFIG_F106_OBU_TILEGROUP
                               ,
@@ -108,12 +117,12 @@ static int peek_obu_from_file(FILE *f, size_t obu_header_size, uint8_t *buffer,
     return -2;
   }
   unsigned long fpos = ftell(f);
-  const int status =
-      read_nbyte_from_file(f, obu_header_size, buffer, obu_header);
-  if (status == -2) {
+  const int obu_header_size =
+      read_obu_header_from_file(f, obu_size, buffer, obu_header);
+  if (obu_header_size == -2) {
     fprintf(stderr, "obudec: Failure peeking OBU header.\n");
     return -2;
-  } else if (status == -1) {
+  } else if (obu_header_size == -1) {
     // bytes_read is already 0
     return -1;
   }
@@ -126,8 +135,15 @@ static int peek_obu_from_file(FILE *f, size_t obu_header_size, uint8_t *buffer,
       || obu_header->type == OBU_RAS_FRAME
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   ) {
-    const int actual_obu_header_size = obu_header->obu_extension_flag ? 2 : 1;
-    *first_tile_group = buffer[actual_obu_header_size];
+    if (obu_size < (size_t)obu_header_size + 1) {
+      return -2;
+    }
+    size_t bytes_read = fread(&buffer[obu_header_size], sizeof(uint8_t), 1, f);
+    if (bytes_read != 1) {
+      fprintf(stderr, "obudec: Failure reading first tile group byte.\n");
+      return -2;
+    }
+    *first_tile_group = buffer[obu_header_size];
   } else if (obu_header->type == OBU_TIP || obu_header->type == OBU_SEF
 #if CONFIG_CWG_F317
              || obu_header->type == OBU_BRIDGE_FRAME
@@ -158,18 +174,17 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
 
   while (1) {
     {
-      size_t obu_payload_size_bytelength = 0;
-      uint64_t obu_payload_size = 0;
+      size_t obu_size_bytelength = 0;
+      uint64_t obu_size = 0;
       if (is_annexb) {
-        if (obudec_read_leb128(f, &detect_buf[0], &obu_payload_size_bytelength,
-                               &obu_payload_size) != 0) {
+        if (obudec_read_leb128(f, &detect_buf[0], &obu_size_bytelength,
+                               &obu_size) != 0) {
           fprintf(stderr, "file_type: Failure reading obu size\n");
           rewind(f);
           return 0;
         } else if (feof(f)) {
           break;
         }
-        obu_payload_size -= OBU_HEADER_SIZE;
       } else {
         fprintf(stderr, "file_type: OBU size is required\n");
         rewind(f);
@@ -177,20 +192,20 @@ int file_is_obu(struct ObuDecInputContext *obu_ctx) {
       }
       ObuHeader obu_header;
       memset(&obu_header, 0, sizeof(obu_header));
-      const int read_status =
-          read_nbyte_from_file(f, OBU_HEADER_SIZE, &detect_buf[0], &obu_header);
-      if (read_status == -2) {
+      const int obu_header_size = read_obu_header_from_file(
+          f, (size_t)obu_size, &detect_buf[0], &obu_header);
+      if (obu_header_size == -2) {
         fprintf(stderr, "file_type: Failure reading an OBU.\n");
         rewind(f);
         return 0;
-      } else if (read_status == -1) {  // end of file
+      } else if (obu_header_size == -1) {  // end of file
         break;
       }
 #if CONFIG_F160_TD
       if (obu_header.type == OBU_TEMPORAL_DELIMITER)
         obu_ctx->has_temporal_delimiter = 1;
 #endif  // CONFIG_F160_TD
-      fseek(f, obu_payload_size, SEEK_CUR);
+      fseek(f, obu_size - obu_header_size, SEEK_CUR);
     }
   }  // while
 
@@ -241,7 +256,7 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
     uint8_t first_tile_group_byte = 0;
 #endif
     const int read_status =
-        peek_obu_from_file(f, OBU_HEADER_SIZE, &detect_buf[0], &obu_header
+        peek_obu_from_file(f, (size_t)obu_size, &detect_buf[0], &obu_header
 #if CONFIG_F160_TD && CONFIG_F106_OBU_TILEGROUP
                            ,
                            &first_tile_group_byte

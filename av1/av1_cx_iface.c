@@ -241,6 +241,9 @@ struct av1_extracfg {
   int crop_win_top_offset;     // cropping window top offset
   int crop_win_bottom_offset;  // cropping window bottom offset
 #endif                         // CONFIG_CROP_WIN_CWG_F220
+#if CONFIG_SCAN_TYPE_METADATA
+  unsigned int scan_type_info_present_flag;
+#endif  // CONFIG_SCAN_TYPE_METADATA
 };
 
 // Example subgop configs. Currently not used by default.
@@ -568,6 +571,9 @@ static struct av1_extracfg default_extra_cfg = {
   0,     // crop_win_top_offset
   0,     // crop_win_bottom_offset
 #endif  // CONFIG_CROP_WIN_CWG_F220
+#if CONFIG_SCAN_TYPE_METADATA
+  0,
+#endif  // CONFIG_SCAN_TYPE_METADATA
 };
 // clang-format on
 
@@ -1001,6 +1007,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_onesided_comp = extra_cfg->enable_onesided_comp;
   cfg->enable_reduced_reference_set = extra_cfg->enable_reduced_reference_set;
   cfg->enable_bru = extra_cfg->enable_bru;
+#if CONFIG_SCAN_TYPE_METADATA
+  cfg->scan_type_info_present_flag = extra_cfg->scan_type_info_present_flag;
+#endif  // CONFIG_SCAN_TYPE_METADATA
   cfg->explicit_ref_frame_map = extra_cfg->explicit_ref_frame_map;
 #if CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
   cfg->disable_loopfilters_across_tiles =
@@ -1147,6 +1156,9 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
 #endif  // CONFIG_CROP_WIN_CWG_F220
   extra_cfg->enable_ext_seg = cfg->enable_ext_seg;
   extra_cfg->dpb_size = cfg->dpb_size;
+#if CONFIG_SCAN_TYPE_METADATA
+  extra_cfg->scan_type_info_present_flag = cfg->scan_type_info_present_flag;
+#endif  // CONFIG_SCAN_TYPE_METADATA
 }
 
 static double convert_qp_offset(int qp, int qp_offset, int bit_depth) {
@@ -1362,6 +1374,13 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tool_cfg->disable_loopfilters_across_tiles =
       extra_cfg->disable_loopfilters_across_tiles;
 #endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
+#if CONFIG_SCAN_TYPE_METADATA
+  tool_cfg->scan_type_info_present_flag =
+      extra_cfg->scan_type_info_present_flag;
+  if (cfg->encoder_cfg.scan_type_info_present_flag)
+    tool_cfg->scan_type_info_present_flag =
+        cfg->encoder_cfg.scan_type_info_present_flag;
+#endif  // CONFIG_SCAN_TYPE_METADATA
   tool_cfg->enable_bawp = extra_cfg->enable_bawp;
   tool_cfg->enable_cwp = extra_cfg->enable_cwp;
   tool_cfg->enable_imp_msk_bld = extra_cfg->enable_imp_msk_bld;
@@ -4325,6 +4344,13 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
     extra_cfg.disable_loopfilters_across_tiles =
         arg_parse_int_helper(&arg, err_string);
 #endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
+#if CONFIG_SCAN_TYPE_METADATA
+  } else if (arg_match_helper(&arg,
+                              &g_av1_codec_arg_defs.scan_type_info_present_flag,
+                              argv, err_string)) {
+    extra_cfg.scan_type_info_present_flag =
+        arg_parse_int_helper(&arg, err_string);
+#endif  // CONFIG_SCAN_TYPE_METADATA
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
@@ -4638,6 +4664,9 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
 #if CONFIG_ICC_METADATA
         NULL, 0,
 #endif  // CONFIG_ICC_METADATA
+#if CONFIG_SCAN_TYPE_METADATA
+        0,
+#endif  // CONFIG_SCAN_TYPE_METADATA
     },  // cfg
 #if CONFIG_CROP_WIN_CWG_F220
     0,  // enable cropping window
@@ -4646,6 +4675,9 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
     0,  // crop_win_top_offset
     0,  // crop_win_bottom_offset
 #endif  // CONFIG_CROP_WIN_CWG_F220
+#if CONFIG_SCAN_TYPE_METADATA
+    0,
+#endif  // CONFIG_SCAN_TYPE_METADATA
 } };
 
 // This data structure and function are exported in aom/aomcx.h

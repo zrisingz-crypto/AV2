@@ -79,8 +79,8 @@ int write_lcr_embedded_layer_info(AV1_COMP *cpi, int isGlobal, int xId,
       aom_wb_write_literal(wb, mlayer_params->lcr_tlayer_map[isGlobal][xId][j],
                            MAX_NUM_TLAYERS);
       int atlasSegmentPresent =
-          (isGlobal && lcr_params->lcr_global_atlas_id_present_flag) ||
-          lcr_params->lcr_local_atlas_id_present_flag[xId];
+          isGlobal ? lcr_params->lcr_global_atlas_id_present_flag
+                   : lcr_params->lcr_local_atlas_id_present_flag[xId];
 
       if (atlasSegmentPresent) {
         aom_wb_write_literal(

@@ -89,8 +89,8 @@ static int read_lcr_embedded_layer_info(struct AV1Decoder *pbi, int isGlobal,
         }
       }
       int atlasSegmentPresent =
-          (isGlobal && lcr_params->lcr_global_atlas_id_present_flag) ||
-          lcr_params->lcr_local_atlas_id_present_flag[xId];
+          isGlobal ? lcr_params->lcr_global_atlas_id_present_flag
+                   : lcr_params->lcr_local_atlas_id_present_flag[xId];
 
       if (atlasSegmentPresent) {
         mlayer_params->lcr_layer_atlas_segment_id[isGlobal][xId][j] =

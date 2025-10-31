@@ -144,8 +144,9 @@ uint32_t av1_write_operating_point_set_obu(AV1_COMP *cpi, int obu_xlayer_id,
                                      ops_id, i, &wb);
       }
       if (obu_xlayer_id == 31) {
+        // TODO(hegilmez): align 31 with MAX_NUM_XLAYERS
         aom_wb_write_literal(&wb, ops->ops_xlayer_map[obu_xlayer_id][ops_id][i],
-                             MAX_NUM_XLAYERS);
+                             31);
         for (int j = 0; j < 31; j++) {
           if (ops->ops_mlayer_info_idc[obu_xlayer_id][ops_id] == 1)
             write_ops_mlayer_info(obu_xlayer_id, ops_id, i, j,

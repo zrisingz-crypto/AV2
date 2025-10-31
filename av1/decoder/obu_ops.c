@@ -170,8 +170,9 @@ uint32_t av1_read_operating_point_set_obu(struct AV1Decoder *pbi,
       }
 
       if (obu_xlayer_id == 31) {
+        // TODO(hegilmez): align 31 with MAX_NUM_XLAYERS
         ops_params->ops_xlayer_map[obu_xlayer_id][ops_id][i] =
-            aom_rb_read_literal(rb, MAX_NUM_XLAYERS);
+            aom_rb_read_literal(rb, 31);
         int k = 0;
         for (int j = 0; j < 31; j++) {
           if ((ops_params->ops_xlayer_map[obu_xlayer_id][ops_id][i] &

@@ -4926,7 +4926,7 @@ static INLINE void update_warp_param_bank(const MB_MODE_INFO *const mbmi,
         }
         const int tail = (start_idx + count - 1) % WARP_PARAM_BANK_SIZE;
         queue[tail] = cand;
-        return;
+        continue;
       }
 
       // If current warp parameter is not found in the buffer, append it to the

@@ -275,10 +275,11 @@ def EncodeWithAOM_AV2(
         print("Unsupported Test Configuration %s" % test_cfg)
 
     if clip.file_class == "G1" or clip.file_class == "G2":
-        args += (
-            "--color-primaries=bt2020 --transfer-characteristics=smpte2084 "
-            "--matrix-coefficients=bt2020ncl --chroma-sample-position=colocated "
-        )
+        args += " --color-primaries=bt2020 --transfer-characteristics=smpte2084 --matrix-coefficients=bt2020ncl"
+        if CTC_VERSION in ["8.0"]:
+            args += " --chroma-sample-position=topleft "
+        else:
+            args += " --chroma-sample-position=colocated "
 
     args += " -o %s %s" % (outfile, clip.file_path)
     cmd = AOMENC + args + "> %s 2>&1" % enc_log

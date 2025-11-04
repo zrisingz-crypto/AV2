@@ -3258,6 +3258,8 @@ static void check_and_add_process_ref(const AV1_COMMON *cm, int max_check,
     if (target_frame == cm->bru.update_ref_idx) return;
   }
 
+  if (type == 1 && start_frame == target_frame) return;
+
   if (*process_count >= MFMV_STACK_SIZE) return;
   if (checked_ref[start_frame][side]) return;
 
@@ -3631,7 +3633,13 @@ static int motion_field_projection_side(AV1_COMMON *cm,
   int start_ref_map[INTER_REFS_PER_FRAME];
   for (int k = 0; k < INTER_REFS_PER_FRAME; k++) {
     const int ref_k_hint = start_frame_buf->ref_display_order_hint[k];
+    if (ref_k_hint < 0) continue;
+
     start_ref_map[k] = NONE_FRAME;
+    if (get_relative_dist(&cm->seq_params.order_hint_info,
+                          start_frame_order_hint, ref_k_hint) == 0) {
+      continue;
+    }
     for (int rf = 0; rf < cm->ref_frames_info.num_total_refs; rf++) {
       const int rf_hint = get_ref_frame_buf(cm, rf)->display_order_hint;
       if (rf_hint >= 0 && ref_k_hint >= 0 &&
@@ -3668,6 +3676,8 @@ static int motion_field_projection_side(AV1_COMMON *cm,
         int scaled_blk_row = blk_row;
 
         MV_REFERENCE_FRAME end_frame = start_ref_map[ref_frame];
+        if (end_frame == NONE_FRAME) continue;
+
         if (cm->seq_params.enable_mv_traj) {
           check_traj_intersect(cm, start_frame, end_frame, &ref_mv,
                                scaled_blk_row, scaled_blk_col, mvs_cols);

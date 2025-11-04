@@ -172,18 +172,15 @@ static uint32_t write_ats_region_to_segment_mapping(
 }
 
 static uint32_t write_ats_label_segment_info(AV1_COMP *cpi, int xLayerId,
-                                             int xAId,
+                                             int xAId, int NumSegments,
                                              struct aom_write_bit_buffer *wb) {
+  assert(NumSegments >= 0);
   struct AtlasLabelSegmentInfo *ats_label =
       &cpi->common.atlas_params.ats_label_seg;
-  struct AtlasRegionToSegmentMapping *ats_reg =
-      &cpi->common.atlas_params.ats_reg_seg_map;
 
   aom_wb_write_bit(
       wb, ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId]);
   if (ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId]) {
-    const int NumSegments =
-        ats_reg->ats_num_atlas_segments_minus_1[xLayerId][xAId] + 1;
     for (int i = 0; i < NumSegments; i++) {
       aom_wb_write_literal(wb, ats_label->ats_atlas_segment_id[i],
                            ATLAS_LABEL_SEG_ID_BITS);
@@ -203,6 +200,7 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
   int xAId = atlas_params->atlas_segment_id[obu_xLayer_id];
   aom_wb_write_uvlc(&wb,
                     atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId]);
+  int num_segments = -1;  // invalid
   if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
       ENHANCED_ATLAS) {
     write_ats_region_info(&atlas_params->ats_reg_params, obu_xLayer_id, xAId,
@@ -211,14 +209,21 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
         &atlas_params->ats_reg_seg_map, obu_xLayer_id, xAId,
         atlas_params->ats_reg_params.NumRegionsInAtlas[obu_xLayer_id][xAId],
         &wb);
+    num_segments = atlas_params->ats_reg_seg_map
+                       .ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   } else if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
              BASIC_ATLAS) {
     write_ats_basic_info(atlas_params->ats_basic_info, obu_xLayer_id, xAId,
                          &wb);
+    num_segments = atlas_params->ats_basic_info
+                       ->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   } else if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
              SINGLE_ATLAS) {
     atlas_params->ats_reg_seg_map
         .ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] = 0;
+    num_segments = 0;
     aom_wb_write_uvlc(
         &wb, atlas_params->ats_nominal_width_minus1[obu_xLayer_id][xAId]);
     aom_wb_write_uvlc(
@@ -227,9 +232,12 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
              MULTISTREAM_ATLAS) {
     write_ats_multistream_atlas_info(atlas_params->ats_basic_info,
                                      obu_xLayer_id, xAId, &wb);
+    num_segments = atlas_params->ats_basic_info
+                       ->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   }
   // Label each atlas segment
-  write_ats_label_segment_info(cpi, obu_xLayer_id, xAId, &wb);
+  write_ats_label_segment_info(cpi, obu_xLayer_id, xAId, num_segments, &wb);
 
   av1_add_trailing_bits(&wb);
   size = aom_wb_bytes_written(&wb);

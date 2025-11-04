@@ -165,15 +165,14 @@ static uint32_t read_ats_region_to_segment_mapping(
 
 static uint32_t read_ats_label_segment_info(struct AV1Decoder *pbi,
                                             int xLayerId, int xAId,
+                                            int NumSegments,
                                             struct aom_read_bit_buffer *rb) {
+  assert(NumSegments >= 0);
   struct AtlasLabelSegmentInfo *ats_label =
       &pbi->common.atlas_params.ats_label_seg;
-  struct AtlasRegionToSegmentMapping *ats_reg =
-      &pbi->common.atlas_params.ats_reg_seg_map;
 
   ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId] =
       aom_rb_read_bit(rb);
-  int NumSegments = ats_reg->ats_num_atlas_segments_minus_1[xLayerId][xAId] + 1;
   if (ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId]) {
     for (int i = 0; i < NumSegments; i++) {
       ats_label->ats_atlas_segment_id[i] =
@@ -282,6 +281,7 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
                        "Unsupported atlas_segment_mode_idc, whose value should "
                        "be smaller than ATLAS_TYPES");
   }
+  int num_segments = -1;  // invalid
   if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
       ENHANCED_ATLAS) {
     read_ats_region_info(pbi, &atlas_params->ats_reg_params, obu_xLayer_id,
@@ -290,14 +290,21 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
         pbi, &atlas_params->ats_reg_seg_map, obu_xLayer_id, xAId,
         atlas_params->ats_reg_params.NumRegionsInAtlas[obu_xLayer_id][xAId],
         rb);
+    num_segments = atlas_params->ats_reg_seg_map
+                       .ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   } else if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
              BASIC_ATLAS) {
     read_ats_basic_info(pbi, atlas_params->ats_basic_info, obu_xLayer_id, xAId,
                         rb);
+    num_segments = atlas_params->ats_basic_info
+                       ->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   } else if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
              SINGLE_ATLAS) {
     atlas_params->ats_reg_seg_map
         .ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] = 0;
+    num_segments = 1;  // equivalent to (ats_num_atlas_segments_minus_1 + 1)
     atlas_params->ats_nominal_width_minus1[obu_xLayer_id][xAId] =
         aom_rb_read_uvlc(rb);
     atlas_params->ats_nominal_height_minus1[obu_xLayer_id][xAId] =
@@ -306,9 +313,12 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
              MULTISTREAM_ATLAS) {
     read_ats_multistream_atlas_info(pbi, atlas_params->ats_basic_info,
                                     obu_xLayer_id, xAId, rb);
+    num_segments = atlas_params->ats_basic_info
+                       ->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
+                   1;
   }
   // Label each atlas segment
-  read_ats_label_segment_info(pbi, obu_xLayer_id, xAId, rb);
+  read_ats_label_segment_info(pbi, obu_xLayer_id, xAId, num_segments, rb);
 
   if (av1_check_trailing_bits(pbi, rb) != 0) {
     return 0;

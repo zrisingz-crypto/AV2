@@ -1199,12 +1199,6 @@ static const aom_cdf_prob
       { AOM_CDF2(16384), 0 },
     };
 
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-static const aom_cdf_prob default_warp_causal_warpmv_cdf[CDF_SIZE(2)] = {
-  AOM_CDF2(20285)
-};
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-
 static const aom_cdf_prob default_warp_ref_idx0_cdf[WARP_REF_CONTEXTS]
                                                    [CDF_SIZE(2)] = {
                                                      { AOM_CDF2(21704), 90 },
@@ -2065,9 +2059,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc,
 
   av1_copy(fc->refinemv_flag_cdf, default_refinemv_flag_cdf);
   av1_copy(fc->warp_causal_cdf, default_warp_causal_cdf);
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  av1_copy(fc->warp_causal_warpmv_cdf, default_warp_causal_warpmv_cdf);
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   av1_copy(fc->warp_ref_idx_cdf[0], default_warp_ref_idx0_cdf);
   av1_copy(fc->warp_ref_idx_cdf[1], default_warp_ref_idx1_cdf);
   av1_copy(fc->warp_ref_idx_cdf[2], default_warp_ref_idx2_cdf);
@@ -2396,10 +2387,6 @@ void av1_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
                          WARP_DELTA_NUMSYMBOLS_HIGH);
   CUMULATIVE_AVERAGE_CDF(ctx_left->warp_param_sign_cdf,
                          ctx_tr->warp_param_sign_cdf, 2);
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  CUMULATIVE_AVERAGE_CDF(ctx_left->warp_causal_warpmv_cdf,
-                         ctx_tr->warp_causal_warpmv_cdf, 2);
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   CUMULATIVE_AVERAGE_CDF(ctx_left->warp_ref_idx_cdf, ctx_tr->warp_ref_idx_cdf,
                          2);
   CUMULATIVE_AVERAGE_CDF(ctx_left->warpmv_with_mvd_flag_cdf,
@@ -2724,9 +2711,6 @@ void av1_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
   SHIFT_CDF(ctx_ptr->warp_precision_idx_cdf, NUM_WARP_PRECISION_MODES);
   SHIFT_CDF(ctx_ptr->warp_delta_param_high_cdf, WARP_DELTA_NUMSYMBOLS_HIGH);
   SHIFT_CDF(ctx_ptr->warp_param_sign_cdf, 2);
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  SHIFT_CDF(ctx_ptr->warp_causal_warpmv_cdf, 2);
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   SHIFT_CDF(ctx_ptr->warp_ref_idx_cdf, 2);
   SHIFT_CDF(ctx_ptr->warpmv_with_mvd_flag_cdf, 2);
   SHIFT_CDF(ctx_ptr->warp_extend_cdf, 2);
@@ -3024,10 +3008,6 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->warp_delta_param_high_cdf,
               ctx_tr->warp_delta_param_high_cdf, WARP_DELTA_NUMSYMBOLS_HIGH);
   AVERAGE_CDF(ctx_left->warp_param_sign_cdf, ctx_tr->warp_param_sign_cdf, 2);
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  AVERAGE_CDF(ctx_left->warp_causal_warpmv_cdf, ctx_tr->warp_causal_warpmv_cdf,
-              2);
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   AVERAGE_CDF(ctx_left->warp_ref_idx_cdf, ctx_tr->warp_ref_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->warpmv_with_mvd_flag_cdf,
               ctx_tr->warpmv_with_mvd_flag_cdf, 2);

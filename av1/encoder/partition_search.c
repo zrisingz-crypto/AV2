@@ -1189,17 +1189,6 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           cm, xd, mbmi_ext->ref_mv_stack[mbmi->ref_frame[0]], mbmi);
       MOTION_MODE motion_mode = mbmi->motion_mode;
 
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-      if (mbmi->mode == WARPMV) {
-        if (allowed_motion_modes & (1 << WARP_CAUSAL)) {
-#if CONFIG_ENTROPY_STATS
-          counts->warp_causal_warpmv[motion_mode == WARP_CAUSAL]++;
-#endif
-          update_cdf(fc->warp_causal_warpmv_cdf, motion_mode == WARP_CAUSAL, 2);
-        }
-      }
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-
       bool continue_motion_mode_signaling =
           (mbmi->mode == WARPMV) ? false : true;
 

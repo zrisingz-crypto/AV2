@@ -1090,10 +1090,6 @@ typedef struct {
   /**@{*/
   //! warp_causal_cost
   int warp_causal_cost[WARP_CAUSAL_MODE_CTX][2];
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  //! warp_causal_warpmv_cost
-  int warp_causal_warpmv_cost[2];
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   //! warp_delta_param_cost
   int warp_delta_param_cost[2][WARP_DELTA_NUMSYMBOLS_LOW];
   //! warp_delta_param_cost

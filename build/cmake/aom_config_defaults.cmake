@@ -241,9 +241,6 @@ set_aom_config_var(CONFIG_FRAME_HALF_PRECISION 1
 set_aom_config_var(CONFIG_WRL_CORNER_MVS 1
                    "Improve the WRL from the 3 corner MVs")
 
-set_aom_config_var(CONFIG_WARPMV_WARP_CAUSAL_REMOVAL 1
-                   "Remove the WARP_CAUSAL in WARPMV")
-
 set_aom_config_var(CONFIG_BLENDING_SIMPLIFICATION 1
                    "CWG F137 simplification for blending mode")
 set_aom_config_var(CONFIG_DC_DIV_UNIFY 1 "Unify DC division")

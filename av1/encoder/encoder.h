@@ -1439,9 +1439,6 @@ typedef struct FRAME_COUNTS {
   unsigned int wedge_interintra[2];
   unsigned int compound_type[MASKED_COMPOUND_TYPES];
   unsigned int warp_causal_cnt[WARP_CAUSAL_MODE_CTX][2];
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  unsigned int warp_causal_warpmv[CDF_SIZE(2)];
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   unsigned int warpmv_with_mvd_flag[CDF_SIZE(2)];
   unsigned int warp_delta_param[2][WARP_DELTA_NUMSYMBOLS_LOW];
   unsigned int warp_delta_param_high[2][WARP_DELTA_NUMSYMBOLS_HIGH];

@@ -488,16 +488,7 @@ static AOM_INLINE void write_motion_mode(
   MOTION_MODE motion_mode = mbmi->motion_mode;
 
   if (mbmi->mode == WARPMV) {
-#if CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
     assert(mbmi->motion_mode == WARP_DELTA);
-#else
-    assert(mbmi->motion_mode == WARP_DELTA || mbmi->motion_mode == WARP_CAUSAL);
-    // Signal if the motion mode is WARP_CAUSAL or WARP_DELTA
-    if (allowed_motion_modes & (1 << WARP_CAUSAL)) {
-      aom_write_symbol(w, motion_mode == WARP_CAUSAL,
-                       xd->tile_ctx->warp_causal_warpmv_cdf, 2);
-    }
-#endif  // CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
     return;
   }
 

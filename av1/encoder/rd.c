@@ -547,10 +547,6 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
                                fc->warp_causal_cdf[i], 2, NULL);
     }
 
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-    av1_cost_tokens_from_cdf(mode_costs->warp_causal_warpmv_cost,
-                             fc->warp_causal_warpmv_cdf, NULL);
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
     av1_cost_tokens_from_cdf(mode_costs->warpmv_with_mvd_flag_cost,
                              fc->warpmv_with_mvd_flag_cdf, 2, NULL);
 

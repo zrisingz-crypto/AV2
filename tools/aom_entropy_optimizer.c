@@ -1148,14 +1148,6 @@ int main(int argc, const char **argv) {
                      "default_warp_extend_cdf[WARP_EXTEND_CTX]CDF_SIZE(2)]",
                      0, &total_count, 0, mem_wanted, "Inter");
 
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  cts_each_dim[0] = 2;
-  optimize_cdf_table(&fc.warp_causal_warpmv[0], probsfile, 1, cts_each_dim,
-                     "static const aom_cdf_prob "
-                     "default_warp_causal_warpmv_cdf[CDF_SIZE(2)]",
-                     0, &total_count, 0, mem_wanted, "Inter");
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-
   cts_each_dim[0] = 2;
   optimize_cdf_table(&fc.warpmv_with_mvd_flag[0], probsfile, 1, cts_each_dim,
                      "static const aom_cdf_prob "

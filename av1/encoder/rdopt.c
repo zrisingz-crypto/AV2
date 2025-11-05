@@ -3045,17 +3045,7 @@ static int64_t motion_mode_rd(
             }
 
             if (mbmi->mode == WARPMV) {
-#if CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
               assert(motion_mode == WARP_DELTA);
-#else
-              if (allowed_motion_modes & (1 << WARP_CAUSAL)) {
-                rd_stats->rate +=
-                    mode_costs
-                        ->warp_causal_warpmv_cost[motion_mode != WARP_DELTA];
-              } else {
-                assert(motion_mode == WARP_DELTA);
-              }
-#endif  // CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
               if (allow_warpmv_with_mvd_coding(cm, mbmi)) {
                 rd_stats->rate +=
                     mode_costs

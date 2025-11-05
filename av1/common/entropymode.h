@@ -210,9 +210,6 @@ typedef struct frame_contexts {
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];
   aom_cdf_prob warp_causal_cdf[WARP_CAUSAL_MODE_CTX][CDF_SIZE(2)];
-#if !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
-  aom_cdf_prob warp_causal_warpmv_cdf[CDF_SIZE(2)];
-#endif  // !CONFIG_WARPMV_WARP_CAUSAL_REMOVAL
   aom_cdf_prob warp_ref_idx_cdf[3][WARP_REF_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob warpmv_with_mvd_flag_cdf[CDF_SIZE(2)];
 

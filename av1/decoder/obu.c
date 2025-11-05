@@ -1705,8 +1705,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_CWG_F317
 
     if (obu_header.type != OBU_TEMPORAL_DELIMITER &&
-        obu_header.type != OBU_SEQUENCE_HEADER &&
-        obu_header.type != OBU_PADDING) {
+        obu_header.type != OBU_SEQUENCE_HEADER) {
       // don't decode obu if it's not in current operating mode
       if (!is_obu_in_current_operating_point(pbi, obu_header)) {
         data += payload_size;

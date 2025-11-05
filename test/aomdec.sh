@@ -18,8 +18,7 @@
 aomdec_verify_environment() {
   if [ "$(av1_encode_available)" != "yes" ] ; then
     if [ ! -e "${AV1_IVF_FILE}" ] || \
-       [ ! -e "${AV1_OBU_ANNEXB_FILE}" ] || \
-       [ ! -e "${AV1_OBU_SEC5_FILE}" ] || \
+       [ ! -e "${AV1_OBU_FILE}" ] || \
        [ ! -e "${AV1_WEBM_FILE}" ]; then
       elog "Libaom test data must exist before running this test script when " \
            " encoding is disabled. "
@@ -105,19 +104,9 @@ aomdec_aom_ivf_pipe_input() {
   fi
 }
 
-aomdec_av1_obu_annexb() {
+aomdec_av1_obu() {
   if [ "$(aomdec_can_decode_av1)" = "yes" ]; then
-    local file="${AV1_OBU_ANNEXB_FILE}"
-    if [ ! -e "${file}" ]; then
-      encode_yuv_raw_input_av1 "${file}" --obu --annexb=1 || return 1
-    fi
-    aomdec "${file}" --summary --noblit --annexb
-  fi
-}
-
-aomdec_av1_obu_section5() {
-  if [ "$(aomdec_can_decode_av1)" = "yes" ]; then
-    local file="${AV1_OBU_SEC5_FILE}"
+    local file="${AV1_OBU_FILE}"
     if [ ! -e "${file}" ]; then
       encode_yuv_raw_input_av1 "${file}" --obu || return 1
     fi
@@ -140,8 +129,7 @@ aomdec_tests="aomdec_av1_ivf
               aomdec_av1_ivf_error_resilient
               aomdec_av1_ivf_multithread
               aomdec_aom_ivf_pipe_input
-              aomdec_av1_obu_annexb
-              aomdec_av1_obu_section5
+              aomdec_av1_obu
               aomdec_av1_webm"
 
 run_tests aomdec_verify_environment "${aomdec_tests}"

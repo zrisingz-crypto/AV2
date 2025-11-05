@@ -1190,11 +1190,6 @@ typedef struct AV1EncoderConfig {
   // Indicates if row-based multi-threading should be enabled or not.
   bool row_mt;
 
-  // Indicates the bitstream syntax mode. 0 indicates bitstream is saved as
-  // Section 5 bitstream, while 1 indicates the bitstream is saved in Annex - B
-  // format.
-  bool save_as_annexb;
-
 #if CONFIG_F160_TD
   // Indicates the temporal delimiter is signaled.
   bool signal_td;
@@ -3228,6 +3223,10 @@ int av1_set_internal_size(AV1EncoderConfig *const oxcf,
 
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
+// The "sect5" and "annexb" in the function name refer to Section 5 and Annex B
+// in the AV1 spec, but AV2 only supports a simplified variant of Annex B.
+// TODO(wtc): write OBU sizes to the bitstream in the AV2 bitstream format
+// directly and remove this function.
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 
 void av1_set_downsample_filter_options(AV1_COMP *cpi);

@@ -26,7 +26,6 @@ extern "C" {
 #define QINDEX_INCR 2          // tunable general QP index increment
 #define QINDEX_INCR_8_BITS 2   // tunable QP index increment for 8 bits
 #define QINDEX_INCR_10_BITS 4  // tunable QP index increment for 10 bits
-#define TCQ_DIS_1D 1           // 1:disable TCQ for 1D scan blocks
 #define TCQ_N_STATES_LOG 3     // only 8-states version is supported
 #define TCQ_N_STATES (1 << TCQ_N_STATES_LOG)
 #define TCQ_MAX_STATES 8
@@ -80,9 +79,7 @@ static INLINE bool tcq_enable(int enable_tcq, int lossless, int plane,
                               TX_CLASS tx_class) {
   int dq_en = (!lossless && enable_tcq != 0);
   dq_en &= plane == 0;
-  if (TCQ_DIS_1D) {
-    dq_en &= tx_class == TX_CLASS_2D;
-  }
+  dq_en &= tx_class == TX_CLASS_2D;
   return dq_en;
 }
 

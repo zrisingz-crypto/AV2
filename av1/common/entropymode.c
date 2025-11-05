@@ -964,7 +964,6 @@ static const aom_cdf_prob default_inter_ext_tx_cdf
               { AOM_CDF2(31447), 50 },
           },
       },
-#if CONFIG_REDUCED_TX_SET_EXT
       {
           {
               { AOM_CDF4(8192, 16384, 24576), 0 },
@@ -985,7 +984,6 @@ static const aom_cdf_prob default_inter_ext_tx_cdf
               { AOM_CDF4(8192, 16384, 24576), 0 },
           },
       },
-#endif  // CONFIG_REDUCED_TX_SET_EXT
     };
 
 static const aom_cdf_prob default_cctx_type_cdf[CDF_SIZE(CCTX_TYPES)] = {
@@ -2567,11 +2565,9 @@ void av1_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
   CUMULATIVE_AVG_CDF_STRIDE(ctx_left->inter_ext_tx_cdf[3],
                             ctx_tr->inter_ext_tx_cdf[3], INTER_TX_SET3,
                             CDF_SIZE(TX_TYPES));
-#if CONFIG_REDUCED_TX_SET_EXT
   CUMULATIVE_AVG_CDF_STRIDE(ctx_left->inter_ext_tx_cdf[4],
                             ctx_tr->inter_ext_tx_cdf[4], INTER_TX_SET4,
                             CDF_SIZE(TX_TYPES));
-#endif  // CONFIG_REDUCED_TX_SET_EXT
   CUMULATIVE_AVERAGE_CDF(ctx_left->inter_tx_type_set, ctx_tr->inter_tx_type_set,
                          2);
   CUMULATIVE_AVERAGE_CDF(ctx_left->inter_tx_type_idx, ctx_tr->inter_tx_type_idx,
@@ -2831,10 +2827,8 @@ void av1_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
                    CDF_SIZE(TX_TYPES));
   SHIFT_CDF_STRIDE(ctx_ptr->inter_ext_tx_cdf[3], INTER_TX_SET3,
                    CDF_SIZE(TX_TYPES));
-#if CONFIG_REDUCED_TX_SET_EXT
   SHIFT_CDF_STRIDE(ctx_ptr->inter_ext_tx_cdf[4], INTER_TX_SET4,
                    CDF_SIZE(TX_TYPES));
-#endif  // CONFIG_REDUCED_TX_SET_EXT
   SHIFT_CDF(ctx_ptr->inter_tx_type_set, 2);
   SHIFT_CDF(ctx_ptr->inter_tx_type_idx, INTER_TX_TYPE_INDEX_COUNT);
   SHIFT_CDF(ctx_ptr->inter_tx_type_offset_1, INTER_TX_TYPE_OFFSET1_COUNT);
@@ -3167,10 +3161,8 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
                  INTER_TX_SET2, CDF_SIZE(TX_TYPES));
   AVG_CDF_STRIDE(ctx_left->inter_ext_tx_cdf[3], ctx_tr->inter_ext_tx_cdf[3],
                  INTER_TX_SET3, CDF_SIZE(TX_TYPES));
-#if CONFIG_REDUCED_TX_SET_EXT
   AVG_CDF_STRIDE(ctx_left->inter_ext_tx_cdf[4], ctx_tr->inter_ext_tx_cdf[4],
                  INTER_TX_SET4, CDF_SIZE(TX_TYPES));
-#endif  // CONFIG_REDUCED_TX_SET_EXT
   AVERAGE_CDF(ctx_left->inter_tx_type_set, ctx_tr->inter_tx_type_set, 2);
   AVERAGE_CDF(ctx_left->inter_tx_type_idx, ctx_tr->inter_tx_type_idx,
               INTER_TX_TYPE_INDEX_COUNT);

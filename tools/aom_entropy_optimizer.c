@@ -829,13 +829,7 @@ int main(int argc, const char **argv) {
   cts_each_dim[2] = EXT_TX_SIZES;
   cts_each_dim[3] = TX_TYPES;
   int inter_ext_tx_types_each_ctx[EXT_TX_SETS_INTER] = {
-    0,
-    INTER_TX_SET1,
-    INTER_TX_SET2,
-    INTER_TX_SET3,
-#if CONFIG_REDUCED_TX_SET_EXT
-    INTER_TX_SET4,
-#endif  // CONFIG_REDUCED_TX_SET_EXT
+    0, INTER_TX_SET1, INTER_TX_SET2, INTER_TX_SET3, INTER_TX_SET4,
   };
   optimize_cdf_table_var_modes_4d(
       &fc.inter_ext_tx[0][0][0][0], probsfile, 4, cts_each_dim,

@@ -1180,15 +1180,12 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
             ec_ctx->inter_ext_tx_short_side_cdf[eob_tx_ctx][square_tx_size], 4);
       }
     } else {
-#if CONFIG_REDUCED_TX_SET_EXT
       if (cm->features.reduced_tx_set_used == 2) {
         assert(get_primary_tx_type(tx_type) == DCT_DCT);
         return;
       }
-#endif  // CONFIG_REDUCED_TX_SET_EXT
       if (tx_set_type != EXT_TX_SET_LONG_SIDE_64 &&
           tx_set_type != EXT_TX_SET_LONG_SIDE_32) {
-#if CONFIG_REDUCED_TX_SET_EXT
         aom_write_symbol(
             w,
             av1_tx_type_to_idx(get_primary_tx_type(tx_type), tx_set_type,
@@ -1199,18 +1196,6 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
             features->reduced_tx_set_used
                 ? av1_num_reduced_tx_set[features->reduced_tx_set_used - 1]
                 : av1_num_ext_tx_set_intra[tx_set_type]);
-#else
-        aom_write_symbol(
-            w,
-            av1_tx_type_to_idx(get_primary_tx_type(tx_type), tx_set_type,
-                               intra_dir, size_info),
-            ec_ctx->intra_ext_tx_cdf[eset + features->reduced_tx_set_used == 1
-                                         ? 1
-                                         : 0][square_tx_size],
-            features->reduced_tx_set_used
-                ? av1_num_reduced_tx_set
-                : av1_num_ext_tx_set_intra[tx_set_type]);
-#endif
       } else {
         int is_long_side_dct =
             is_dct_type(tx_size, get_primary_tx_type(tx_type));
@@ -7122,11 +7107,7 @@ static AOM_INLINE void write_uncompressed_header_obu
     assert(IMPLIES(!frame_is_intra_only(cm), !features->allow_warpmv_mode));
   }
 
-#if CONFIG_REDUCED_TX_SET_EXT
   aom_wb_write_literal(wb, features->reduced_tx_set_used, 2);
-#else
-  aom_wb_write_bit(wb, features->reduced_tx_set_used);
-#endif  // CONFIG_REDUCED_TX_SET_EXT
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 

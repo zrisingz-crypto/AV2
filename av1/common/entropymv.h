@@ -60,10 +60,8 @@ enum {
   MV_CLASS_8 = 8,   /* When AMVD is applied:{512}. Otherwise:(256, 512] */
   MV_CLASS_9 = 9,   /* When AMVD is applied:{1024}. Otherwise:(512, 1024] */
   MV_CLASS_10 = 10, /* When AMVD is applied:{2048}. Otherwise:(1024, 2048] */
-#if CONFIG_MV_RANGE_EXTENSION
   MV_CLASS_11 = 11, /* When AMVD is applied:{2048}. Otherwise:(2048, 4096] */
   MV_CLASS_12 = 12, /* When AMVD is applied:{4096}. Otherwise:(4096, 8192] */
-#endif              // CONFIG_MV_RANGE_EXTENSION
   MV_CLASSES,       /* Maximum MV class */
 } UENUM1BYTE(MV_CLASS_TYPE);
 
@@ -92,12 +90,10 @@ typedef struct {
   aom_cdf_prob joint_shell_class_cdf_1[NUM_MV_PRECISIONS]
                                       [CDF_SIZE(SECOND_SHELL_CLASS)];
 
-#if CONFIG_MV_RANGE_EXTENSION
   // Only MV_PRECISION_ONE_EIGHTH_PEL has shell class 15 and class 16.
   // For MV_PRECISION_ONE_EIGHTH_PEL, class 15 and 16 are coded as a
   // single class, then another flag to distinguish them
   aom_cdf_prob joint_shell_last_two_classes_cdf[CDF_SIZE(2)];
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
   aom_cdf_prob shell_offset_low_class_cdf[2][CDF_SIZE(2)];
 

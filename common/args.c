@@ -91,9 +91,7 @@ int parse_cfg(const char *file, cfg_options_t *config) {
     GET_PARAMS(enable_mrls);
     GET_PARAMS(enable_tip);
     GET_PARAMS(enable_mv_traj);
-#if CONFIG_MV_RANGE_EXTENSION
     GET_PARAMS(enable_high_motion);
-#endif  // CONFIG_MV_RANGE_EXTENSION
     GET_PARAMS(enable_tip_refinemv);
     GET_PARAMS(enable_bawp);
     GET_PARAMS(enable_cwp);

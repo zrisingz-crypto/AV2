@@ -104,16 +104,12 @@ static AOM_INLINE void reset_nmv_counter(nmv_context *nmv) {
     int num_mv_class_0, num_mv_class_1;
     split_num_shell_class(num_mv_class, &num_mv_class_0, &num_mv_class_1);
     RESET_CDF_COUNTER(nmv->joint_shell_class_cdf_0[prec], num_mv_class_0);
-#if CONFIG_MV_RANGE_EXTENSION
     if (prec == MV_PRECISION_ONE_EIGHTH_PEL) {
       RESET_CDF_COUNTER(nmv->joint_shell_class_cdf_1[prec], num_mv_class_1 - 1);
       RESET_CDF_COUNTER(nmv->joint_shell_last_two_classes_cdf, 2);
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       RESET_CDF_COUNTER(nmv->joint_shell_class_cdf_1[prec], num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   RESET_CDF_COUNTER(nmv->shell_offset_low_class_cdf, 2);
   RESET_CDF_COUNTER(nmv->shell_offset_class2_cdf, 2);

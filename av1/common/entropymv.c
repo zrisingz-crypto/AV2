@@ -15,7 +15,6 @@
 
 static const nmv_context default_nmv_context = {
   { AOM_CDF2(24576), 0 },  // joint_shell_set_cdf
-#if CONFIG_MV_RANGE_EXTENSION
   {
       { AOM_CDF5(6847, 15990, 24873, 32100), 0 },
       { AOM_CDF6(8452, 19730, 26138, 30154, 32100), 0 },
@@ -33,32 +32,8 @@ static const nmv_context default_nmv_context = {
       { AOM_CDF8(20234, 28560, 30530, 31246, 31694, 32141, 32740), 0 },
       { AOM_CDF8(18126, 26500, 30750, 32100, 32185, 32400, 32740), 0 },
       { AOM_CDF8(16384, 24576, 28672, 29696, 29970, 30244, 30518), 0 },
-  },  // joint_shell_class_cdf_1
-#else
-  {
-      { AOM_CDF4(6847, 15990, 24873), 0 },
-      { AOM_CDF5(8452, 19730, 26138, 30154), 0 },
-      { AOM_CDF5(6553, 13106, 19659, 26212), 0 },
-      { AOM_CDF6(5062, 12676, 19127, 24565, 29511), 0 },
-      { AOM_CDF6(4553, 16572, 24700, 28964, 31428), 0 },
-      { AOM_CDF7(2750, 12194, 20615, 25661, 28862, 31157), 0 },
-      { AOM_CDF7(7886, 19300, 26400, 29900, 31400, 32100), 0 },
-  },  // joint_shell_class_cdf_0
-  {
-      { AOM_CDF5(17356, 28590, 32415, 32740), 0 },
-      { AOM_CDF5(21505, 30000, 31700, 31819), 0 },
-      { AOM_CDF6(5461, 10922, 16383, 21844, 27305), 0 },
-      { AOM_CDF6(21567, 30194, 32730, 32755, 32760), 0 },
-      { AOM_CDF7(20234, 28560, 30530, 31246, 31694, 32141), 0 },
-      { AOM_CDF7(18126, 26500, 30750, 32100, 32185, 32400), 0 },
-      { AOM_CDF8(16384, 24576, 28672, 29696, 29970, 30244, 30518), 0 },
-  },  // joint_shell_class_cdf_1
-#endif  // CONFIG_MV_RANGE_EXTENSION
-
-#if CONFIG_MV_RANGE_EXTENSION
+  },                       // joint_shell_class_cdf_1
   { AOM_CDF2(16384), 0 },  // joint_shell_last_two_classes_cdf
-#endif                     // CONFIG_MV_RANGE_EXTENSION
-
   {
       { AOM_CDF2(3268), 1 },
       { AOM_CDF2(17309), 75 },
@@ -79,10 +54,8 @@ static const nmv_context default_nmv_context = {
       { AOM_CDF2(29343), 50 },
       { AOM_CDF2(16384), 0 },
       { AOM_CDF2(16384), 0 },
-#if CONFIG_MV_RANGE_EXTENSION
       { AOM_CDF2(16384), 0 },
       { AOM_CDF2(16384), 0 },
-#endif  // CONFIG_MV_RANGE_EXTENSION
   } },  // shell_offset_other_class_cdf
   {
       { AOM_CDF2(3371), 78 },

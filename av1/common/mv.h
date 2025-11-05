@@ -26,19 +26,11 @@ extern "C" {
 #define GET_MV_RAWPEL(x) (((x) + 3 + ((x) >= 0)) >> 3)
 #define GET_MV_SUBPEL(x) ((x) * 8)
 
-#if CONFIG_MV_RANGE_EXTENSION
 #define INVALID_MV 0x2000020000
 #define MV_IN_USE_BITS 16
 // Maximum and minimum allowed 1/16th pel motion vector value in 18bits
 #define MV_1_16TH_PEL_MAX ((1 << 17) - 1)
 #define MV_1_16TH_PEL_MIN (-(1 << 17))
-#else
-#define INVALID_MV 0x80008000
-#define MV_IN_USE_BITS 14
-// Maximum and minimum allowed 1/16th pel motion vector value in 16bits
-#define MV_1_16TH_PEL_MAX INT16_MAX
-#define MV_1_16TH_PEL_MIN INT16_MIN
-#endif  // CONFIG_MV_RANGE_EXTENSION
 #define MV_UPP (1 << MV_IN_USE_BITS)
 #define MV_LOW (-(1 << MV_IN_USE_BITS))
 
@@ -48,17 +40,10 @@ extern "C" {
   } while (0);
 #define CHECK_MV_EQUAL(x, y) (((x).row == (y).row) && ((x).col == (y).col))
 
-#if CONFIG_MV_RANGE_EXTENSION
 // Data type of MV component
 #define MV_COMP_DATA_TYPE int32_t
 // Data type of MV
 #define MV_DATA_TYPE uint64_t
-#else
-// Data type of MV component
-#define MV_COMP_DATA_TYPE int16_t
-// Data type of MV
-#define MV_DATA_TYPE uint32_t
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
 // The motion vector in units of full pixel
 typedef struct fullpel_mv {
@@ -157,11 +142,7 @@ static const int av1_intraBc_precision_to_index[NUM_MV_PRECISIONS] = {
 #define NUM_PB_FLEX_QUALIFIED_MAX_PREC \
   ((NUM_MV_PRECISIONS) - (MV_PRECISION_HALF_PEL))
 
-#if CONFIG_MV_RANGE_EXTENSION
 #define MAX_NUM_SHELL_CLASS 17
-#else
-#define MAX_NUM_SHELL_CLASS 15
-#endif  // CONFIG_MV_RANGE_EXTENSION
 // The mv limit for fullpel mvs
 typedef struct {
   int col_min;
@@ -704,12 +685,10 @@ static INLINE MV convert_mv_to_1_16th_pel(const MV *in_mv) {
   return mv;
 }
 
-#if CONFIG_MV_RANGE_EXTENSION
 static INLINE int get_map_shell_class(const int shell_class) {
   return shell_class >= MAX_NUM_SHELL_CLASS - 2 ? MAX_NUM_SHELL_CLASS - 2
                                                 : shell_class;
 }
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
 #ifdef __cplusplus
 }  // extern "C"

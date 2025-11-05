@@ -2014,7 +2014,6 @@ static INLINE void read_mv(aom_reader *r, MV *mv_diff, int skip_sign_coding,
   shell_set = aom_read_symbol(r, ctx->joint_shell_set_cdf, 2,
                               ACCT_INFO("shell_set", "joint_shell_set_cdf"));
   if (shell_set) {
-#if CONFIG_MV_RANGE_EXTENSION
     if (precision == MV_PRECISION_ONE_EIGHTH_PEL) {
       shell_class =
           num_mv_class_0 +
@@ -2033,13 +2032,6 @@ static INLINE void read_mv(aom_reader *r, MV *mv_diff, int skip_sign_coding,
               r, ctx->joint_shell_class_cdf_1[precision], num_mv_class_1,
               ACCT_INFO("shell_class_1", "joint_shell_class_cdf_1"));
     }
-#else
-    shell_class =
-        num_mv_class_0 +
-        aom_read_symbol(r, ctx->joint_shell_class_cdf_1[precision],
-                        num_mv_class_1,
-                        ACCT_INFO("shell_class_1", "joint_shell_class_cdf_1"));
-#endif  // CONFIG_MV_RANGE_EXTENSION
   } else {
     shell_class = aom_read_symbol(
         r, ctx->joint_shell_class_cdf_0[precision], num_mv_class_0,

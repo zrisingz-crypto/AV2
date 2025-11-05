@@ -189,7 +189,6 @@ void av1_encode_mv(AV1_COMP *cpi, MV mv, aom_writer *w, nmv_context *mvctx,
                      num_mv_class_0);
   } else {
     aom_write_symbol(w, 1, mvctx->joint_shell_set_cdf, 2);
-#if CONFIG_MV_RANGE_EXTENSION
     if (pb_mv_precision == MV_PRECISION_ONE_EIGHTH_PEL) {
       const int map_shell_class = get_map_shell_class(shell_class);
       aom_write_symbol(w, map_shell_class - num_mv_class_0,
@@ -200,13 +199,10 @@ void av1_encode_mv(AV1_COMP *cpi, MV mv, aom_writer *w, nmv_context *mvctx,
                          mvctx->joint_shell_last_two_classes_cdf, 2);
       }
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       aom_write_symbol(w, shell_class - num_mv_class_0,
                        mvctx->joint_shell_class_cdf_1[pb_mv_precision],
                        num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   assert(shell_class >= 0 && shell_class < num_mv_class);
 
@@ -292,7 +288,6 @@ void av1_update_mv_stats(nmv_context *mvctx, const MV mv_diff,
                num_mv_class_0);
   } else {
     update_cdf(mvctx->joint_shell_set_cdf, 1, 2);
-#if CONFIG_MV_RANGE_EXTENSION
     if (pb_mv_precision == MV_PRECISION_ONE_EIGHTH_PEL) {
       const int map_shell_class = get_map_shell_class(shell_class);
       update_cdf(mvctx->joint_shell_class_cdf_1[pb_mv_precision],
@@ -302,12 +297,9 @@ void av1_update_mv_stats(nmv_context *mvctx, const MV mv_diff,
                    shell_class == MAX_NUM_SHELL_CLASS - 1, 2);
       }
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       update_cdf(mvctx->joint_shell_class_cdf_1[pb_mv_precision],
                  shell_class - num_mv_class_0, num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   assert(shell_class >= 0 && shell_class < num_mv_class);
 
@@ -431,9 +423,7 @@ void av1_build_vq_nmv_cost_table(MvCosts *mv_costs, const nmv_context *ctx,
   int joint_shell_class_cost_0[FIRST_SHELL_CLASS];
   int joint_shell_class_cost_1[SECOND_SHELL_CLASS];
 
-#if CONFIG_MV_RANGE_EXTENSION
   int joint_shell_last_two_classes_cost[2];
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
   int shell_offset_low_class_cost[2][2];
 
@@ -459,12 +449,10 @@ void av1_build_vq_nmv_cost_table(MvCosts *mv_costs, const nmv_context *ctx,
                            ctx->joint_shell_class_cdf_1[precision],
                            SECOND_SHELL_CLASS, NULL);
 
-#if CONFIG_MV_RANGE_EXTENSION
   if (precision == MV_PRECISION_ONE_EIGHTH_PEL) {
     av1_cost_tokens_from_cdf(joint_shell_last_two_classes_cost,
                              ctx->joint_shell_last_two_classes_cdf, 2, NULL);
   }
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
   for (int i = 0; i < 2; i++) {
     av1_cost_tokens_from_cdf(shell_offset_low_class_cost[i],
@@ -550,7 +538,6 @@ void av1_build_vq_nmv_cost_table(MvCosts *mv_costs, const nmv_context *ctx,
       shell_cost[shell_index] += joint_shell_class_cost_0[shell_class];
     } else {
       shell_cost[shell_index] += joint_shell_set_cost[1];
-#if CONFIG_MV_RANGE_EXTENSION
       if (precision == MV_PRECISION_ONE_EIGHTH_PEL) {
         const int map_shell_class = get_map_shell_class(shell_class);
         shell_cost[shell_index] +=
@@ -561,12 +548,9 @@ void av1_build_vq_nmv_cost_table(MvCosts *mv_costs, const nmv_context *ctx,
               joint_shell_last_two_classes_cost[is_last_class];
         }
       } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
         shell_cost[shell_index] +=
             joint_shell_class_cost_1[shell_class - num_mv_class_0];
-#if CONFIG_MV_RANGE_EXTENSION
       }
-#endif  // CONFIG_MV_RANGE_EXTENSION
     }
     assert(shell_class >= 0 && shell_class < num_mv_class);
 

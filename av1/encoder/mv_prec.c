@@ -145,7 +145,6 @@ static AOM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
   } else {
     total_rate += get_symbol_cost(mvctx->joint_shell_set_cdf, 1);
     update_cdf(mvctx->joint_shell_set_cdf, 1, 2);
-#if CONFIG_MV_RANGE_EXTENSION
     if (pb_mv_precision == MV_PRECISION_ONE_EIGHTH_PEL) {
       const int map_shell_class = get_map_shell_class(shell_class);
       total_rate +=
@@ -160,15 +159,12 @@ static AOM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
                    shell_class == MAX_NUM_SHELL_CLASS - 1, 2);
       }
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       total_rate +=
           get_symbol_cost(mvctx->joint_shell_class_cdf_1[pb_mv_precision],
                           shell_class - num_mv_class_0);
       update_cdf(mvctx->joint_shell_class_cdf_1[pb_mv_precision],
                  shell_class - num_mv_class_0, num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   assert(shell_class >= 0 && shell_class < num_mv_class);
 

@@ -99,12 +99,8 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     // max mv magnitude and that based on the best ref mvs of the current
     // block for the given reference.
     const int ref_frame_idx = COMPACT_INDEX0_NRS(ref);
-    step_param = (av1_init_search_range(x->max_mv_context[ref_frame_idx]
-#if CONFIG_MV_RANGE_EXTENSION
-                                        ,
-                                        cpi->oxcf.tool_cfg.enable_high_motion
-#endif  // CONFIG_MV_RANGE_EXTENSION
-                                        ) +
+    step_param = (av1_init_search_range(x->max_mv_context[ref_frame_idx],
+                                        cpi->oxcf.tool_cfg.enable_high_motion) +
                   mv_search_params->mv_step_param) /
                  2;
   } else {
@@ -1344,13 +1340,9 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   struct buf_2d backup_yv12;
   // ref_mv is used to calculate the cost of the motion vector
   const MV ref_mv = kZeroMv;
-#if CONFIG_MV_RANGE_EXTENSION
   const int max_search_steps = cpi->oxcf.tool_cfg.enable_high_motion
                                    ? MAX_MVSEARCH_STEPS - 2
                                    : MAX_MVSEARCH_STEPS - 4;
-#else
-  const int max_search_steps = MAX_MVSEARCH_STEPS - 2;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   const int step_param =
       AOMMIN(cpi->mv_search_params.mv_step_param +
                  cpi->sf.part_sf.simple_motion_search_reduce_search_steps,
@@ -1492,13 +1484,9 @@ int_mv av1_simple_motion_search_ext(AV1_COMP *const cpi,
   struct buf_2d backup_yv12;
   // ref_mv is used to calculate the cost of the motion vector
   const MV ref_mv = kZeroMv;
-#if CONFIG_MV_RANGE_EXTENSION
   const int max_search_steps = cpi->oxcf.tool_cfg.enable_high_motion
                                    ? MAX_MVSEARCH_STEPS - 2
                                    : MAX_MVSEARCH_STEPS - 4;
-#else
-  const int max_search_steps = MAX_MVSEARCH_STEPS - 2;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   const int step_param =
       AOMMIN(cpi->mv_search_params.mv_step_param +
                  cpi->sf.part_sf.simple_motion_search_reduce_search_steps,

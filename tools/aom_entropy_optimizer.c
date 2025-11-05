@@ -684,7 +684,6 @@ int main(int argc, const char **argv) {
                        "[NUM_MV_PRECISIONS][CDF_SIZE(SECOND_SHELL_CLASS)]",
                        0, &total_count, 0, mem_wanted, "Inter");
 
-#if CONFIG_MV_RANGE_EXTENSION
     cts_each_dim[0] = 2;
     optimize_cdf_table(
         &nmvc_cnts->joint_shell_last_two_classes_cnts[0], probsfile, 1,
@@ -692,7 +691,6 @@ int main(int argc, const char **argv) {
         "static aom_cdf_prob joint_shell_last_two_classes_cdf_placeholder"
         "[CDF_SIZE(2)]",
         0, &total_count, 0, mem_wanted, "Inter");
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
     cts_each_dim[0] = 2;
     cts_each_dim[1] = 2;

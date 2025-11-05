@@ -870,10 +870,8 @@ typedef struct {
   int enable_tip_refinemv;
   // enable MV trajectory tracking
   int enable_mv_traj;
-#if CONFIG_MV_RANGE_EXTENSION
   // enable a large motion search window
   int enable_high_motion;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   // enable block adaptive weighted prediction
   int enable_bawp;
   // enable compound weighted prediction
@@ -1251,11 +1249,9 @@ typedef struct {
                                        [CDF_SIZE(FIRST_SHELL_CLASS)];
   unsigned int joint_shell_class_1_cnts[NUM_MV_PRECISIONS]
                                        [CDF_SIZE(SECOND_SHELL_CLASS)];
-#if CONFIG_MV_RANGE_EXTENSION
   unsigned int joint_shell_last_two_classes_cnts[CDF_SIZE(2)];  // placeholder
-#endif  // CONFIG_MV_RANGE_EXTENSION
-  unsigned int shell_offset_low_class_cnts[2][CDF_SIZE(2)];  // placeholder
-  unsigned int shell_offset_class2_cnts[3][CDF_SIZE(2)];     // // placeholder
+  unsigned int shell_offset_low_class_cnts[2][CDF_SIZE(2)];     // placeholder
+  unsigned int shell_offset_class2_cnts[3][CDF_SIZE(2)];  // // placeholder
   unsigned int shell_offset_other_class_cnts[NUM_CTX_CLASS_OFFSETS]
                                             [SHELL_INT_OFFSET_BIT]
                                             [CDF_SIZE(2)];  // placeholder

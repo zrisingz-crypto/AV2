@@ -2252,7 +2252,6 @@ static void cumulative_avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr,
     CUMULATIVE_AVERAGE_CDF(nmv_left->joint_shell_class_cdf_0[prec],
                            nmv_tr->joint_shell_class_cdf_0[prec],
                            num_mv_class_0);
-#if CONFIG_MV_RANGE_EXTENSION
     if (prec == MV_PRECISION_ONE_EIGHTH_PEL) {
       CUMULATIVE_AVERAGE_CDF(nmv_left->joint_shell_class_cdf_1[prec],
                              nmv_tr->joint_shell_class_cdf_1[prec],
@@ -2260,13 +2259,10 @@ static void cumulative_avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr,
       CUMULATIVE_AVERAGE_CDF(nmv_left->joint_shell_last_two_classes_cdf,
                              nmv_tr->joint_shell_last_two_classes_cdf, 2);
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       CUMULATIVE_AVERAGE_CDF(nmv_left->joint_shell_class_cdf_1[prec],
                              nmv_tr->joint_shell_class_cdf_1[prec],
                              num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   CUMULATIVE_AVERAGE_CDF(nmv_left->shell_offset_low_class_cdf,
                          nmv_tr->shell_offset_low_class_cdf, 2);
@@ -2647,16 +2643,12 @@ static void shift_nmv(nmv_context *nmv_ptr, int total_tiles_log2) {
     int num_mv_class_0, num_mv_class_1;
     split_num_shell_class(num_mv_class, &num_mv_class_0, &num_mv_class_1);
     SHIFT_CDF(nmv_ptr->joint_shell_class_cdf_0[prec], num_mv_class_0);
-#if CONFIG_MV_RANGE_EXTENSION
     if (prec == MV_PRECISION_ONE_EIGHTH_PEL) {
       SHIFT_CDF(nmv_ptr->joint_shell_class_cdf_1[prec], num_mv_class_1 - 1);
       SHIFT_CDF(nmv_ptr->joint_shell_last_two_classes_cdf, 2);
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       SHIFT_CDF(nmv_ptr->joint_shell_class_cdf_1[prec], num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   SHIFT_CDF(nmv_ptr->shell_offset_low_class_cdf, 2);
   SHIFT_CDF(nmv_ptr->shell_offset_class2_cdf, 2);
@@ -2909,19 +2901,15 @@ static void avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr, int wt_left,
     split_num_shell_class(num_mv_class, &num_mv_class_0, &num_mv_class_1);
     AVERAGE_CDF(nmv_left->joint_shell_class_cdf_0[prec],
                 nmv_tr->joint_shell_class_cdf_0[prec], num_mv_class_0);
-#if CONFIG_MV_RANGE_EXTENSION
     if (prec == MV_PRECISION_ONE_EIGHTH_PEL) {
       AVERAGE_CDF(nmv_left->joint_shell_class_cdf_1[prec],
                   nmv_tr->joint_shell_class_cdf_1[prec], num_mv_class_1 - 1);
       AVERAGE_CDF(nmv_left->joint_shell_last_two_classes_cdf,
                   nmv_tr->joint_shell_last_two_classes_cdf, 2);
     } else {
-#endif  // CONFIG_MV_RANGE_EXTENSION
       AVERAGE_CDF(nmv_left->joint_shell_class_cdf_1[prec],
                   nmv_tr->joint_shell_class_cdf_1[prec], num_mv_class_1);
-#if CONFIG_MV_RANGE_EXTENSION
     }
-#endif  // CONFIG_MV_RANGE_EXTENSION
   }
   AVERAGE_CDF(nmv_left->shell_offset_low_class_cdf,
               nmv_tr->shell_offset_low_class_cdf, 2);

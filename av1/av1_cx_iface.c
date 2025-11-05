@@ -129,12 +129,10 @@ struct av1_extracfg {
   int enable_tip;           // enable temporal interpolated prediction
   int enable_tip_refinemv;  // enable RefineMv and OPFL for TIP
   int enable_mv_traj;       // enable MV trajectory tracking
-#if CONFIG_MV_RANGE_EXTENSION
-  int enable_high_motion;  // Enable a large motion search window
-#endif                     // CONFIG_MV_RANGE_EXTENSION
-  int enable_bawp;         // enable block adaptive weighted prediction
-  int enable_cwp;          // enable compound weighted prediction
-  int enable_imp_msk_bld;  // enable implicit masked blending
+  int enable_high_motion;   // Enable a large motion search window
+  int enable_bawp;          // enable block adaptive weighted prediction
+  int enable_cwp;           // enable compound weighted prediction
+  int enable_imp_msk_bld;   // enable implicit masked blending
 
   int enable_fsc;  // enable forward skip coding
 #if CONFIG_FSC_RES_HLS
@@ -461,9 +459,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,    // enable temporal interpolated prediction (TIP)
   1,    // enable RefineMv and OPFL for TIP
   1,    // enable mv trajectory tracking
-#if CONFIG_MV_RANGE_EXTENSION
   0,    // enable a large motion search window
-#endif  // CONFIG_MV_RANGE_EXTENSION
   1,    // enable block adaptive weighted prediction (BAWP)
   1,    // enable compound weighted prediction (CWP)
   1,    // eanble implicit masked blending
@@ -950,9 +946,7 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_tip = extra_cfg->enable_tip;
   cfg->enable_tip_refinemv = extra_cfg->enable_tip_refinemv;
   cfg->enable_mv_traj = extra_cfg->enable_mv_traj;
-#if CONFIG_MV_RANGE_EXTENSION
   cfg->enable_high_motion = extra_cfg->enable_high_motion;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   cfg->enable_bawp = extra_cfg->enable_bawp;
   cfg->enable_cwp = extra_cfg->enable_cwp;
   cfg->enable_imp_msk_bld = extra_cfg->enable_imp_msk_bld;
@@ -1073,9 +1067,7 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_tip = cfg->enable_tip;
   extra_cfg->enable_tip_refinemv = cfg->enable_tip_refinemv;
   extra_cfg->enable_mv_traj = cfg->enable_mv_traj;
-#if CONFIG_MV_RANGE_EXTENSION
   extra_cfg->enable_high_motion = cfg->enable_high_motion;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   extra_cfg->enable_bawp = cfg->enable_bawp;
   extra_cfg->enable_cwp = cfg->enable_cwp;
   extra_cfg->enable_imp_msk_bld = cfg->enable_imp_msk_bld;
@@ -1462,9 +1454,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
     tool_cfg->enable_mv_traj = 0;
   }
 
-#if CONFIG_MV_RANGE_EXTENSION
   tool_cfg->enable_high_motion = extra_cfg->enable_high_motion;
-#endif  // CONFIG_MV_RANGE_EXTENSION
 
   tool_cfg->enable_opfl_refine = extra_cfg->enable_opfl_refine;
   if (tool_cfg->enable_opfl_refine) {
@@ -4031,11 +4021,9 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_mv_traj, argv,
                               err_string)) {
     extra_cfg.enable_mv_traj = arg_parse_int_helper(&arg, err_string);
-#if CONFIG_MV_RANGE_EXTENSION
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_high_motion,
                               argv, err_string)) {
     extra_cfg.enable_high_motion = arg_parse_int_helper(&arg, err_string);
-#endif  // CONFIG_MV_RANGE_EXTENSION
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_bawp, argv,
                               err_string)) {
     extra_cfg.enable_bawp = arg_parse_int_helper(&arg, err_string);
@@ -4609,9 +4597,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
         1,
         1,  // enable RefineMv and OPFL for TIP
         1,  // MV traj
-#if CONFIG_MV_RANGE_EXTENSION
         0,  // enable_high_motion
-#endif      // CONFIG_MV_RANGE_EXTENSION
         1,    1, 1, 1,
 #if CONFIG_FSC_RES_HLS
         1,  // enable idtx intra for fsc is disabled case

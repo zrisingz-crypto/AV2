@@ -311,12 +311,10 @@ typedef struct cfg_options {
    *
    */
   unsigned int enable_mv_traj;
-#if CONFIG_MV_RANGE_EXTENSION
   /*!\brief Enable a large motion search window (Encoder only)
    *
    */
   unsigned int enable_high_motion;
-#endif  // CONFIG_MV_RANGE_EXTENSION
   /*!\brief enable block adaptive weighted prediction
    *
    */

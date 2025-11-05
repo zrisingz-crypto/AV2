@@ -1576,8 +1576,7 @@ int main(int argc, const char **argv) {
   cts_each_dim[1] = LF_SIG_COEF_CONTEXTS_UV;
   cts_each_dim[2] = TCQ_CTXS;
   cts_each_dim[3] = LF_BASE_SYMBOLS;
-  int dq_minus_entries_uv =
-      (TCQ_DIS_CHR ? LF_SIG_COEF_CONTEXTS_UV : 0) * (LF_BASE_SYMBOLS - 1);
+  int dq_minus_entries_uv = LF_SIG_COEF_CONTEXTS_UV * (LF_BASE_SYMBOLS - 1);
   optimize_cdf_table(
       &fc.coeff_base_lf_multi_uv[0][0][0][0], probsfile, 4, cts_each_dim,
       "static const aom_cdf_prob av1_default_coeff_base_lf_multi_uv_cdfs"
@@ -1590,8 +1589,7 @@ int main(int argc, const char **argv) {
   cts_each_dim[1] = SIG_COEF_CONTEXTS_UV;
   cts_each_dim[2] = TCQ_CTXS;
   cts_each_dim[3] = NUM_BASE_LEVELS + 2;
-  dq_minus_entries_uv =
-      (TCQ_DIS_CHR ? SIG_COEF_CONTEXTS_UV : 0) * (NUM_BASE_LEVELS + 2 - 1);
+  dq_minus_entries_uv = SIG_COEF_CONTEXTS_UV * (NUM_BASE_LEVELS + 2 - 1);
   optimize_cdf_table(
       &fc.coeff_base_multi_uv[0][0][0][0], probsfile, 4, cts_each_dim,
       "static const aom_cdf_prob av1_default_coeff_base_multi_uv_cdfs"

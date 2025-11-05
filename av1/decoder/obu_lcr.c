@@ -256,6 +256,13 @@ static int read_lcr_global_info(struct AV1Decoder *pbi,
       aom_rb_read_bit(rb);
   lcr_params->lcr_global_atlas_id_present_flag = aom_rb_read_bit(rb);
   lcr_params->lcr_dependent_xlayers_flag = aom_rb_read_bit(rb);
+  if (lcr_params->lcr_dependent_xlayers_flag != 0) {
+    aom_internal_error(
+        &pbi->common.error, AOM_CODEC_UNSUP_BITSTREAM,
+        "lcr_dependent_xlayers_flag is reserved for future extensions. In the "
+        "current version of the specification, lcr_dependent_xlayers_flag "
+        "shall be equal to 0.");
+  }
   lcr_params->lcr_reserved_zero_2bits = aom_rb_read_literal(rb, 2);
 
   if (lcr_params->lcr_global_atlas_id_present_flag)

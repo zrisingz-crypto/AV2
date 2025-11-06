@@ -364,11 +364,11 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 
   seq->still_picture =
       (tool_cfg->force_video_mode == 0) && (oxcf->input_cfg.limit == 1);
-  seq->single_picture_hdr_flag = seq->still_picture;
-  seq->single_picture_hdr_flag &= !tool_cfg->full_still_picture_hdr;
+  seq->single_picture_header_flag = seq->still_picture;
+  seq->single_picture_header_flag &= !tool_cfg->full_still_picture_hdr;
   seq->force_screen_content_tools = 2;
   seq->force_integer_mv = 2;
-  if (seq->still_picture && seq->single_picture_hdr_flag) {
+  if (seq->still_picture && seq->single_picture_header_flag) {
     seq->force_screen_content_tools = 2;
     seq->force_integer_mv = 2;
   }
@@ -384,8 +384,8 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
     seq->order_hint_info.order_hint_bits_minus_1 =
         DEFAULT_EXPLICIT_ORDER_HINT_BITS - 1;
 #if CONFIG_CWG_F377_STILL_PICTURE
-  seq->enable_bru = seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_bru;
-  seq->explicit_ref_frame_map = seq->single_picture_hdr_flag
+  seq->enable_bru = seq->single_picture_header_flag ? 0 : tool_cfg->enable_bru;
+  seq->explicit_ref_frame_map = seq->single_picture_header_flag
                                     ? 0
                                     : oxcf->ref_frm_cfg.explicit_ref_frame_map;
 #else
@@ -400,7 +400,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   // Disable frame by frame update for now. Can be changed later.
   seq->allow_frame_max_drl_bits = 0;
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq->single_picture_hdr_flag) {
+  if (seq->single_picture_header_flag) {
     seq->def_max_drl_bits = MIN_MAX_DRL_BITS;
     seq->allow_frame_max_drl_bits = 0;
   }
@@ -414,7 +414,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->allow_frame_max_bvp_drl_bits = 0;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->num_same_ref_compound =
-      seq->single_picture_hdr_flag ? 0 : SAME_REF_COMPOUND_PRUNE;
+      seq->single_picture_header_flag ? 0 : SAME_REF_COMPOUND_PRUNE;
 #else
   seq->num_same_ref_compound = SAME_REF_COMPOUND_PRUNE;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
@@ -457,11 +457,11 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_ccso = tool_cfg->enable_ccso;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_lf_sub_pu =
-      seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_lf_sub_pu;
-  seq->enable_opfl_refine = seq->single_picture_hdr_flag
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_lf_sub_pu;
+  seq->enable_opfl_refine = seq->single_picture_header_flag
                                 ? AOM_OPFL_REFINE_NONE
                                 : tool_cfg->enable_opfl_refine;
-  seq->enable_tip = seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_tip;
+  seq->enable_tip = seq->single_picture_header_flag ? 0 : tool_cfg->enable_tip;
 #else
   seq->enable_lf_sub_pu = tool_cfg->enable_lf_sub_pu;
   seq->enable_opfl_refine = tool_cfg->enable_opfl_refine;
@@ -473,7 +473,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_mv_traj = tool_cfg->enable_mv_traj;
   seq->enable_bawp = tool_cfg->enable_bawp;
 #if CONFIG_CWG_F377_STILL_PICTURE
-  seq->enable_cwp = seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_cwp;
+  seq->enable_cwp = seq->single_picture_header_flag ? 0 : tool_cfg->enable_cwp;
 #else
   seq->enable_cwp = tool_cfg->enable_cwp;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
@@ -507,7 +507,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_sdp = oxcf->part_cfg.enable_sdp;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_extended_sdp =
-      seq->single_picture_hdr_flag ? 0 : oxcf->part_cfg.enable_extended_sdp;
+      seq->single_picture_header_flag ? 0 : oxcf->part_cfg.enable_extended_sdp;
 #else
   seq->enable_extended_sdp = oxcf->part_cfg.enable_extended_sdp;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
@@ -530,7 +530,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_mhccp = oxcf->intra_mode_cfg.enable_mhccp;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_inter_ddt =
-      seq->single_picture_hdr_flag ? 0 : oxcf->txfm_cfg.enable_inter_ddt;
+      seq->single_picture_header_flag ? 0 : oxcf->txfm_cfg.enable_inter_ddt;
 #else
   seq->enable_inter_ddt = oxcf->txfm_cfg.enable_inter_ddt;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
@@ -539,9 +539,9 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_ibp = oxcf->intra_mode_cfg.enable_ibp;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_adaptive_mvd =
-      seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_adaptive_mvd;
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_adaptive_mvd;
   seq->enable_flex_mvres =
-      seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_flex_mvres;
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_flex_mvres;
 #else
   seq->enable_adaptive_mvd = tool_cfg->enable_adaptive_mvd;
   seq->enable_flex_mvres = tool_cfg->enable_flex_mvres;
@@ -550,9 +550,9 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_joint_mvd = tool_cfg->enable_joint_mvd;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_refinemv =
-      seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_refinemv;
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_refinemv;
   seq->enable_mvd_sign_derive =
-      seq->single_picture_hdr_flag ? 0 : tool_cfg->enable_mvd_sign_derive;
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_mvd_sign_derive;
 #else
   seq->enable_refinemv = tool_cfg->enable_refinemv;
   seq->enable_mvd_sign_derive = tool_cfg->enable_mvd_sign_derive;
@@ -627,15 +627,17 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_refmvbank = tool_cfg->enable_refmvbank;
   seq->enable_drl_reorder = tool_cfg->enable_drl_reorder;
 #if CONFIG_CWG_F377_STILL_PICTURE
-  seq->enable_cdef_on_skip_txfm = seq->single_picture_hdr_flag
+  seq->enable_cdef_on_skip_txfm = seq->single_picture_header_flag
                                       ? CDEF_ON_SKIP_TXFM_ADAPTIVE
                                       : tool_cfg->enable_cdef_on_skip_txfm;
-  // If seq->single_picture_hdr_flag is equal to 1, setting both enable_avg_cdf
-  // and avg_cdf_type to 1 allows us to omit the context_update_tile_id syntax
-  // element in tile_info(), which is part of uncompressed_header().
+  // If seq->single_picture_header_flag is equal to 1, setting both
+  // enable_avg_cdf and avg_cdf_type to 1 allows us to omit the
+  // context_update_tile_id syntax element in tile_info(), which is part of
+  // uncompressed_header().
   seq->enable_avg_cdf =
-      seq->single_picture_hdr_flag ? 1 : tool_cfg->enable_avg_cdf;
-  seq->avg_cdf_type = seq->single_picture_hdr_flag ? 1 : tool_cfg->avg_cdf_type;
+      seq->single_picture_header_flag ? 1 : tool_cfg->enable_avg_cdf;
+  seq->avg_cdf_type =
+      seq->single_picture_header_flag ? 1 : tool_cfg->avg_cdf_type;
 #else
   seq->enable_cdef_on_skip_txfm = tool_cfg->enable_cdef_on_skip_txfm;
   seq->enable_avg_cdf = tool_cfg->enable_avg_cdf;
@@ -654,11 +656,12 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   // point, and set to 0 if cpi->sf.gm_sf.gm_search_type == GM_DISABLE_SEARCH
   // if possible
   seq->enable_global_motion =
-      tool_cfg->enable_global_motion && !seq->single_picture_hdr_flag;
+      tool_cfg->enable_global_motion && !seq->single_picture_header_flag;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_short_refresh_frame_flags =
-      seq->single_picture_hdr_flag ? 0
-                                   : tool_cfg->enable_short_refresh_frame_flags;
+      seq->single_picture_header_flag
+          ? 0
+          : tool_cfg->enable_short_refresh_frame_flags;
 #else
   seq->enable_short_refresh_frame_flags =
       tool_cfg->enable_short_refresh_frame_flags;
@@ -668,7 +671,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   seq->enable_ext_seg = tool_cfg->enable_ext_seg;
 #if CONFIG_CWG_F377_STILL_PICTURE
-  seq->ref_frames = seq->single_picture_hdr_flag ? 2 : tool_cfg->dpb_size;
+  seq->ref_frames = seq->single_picture_header_flag ? 2 : tool_cfg->dpb_size;
 #else
   seq->ref_frames = tool_cfg->dpb_size;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
@@ -2807,7 +2810,7 @@ void gdf_optimize_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   alloc_gdf_buffers(&cm->gdf_info);
   gdf_optimizer(cpi, cm);
 #if CONFIG_CWG_F362
-  if (cm->seq_params.single_picture_hdr_flag && cm->gdf_info.gdf_mode == 0) {
+  if (cm->seq_params.single_picture_header_flag && cm->gdf_info.gdf_mode == 0) {
     cm->seq_params.enable_gdf = 0;
   }
 #endif  // CONFIG_CWG_F362
@@ -2889,7 +2892,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif  // CONFIG_ENTROPY_STATS
                     cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
 #if CONFIG_CWG_F362
-    if (cm->seq_params.single_picture_hdr_flag &&
+    if (cm->seq_params.single_picture_header_flag &&
         !cm->cdef_info.cdef_frame_enable) {
       cm->seq_params.enable_cdef = 0;
     }
@@ -2953,7 +2956,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif
     );
 #if CONFIG_CWG_F362
-    if (cm->seq_params.single_picture_hdr_flag &&
+    if (cm->seq_params.single_picture_header_flag &&
         !cm->ccso_info.ccso_frame_flag) {
       cm->seq_params.enable_ccso = 0;
     }
@@ -4429,7 +4432,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
           (frame_is_intra_only(cm) || !cm->show_frame) ? 0 : 1;
       break;
   }
-  seq_params->timing_info_present &= !seq_params->single_picture_hdr_flag;
+  seq_params->timing_info_present &= !seq_params->single_picture_header_flag;
 
   if (cpi->oxcf.tool_cfg.enable_global_motion && !frame_is_intra_only(cm)) {
     // Flush any stale global motion information, which may be left over
@@ -4811,7 +4814,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
       res = -1;
 #endif  //  CONFIG_DENOISE
 #if CONFIG_CWG_F362
-  if (seq_params->single_picture_hdr_flag &&
+  if (seq_params->single_picture_header_flag &&
       !cm->film_grain_params.apply_grain) {
     cm->seq_params.film_grain_params_present = 0;
   }

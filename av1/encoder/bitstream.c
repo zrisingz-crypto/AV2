@@ -4155,7 +4155,7 @@ static AOM_INLINE void encode_gdf(const AV1_COMMON *cm,
     return;
   }
 #if CONFIG_CWG_F362
-  if (cm->seq_params.single_picture_hdr_flag) {
+  if (cm->seq_params.single_picture_header_flag) {
     assert(cm->gdf_info.gdf_mode > 0);
   } else {
     aom_wb_write_bit(wb, cm->gdf_info.gdf_mode == 0 ? 0 : 1);
@@ -4183,7 +4183,7 @@ static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
 #endif  // CONFIG_CWG_F317
   if (cm->bru.frame_inactive_flag) return;
 #if CONFIG_CWG_F362
-  if (cm->seq_params.single_picture_hdr_flag) {
+  if (cm->seq_params.single_picture_header_flag) {
     assert(cdef_info->cdef_frame_enable);
   } else {
     aom_wb_write_bit(wb, cdef_info->cdef_frame_enable);
@@ -4248,7 +4248,7 @@ static AOM_INLINE void encode_ccso(const AV1_COMMON *cm,
   if (!cm->bridge_frame_info.is_bridge_frame) {
 #endif  // CONFIG_CWG_F317
 #if CONFIG_CWG_F362
-    if (cm->seq_params.single_picture_hdr_flag) {
+    if (cm->seq_params.single_picture_header_flag) {
       assert(cm->ccso_info.ccso_frame_flag);
     } else {
       aom_wb_write_literal(wb, cm->ccso_info.ccso_frame_flag, 1);
@@ -5009,7 +5009,7 @@ static AOM_INLINE void write_film_grain_params(
   const aom_film_grain_t *const pars = &cm->cur_frame->film_grain_params;
 
 #if CONFIG_CWG_F362
-  if (cm->seq_params.single_picture_hdr_flag) {
+  if (cm->seq_params.single_picture_header_flag) {
     assert(pars->apply_grain);
   } else {
     aom_wb_write_bit(wb, pars->apply_grain);
@@ -5416,7 +5416,7 @@ void write_sequence_intra_group_tool_flags(
 }
 void write_sequence_inter_group_tool_flags(
     const SequenceHeader *const seq_params, struct aom_write_bit_buffer *wb) {
-  if (!seq_params->single_picture_hdr_flag) {
+  if (!seq_params->single_picture_header_flag) {
     // Encode allowed motion modes
     // Skip SIMPLE_TRANSLATION, as that is always enabled
     int seq_enabled_motion_modes = seq_params->seq_enabled_motion_modes;
@@ -5476,7 +5476,7 @@ void write_sequence_inter_group_tool_flags(
   }
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->explicit_ref_frame_map);
 
     assert(seq_params->ref_frames == 2);
@@ -5507,7 +5507,7 @@ void write_sequence_inter_group_tool_flags(
   aom_wb_write_bit(wb, seq_params->allow_frame_max_bvp_drl_bits);
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->num_same_ref_compound == 0);
     assert(seq_params->enable_tip == 0);
   } else {
@@ -5526,7 +5526,7 @@ void write_sequence_inter_group_tool_flags(
   aom_wb_write_bit(wb, seq_params->enable_mv_traj);
   aom_wb_write_bit(wb, seq_params->enable_bawp);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_cwp);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_cwp);
@@ -5542,7 +5542,7 @@ void write_sequence_inter_group_tool_flags(
   }
 #endif  // CONFIG_FSC_RES_HLS
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_lf_sub_pu);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_lf_sub_pu);
@@ -5554,7 +5554,7 @@ void write_sequence_inter_group_tool_flags(
     aom_wb_write_bit(wb, seq_params->enable_tip_explicit_qp);
   }
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_opfl_refine == AOM_OPFL_REFINE_NONE);
     assert(!seq_params->enable_adaptive_mvd);
     assert(!seq_params->enable_refinemv);
@@ -5572,7 +5572,7 @@ void write_sequence_inter_group_tool_flags(
   }
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_bru == 0);
     assert(!seq_params->enable_mvd_sign_derive);
 
@@ -5587,14 +5587,14 @@ void write_sequence_inter_group_tool_flags(
   }
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
 
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_global_motion == 0);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_global_motion);
   }
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_short_refresh_frame_flags);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_short_refresh_frame_flags);
@@ -5606,7 +5606,7 @@ void write_sequence_inter_group_tool_flags(
 
 void write_sequence_filter_group_tool_flags(
     const SequenceHeader *const seq_params, struct aom_write_bit_buffer *wb) {
-  if (!seq_params->single_picture_hdr_flag) {
+  if (!seq_params->single_picture_header_flag) {
     if (seq_params->force_screen_content_tools == 2) {
       aom_wb_write_bit(wb, 1);
     } else {
@@ -5672,7 +5672,7 @@ void write_sequence_transform_group_tool_flags(
   if (!seq_params->monochrome) aom_wb_write_bit(wb, seq_params->enable_sdp);
   if (seq_params->enable_sdp) {
 #if CONFIG_CWG_F377_STILL_PICTURE
-    if (seq_params->single_picture_hdr_flag) {
+    if (seq_params->single_picture_header_flag) {
       assert(!seq_params->enable_extended_sdp);
     } else {
       aom_wb_write_bit(wb, seq_params->enable_extended_sdp);
@@ -5686,7 +5686,7 @@ void write_sequence_transform_group_tool_flags(
   if (!seq_params->monochrome)
     aom_wb_write_bit(wb, seq_params->enable_chroma_dctonly);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_inter_ddt);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_inter_ddt);
@@ -5715,7 +5715,7 @@ static AOM_INLINE void write_sequence_header(
   aom_wb_write_bit(wb, seq_params->enable_intra_dip);
   aom_wb_write_bit(wb, seq_params->enable_intra_edge_filter);
 #endif  // CONFIG_REORDER_SEQ_FLAGS
-  if (!seq_params->single_picture_hdr_flag) {
+  if (!seq_params->single_picture_header_flag) {
 #if !CONFIG_REORDER_SEQ_FLAGS
     // Encode allowed motion modes
     // Skip SIMPLE_TRANSLATION, as that is always enabled
@@ -5889,7 +5889,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
 #endif  // !CONFIG_REORDER_SEQ_FLAGS
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_cdef_on_skip_txfm == CDEF_ON_SKIP_TXFM_ADAPTIVE);
     assert(seq_params->enable_avg_cdf == 1);
     assert(seq_params->avg_cdf_type == 1);
@@ -5911,7 +5911,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
 #if !CONFIG_REORDER_SEQ_FLAGS
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->explicit_ref_frame_map);
 
     assert(seq_params->ref_frames == 2);
@@ -5941,7 +5941,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
       seq_params->def_max_bvp_drl_bits - MIN_MAX_IBC_DRL_BITS);
   aom_wb_write_bit(wb, seq_params->allow_frame_max_bvp_drl_bits);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->num_same_ref_compound == 0);
   } else {
     aom_wb_write_literal(wb, seq_params->num_same_ref_compound, 2);
@@ -5952,7 +5952,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   if (!seq_params->monochrome) aom_wb_write_bit(wb, seq_params->enable_sdp);
   if (seq_params->enable_sdp) {
 #if CONFIG_CWG_F377_STILL_PICTURE
-    if (seq_params->single_picture_hdr_flag) {
+    if (seq_params->single_picture_header_flag) {
       assert(!seq_params->enable_extended_sdp);
     } else {
       aom_wb_write_bit(wb, seq_params->enable_extended_sdp);
@@ -5966,7 +5966,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   if (!seq_params->monochrome)
     aom_wb_write_bit(wb, seq_params->enable_chroma_dctonly);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_inter_ddt);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_inter_ddt);
@@ -5982,7 +5982,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
 #endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
   aom_wb_write_bit(wb, seq_params->enable_mhccp);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_tip == 0);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_tip != 0);
@@ -5999,7 +5999,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   aom_wb_write_bit(wb, seq_params->enable_mv_traj);
   aom_wb_write_bit(wb, seq_params->enable_bawp);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_cwp);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_cwp);
@@ -6016,7 +6016,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
 #endif  // CONFIG_FSC_RES_HLS
   aom_wb_write_bit(wb, seq_params->enable_ccso);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_lf_sub_pu);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_lf_sub_pu);
@@ -6029,7 +6029,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   }
   aom_wb_write_bit(wb, seq_params->enable_orip);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_opfl_refine == AOM_OPFL_REFINE_NONE);
   } else {
     aom_wb_write_literal(wb, seq_params->enable_opfl_refine, 2);
@@ -6039,7 +6039,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
   aom_wb_write_bit(wb, seq_params->enable_ibp);
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_adaptive_mvd);
     assert(!seq_params->enable_refinemv);
   } else {
@@ -6055,7 +6055,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   }
 
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_bru == 0);
     assert(!seq_params->enable_mvd_sign_derive);
 
@@ -6091,7 +6091,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
     aom_wb_write_bit(wb, seq_params->max_pb_aspect_ratio_log2_m1);
   }
 #if !CONFIG_REORDER_SEQ_FLAGS
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->enable_global_motion == 0);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_global_motion);
@@ -6100,7 +6100,7 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   aom_wb_write_literal(wb, seq_params->df_par_bits_minus2, 2);
 #if !CONFIG_REORDER_SEQ_FLAGS
 #if CONFIG_CWG_F377_STILL_PICTURE
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_short_refresh_frame_flags);
   } else {
     aom_wb_write_bit(wb, seq_params->enable_short_refresh_frame_flags);
@@ -6473,7 +6473,7 @@ static AOM_INLINE void write_uncompressed_header_obu
     assert(current_frame->frame_type == KEY_FRAME);
   }
 
-  if (!seq_params->single_picture_hdr_flag) {
+  if (!seq_params->single_picture_header_flag) {
 #if CONFIG_F106_OBU_TILEGROUP && CONFIG_F106_OBU_SEF
     if (obu_type == OBU_SEF) {
       write_show_exisiting_frame(cpi, wb);
@@ -6606,10 +6606,10 @@ static AOM_INLINE void write_uncompressed_header_obu
     }
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 #endif  // !CONFIG_F322_OBUER_ERM
-  }  // if(!seq_params->single_picture_hdr_flag)
+  }  // if(!seq_params->single_picture_header_flag)
   int frame_size_override_flag = 0;
 
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(cm->width == seq_params->max_frame_width &&
            cm->height == seq_params->max_frame_height);
   } else {
@@ -7169,7 +7169,7 @@ static AOM_INLINE void write_uncompressed_header_obu
 #if CONFIG_CWG_F317
   if (!cm->bridge_frame_info.is_bridge_frame) {
 #endif  // CONFIG_CWG_F317
-    const int might_bwd_adapt = !(seq_params->single_picture_hdr_flag) &&
+    const int might_bwd_adapt = !(seq_params->single_picture_header_flag) &&
                                 !(features->disable_cdf_update);
 
     if (might_bwd_adapt) {
@@ -7519,11 +7519,11 @@ uint32_t av1_write_sequence_header_obu(const SequenceHeader *seq_params,
   // Still picture or not
   aom_wb_write_bit(&wb, seq_params->still_picture);
   assert(IMPLIES(!seq_params->still_picture,
-                 !seq_params->single_picture_hdr_flag));
+                 !seq_params->single_picture_header_flag));
   // whether to use reduced still picture header
-  aom_wb_write_bit(&wb, seq_params->single_picture_hdr_flag);
+  aom_wb_write_bit(&wb, seq_params->single_picture_header_flag);
 
-  if (seq_params->single_picture_hdr_flag) {
+  if (seq_params->single_picture_header_flag) {
     assert(seq_params->timing_info_present == 0);
     assert(seq_params->decoder_model_info_present_flag == 0);
     assert(seq_params->display_model_info_present_flag == 0);
@@ -7573,7 +7573,7 @@ uint32_t av1_write_sequence_header_obu(const SequenceHeader *seq_params,
     }
   }
 
-  if (!seq_params->single_picture_hdr_flag) {
+  if (!seq_params->single_picture_header_flag) {
     aom_wb_write_literal(&wb, seq_params->max_tlayer_id, TLAYER_BITS);
     aom_wb_write_literal(&wb, seq_params->max_mlayer_id, MLAYER_BITS);
   }

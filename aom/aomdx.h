@@ -135,8 +135,8 @@ typedef struct aom_tile_info {
 typedef struct aom_still_picture_info {
   /*! Video is a single frame still picture */
   int is_still_picture;
-  /*! Use full header for still picture */
-  int is_single_picture_hdr_flag;
+  /*! Use reduced header for still picture */
+  int is_single_picture_header_flag;
 } aom_still_picture_info;
 
 /*!\brief Structure to hold information about S_FRAME.

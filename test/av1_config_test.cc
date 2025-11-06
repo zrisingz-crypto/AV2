@@ -24,7 +24,7 @@ namespace {
 //
 // Each buffer is named according to the type of Sequence Header OBU ("Full"
 // Sequence Header OBUs vs Sequence Header OBUs with the
-// reduced_still_image_flag set).
+// single_picture_header_flag set).
 //
 const uint8_t kFullSequenceHeaderObu[] = { 0x0c, 0x08, 0x00, 0x00, 0x00,
                                            0x04, 0x45, 0x7e, 0x3e, 0xff,
@@ -101,7 +101,7 @@ TEST(Av1Config, WriteInvalidInputs) {
 }
 
 TEST(Av1Config, DISABLED_GetAv1ConfigFromObu) {
-  // Test parsing of a Sequence Header OBU with the reduced_still_picture_header
+  // Test parsing of a Sequence Header OBU with the single_picture_header_flag
   // unset-- aka a full Sequence Header OBU.
   ASSERT_TRUE(
       VerifyAv1c(kFullSequenceHeaderObu, sizeof(kFullSequenceHeaderObu)));

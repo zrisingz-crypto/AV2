@@ -377,8 +377,8 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
   }
 
   AV1C_READ_BIT_OR_RETURN_ERROR(still_picture);
-  AV1C_READ_BIT_OR_RETURN_ERROR(reduced_still_picture_header);
-  if (reduced_still_picture_header) {
+  AV1C_READ_BIT_OR_RETURN_ERROR(single_picture_header_flag);
+  if (single_picture_header_flag) {
     config->initial_presentation_delay_present = 0;
     AV1C_READ_BITS_OR_RETURN_ERROR(seq_level_idx_0, 5);
     config->seq_level_idx_0 = seq_level_idx_0;

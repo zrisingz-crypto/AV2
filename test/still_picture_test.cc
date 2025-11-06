@@ -61,12 +61,13 @@ class StillPicturePresenceTestLarge
       if (still_pic_info_.is_still_picture != 1) {
         still_picture_coding_violated_ = true;
       }
-      if (still_pic_info_.is_single_picture_hdr_flag == enable_full_header_) {
+      if (still_pic_info_.is_single_picture_header_flag ==
+          enable_full_header_) {
         /* If full_still_picture_header is enabled in encoder config but
-         * bitstream contains reduced_still_picture_header set, then set
+         * bitstream contains single_picture_header_flag set, then set
          * still_picture_coding_violated_ to true.
          * Similarly, if full_still_picture_header is disabled in encoder config
-         * but bitstream contains reduced_still_picture_header not set, then set
+         * but bitstream contains single_picture_header_flag not set, then set
          * still_picture_coding_violated_ to true.
          */
         still_picture_coding_violated_ = true;

@@ -422,7 +422,7 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
   memset(&obu_header, 0, sizeof(obu_header));
   size_t payload_size = 0;
   size_t bytes_read = 0;
-  uint8_t single_picture_hdr_flag = 0;
+  uint8_t single_picture_header_flag = 0;
   aom_codec_err_t status = aom_read_obu_header_and_size(
       data, data_sz, &obu_header, &payload_size, &bytes_read);
   if (status != AOM_CODEC_OK) return status;
@@ -477,13 +477,13 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
       if (status != AOM_CODEC_OK) return status;
 
       const uint8_t still_picture = aom_rb_read_bit(&rb);
-      single_picture_hdr_flag = aom_rb_read_bit(&rb);
+      single_picture_header_flag = aom_rb_read_bit(&rb);
 
-      if (!still_picture && single_picture_hdr_flag) {
+      if (!still_picture && single_picture_header_flag) {
         return AOM_CODEC_UNSUP_BITSTREAM;
       }
 
-      status = parse_operating_points(&rb, single_picture_hdr_flag, si);
+      status = parse_operating_points(&rb, single_picture_header_flag, si);
       if (status != AOM_CODEC_OK) return status;
 
       got_sequence_header = 1;
@@ -512,7 +512,7 @@ static aom_codec_err_t decoder_peek_si_internal(const uint8_t *data,
                obu_header.type == OBU_FRAME) {
 #endif  // CONFIG_CWG_F317
 #endif  // CONFIG_F106_OBU_TILEGROUP
-      if (got_sequence_header && single_picture_hdr_flag) {
+      if (got_sequence_header && single_picture_header_flag) {
         found_keyframe = 1;
         break;
       } else {
@@ -1353,8 +1353,8 @@ static aom_codec_err_t ctrl_get_still_picture(aom_codec_alg_priv_t *ctx,
       const AV1Decoder *pbi = frame_worker_data->pbi;
       still_picture_info->is_still_picture =
           (int)pbi->common.seq_params.still_picture;
-      still_picture_info->is_single_picture_hdr_flag =
-          (int)(pbi->common.seq_params.single_picture_hdr_flag);
+      still_picture_info->is_single_picture_header_flag =
+          (int)(pbi->common.seq_params.single_picture_header_flag);
       return AOM_CODEC_OK;
     } else {
       return AOM_CODEC_ERROR;

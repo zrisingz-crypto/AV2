@@ -920,7 +920,7 @@ typedef struct SequenceHeader {
                                        // 1 - force on
                                        // 2 - adaptive
   uint8_t still_picture;               // Video is a single frame still picture
-  uint8_t single_picture_hdr_flag;     // Use reduced header for still picture
+  uint8_t single_picture_header_flag;  // Use reduced header for still picture
   uint8_t force_integer_mv;            // 0 - Don't force. MV can use subpel
                                        // 1 - force to integer
                                        // 2 - adaptive

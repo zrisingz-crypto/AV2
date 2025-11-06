@@ -812,7 +812,11 @@ typedef struct AtlasSegmentInfo {
   int ats_nominal_height_minus1[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
 
   struct AtlasRegionInfo ats_reg_params;
+  // TODO(hegilmez/spaluri): may clean up this pointer, keeping for potential
+  // changes
   struct AtlasBasicInfo *ats_basic_info;
+  // TODO(hegilmez/spaluri): may rename if above pointer is removed
+  struct AtlasBasicInfo ats_basic_info_s;
   struct AtlasRegionToSegmentMapping ats_reg_seg_map;
   struct AtlasLabelSegmentInfo ats_label_seg;
 } AtlasSegmentInfo;

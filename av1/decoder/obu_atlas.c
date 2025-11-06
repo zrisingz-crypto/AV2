@@ -269,6 +269,7 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
     }
     atlas_params = &pbi->atlas_list[pbi->atlas_counter];
     pbi->atlas_counter++;
+    atlas_params->ats_basic_info = &atlas_params->ats_basic_info_s;
   }
 
   atlas_params->atlas_segment_id[obu_xLayer_id] = atlas_segment_id;

@@ -163,13 +163,14 @@ static uint32_t read_ats_region_to_segment_mapping(
   return 0;
 }
 
-static uint32_t read_ats_label_segment_info(struct AV1Decoder *pbi,
-                                            int xLayerId, int xAId,
-                                            int NumSegments,
-                                            struct aom_read_bit_buffer *rb) {
+static uint32_t read_ats_label_segment_info(
+    struct AV1Decoder *pbi, struct AtlasSegmentInfo *atlas_params, int xLayerId,
+    int xAId, int NumSegments, struct aom_read_bit_buffer *rb) {
   assert(NumSegments >= 0);
-  struct AtlasLabelSegmentInfo *ats_label =
-      &pbi->common.atlas_params.ats_label_seg;
+  // TODO(hegilmez/spaluri): cleanup pbi or use common structure
+  // (&pbi->common.atlas_params.ats_label_seg)
+  (void)pbi;
+  struct AtlasLabelSegmentInfo *ats_label = &atlas_params->ats_label_seg;
 
   ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId] =
       aom_rb_read_bit(rb);
@@ -319,7 +320,8 @@ uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
                    1;
   }
   // Label each atlas segment
-  read_ats_label_segment_info(pbi, obu_xLayer_id, xAId, num_segments, rb);
+  read_ats_label_segment_info(pbi, atlas_params, obu_xLayer_id, xAId,
+                              num_segments, rb);
 
   if (av1_check_trailing_bits(pbi, rb) != 0) {
     return 0;

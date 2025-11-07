@@ -60,12 +60,10 @@ static int read_lcr_xlayer_color_info(struct AV1Decoder *pbi, int isGlobal,
   return 0;
 }
 
-static int read_lcr_embedded_layer_info(struct AV1Decoder *pbi, int isGlobal,
-                                        int xId,
-                                        struct aom_read_bit_buffer *rb) {
-  struct LayerConfigurationRecord *lcr_params = &pbi->common.lcr_params;
+static int read_lcr_embedded_layer_info(
+    struct AV1Decoder *pbi, struct LayerConfigurationRecord *lcr_params,
+    int isGlobal, int xId, struct aom_read_bit_buffer *rb) {
   struct EmbeddedLayerInfo *mlayer_params = &lcr_params->mlayer_params;
-
   mlayer_params->MLayerCount[isGlobal][xId] = 0;
 
   mlayer_params->lcr_mlayer_map[isGlobal][xId] =
@@ -167,10 +165,10 @@ static int read_lcr_rep_info(struct LayerConfigurationRecord *lcr_params,
   return 0;
 }
 
-static int read_lcr_xlayer_info(struct AV1Decoder *pbi, int isGlobal, int xId,
+static int read_lcr_xlayer_info(struct AV1Decoder *pbi,
+                                struct LayerConfigurationRecord *lcr_params,
+                                int isGlobal, int xId,
                                 struct aom_read_bit_buffer *rb) {
-  struct LayerConfigurationRecord *lcr_params = &pbi->common.lcr_params;
-
   lcr_params->lcr_rep_info_present_flag[isGlobal][xId] = aom_rb_read_bit(rb);
   lcr_params->lcr_xlayer_purpose_present_flag[isGlobal][xId] =
       aom_rb_read_bit(rb);
@@ -199,7 +197,7 @@ static int read_lcr_xlayer_info(struct AV1Decoder *pbi, int isGlobal, int xId,
 
   // Add embedded layer information if desired
   if (lcr_params->lcr_embedded_layer_info_present_flag[isGlobal][xId])
-    read_lcr_embedded_layer_info(pbi, isGlobal, xId, rb);
+    read_lcr_embedded_layer_info(pbi, lcr_params, isGlobal, xId, rb);
   else {
     // If no embedded layer info present and if extended layer 31
     // then we may wish to have atlas mapping at the xlayer level
@@ -212,18 +210,15 @@ static int read_lcr_xlayer_info(struct AV1Decoder *pbi, int isGlobal, int xId,
   return 0;
 }
 
-static void read_lcr_global_payload(struct AV1Decoder *pbi, int i,
-                                    int sizePresent,
-                                    struct aom_read_bit_buffer *rb) {
-  struct LayerConfigurationRecord lcr_params = pbi->common.lcr_params;
-  (void)sizePresent;
-
-  lcr_params.lcr_xLayer_id[i] = aom_rb_read_literal(rb, 5);
-  int n = lcr_params.lcr_xLayer_id[i];
-  if (lcr_params.lcr_dependent_xlayers_flag && n > 0)
-    lcr_params.lcr_num_dependent_xlayer_map[n] = aom_rb_read_literal(rb, 32);
-
-  read_lcr_xlayer_info(pbi, 1, n, rb);
+static void read_lcr_global_payload(struct AV1Decoder *pbi,
+                                    struct LayerConfigurationRecord *lcr_params,
+                                    int i, struct aom_read_bit_buffer *rb) {
+  lcr_params->lcr_xLayer_id[i] = aom_rb_read_literal(rb, 5);
+  int n = lcr_params->lcr_xLayer_id[i];
+  if (lcr_params->lcr_dependent_xlayers_flag && n > 0) {
+    lcr_params->lcr_num_dependent_xlayer_map[n] = aom_rb_read_literal(rb, 32);
+  }
+  read_lcr_xlayer_info(pbi, lcr_params, 1, n, rb);
 }
 
 static int read_lcr_global_info(struct AV1Decoder *pbi,
@@ -280,7 +275,7 @@ static int read_lcr_global_info(struct AV1Decoder *pbi,
     lcr_params->lcr_data_size[i] = 0;
     if (lcr_params->lcr_data_size_present_flag)
       lcr_params->lcr_data_size[i] = aom_rb_read_uleb(rb);
-    read_lcr_global_payload(pbi, i, lcr_params->lcr_data_size_present_flag, rb);
+    read_lcr_global_payload(pbi, lcr_params, i, rb);
   }
 #if CONFIG_CWG_F248_RENDER_SIZE
   lcr_params->is_local_lcr = 0;
@@ -327,7 +322,7 @@ static int read_lcr_local_info(struct AV1Decoder *pbi, int xlayerId,
 
   lcr_params->lcr_reserved_zero_6bits = aom_rb_read_literal(rb, 6);
 
-  read_lcr_xlayer_info(pbi, 0, xlayerId, rb);
+  read_lcr_xlayer_info(pbi, lcr_params, 0, xlayerId, rb);
 #if CONFIG_CWG_F248_RENDER_SIZE
   lcr_params->is_local_lcr = 1;
   lcr_params->xlayer_id = xlayerId;

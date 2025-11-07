@@ -881,10 +881,16 @@ typedef struct OperatingPointSet {
   int OpsxLayerId[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT]
                  [MAX_NUM_XLAYERS];
   int XCount[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
+  // TODO (hegilmez/spaluri): may cleanup *ops_mlayer_info, *ops_col_info and
+  // *ops_decoder_model_info pointers, which are kept for now in case needed for
+  // future changes.
   // mlayer, color, delay and model information
   struct OPSMLayerInfo *ops_mlayer_info;
+  struct OPSMLayerInfo ops_mlayer_info_s;
   struct OpsColorInfo *ops_col_info;
+  struct OpsColorInfo ops_col_info_s;
   struct OpsDecoderModelInfo *ops_decoder_model_info;
+  struct OpsDecoderModelInfo ops_decoder_model_info_s;
 } OperatingPointSet;
 #endif  // CONFIG_MULTILAYER_HLS
 

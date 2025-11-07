@@ -117,6 +117,9 @@ uint32_t av1_read_operating_point_set_obu(struct AV1Decoder *pbi,
     }
     ops_params = &pbi->ops_list[pbi->ops_counter];
     pbi->ops_counter++;
+    ops_params->ops_mlayer_info = &ops_params->ops_mlayer_info_s;
+    ops_params->ops_col_info = &ops_params->ops_col_info_s;
+    ops_params->ops_decoder_model_info = &ops_params->ops_decoder_model_info_s;
   }
 
   ops_params->ops_reset_flag[obu_xlayer_id] = ops_reset_flag;

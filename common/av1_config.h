@@ -28,8 +28,12 @@ extern "C" {
 // unsigned int (3) seq_profile;
 // unsigned int (5) seq_level_idx_0;
 // unsigned int (1) seq_tier_0;
+#if CONFIG_CWG_E242_BITDEPTH
+// unsigned int (2) bitdepth_idx;
+#else
 // unsigned int (1) high_bitdepth;
 // unsigned int (1) twelve_bit;
+#endif  // CONFIG_CWG_E242_BITDEPTH
 // unsigned int (1) monochrome;
 // unsigned int (1) chroma_subsampling_x;
 // unsigned int (1) chroma_subsampling_y;

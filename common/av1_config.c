@@ -506,13 +506,8 @@ int read_av1config(const uint8_t *buffer, size_t buffer_length,
   config->seq_tier_0 = seq_tier_0;
 
 #if CONFIG_CWG_E242_BITDEPTH
-  AV1C_READ_UVLC_BITS_OR_RETURN_ERROR(bitdepth_idx);
-  if (bitdepth_idx > UINT8_MAX) {
-    fprintf(stderr, "av1c: invalid value for bitdepth_idx: %u.\n",
-            bitdepth_idx);
-    return -1;
-  }
-  config->bitdepth_idx = (uint8_t)bitdepth_idx;
+  AV1C_READ_BITS_OR_RETURN_ERROR(bitdepth_idx, 2);
+  config->bitdepth_idx = bitdepth_idx;
 #else
   AV1C_READ_BIT_OR_RETURN_ERROR(high_bitdepth);
   config->high_bitdepth = high_bitdepth;
@@ -563,7 +558,12 @@ int write_av1config(const Av1Config *config, size_t capacity,
   aom_wb_write_literal(&writer, config->seq_level_idx_0, 5);
   aom_wb_write_bit(&writer, config->seq_tier_0);
 #if CONFIG_CWG_E242_BITDEPTH
-  aom_wb_write_uvlc(&writer, (uint32_t)config->bitdepth_idx);
+  if (config->bitdepth_idx > 3) {
+    fprintf(stderr, "av1c: invalid value for bitdepth_idx: %u.\n",
+            config->bitdepth_idx);
+    return -1;
+  }
+  aom_wb_write_literal(&writer, config->bitdepth_idx, 2);
 #else
   aom_wb_write_bit(&writer, config->high_bitdepth);
   aom_wb_write_bit(&writer, config->twelve_bit);

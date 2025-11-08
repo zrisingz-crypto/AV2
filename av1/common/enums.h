@@ -1160,9 +1160,6 @@ typedef uint8_t INTRA_REGION_CONTEXT;
 // encoder in the cpi->scaled_ref_buf array.
 #define FRAME_BUFFERS (REF_FRAMES + 1 + INTER_REFS_PER_FRAME)
 
-#define FWD_RF_OFFSET(ref) (ref - LAST_FRAME)
-#define BWD_RF_OFFSET(ref) (ref - BWDREF_FRAME)
-
 #define TOTAL_COMP_REFS (FWD_REFS * BWD_REFS + TOTAL_UNIDIR_COMP_REFS)
 
 #define COMP_REFS (FWD_REFS * BWD_REFS + UNIDIR_COMP_REFS)

@@ -216,7 +216,8 @@ static void read_lcr_global_payload(struct AV1Decoder *pbi,
   lcr_params->lcr_xLayer_id[i] = aom_rb_read_literal(rb, 5);
   int n = lcr_params->lcr_xLayer_id[i];
   if (lcr_params->lcr_dependent_xlayers_flag && n > 0) {
-    lcr_params->lcr_num_dependent_xlayer_map[n] = aom_rb_read_literal(rb, 32);
+    lcr_params->lcr_num_dependent_xlayer_map[n] =
+        aom_rb_read_unsigned_literal(rb, 32);
   }
   read_lcr_xlayer_info(pbi, lcr_params, 1, n, rb);
 }

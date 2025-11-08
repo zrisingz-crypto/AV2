@@ -713,7 +713,7 @@ typedef struct LayerConfigurationRecord {
 
   uint32_t lcr_data_size[MAX_NUM_XLAYERS];
   int lcr_xLayer_id[MAX_NUM_XLAYERS];
-  int lcr_num_dependent_xlayer_map[MAX_NUM_XLAYERS];
+  uint32_t lcr_num_dependent_xlayer_map[MAX_NUM_XLAYERS];
   int lcr_dependent_xlayers_flag;
   int lcr_global_id[MAX_NUM_XLAYERS];
   int lcr_local_id[MAX_NUM_XLAYERS];

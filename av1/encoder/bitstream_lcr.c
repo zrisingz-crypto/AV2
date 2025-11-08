@@ -195,7 +195,8 @@ void write_lcr_global_payload(AV1_COMP *cpi, int i, int sizePresent,
   aom_wb_write_literal(wb, lcr_params.lcr_xLayer_id[i], 5);
   int n = lcr_params.lcr_xLayer_id[i];
   if (lcr_params.lcr_dependent_xlayers_flag && n > 0)
-    aom_wb_write_literal(wb, lcr_params.lcr_num_dependent_xlayer_map[n], 32);
+    aom_wb_write_unsigned_literal(
+        wb, lcr_params.lcr_num_dependent_xlayer_map[n], 32);
 
   write_lcr_xlayer_info(cpi, 1, n, wb);
 }

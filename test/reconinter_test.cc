@@ -19,6 +19,7 @@
 #include "config/av1_rtcd.h"
 
 #include "aom_ports/mem.h"
+#include "av1/common/reconinter.h"
 #include "av1/common/scan.h"
 #include "av1/common/txb_common.h"
 #include "test/acm_random.h"
@@ -194,6 +195,16 @@ class RefinemvPadMCBorderTest : public ::testing::TestWithParam<Params> {
   virtual void SetUp() {
     block_width_ = GET_PARAM(0) + (AOM_INTERP_EXTEND - 1) + AOM_INTERP_EXTEND;
     block_height_ = GET_PARAM(1) + (AOM_INTERP_EXTEND - 1) + AOM_INTERP_EXTEND;
+    int ref_area_width = (GET_PARAM(0) == 4)
+                             ? GET_PARAM(0) + FOUR_TAPS_REF_LEFT_BORDER +
+                                   FOUR_TAPS_REF_RIGHT_BORDER
+                             : GET_PARAM(0) + EIGHT_TAPS_REF_LEFT_BORDER +
+                                   EIGHT_TAPS_REF_RIGHT_BORDER;
+    int ref_area_height = (GET_PARAM(1) == 4)
+                              ? GET_PARAM(1) + FOUR_TAPS_REF_TOP_BORDER +
+                                    FOUR_TAPS_REF_BOTTOM_BORDER
+                              : GET_PARAM(1) + EIGHT_TAPS_REF_TOP_BORDER +
+                                    EIGHT_TAPS_REF_BOTTOM_BORDER;
     func_ = GET_PARAM(3);
     src_stride_ = kMaxDimension;
     dst_stride_ = REF_BUFFER_WIDTH;
@@ -209,7 +220,7 @@ class RefinemvPadMCBorderTest : public ::testing::TestWithParam<Params> {
 
     aom_bit_depth_t bit_depth = static_cast<aom_bit_depth_t>(GET_PARAM(2));
     const int mask = (1 << bit_depth) - 1;
-    ref_area_ = { { 0, 15, 0, 15 }, { 0 }, 0 };
+    ref_area_ = { { 0, ref_area_width, 0, ref_area_height }, { 0 }, 0 };
 
     ACMRandom rnd;
     rnd.Reset(ACMRandom::DeterministicSeed());
@@ -268,8 +279,8 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(RefinemvPadMCBorderTest);
 
 void RefinemvPadMCBorderTest::CheckResult() {
   uint16_t *const in = input();
-  for (int y0 = -15; y0 <= 15; y0++) {
-    for (int x0 = -15; x0 <= 15; x0++) {
+  for (int y0 = -block_width_; y0 <= block_width_; y0++) {
+    for (int x0 = -block_width_; x0 <= block_width_; x0++) {
       const uint16_t *const buf_ptr = in + y0 * src_stride_ + x0;
       refinemv_highbd_pad_mc_border_c(buf_ptr, src_stride_, dst_ref_,
                                       dst_stride_, x0, y0, block_width_,
@@ -286,8 +297,8 @@ void RefinemvPadMCBorderTest::CheckResult() {
 TEST_P(RefinemvPadMCBorderTest, CheckResult) { CheckResult(); }
 
 void RefinemvPadMCBorderTest::RunSpeedTest() {
-  int x0[3] = { 0, 1, 15 };
-  int y0[3] = { 0, 1, 15 };
+  int x0[3] = { 0, 1, block_width_ };
+  int y0[3] = { 0, 1, block_width_ };
   uint16_t *const in = input();
 
   for (int k = 0; k <= 2; k++) {
@@ -339,7 +350,13 @@ const Params kRefinemvPadMCBorder_avx2[] = {
   make_tuple(8, 16, 10, &refinemv_highbd_pad_mc_border_avx2),
   make_tuple(8, 4, 12, &refinemv_highbd_pad_mc_border_avx2),
   make_tuple(8, 8, 12, &refinemv_highbd_pad_mc_border_avx2),
-  make_tuple(8, 16, 12, &refinemv_highbd_pad_mc_border_avx2)
+  make_tuple(8, 16, 12, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 4, 8, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 8, 8, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 4, 10, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 8, 10, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 4, 12, &refinemv_highbd_pad_mc_border_avx2),
+  make_tuple(4, 8, 12, &refinemv_highbd_pad_mc_border_avx2)
 };
 
 INSTANTIATE_TEST_SUITE_P(AVX2, RefinemvPadMCBorderTest,

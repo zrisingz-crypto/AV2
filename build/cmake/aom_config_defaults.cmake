@@ -241,8 +241,6 @@ set_aom_config_var(CONFIG_FRAME_HALF_PRECISION 1
 set_aom_config_var(CONFIG_WRL_CORNER_MVS 1
                    "Improve the WRL from the 3 corner MVs")
 
-set_aom_config_var(CONFIG_BLENDING_SIMPLIFICATION 1
-                   "CWG F137 simplification for blending mode")
 set_aom_config_var(CONFIG_DC_DIV_UNIFY 1 "Unify DC division")
 
 set_aom_config_var(CONFIG_MHCCP_BLK_SIZE 1
@@ -292,10 +290,6 @@ set_aom_config_var(CONFIG_CWG_F362 1
 set_aom_config_var(
   CONFIG_CWG_F377_STILL_PICTURE 1
   "Sequence header OBU changes for single_picture_header_flag.")
-
-set_aom_config_var(
-  CONFIG_FSC_RES_HLS 1
-  "add high level flag to switch fsc residual and regular residual.")
 
 set_aom_config_var(CONFIG_DF_DQP 1 "Adding DQP to the deblocking filter")
 

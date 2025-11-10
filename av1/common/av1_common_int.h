@@ -2123,7 +2123,7 @@ typedef struct AV1Common {
   /*!
    * For encoder, we have a two-level mapping from reference frame type to the
    * corresponding buffer in the buffer pool:
-   * * 'remapped_ref_idx[i - 1]' maps reference type 'i' (range: 0 ...
+   * * 'remapped_ref_idx[i]' maps reference type 'i' (range: 0 ...
    * INTER_REFS_PER_FRAME - 1) to a remapped index 'j' in the same range.
    * * Later, 'cm->ref_frame_map[j]' maps the remapped index 'j' to a pointer to
    * the reference counted buffer structure RefCntBuffer, taken from the buffer
@@ -2132,7 +2132,7 @@ typedef struct AV1Common {
    *      0,               ...,            INTER_REFS_PER_FRAME - 1
    *      |                                           |
    *      v                                           v
-   * remapped_ref_idx[0],  ...,     remapped_ref_idx[INTER_REFS_PER_FRAME- 1]
+   * remapped_ref_idx[0],  ...,     remapped_ref_idx[INTER_REFS_PER_FRAME - 1]
    *      |                                           |
    *      v                                           v
    * ref_frame_map[],      ...,                ref_frame_map[]

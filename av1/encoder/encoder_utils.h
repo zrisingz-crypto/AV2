@@ -122,9 +122,8 @@ static AOM_INLINE void enc_setup_mi(CommonModeInfoParams *mi_params) {
 
 static AOM_INLINE void init_buffer_indices(
     ForceIntegerMVInfo *const force_intpel_info, int *const remapped_ref_idx) {
-  int fb_idx;
-  for (fb_idx = 0; fb_idx < INTER_REFS_PER_FRAME; ++fb_idx)
-    remapped_ref_idx[fb_idx] = fb_idx;
+  for (int fb_idx = 0; fb_idx < INTER_REFS_PER_FRAME; ++fb_idx)
+    remapped_ref_idx[fb_idx] = INVALID_IDX;
   force_intpel_info->rate_index = 0;
   force_intpel_info->rate_size = 0;
 }

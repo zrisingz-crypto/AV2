@@ -193,6 +193,17 @@ void av1_copy_predefined_qmatrices_to_list(
     }
   }  // qm_pos
 }
+
+// If store_at_intermediate_location is true, save the QM OBU in the
+// intermediate location pbi->qmobu_list[pbi->total_qmobu_count].qm_list[].
+// Otherwise, save the QM OBU in pbi->qm_list[]. Pass
+// store_at_intermediate_location=true if a QM OBU is in a temporal unit with a
+// sequence header.
+//
+// acc_qm_id_bitmap is an in/out parameter. The caller should set
+// *acc_qm_id_bitmap to 0 before the first call to read_qm_obu(). Each
+// read_qm_obu() call updates *acc_qm_id_bitmap by bitwise-ORing the
+// qm_id_bitmap from the QM OBU with *acc_qm_id_bitmap.
 uint32_t read_qm_obu(AV1Decoder *pbi, int obu_tlayer_id, int obu_mlayer_id,
                      bool store_at_intermediate_location,
                      uint32_t *acc_qm_id_bitmap,

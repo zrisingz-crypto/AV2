@@ -456,8 +456,13 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   seq_params->film_grain_params_present = aom_rb_read_bit(rb);
 
   // Sequence header for coding tools beyond AV1
-  av1_read_sequence_header_beyond_av1(rb, seq_params, &cm->quant_params,
-                                      &cm->error);
+  av1_read_sequence_header_beyond_av1(rb, seq_params
+#if !CONFIG_F255_QMOBU
+                                      ,
+                                      &cm->quant_params, &cm->error
+#endif  // !CONFIG_F255_QMOBU
+  );
+
 #if CONFIG_SCAN_TYPE_METADATA
   // TODO(seethalpaluri): Move these to the CI OBU
   seq_params->scan_type_info_present_flag = aom_rb_read_bit(rb);
@@ -492,7 +497,9 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   if (pbi->sequence_header_ready) {
     if (!are_seq_headers_consistent(&cm->seq_params, seq_params)) {
       pbi->sequence_header_changed = 1;
+#if !CONFIG_F255_QMOBU
       cm->quant_params.qmatrix_initialized = false;
+#endif  // !CONFIG_F255_QMOBU
 #if CONFIG_MULTI_FRAME_HEADER
       reset_mfh_valid(cm);
 #endif  // CONFIG_MULTI_FRAME_HEADER
@@ -1514,18 +1521,25 @@ static int is_coded_frame(OBU_TYPE obu_type) {
 // On success, return 0. If failed return 1.
 #if OBU_ORDER_IN_TU
 static int check_obu_order(OBU_TYPE prev_obu_type, OBU_TYPE curr_obu_type) {
-  if ((prev_obu_type == OBU_TEMPORAL_DELIMITER) &&
-      (curr_obu_type == OBU_MSDO ||
-       curr_obu_type == OBU_LAYER_CONFIGURATION_RECORD ||
-       curr_obu_type == OBU_ATLAS_SEGMENT ||
-       curr_obu_type == OBU_OPERATING_POINT_SET ||
-       curr_obu_type == OBU_SEQUENCE_HEADER ||
-       curr_obu_type == OBU_MULTI_FRAME_HEADER ||
-       is_coded_frame(curr_obu_type) || curr_obu_type == OBU_METADATA
+#if CONFIG_F255_QMOBU
+  if (is_coded_frame(curr_obu_type) && prev_obu_type == OBU_QM) {
+    return 0;
+  } else if (curr_obu_type == OBU_QM) {
+    return 0;
+  } else
+#endif
+      if ((prev_obu_type == OBU_TEMPORAL_DELIMITER) &&
+          (curr_obu_type == OBU_MSDO ||
+           curr_obu_type == OBU_LAYER_CONFIGURATION_RECORD ||
+           curr_obu_type == OBU_ATLAS_SEGMENT ||
+           curr_obu_type == OBU_OPERATING_POINT_SET ||
+           curr_obu_type == OBU_SEQUENCE_HEADER ||
+           curr_obu_type == OBU_MULTI_FRAME_HEADER ||
+           is_coded_frame(curr_obu_type) || curr_obu_type == OBU_METADATA
 #if CONFIG_SHORT_METADATA
-       || curr_obu_type == OBU_METADATA_GROUP
+           || curr_obu_type == OBU_METADATA_GROUP
 #endif  // CONFIG_SHORT_METADATA
-       )) {
+           )) {
     return 0;
   } else if ((prev_obu_type == OBU_MSDO) &&
              (curr_obu_type == OBU_LAYER_CONFIGURATION_RECORD ||
@@ -1649,6 +1663,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   int prev_obu_type_initialized = 0;
 #endif  // OBU_ORDER_IN_TU
 
+#if CONFIG_F255_QMOBU
+  uint32_t acc_qm_id_bitmap = 0;
+  bool seq_header_in_tu = false;
+#endif
+
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && cm->error.error_code == AOM_CODEC_OK) {
     struct aom_read_bit_buffer rb;
@@ -1676,7 +1695,9 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     if (prev_obu_type_initialized &&
         check_obu_order(prev_obu_type, curr_obu_type)) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
-                         "OBU order is incorrect in TU");
+                         "OBU order is incorrect in TU previous %s current %s",
+                         aom_obu_type_to_string(prev_obu_type),
+                         aom_obu_type_to_string(curr_obu_type));
     }
     prev_obu_type = curr_obu_type;
     prev_obu_type_initialized = 1;
@@ -1781,6 +1802,9 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
           return -1;
         }
+#if CONFIG_F255_QMOBU
+        seq_header_in_tu = true;
+#endif
         break;
 #if CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
       case OBU_BUFFER_REMOVAL_TIMING:
@@ -1839,11 +1863,16 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_CWG_F317
       case OBU_BRIDGE_FRAME:
 #endif  // CONFIG_CWG_F317
+#if CONFIG_F255_QMOBU
+        // It is a requirement that if multiple QM OBUs are present
+        // consecutively prior to a coded frame.
+        acc_qm_id_bitmap = 0;
+#endif
+
 #if CONFIG_F106_OBU_TILEGROUP
         decoded_payload_size =
             read_tilegroup_obu(pbi, &rb, data, data + payload_size, p_data_end,
                                obu_header.type, &frame_decoding_finished);
-
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
 #if CONFIG_CWG_F317
         if (cm->bru.frame_inactive_flag ||
@@ -2016,6 +2045,14 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         pbi->num_tile_groups++;
         break;
 #endif  // CONFIG_F106_OBU_TILEGROUP
+#if CONFIG_F255_QMOBU
+      case OBU_QM:
+        decoded_payload_size =
+            read_qm_obu(pbi, obu_header.obu_tlayer_id, obu_header.obu_mlayer_id,
+                        seq_header_in_tu, &acc_qm_id_bitmap, &rb);
+        if (cm->error.error_code != AOM_CODEC_OK) return -1;
+        break;
+#endif  // CONFIG_F255_QMOBU
       case OBU_METADATA:
 #if CONFIG_METADATA && !CONFIG_SHORT_METADATA
         decoded_payload_size =

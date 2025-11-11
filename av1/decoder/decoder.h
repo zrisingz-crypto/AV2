@@ -445,6 +445,16 @@ typedef struct AV1Decoder {
    */
   struct SequenceHeader *active_seq;
 #endif  // CONFIG_CWG_E242_SEQ_HDR_ID
+#if CONFIG_F255_QMOBU
+  int total_qmobu_count;
+  // qmobu_list stores the data when a qmobu is parsed
+  struct qm_obu qmobu_list[NUM_CUSTOM_QMS];
+  // Note: qm_list stores quantiztion matrices that are used during tile group
+  // decoding qm_list is filled when a sequence header is activated or is filled
+  // when qmobu is signalled in a temporal unit that is not containing a
+  // sequence header
+  struct quantization_matrix_set qm_list[NUM_CUSTOM_QMS];
+#endif  // CONFIG_F255_QMOBU
 } AV1Decoder;
 
 // Returns 0 on success. Sets pbi->common.error.error_code to a nonzero error

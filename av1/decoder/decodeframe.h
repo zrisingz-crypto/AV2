@@ -65,9 +65,19 @@ void read_sequence_tile_info(struct SequenceHeader *seq_params,
 
 // Reads additional sequence header for coding tools beyond AV1
 void av1_read_sequence_header_beyond_av1(
-    struct aom_read_bit_buffer *rb, SequenceHeader *seq_params,
-    CommonQuantParams *quant_params,
-    struct aom_internal_error_info *error_info);
+    struct aom_read_bit_buffer *rb, SequenceHeader *seq_params
+#if !CONFIG_F255_QMOBU
+    ,
+    CommonQuantParams *quant_params, struct aom_internal_error_info *error_info
+#endif  // !CONFIG_F255_QMOBU
+);
+
+#if CONFIG_F255_QMOBU
+void av1_copy_predefined_qmatrices_to_list(struct AV1Decoder *pbi,
+                                           int num_planes,
+                                           bool as_seq_header_init);
+#endif  // CONFIG_F255_QMOBU
+
 #if CONFIG_MULTI_FRAME_HEADER
 // Reads multi-frame header
 void av1_read_multi_frame_header(AV1_COMMON *cm,

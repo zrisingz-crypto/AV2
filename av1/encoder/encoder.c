@@ -672,6 +672,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->ref_frames = tool_cfg->dpb_size;
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->ref_frames_log2 = aom_ceil_log2(seq->ref_frames);
+#if !CONFIG_F255_QMOBU
   const QuantizationCfg *const q_cfg = &oxcf->q_cfg;
   seq->user_defined_qmatrix = q_cfg->using_qm && q_cfg->user_defined_qmatrix;
 #if CONFIG_QM_DEBUG
@@ -683,6 +684,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
       seq->qm_data_present[i] = q_cfg->qm_data_present[i];
     }
   }
+#endif  // !CONFIG_F255_QMOBU
 }
 
 static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
@@ -1191,6 +1193,11 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
             ? cm->number_mlayers * cm->number_tlayers - 1
             : 0;
     av1_init_seq_coding_tools(&cm->seq_params, cm, oxcf);
+#if CONFIG_F255_QMOBU
+    for (int i = 0; i < NUM_CUSTOM_QMS; i++) {
+      cpi->use_user_defined_qm[i] = false;
+    }
+#endif  // CONFIG_F255_QMOBU
     if (seq_params->enable_restoration) set_seq_lr_tools_mask(seq_params, oxcf);
   }
 
@@ -1526,6 +1533,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
    */
   av1_init_quantizer(&cm->seq_params, &cpi->enc_quant_dequant_params, cm);
 
+#if CONFIG_F255_QMOBU
+  av1_qm_init(&cm->quant_params, av1_num_planes(cm));
+#else
   SequenceHeader *seq = &cm->seq_params;
 
   for (int i = 0; i < NUM_CUSTOM_QMS; i++) {
@@ -1534,7 +1544,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
   cm->quant_params.qmatrix_allocated = false;
   cm->quant_params.qmatrix_initialized = false;
-
+#endif  // CONFIG_F255_QMOBU
   cm->seq_params.df_par_bits_minus2 = DF_PAR_BITS - 2;
   av1_loop_filter_init(cm);
 
@@ -3585,6 +3595,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #endif
   } while (loop);
 
+#if CONFIG_F255_QMOBU
+  if (cpi->new_qmobu_added) cpi->total_signalled_qmobu_count++;
+#endif
   return AOM_CODEC_OK;
 }
 
@@ -4066,6 +4079,11 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     // Save LR parameters
     LrParams lr_params = { { 0 }, { 0 }, { 0 }, { 0 } };
     store_lr_parameters(cm, &lr_params);
+#if CONFIG_F255_QMOBU
+    // int total_qmobu_count = cpi->total_signalled_qmobu_count;
+    int obu_written_status = cpi->obu_is_written;
+    cpi->obu_is_written = true;
+#endif
 
     for (int i = 0; i < n_refs; ++i) {
       const int temp_map_idx = get_ref_frame_map_idx(cm, i);
@@ -4102,7 +4120,10 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
         best_ref_idx = i;
       }
     }
-
+#if CONFIG_F255_QMOBU
+    // recover the obu_is_written status
+    cpi->obu_is_written = obu_written_status;
+#endif
     if (cm->features.primary_ref_frame != best_ref_idx &&
         best_frame_size < cur_frame_size) {
       cm->features.primary_ref_frame = best_ref_idx;
@@ -4196,7 +4217,9 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   }
 
   cpi->last_encoded_frame_order_hint = cm->current_frame.display_order_hint;
-
+#if CONFIG_F255_QMOBU
+  if (cpi->new_qmobu_added) cpi->total_signalled_qmobu_count++;
+#endif
   return AOM_CODEC_OK;
 }
 
@@ -4306,7 +4329,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     // an overlay frame
     gf_group->update_type[gf_group->size] = GF_UPDATE;
   }
-
+#if CONFIG_F255_QMOBU
+  cpi->new_qmobu_added = 0;
+#endif
   const int encode_show_existing = encode_show_existing_frame(cm);
   if (encode_show_existing || cm->show_existing_frame) {
     av1_finalize_encoded_frame(cpi);

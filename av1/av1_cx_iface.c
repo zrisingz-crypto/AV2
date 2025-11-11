@@ -2129,6 +2129,14 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
   }
 
   AV1_COMP *cpi = ctx->cpi;
+#if CONFIG_F255_QMOBU
+  if (num_planes != (cpi->common.seq_params.monochrome ? 1 : 3)) {
+    return AOM_CODEC_INVALID_PARAM;
+  }
+  cpi->use_user_defined_qm[level] = true;
+  if (cpi->user_defined_qm_list[level] == NULL)
+    cpi->user_defined_qm_list[level] = av1_alloc_qmset(num_planes);
+#else
   SequenceHeader *seq_params = &cpi->common.seq_params;
   if (num_planes != av1_num_planes(&cpi->common)) {
     return AOM_CODEC_INVALID_PARAM;
@@ -2149,6 +2157,7 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
     av1_qm_init(&cpi->common.quant_params, num_planes, fund_mat);
     cpi->common.quant_params.qmatrix_initialized = true;
   }
+#endif  // CONFIG_F255_QMOBU
   // Copy user-defined QMs for level.
   for (int c = 0; c < num_planes; c++) {
     if (!user_defined_qm->qm_8x8[c]) {
@@ -2164,8 +2173,13 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
         return AOM_CODEC_INVALID_PARAM;
       }
     }
+#if CONFIG_F255_QMOBU
+    memcpy(cpi->user_defined_qm_list[level][0][c], user_defined_qm->qm_8x8[c],
+           8 * 8 * sizeof(qm_val_t));
+#else
     memcpy(seq_params->quantizer_matrix_8x8[level][c],
            user_defined_qm->qm_8x8[c], 8 * 8 * sizeof(qm_val_t));
+#endif  // CONFIG_F255_QMOBU
     if (!user_defined_qm->qm_8x4[c]) {
       return AOM_CODEC_INVALID_PARAM;
     }
@@ -2174,8 +2188,13 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
         return AOM_CODEC_INVALID_PARAM;
       }
     }
+#if CONFIG_F255_QMOBU
+    memcpy(cpi->user_defined_qm_list[level][1][c], user_defined_qm->qm_8x4[c],
+           8 * 4 * sizeof(qm_val_t));
+#else
     memcpy(seq_params->quantizer_matrix_8x4[level][c],
            user_defined_qm->qm_8x4[c], 8 * 4 * sizeof(qm_val_t));
+#endif  // CONFIG_F255_QMOBU
     if (!user_defined_qm->qm_4x8[c]) {
       return AOM_CODEC_INVALID_PARAM;
     }
@@ -2184,16 +2203,22 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
         return AOM_CODEC_INVALID_PARAM;
       }
     }
+#if CONFIG_F255_QMOBU
+    memcpy(cpi->user_defined_qm_list[level][2][c], user_defined_qm->qm_4x8[c],
+           4 * 8 * sizeof(qm_val_t));
+#else
     memcpy(seq_params->quantizer_matrix_4x8[level][c],
            user_defined_qm->qm_4x8[c], 4 * 8 * sizeof(qm_val_t));
+#endif  // CONFIG_F255_QMOBU
   }
 
-  // Re-initialize QMs with user-defined matrices for level
+#if !CONFIG_F255_QMOBU
+  // Re-initialize QMs (of cm) with user-defined matrices for level
   qm_val_t ***fund_mat[3] = { seq_params->quantizer_matrix_8x8,
                               seq_params->quantizer_matrix_8x4,
                               seq_params->quantizer_matrix_4x8 };
   av1_qm_replace_level(&cpi->common.quant_params, level, num_planes, fund_mat);
-
+#endif  // !CONFIG_F255_QMOBU
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.user_defined_qmatrix = 1;
   extra_cfg.qm_data_present[level] = 1;

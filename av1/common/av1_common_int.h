@@ -1027,6 +1027,7 @@ typedef struct SequenceHeader {
   uint8_t number_of_bits_for_lt_frame_id;
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   uint8_t enable_ext_seg;
+#if !CONFIG_F255_QMOBU
   bool user_defined_qmatrix;             // User defined quantizer matrix
   bool qm_data_present[NUM_CUSTOM_QMS];  // User defined QM data present
   // Note: qm_copy_from_previous_plane and qm_4x8_is_transpose_of_8x4 flags
@@ -1037,6 +1038,7 @@ typedef struct SequenceHeader {
   qm_val_t ***quantizer_matrix_8x8;
   qm_val_t ***quantizer_matrix_8x4;
   qm_val_t ***quantizer_matrix_4x8;
+#endif  // !CONFIG_F255_QMOBU
 
   BITSTREAM_PROFILE profile;
 
@@ -1702,6 +1704,7 @@ struct CommonQuantParams {
    *  - If false, we implicitly use level index 'NUM_QM_LEVELS - 1'.
    */
   bool using_qmatrix;
+#if !CONFIG_F255_QMOBU
   /**
    * \name Valid only when using_qmatrix == true
    * Indicate the level indices to be used to access appropriate global quant
@@ -1720,7 +1723,7 @@ struct CommonQuantParams {
    * Note that when sequence header OBUs change, we should reset the parameter.
    */
   bool qmatrix_initialized;
-
+#endif  // CONFIG_F255_QMOBU
   /**@{*/
   /*!
    * Number of QM levels available for use by the segments in the frame.
@@ -2025,6 +2028,70 @@ typedef struct BridgeFrame_Info {
 #endif  // CONFIG_CWG_F317_TEST_PATTERN
 } BridgeFrameInfo;
 #endif  // CONFIG_CWG_F317
+
+#if CONFIG_F255_QMOBU
+/*!
+ * \brief Structure used for quantization matrix set
+ */
+
+struct quantization_matrix_set {
+  /*!
+   * id of the quantization matrix : initialized to be -1
+   * qm_id equals -1 indicates that this struct, quantization_matrix_set, is not
+   * used or not set yet.
+   */
+  int qm_id;
+  /*!
+   * tlayer id of the OBU that conveys this quantization matrix : initialized to
+   * be -1
+   * qm_tlayer_id equals -1 indicates this struct quantization_matrix_set is
+   * initialized to be the predefined matrices at the sequence header activation
+   */
+  int qm_tlayer_id;
+  /*!
+   * mlayer id of the OBU that conveys this quantization matrix : initialized to
+   * be -1
+   * qm_mlayer_id equals -1 indicates this struct quantization_matrix_set is set
+   * to be the  predefined matrices at the sequence header activation
+   */
+  int qm_mlayer_id;
+  /*!
+   * Indicates the index of the predefined matrix indicated by the quantization
+   * matrix : -1: user_defined 0~15: predefined_matrix_idx
+   */
+  int qm_default_index;
+  /*!
+   * quantization matrix : [8x8/8x4/4x8][y/u/v][64 or 32]
+   */
+  qm_val_t ***quantizer_matrix;
+  /*!
+   * Indicates memory is allocated for the matrices
+   */
+  int quantizer_matrix_allocated;
+  /*!
+   * Indicates number of vaild planes for the quantization matrices
+   */
+  int quantizer_matrix_num_planes;
+};
+
+/*!
+ * \brief Structure for an obu with obu_type equals to OBU_QM
+ */
+struct qm_obu {
+  /*!
+   * Mask to indicates the ids of quantization matrices in this OBU_QM
+   */
+  int qm_bit_map;
+  /*!
+   * Indication that quantization matrices has chroma information
+   */
+  int qm_chroma_info_present_flag;
+  /*!
+   * list of quantization matrices
+   */
+  struct quantization_matrix_set qm_list[NUM_CUSTOM_QMS];
+};
+#endif  // CONFIG_F255_QMOBU
 
 /*!
  * \brief Top level common structure used by both encoder and decoder.
@@ -2648,6 +2715,7 @@ typedef struct AV1Common {
    */
   aom_metadata_pic_struct_t pic_struct_metadata_params;
 #endif  // CONFIG_SCAN_TYPE_METADATA
+
 } AV1_COMMON;
 
 /*!\cond */

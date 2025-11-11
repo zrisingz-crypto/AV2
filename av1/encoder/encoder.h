@@ -3017,6 +3017,7 @@ typedef struct AV1_COMP {
    */
   int write_brt_obu;
 #endif  // CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
+
 #if CONFIG_MULTILAYER_HLS
   /*!
    * list for Layer Config Record (LCR) information
@@ -3031,12 +3032,44 @@ typedef struct AV1_COMP {
    */
   struct AtlasSegmentInfo atlas_list[MAX_NUM_ATLAS_SEG_ID];
 #endif  // CONFIG_MULTILAYER_HLS
+
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   /*!
    * determine the mode of the switch frame
    */
   int switch_frame_mode;
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+
+#if CONFIG_F255_QMOBU
+  /*!
+   * a list of OBU_QM
+   */
+
+  struct qm_obu qmobu_list[NUM_CUSTOM_QMS];
+  /*!
+   * Intermediate list of quantiztaion matrices for input user defined matrices
+   */
+  // 15*3*3*64 bytes :
+  qm_val_t ***user_defined_qm_list[NUM_CUSTOM_QMS];  //[8x8/8x4,4x8][y/u/v][64]
+  /*!
+   * number of signalled qm obus
+   */
+  int total_signalled_qmobu_count;
+  /*!
+   * indication that an obu is written for a frame during encoding to prevent an
+   * qm obu from being written multiple times
+   */
+  bool obu_is_written;
+
+  /*!
+   * Flags to indicate whether user defined qm is used for id, i
+   */
+  bool use_user_defined_qm[NUM_CUSTOM_QMS];
+  /*!
+   * Indicate that new obu is added at the encoder to increase the counter
+   */
+  int new_qmobu_added;
+#endif
 } AV1_COMP;
 
 /*!

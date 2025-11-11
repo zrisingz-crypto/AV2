@@ -117,6 +117,19 @@ static INLINE int aom_get_qmlevel(int qindex, int first, int last,
                                                  : QINDEX_RANGE);
 }
 
+#if CONFIG_F255_QMOBU
+void av1_free_qmset(qm_val_t ***mat, int num_planes);
+qm_val_t ***av1_alloc_qmset(int num_planes);
+// Initialize all global quant/dequant matrices. Used by the encoder.
+void av1_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
+                         int qm_id, qm_val_t ***matrix_set);
+void av1_qm_init(struct CommonQuantParams *quant_params, int num_planes);
+
+void av1_qm_replace_level(struct CommonQuantParams *quant_params, int level,
+                          int num_planes, qm_val_t ***fund_matrices);
+void scale_tx(const int txsize, const int plane, qm_val_t *output,
+              qm_val_t ***fund_matrices);
+#else
 // Allocates all the width-by-height quantization matrices as a
 // three-dimensional array. The first dimension is the number of levels
 // (NUM_CUSTOM_QMS = 15). The second dimension is the number of planes (3). The
@@ -128,7 +141,6 @@ qm_val_t ***av1_alloc_qm(int width, int height);
 // Frees the three-dimensional array mat. The three-dimensional array must have
 // been allocated by av1_alloc_qm().
 void av1_free_qm(qm_val_t ***mat);
-
 // Initializes the fundamental quantization matrices to the default ones.
 void av1_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
                       qm_val_t ***qm_4x8, int num_planes);
@@ -145,7 +157,7 @@ void av1_qm_init_dequant_only(struct CommonQuantParams *quant_params,
 // for that level. Assumes av1_qm_init() has been called. Used by the encoder.
 void av1_qm_replace_level(struct CommonQuantParams *quant_params, int level,
                           int num_planes, qm_val_t ****fund_matrices);
-
+#endif  // CONFIG_F255_QMOBU
 // Get global dequant matrix.
 const qm_val_t *av1_iqmatrix(const struct CommonQuantParams *quant_params,
                              int qmlevel, int plane, TX_SIZE tx_size);
@@ -161,6 +173,14 @@ const qm_val_t *av1_get_iqmatrix(const struct CommonQuantParams *quant_params,
 const qm_val_t *av1_get_qmatrix(const struct CommonQuantParams *quant_params,
                                 const struct macroblockd *xd, int plane,
                                 TX_SIZE tx_size, TX_TYPE tx_type);
+
+#if CONFIG_F255_QMOBU
+extern const qm_val_t predefined_8x8_iwt_base_matrix[NUM_QM_LEVELS - 1][2][64];
+extern const qm_val_t predefined_8x4_iwt_base_matrix[NUM_QM_LEVELS - 1][2]
+                                                    [8 * 4];
+extern const qm_val_t predefined_4x8_iwt_base_matrix[NUM_QM_LEVELS - 1][2]
+                                                    [4 * 8];
+#endif  // CONFIG_F255_QMOBU
 
 #ifdef __cplusplus
 }  // extern "C"

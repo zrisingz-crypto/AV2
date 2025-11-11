@@ -117,8 +117,7 @@ static void read_qm_data(AV1Decoder *pbi, int obu_tlayer_id, int obu_mlayer_id,
           for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
               qmset->quantizer_matrix[t][c][i * width + j] =
-                  pbi->qm_list[qm_pos]
-                      .quantizer_matrix[t - 1][c][j * height + i];
+                  qmset->quantizer_matrix[t - 1][c][j * height + i];
             }
           }
           continue;

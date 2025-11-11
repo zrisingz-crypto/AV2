@@ -362,12 +362,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   assert(xd->tree_type != LUMA_PART);
   const BLOCK_SIZE plane_bsize = get_mb_plane_block_size(
       xd, mbmi, PLANE_TYPE_UV, pd->subsampling_x, pd->subsampling_y);
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-  assert(is_cfl_allowed(cpi->oxcf.intra_mode_cfg.enable_cfl_intra, xd) &&
-         cpi->oxcf.intra_mode_cfg.enable_cfl_intra);
-#else
-  assert(is_cfl_allowed(xd) && cpi->oxcf.intra_mode_cfg.enable_cfl_intra);
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
+  assert(((is_cfl_allowed(cpi->oxcf.intra_mode_cfg.enable_cfl_intra, xd) &&
+           cpi->oxcf.intra_mode_cfg.enable_cfl_intra) ||
+          is_mhccp_allowed(&cpi->common, xd)));
 
   assert(plane_bsize < BLOCK_SIZES_ALL);
   if (!xd->lossless[mbmi->segment_id]) {
@@ -682,13 +679,11 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         mode_cost += dpcm_uv_cost;
       }
       if (mbmi->use_dpcm_uv == 0) {
-        mode_cost += get_uv_mode_cost(mbmi, x->mode_costs, xd,
-                                      is_cfl_allowed(
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-                                          cm->seq_params.enable_cfl_intra,
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-                                          xd),
-                                      mbmi->uv_mode_idx);
+        mode_cost += get_uv_mode_cost(
+            mbmi, x->mode_costs, xd,
+            is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd) ||
+                is_mhccp_allowed(cm, xd),
+            mbmi->uv_mode_idx);
       } else {
         mbmi->dpcm_mode_uv = mode - 1;
         int dpcm_uv_dir_cost =
@@ -713,34 +708,23 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       int filter_dir_rate = 0;
       int cfl_idx_rate = 0;
       if (mode == UV_CFL_PRED) {
-        if (!is_cfl_allowed(
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-                cm->seq_params.enable_cfl_intra,
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-                xd) ||
-            !intra_mode_cfg->enable_cfl_intra)
+        if (!is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd) &&
+            (mbmi->cfl_idx == CFL_EXPLICIT ||
+             mbmi->cfl_idx == CFL_DERIVED_ALPHA))
           continue;
-        assert(IMPLIES(xd->tree_type == CHROMA_PART,
-                       xd->is_cfl_allowed_in_sdp == CFL_ALLOWED_FOR_CHROMA));
 
-        if (mbmi->cfl_idx == CFL_MULTI_PARAM &&
-            (!is_mhccp_allowed(cm, xd) || !intra_mode_cfg->enable_mhccp))
+        if (mbmi->cfl_idx == CFL_MULTI_PARAM && !is_mhccp_allowed(cm, xd))
           continue;
         const TX_SIZE uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
         if (mbmi->cfl_idx == 0)
           cfl_alpha_rate = cfl_rd_pick_alpha(x, cpi, uv_tx_size, best_rd);
         if (is_mhccp_allowed(cm, xd)) {
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
           if (intra_mode_cfg->enable_cfl_intra)
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
             cfl_idx_rate +=
                 x->mode_costs.cfl_mhccp_cost[mbmi->cfl_idx == CFL_MULTI_PARAM];
         }
-        if (mbmi->cfl_idx != CFL_MULTI_PARAM
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-            && intra_mode_cfg->enable_cfl_intra
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-        ) {
+        if (mbmi->cfl_idx != CFL_MULTI_PARAM &&
+            intra_mode_cfg->enable_cfl_intra) {
           cfl_idx_rate += x->mode_costs.cfl_index_cost[mbmi->cfl_idx];
         }
         if (mbmi->cfl_idx == CFL_MULTI_PARAM) {
@@ -775,17 +759,11 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rate = tokenonly_rd_stats.rate +
                   intra_mode_info_cost_uv(cpi, x, mbmi, bsize, mode_cost);
 
-      if (mode == UV_CFL_PRED
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-          && cm->seq_params.enable_cfl_intra
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-      ) {
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-        assert(is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd) &&
-               intra_mode_cfg->enable_cfl_intra);
-#else
-        assert(is_cfl_allowed(xd) && intra_mode_cfg->enable_cfl_intra);
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
+      if (mode == UV_CFL_PRED &&
+          (cm->seq_params.enable_cfl_intra || cm->seq_params.enable_mhccp)) {
+        assert((is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd) &&
+                intra_mode_cfg->enable_cfl_intra) ||
+               is_mhccp_allowed(cm, xd));
       }
       this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
@@ -812,18 +790,6 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   *mbmi = best_mbmi;
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-  if (cm->seq_params.enable_cfl_intra)
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-    assert(IMPLIES(xd->tree_type == CHROMA_PART && mbmi->uv_mode == UV_CFL_PRED,
-                   is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd) &&
-                       xd->is_cfl_allowed_in_sdp == CFL_ALLOWED_FOR_CHROMA));
-#else
-  assert(IMPLIES(xd->tree_type == CHROMA_PART && mbmi->uv_mode == UV_CFL_PRED,
-                 is_cfl_allowed(xd) &&
-                     xd->is_cfl_allowed_in_sdp == CFL_ALLOWED_FOR_CHROMA));
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
   // Copy back the best cross-chroma txfm type (tmp_cctx_type_map)
   // to xd->cctx_type_map.
   av1_copy_array(xd->cctx_type_map, tmp_cctx_type_map, ctx->num_4x4_blk_chroma);
@@ -1310,14 +1276,9 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
     rd_stats_y->rate -= tx_size_cost(x, bsize, mbmi->tx_size);
   }
   if (num_planes > 1 && xd->is_chroma_ref) {
-    const int uv_mode_cost =
-        get_uv_mode_cost(mbmi, x->mode_costs, xd,
-                         is_cfl_allowed(
-#if CONFIG_CWG_F307_CFL_SEQ_FLAG
-                             cm->seq_params.enable_cfl_intra,
-#endif  // CONFIG_CWG_F307_CFL_SEQ_FLAG
-                             xd),
-                         mbmi->uv_mode_idx);
+    const int uv_mode_cost = get_uv_mode_cost(
+        mbmi, x->mode_costs, xd,
+        is_cfl_allowed(cm->seq_params.enable_cfl_intra, xd), mbmi->uv_mode_idx);
     rd_stats->rate +=
         rd_stats_uv->rate +
         intra_mode_info_cost_uv(cpi, x, mbmi, bsize, uv_mode_cost);

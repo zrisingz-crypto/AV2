@@ -141,6 +141,8 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
   memset(scores, 0, REF_FRAMES * sizeof(*scores));
   for (int i = 0; i < cm->seq_params.ref_frames; i++) {
     scores[i].score = INT_MAX;
+  }
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
     if (!resolution_available) cm->remapped_ref_idx_res_indep[i] = INVALID_IDX;
     cm->remapped_ref_idx[i] = INVALID_IDX;
   }
@@ -258,18 +260,12 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
   // Fill in RefFramesInfo struct according to computed mapping
   av1_get_past_future_cur_ref_lists(cm, scores);
 
-  if (n_ranked > INTER_REFS_PER_FRAME) {
-    if (!resolution_available)
-      cm->remapped_ref_idx_res_indep[n_ranked - 1] = scores[n_ranked - 1].index;
-    cm->remapped_ref_idx[n_ranked - 1] = scores[n_ranked - 1].index;
-  }
-
   cm->bru.ref_n_ranked = n_ranked;
   if (n_ranked > 0)
     memcpy(cm->bru.ref_scores, scores, REF_FRAMES * sizeof(*scores));
 
   // Fill any slots that are empty (should only happen for the first 7 frames)
-  for (int i = 0; i < cm->seq_params.ref_frames; i++) {
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
     // Instead of filling empty slots (remapped_ref_idx[i]) with zero,
     // the empty slots are filled with the first index (scores[0].index),
     // because the zero index may indicate an invalid slot,

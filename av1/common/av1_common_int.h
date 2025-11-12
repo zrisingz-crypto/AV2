@@ -2202,11 +2202,11 @@ typedef struct AV1Common {
    *      v                                           v
    * ref_frame_map[],      ...,                ref_frame_map[]
    */
-  int remapped_ref_idx[REF_FRAMES];
+  int remapped_ref_idx[INTER_REFS_PER_FRAME];
   /*!
    * Resolution independent version of the reference remapped index
    */
-  int remapped_ref_idx_res_indep[REF_FRAMES];
+  int remapped_ref_idx_res_indep[INTER_REFS_PER_FRAME];
 
   /*!
    * Scale of the current frame with respect to itself.
@@ -2887,7 +2887,7 @@ static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
 
 static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
                                         const int ref_frame) {
-  return (ref_frame >= 0 && ref_frame < cm->seq_params.ref_frames)
+  return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME)
              ? cm->remapped_ref_idx[ref_frame]
              : INVALID_IDX;
 }
@@ -3027,7 +3027,7 @@ static INLINE void avg_primary_secondary_references(const AV1_COMMON *const cm,
 
 static INLINE int get_ref_frame_map_idx_res_indep(const AV1_COMMON *const cm,
                                                   const int ref_frame) {
-  return (ref_frame >= 0 && ref_frame < cm->seq_params.ref_frames)
+  return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME)
              ? cm->remapped_ref_idx_res_indep[ref_frame]
              : INVALID_IDX;
 }

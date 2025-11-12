@@ -4577,7 +4577,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   cpi->existing_fb_idx_to_show = frame_params->existing_fb_idx_to_show;
 
   memcpy(cm->remapped_ref_idx, frame_params->remapped_ref_idx,
-         REF_FRAMES * sizeof(*cm->remapped_ref_idx));
+         INTER_REFS_PER_FRAME * sizeof(*cm->remapped_ref_idx));
 
   if (av1_is_shown_keyframe(cpi, current_frame->frame_type)) {
     current_frame->key_frame_number += current_frame->frame_number;
@@ -5238,7 +5238,6 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
 }
 
 void enc_bru_swap_ref(AV1_COMMON *const cm) {
-  int n_ranked = cm->bru.ref_n_ranked;
   RefScoreData *scores = (RefScoreData *)cm->bru.ref_scores;
   // restrict ref by bru ref_idx
   int replaced_bru_ref_idx = -1;
@@ -5289,11 +5288,8 @@ void enc_bru_swap_ref(AV1_COMMON *const cm) {
       }
     }
 
-    if (n_ranked > INTER_REFS_PER_FRAME)
-      cm->remapped_ref_idx[n_ranked - 1] = scores[n_ranked - 1].index;
-
     // Fill any slots that are empty (should only happen for the first 7 frames)
-    for (int i = 0; i < REF_FRAMES; i++) {
+    for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
       if (cm->remapped_ref_idx[i] == INVALID_IDX) cm->remapped_ref_idx[i] = 0;
     }
   }

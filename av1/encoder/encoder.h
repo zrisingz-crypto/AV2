@@ -3125,7 +3125,7 @@ typedef struct EncodeFrameParams {
   /*!
    *  Reference buffer assignment for this frame.
    */
-  int remapped_ref_idx[REF_FRAMES];
+  int remapped_ref_idx[INTER_REFS_PER_FRAME];
 
   /*!
    *  Speed level to use for this frame: Bigger number means faster.

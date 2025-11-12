@@ -1387,7 +1387,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // this frame.  If frame_params->remapped_ref_idx is setup independently of
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
-         REF_FRAMES * sizeof(*cm->remapped_ref_idx));
+         INTER_REFS_PER_FRAME * sizeof(*cm->remapped_ref_idx));
   init_bru_frame(cm);
 
   cpi->td.mb.delta_qindex = 0;

@@ -1698,8 +1698,6 @@ void mhccp_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
   *ref_width = AOMMIN(*ref_width, 128);
   *ref_height = AOMMIN(*ref_height, 128);
 
-  memset(cfl->mhccp_ref_buf_q3[0], 0, sizeof(cfl->mhccp_ref_buf_q3[0]));
-
   uint16_t *output_q3 = cfl->mhccp_ref_buf_q3[0];
   int output_stride = CFL_BUF_LINE * 2;
   uint16_t *input = dst;
@@ -1867,8 +1865,6 @@ void mhccp_implicit_fetch_neighbor_chroma(MACROBLOCKD *const xd, int plane,
 
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
-
-  memset(cfl->mhccp_ref_buf_q3[plane], 0, sizeof(cfl->mhccp_ref_buf_q3[plane]));
 
   uint16_t *output_q3 = cfl->mhccp_ref_buf_q3[plane];
   int output_stride = CFL_BUF_LINE * 2;

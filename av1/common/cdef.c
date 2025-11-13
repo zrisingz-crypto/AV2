@@ -41,6 +41,7 @@ static int is_8x8_block_skip(MB_MODE_INFO **grid, int mi_row, int mi_col,
 static int contains_lossless_8x8(const AV1_COMMON *const cm,
                                  MB_MODE_INFO **grid, int mi_row, int mi_col,
                                  int mi_stride, int plane) {
+  if (!cm->features.has_lossless_segment) return 0;
   for (int r = 0; r < mi_size_high[BLOCK_8X8]; ++r) {
     for (int c = 0; c < mi_size_wide[BLOCK_8X8]; ++c) {
       MB_MODE_INFO **mbmi = grid + (mi_row + r) * mi_stride + (mi_col + c);

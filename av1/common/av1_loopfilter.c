@@ -1055,6 +1055,7 @@ static uint8_t get_lossless_flag(
     AV1_COMMON *const cm, uint32_t x, uint32_t y, uint32_t scale_horz,
     uint32_t scale_vert, int plane,
     const struct macroblockd_plane *const plane_ptr) {
+  if (!cm->features.has_lossless_segment) return 0;
   const uint32_t width = plane_ptr->dst.width;
   const uint32_t height = plane_ptr->dst.height;
   if ((width <= x) || (height <= y)) {

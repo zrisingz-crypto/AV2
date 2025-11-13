@@ -132,8 +132,8 @@ static void read_qm_data(AV1Decoder *pbi, int obu_tlayer_id, int obu_mlayer_id,
           const int row = pos / width;
           const int col = pos % width;
           if (col > row) {
-            qmset->quantizer_matrix[t][c][pos] =
-                qmset->quantizer_matrix[t][c][col * width + row];
+            prev = qmset->quantizer_matrix[t][c][col * width + row];
+            qmset->quantizer_matrix[t][c][pos] = prev;
             continue;
           }
         }

@@ -254,7 +254,7 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free_frame_buffer(&cpi->last_frame_uf);
   av1_free_restoration_buffers(cm);
   free_gdf_buffers(&cm->gdf_info);
-  const int use_cdef = cm->seq_params.enable_cdef;
+  const int use_cdef = cpi->oxcf.tool_cfg.enable_cdef;
   if (!is_stat_generation_stage(cpi) && use_cdef) {
     AV1CdefWorkerData *cdef_worker = NULL;
     AV1CdefSync cdef_sync = { 0 };

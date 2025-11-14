@@ -2436,7 +2436,9 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
           cm->features.byte_alignment, NULL, NULL, NULL, cpi->alloc_pyramid))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
-  const int use_cdef = cm->seq_params.enable_cdef;
+  // Don't use cm->seq_params.enable_cdef because cm->seq_params.enable_cdef may
+  // be changed to 0 when encoding the frame for single_picture_header_flag.
+  const int use_cdef = cpi->oxcf.tool_cfg.enable_cdef;
   if (!is_stat_generation_stage(cpi) && use_cdef) {
     AV1CdefWorkerData *cdef_worker = NULL;
     AV1CdefSync cdef_sync = { 0 };

@@ -4722,7 +4722,8 @@ static AOM_INLINE void write_tile_info(AV1_COMMON *const cm,
   write_tile_info_max_tile(&cm->tiles, wb);
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
   *saved_wb = *wb;
-  if (cm->tiles.rows * cm->tiles.cols > 1) {
+  if (cm->tiles.rows * cm->tiles.cols > 1 &&
+      cm->features.tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
     if (!cm->seq_params.enable_avg_cdf || !cm->seq_params.avg_cdf_type) {
       // tile id used for cdf update
       aom_wb_write_literal(wb, 0, cm->tiles.log2_cols + cm->tiles.log2_rows);
@@ -8064,7 +8065,8 @@ static uint32_t write_tilegroup_payload(AV1_COMP *const cpi, uint8_t *const dst,
       break;
   }  // tile_row
 
-  if (tile_cols * tile_rows > 1) {
+  if (tile_cols * tile_rows > 1 &&
+      cm->features.tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
     if (!cm->seq_params.enable_avg_cdf || !cm->seq_params.avg_cdf_type) {
       // Fill in context_update_tile_id indicating the tile to use for the
       // cdf update. The encoder currently sets it to the largest tile
@@ -8551,7 +8553,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
     }
   }
 
-  if (have_tiles) {
+  if (have_tiles && cm->features.tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
     if (!cm->seq_params.enable_avg_cdf || !cm->seq_params.avg_cdf_type) {
       // Fill in context_update_tile_id indicating the tile to use for the
       // cdf update. The encoder currently sets it to the largest tile

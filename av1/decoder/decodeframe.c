@@ -4727,7 +4727,8 @@ static AOM_INLINE void read_tile_info(AV1Decoder *const pbi,
     }
   }
   pbi->context_update_tile_id = 0;
-  if (cm->tiles.rows * cm->tiles.cols > 1) {
+  if (cm->tiles.rows * cm->tiles.cols > 1 &&
+      cm->features.tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
     if (!cm->seq_params.enable_avg_cdf || !cm->seq_params.avg_cdf_type) {
       // tile to use for cdf update
       pbi->context_update_tile_id =

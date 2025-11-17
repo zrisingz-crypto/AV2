@@ -455,6 +455,32 @@ typedef struct AV1Decoder {
   // sequence header
   struct quantization_matrix_set qm_list[NUM_CUSTOM_QMS];
 #endif  // CONFIG_F255_QMOBU
+
+#if CONFIG_F024_KEYOBU
+  /*!
+   * Indicates an OLK is encountered in any layer
+   * It is initialized as 0 and set 1 when the first olk is decoded and set 0
+   * when the first regular frame or the first CLK after the olk is decoded.
+   */
+  int olk_encountered;
+  /*!
+   * Indicates if the frame is in the layer decoded first, decoder only
+   */
+  int is_first_layer_decoded;
+  /*!
+   * Indicates that a frame is decoded as a random access point
+   */
+  bool random_accessed;
+  /*!
+   * When random_accessed is true, random_access_point_index-th random access
+   * point is decoded as a random access point
+   */
+  uint64_t random_access_point_index;
+  /*!
+   * count number of sequence header for random access
+   */
+  uint64_t random_access_point_count;
+#endif
 } AV1Decoder;
 
 // Returns 0 on success. Sets pbi->common.error.error_code to a nonzero error
@@ -520,7 +546,6 @@ static INLINE bool is_frame_eligible_for_output(RefCntBuffer *const buf) {
 static INLINE void check_ref_count_status_dec(struct AV1Decoder *pbi) {
   AV1_COMMON *volatile const cm = &pbi->common;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
-
   for (int i = 0; i < FRAME_BUFFERS; ++i) {
     int ref_frame_map_cnt = 0, cur_frame_cnt = 0, output_frames_cnt = 0;
     int calculated_ref_count = 0;
@@ -544,6 +569,10 @@ static INLINE void check_ref_count_status_dec(struct AV1Decoder *pbi) {
 }
 
 void output_trailing_frames(AV1Decoder *pbi);
+
+#if CONFIG_F024_KEYOBU
+aom_codec_err_t flush_remaining_frames(struct AV1Decoder *pbi);
+#endif
 
 static INLINE int av1_read_uniform(aom_reader *r, int n) {
   const int l = get_unsigned_bits(n);

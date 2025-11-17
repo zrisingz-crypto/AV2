@@ -1116,6 +1116,10 @@ typedef struct {
 
 typedef struct {
   FRAME_TYPE frame_type;
+#if CONFIG_F024_KEYOBU
+  // TODO(jkei): if possible remove cm_obu_type
+  OBU_TYPE cm_obu_type;
+#endif
   REFERENCE_MODE reference_mode;
 
   unsigned int order_hint;
@@ -2251,12 +2255,22 @@ typedef struct AV1Common {
    * When 'show_frame' is false, this value is transmitted in the bitstream.
    */
   int showable_frame;
+#if CONFIG_F024_KEYOBU
+  /*!
+   * If true, the obu_type of the frame is SEF_OBU
+   */
+  int sef_ref_fb_idx;
 
+  /*!
+   * If true, the obu_type of the frame is SEF_OBU
+   */
+#else
   /*!
    * If true, show an existing frame coded before, instead of actually coding a
    * frame. The existing frame comes from one of the existing reference buffers,
    * as signaled in the bitstream.
    */
+#endif  // CONFIG_F024_KEYOBU
   int show_existing_frame;
 
   /*!
@@ -2706,6 +2720,7 @@ typedef struct AV1Common {
    */
   struct OperatingPointSet *ops;
 #endif  // CONFIG_MULTILAYER_HLS
+
 #if CONFIG_SCAN_TYPE_METADATA
   /*!
    * Pic struct parameters.
@@ -2713,6 +2728,25 @@ typedef struct AV1Common {
   aom_metadata_pic_struct_t pic_struct_metadata_params;
 #endif  // CONFIG_SCAN_TYPE_METADATA
 
+#if CONFIG_F024_KEYOBU
+  /*!
+   * Order hint of the last encountered OLK per layer
+   */
+  unsigned int last_olk_order_hint[MAX_NUM_MLAYERS];
+  /*!
+   * Display order hint of the last encountered OLK per layer
+   */
+  unsigned int last_olk_disp_order_hint[MAX_NUM_MLAYERS];
+  /*!
+   * Indices of the OLK in the reference list per layer
+   */
+  int olk_refresh_frame_flags[MAX_NUM_MLAYERS];
+  /*!
+   * Indicates if the frame is a leading frame
+   */
+  int is_leading_picture;
+
+#endif
 } AV1_COMMON;
 
 /*!\cond */
@@ -2812,7 +2846,12 @@ static INLINE int get_free_fb(AV1_COMMON *cm) {
   } else {
     // We should never run out of free buffers. If this assertion fails, there
     // is a reference leak.
+#if CONFIG_F024_KEYOBU
+    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                       "Unable to find free frame buffer");
+#else
     assert(0 && "Ran out of free frame buffers. Likely a reference leak.");
+#endif
     // Reset i to be INVALID_IDX to indicate no free buffer found.
     i = INVALID_IDX;
   }

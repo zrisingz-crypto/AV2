@@ -353,7 +353,6 @@ static void update_ref_buffers(const AV1_COMMON *const cm,
 static double time_to_decode_frame(const AV1_COMMON *const cm,
                                    int64_t max_decode_rate) {
   if (cm->show_existing_frame) return 0.0;
-
   const FRAME_TYPE frame_type = cm->current_frame.frame_type;
   int luma_samples = 0;
   if (frame_type == KEY_FRAME || frame_type == INTRA_ONLY_FRAME) {
@@ -552,14 +551,20 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
 
   int display_idx = -1;
   if (show_existing_frame) {
+#if CONFIG_F024_KEYOBU
+    display_idx = decoder_model->vbi[cm->sef_ref_fb_idx];
+#else
     display_idx = decoder_model->vbi[cpi->existing_fb_idx_to_show];
+#endif
     if (display_idx < 0) {
       decoder_model->status = DECODE_EXISTING_FRAME_BUF_EMPTY;
       return;
     }
+#if !CONFIG_F024_KEYOBU
     if (decoder_model->frame_buffer_pool[display_idx].frame_type == KEY_FRAME) {
       update_ref_buffers(cm, decoder_model, display_idx, 0xFF);
     }
+#endif  // !CONFIG_F024_KEYOBU
   } else {
     const double removal_time = get_removal_time(decoder_model);
     if (removal_time < 0.0) {
@@ -968,7 +973,6 @@ static int store_frame_record(int64_t ts_start, int64_t ts_end,
   record->tiles = tiles;
   record->show_frame = show_frame;
   record->show_existing_frame = show_existing_frame;
-
   return new_idx;
 }
 
@@ -1009,8 +1013,13 @@ static void scan_past_frames(const FrameWindowBuffer *const buffer,
   size_t encoded_size_in_bytes = 0;
   for (int i = 0; i < AOMMIN(num_frames_in_buffer, num_frames_to_scan); ++i) {
     const FrameRecord *const record = &buffer->buf[index];
+#if CONFIG_F024_KEYOBU
+    frame_headers += record->frame_header_count;
+#endif  // CONFIG_F024_KEYOBU
     if (!record->show_existing_frame) {
+#if !CONFIG_F024_KEYOBU
       frame_headers += record->frame_header_count;
+#endif  // !CONFIG_F024_KEYOBU
       decoded_samples += record->pic_size;
     }
     if (record->show_frame) {
@@ -1050,7 +1059,6 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   const int frame_header_count = level_params->frame_header_count;
   const int show_frame = cm->show_frame;
   const int show_existing_frame = cm->show_existing_frame;
-
   int max_tile_size;
   int min_cropped_tile_width;
   int min_cropped_tile_height;

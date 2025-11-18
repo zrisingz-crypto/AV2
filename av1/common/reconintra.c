@@ -1395,7 +1395,8 @@ static void build_intra_predictors_high(
         for (r = 0; r < txhpx; ++r) {
           for (c = 0; c < txwpx; ++c) {
             dst[r * dst_stride + c] =
-                (dst[r * dst_stride + c] + dst_mrl_line_0[r * txwpx + c]) / 2;
+                (dst[r * dst_stride + c] + dst_mrl_line_0[r * txwpx + c] + 1) /
+                2;
           }
         }
       }
@@ -1411,7 +1412,8 @@ static void build_intra_predictors_high(
         for (r = 0; r < txhpx; ++r) {
           for (c = 0; c < txwpx; ++c) {
             dst[r * dst_stride + c] =
-                (dst[r * dst_stride + c] + dst_mrl_line_0[r * txwpx + c]) / 2;
+                (dst[r * dst_stride + c] + dst_mrl_line_0[r * txwpx + c] + 1) /
+                2;
           }
         }
       }

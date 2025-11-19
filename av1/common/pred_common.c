@@ -674,7 +674,8 @@ int av1_get_cdef_context(const AV1_COMMON *const cm,
 
   const int above_cdef_mi_row = mi_row - cdef_size;
   MB_MODE_INFO *neighbor1 = NULL;
-  if (above_cdef_mi_row >= 0) {
+  if (above_cdef_mi_row >= 0 && (mi_row >> cm->mib_size_log2) ==
+                                    (above_cdef_mi_row >> cm->mib_size_log2)) {
     const int above_grid_idx = get_mi_grid_idx(
         mi_params, above_cdef_mi_row & block_mask, mi_col & block_mask);
     neighbor1 = mi_params->mi_grid_base[above_grid_idx];

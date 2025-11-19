@@ -57,7 +57,6 @@ typedef struct {
 typedef struct {
   int max_bitrate;  // Max bitrate in any 1-second window, in bps.
   int max_tile_size;
-  int max_superres_tile_width;
   int min_cropped_tile_width;
   int min_cropped_tile_height;
   int tile_width_is_valid;
@@ -190,9 +189,6 @@ void av1_update_level_info(struct AV1_COMP *cpi, size_t size, int64_t ts_start,
 aom_codec_err_t av1_get_seq_level_idx(const SequenceHeader *seq_params,
                                       const AV1LevelParams *level_params,
                                       int *seq_level_idx);
-
-// Print the status of the decoder model(for debugging).
-void av1_decoder_model_print_status(const DECODER_MODEL *const decoder_model);
 
 void av1_decoder_model_init(const struct AV1_COMP *const cpi, AV1_LEVEL level,
                             int op_index, DECODER_MODEL *const decoder_model);

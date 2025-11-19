@@ -288,9 +288,7 @@ static AOM_INLINE void inter_mode_data_push(TileDataEnc *tile_data,
 
 static AOM_INLINE void inter_modes_info_push(InterModesInfo *inter_modes_info,
                                              int mode_rate, int64_t sse,
-                                             int64_t rd, RD_STATS *rd_cost,
-                                             RD_STATS *rd_cost_y,
-                                             RD_STATS *rd_cost_uv,
+                                             int64_t rd,
                                              const MB_MODE_INFO *mbmi) {
   const int num = inter_modes_info->num;
   assert(num < MAX_INTER_MODES);
@@ -298,9 +296,6 @@ static AOM_INLINE void inter_modes_info_push(InterModesInfo *inter_modes_info,
   inter_modes_info->mode_rate_arr[num] = mode_rate;
   inter_modes_info->sse_arr[num] = sse;
   inter_modes_info->est_rd_arr[num] = rd;
-  inter_modes_info->rd_cost_arr[num] = *rd_cost;
-  inter_modes_info->rd_cost_y_arr[num] = *rd_cost_y;
-  inter_modes_info->rd_cost_uv_arr[num] = *rd_cost_uv;
   ++inter_modes_info->num;
 }
 
@@ -3115,14 +3110,12 @@ static int64_t motion_mode_rd(
                 if (!is_comp_pred) {
                   assert(curr_sse >= 0);
                   inter_modes_info_push(inter_modes_info, mode_rate, curr_sse,
-                                        rd_stats->rdcost, rd_stats, rd_stats_y,
-                                        rd_stats_uv, mbmi);
+                                        rd_stats->rdcost, mbmi);
                 }
               } else {
                 assert(curr_sse >= 0);
                 inter_modes_info_push(inter_modes_info, mode_rate, curr_sse,
-                                      rd_stats->rdcost, rd_stats, rd_stats_y,
-                                      rd_stats_uv, mbmi);
+                                      rd_stats->rdcost, mbmi);
               }
               mbmi->skip_txfm[xd->tree_type == CHROMA_PART] = 0;
             } else {
@@ -7147,7 +7140,6 @@ static AOM_INLINE void init_intra_mode_search_state(
   intra_search_state->skip_intra_modes = 0;
   intra_search_state->best_intra_mode = DC_PRED;
   intra_search_state->best_mrl_index = 0;
-  intra_search_state->best_fsc = 0;
   intra_search_state->dir_mode_skip_mask_ready = 0;
   av1_zero(intra_search_state->directional_mode_skip_mask);
   intra_search_state->rate_uv_intra = INT_MAX;
@@ -9299,10 +9291,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   store_coding_context(x, ctx, search_state.best_pred_diff,
                        search_state.best_mode_skippable, cm);
 
-  if (mbmi->palette_mode_info.palette_size[1] > 0) {
-    assert(try_palette);
-    av1_restore_uv_color_map(cpi, x);
-  }
+  // TODO(urvang): Remove index from `palette_size` array, as palette is no
+  // longer allowed for chroma.
+  assert(mbmi->palette_mode_info.palette_size[1] == 0);
 }
 
 void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,

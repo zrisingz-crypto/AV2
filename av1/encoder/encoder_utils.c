@@ -23,7 +23,6 @@
 #include "av1/encoder/rc_utils.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/segmentation.h"
-#include "av1/encoder/superres_scale.h"
 #include "av1/encoder/encodeframe_utils.h"
 
 #if CONFIG_TUNE_VMAF
@@ -670,7 +669,7 @@ BLOCK_SIZE av1_select_sb_size(const AV1_COMP *const cpi) {
   }
 
   // TODO(any): Possibly could improve this with a heuristic.
-  // When superres / resize is on, 'cm->width / height' can change between
+  // When resize is on, 'cm->width / height' can change between
   // calls, so we don't apply this heuristic there.
   // Things break if superblock size changes between the first pass and second
   // pass encoding, which is why this heuristic is not configured as a
@@ -917,7 +916,7 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
     return;
   }
 
-  // Turn off the encoding trial for forward key frame and superres.
+  // Turn off the encoding trial for some cases.
   if (oxcf->kf_cfg.fwd_kf_enabled || is_screen_content_type_orig_decision ||
       !is_key_frame) {
     return;
@@ -1233,25 +1232,6 @@ void av1_set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
       cpi->ssim_rdmult_scaling_factors[index] /= log_sum;
     }
   }
-}
-
-// Coding context that only needs to be saved when recode loop includes
-// filtering (deblocking, CDEF, superres post-encode upscale and/or loop
-// restoraton).
-static void save_extra_coding_context(AV1_COMP *cpi) {
-  CODING_CONTEXT *const cc = &cpi->coding_context;
-  AV1_COMMON *cm = &cpi->common;
-
-  cc->lf = cm->lf;
-  cc->cdef_info = cm->cdef_info;
-  cc->rc = cpi->rc;
-  cc->mv_stats = cpi->mv_stats;
-  cc->features = cm->features;
-}
-
-void av1_save_all_coding_context(AV1_COMP *cpi) {
-  save_extra_coding_context(cpi);
-  if (!frame_is_intra_only(&cpi->common)) release_scaled_references(cpi);
 }
 
 /* Active region detection and clustering */

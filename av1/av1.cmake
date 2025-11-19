@@ -45,7 +45,6 @@ list(
   "${AOM_ROOT}/av1/common/common_data.h"
   "${AOM_ROOT}/av1/common/convolve.c"
   "${AOM_ROOT}/av1/common/convolve.h"
-  "${AOM_ROOT}/av1/common/debugmodes.c"
   "${AOM_ROOT}/av1/common/entropy.c"
   "${AOM_ROOT}/av1/common/entropy.h"
   "${AOM_ROOT}/av1/common/entropymode.c"
@@ -267,14 +266,14 @@ list(
   "${AOM_ROOT}/av1/encoder/rdopt_utils.h"
   "${AOM_ROOT}/av1/encoder/reconinter_enc.c"
   "${AOM_ROOT}/av1/encoder/reconinter_enc.h"
+  "${AOM_ROOT}/av1/encoder/scale.c"
+  "${AOM_ROOT}/av1/encoder/scale.h"
   "${AOM_ROOT}/av1/encoder/segmentation.c"
   "${AOM_ROOT}/av1/encoder/segmentation.h"
   "${AOM_ROOT}/av1/encoder/speed_features.c"
   "${AOM_ROOT}/av1/encoder/speed_features.h"
   "${AOM_ROOT}/av1/encoder/subgop.c"
   "${AOM_ROOT}/av1/encoder/subgop.h"
-  "${AOM_ROOT}/av1/encoder/superres_scale.c"
-  "${AOM_ROOT}/av1/encoder/superres_scale.h"
   "${AOM_ROOT}/av1/encoder/temporal_filter.c"
   "${AOM_ROOT}/av1/encoder/temporal_filter.h"
   "${AOM_ROOT}/av1/encoder/tokenize.c"
@@ -393,16 +392,12 @@ list(APPEND AOM_AV1_ENCODER_ASM_SSE2 "${AOM_ROOT}/av1/encoder/x86/dct_sse2.asm")
 list(
   APPEND
   AOM_AV1_ENCODER_INTRIN_SSE2
-  "${AOM_ROOT}/av1/encoder/x86/av1_quantize_sse2.c"
   "${AOM_ROOT}/av1/encoder/x86/encodetxb_sse2.c"
   "${AOM_ROOT}/av1/encoder/x86/highbd_block_error_intrin_sse2.c"
   "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse2.c"
   "${AOM_ROOT}/av1/encoder/x86/wedge_utils_sse2.c")
 
 list(APPEND AOM_AV1_ENCODER_INTRIN_SSE3 "${AOM_ROOT}/av1/encoder/x86/ml_sse3.c")
-
-list(APPEND AOM_AV1_ENCODER_ASM_SSSE3_X86_64
-     "${AOM_ROOT}/av1/encoder/x86/av1_quantize_ssse3_x86_64.asm")
 
 list(
   APPEND
@@ -416,10 +411,8 @@ list(
 list(
   APPEND
   AOM_AV1_ENCODER_INTRIN_AVX2
-  "${AOM_ROOT}/av1/encoder/x86/av1_quantize_avx2.c"
   "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_avx2.c"
   "${AOM_ROOT}/av1/encoder/x86/highbd_block_error_intrin_avx2.c"
-  "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm_avx2.h"
   "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm2d_avx2.c"
   "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_avx2.c"
   "${AOM_ROOT}/av1/encoder/x86/wedge_utils_avx2.c"
@@ -430,7 +423,6 @@ list(
 list(
   APPEND
   AOM_AV1_ENCODER_INTRIN_NEON
-  "${AOM_ROOT}/av1/encoder/arm/neon/quantize_neon.c"
   "${AOM_ROOT}/av1/encoder/arm/neon/ml_neon.c"
   "${AOM_ROOT}/av1/encoder/arm/neon/rdopt_neon.c"
   "${AOM_ROOT}/av1/encoder/arm/neon/encodetxb_neon.c"

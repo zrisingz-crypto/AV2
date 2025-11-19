@@ -616,12 +616,6 @@ typedef struct MB_MODE_INFO {
   int_mv ref_bv;
   /*! \brief Flag of the linear intra prediction mode. */
   int morph_pred;
-  /*! \brief Scaling parameter of the linear model:
-   * Y = morph_alpa * X + morph_beta. */
-  int morph_alpha;
-  /*! \brief Offset of the linear model:
-   * Y = morph_alpa * X + morph_beta. */
-  int morph_beta;
 
   /*! \brief Which index to use for warp base parameter. */
   uint8_t warp_ref_idx;
@@ -1066,19 +1060,6 @@ static INLINE int is_partition_point(BLOCK_SIZE bsize) {
   return bsize != BLOCK_4X4 && bsize < BLOCK_SIZES;
 }
 
-static INLINE int get_sqr_bsize_idx(BLOCK_SIZE bsize) {
-  switch (bsize) {
-    case BLOCK_4X4: return 0;
-    case BLOCK_8X8: return 1;
-    case BLOCK_16X16: return 2;
-    case BLOCK_32X32: return 3;
-    case BLOCK_64X64: return 4;
-    case BLOCK_128X128: return 5;
-    case BLOCK_256X256: return 6;
-    default: return SQR_BLOCK_SIZES;
-  }
-}
-
 // For a block size 'bsize', returns the size of the sub-blocks used by the
 // given partition type. If the partition produces sub-blocks of different
 // sizes, then the function returns the size of the first sub-block. If given
@@ -1495,8 +1476,6 @@ static INLINE void mi_to_pixel_loc(int *pixel_c, int *pixel_r, int mi_col,
              (tx_blk_row << MI_SIZE_LOG2);
 }
 #endif  // CONFIG_MISMATCH_DEBUG
-
-enum { MV_PRECISION_Q3, MV_PRECISION_Q4 } UENUM1BYTE(mv_precision);
 
 struct buf_2d {
   uint16_t *buf;
@@ -2358,8 +2337,6 @@ typedef struct macroblockd {
 
   /** buffer to store AOM_PLANE_U txfm coefficient signs */
   int32_t tmp_sign[1024];
-  /** variable to store AOM_PLANE_U eob value */
-  uint16_t eob_u;
   /** variable to store eob_u flag */
   uint8_t eob_u_flag;
 
@@ -2468,69 +2445,6 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
-};
-
-static const int av1_mdtx_used_flag[EXT_TX_SIZES][INTRA_MODES][TX_TYPES] = {
-  {
-      { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0 },
-      { 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 },
-  },  // size_class: 0
-  {
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0 },
-  },  // size_class: 1
-  {
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 },
-  },  // size_class: 2
-  {
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-      { 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-  },  // size_class: 3
 };
 
 static const uint16_t av1_reduced_intra_tx_used_flag[INTRA_MODES] = {
@@ -2694,27 +2608,6 @@ static const uint8_t mode_to_angle_map[] = {
   0, 90, 180, 45, 135, 113, 157, 203, 67, 0, 0, 0, 0,
 };
 
-// Converts block_index for given transform size to index of the block in raster
-// order.
-static INLINE int av1_block_index_to_raster_order(TX_SIZE tx_size,
-                                                  int block_idx) {
-  // For transform size 4x8, the possible block_idx values are 0 & 2, because
-  // block_idx values are incremented in steps of size 'tx_width_unit x
-  // tx_height_unit'. But, for this transform size, block_idx = 2 corresponds to
-  // block number 1 in raster order, inside an 8x8 MI block.
-  // For any other transform size, the two indices are equivalent.
-  return (tx_size == TX_4X8 && block_idx == 2) ? 1 : block_idx;
-}
-
-// Inverse of above function.
-// Note: only implemented for transform sizes 4x4, 4x8 and 8x4 right now.
-static INLINE int av1_raster_order_to_block_index(TX_SIZE tx_size,
-                                                  int raster_order) {
-  assert(tx_size == TX_4X4 || tx_size == TX_4X8 || tx_size == TX_8X4);
-  // We ensure that block indices are 0 & 2 if tx size is 4x8 or 8x4.
-  return (tx_size == TX_4X4) ? raster_order : (raster_order > 0) ? 2 : 0;
-}
-
 static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                           const MACROBLOCKD *xd,
                                           TX_SIZE tx_size,
@@ -2866,17 +2759,7 @@ static INLINE BLOCK_SIZE get_mb_plane_block_size_from_tree_type(
   return get_plane_block_size(bsize_base, subsampling_x, subsampling_y);
 }
 
-/*
- * Logic to generate the lookup tables:
- *
- * TX_SIZE txs = max_txsize_rect_lookup[bsize];
- * for (int level = 0; level < MAX_VARTX_DEPTH - 1; ++level)
- *   txs = sub_tx_size_map[txs];
- * const int tx_w_log2 = tx_size_wide_log2[txs] - MI_SIZE_LOG2;
- * const int tx_h_log2 = tx_size_high_log2[txs] - MI_SIZE_LOG2;
- * const int bw_uint_log2 = mi_size_wide_log2[bsize];
- * const int stride_log2 = bw_uint_log2 - tx_w_log2;
- */
+// Get the index into the `mbmi->tx_partition_type` array for this block.
 static INLINE int av1_get_txb_size_index(BLOCK_SIZE bsize, int blk_row,
                                          int blk_col) {
   (void)bsize;
@@ -2891,17 +2774,6 @@ static INLINE int av1_get_txb_size_index(BLOCK_SIZE bsize, int blk_row,
 }
 
 #if CONFIG_INSPECTION
-/*
- * Here is the logic to generate the lookup tables:
- *
- * TX_SIZE txs = max_txsize_rect_lookup[bsize];
- * for (int level = 0; level < MAX_VARTX_DEPTH; ++level)
- *   txs = sub_tx_size_map[txs];
- * const int tx_w_log2 = tx_size_wide_log2[txs] - MI_SIZE_LOG2;
- * const int tx_h_log2 = tx_size_high_log2[txs] - MI_SIZE_LOG2;
- * const int bw_uint_log2 = mi_size_wide_log2[bsize];
- * const int stride_log2 = bw_uint_log2 - tx_w_log2;
- */
 static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
                                          int blk_col) {
   int index = 0;
@@ -2988,11 +2860,6 @@ static INLINE CctxType av1_get_cctx_type(const MACROBLOCKD *xd, int blk_row,
   const int br = blk_row << pd->subsampling_y;
   const int bc = blk_col << pd->subsampling_x;
   return xd->cctx_type_map[br * xd->cctx_type_map_stride + bc];
-}
-
-static INLINE int tx_size_is_depth0(TX_SIZE tx_size, BLOCK_SIZE bsize) {
-  TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
-  return ctx_size == tx_size;
 }
 
 #define PRIMARY_TX_BITS 4  // # of bits for primary tx
@@ -3327,47 +3194,6 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
 void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
                             const int num_planes);
 
-/*
- * Logic to generate the lookup table:
- *
- * TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
- * int depth = 0;
- * while (depth < MAX_TX_DEPTH && tx_size != TX_4X4) {
- *   depth++;
- *   tx_size = sub_tx_size_map[tx_size];
- * }
- */
-static INLINE int bsize_to_max_depth(BLOCK_SIZE bsize) {
-  static const uint8_t bsize_to_max_depth_table[BLOCK_SIZES_ALL] = {
-    0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-  };
-  return bsize_to_max_depth_table[bsize];
-}
-
-/*
- * Logic to generate the lookup table:
- *
- * TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
- * assert(tx_size != TX_4X4);
- * int depth = 0;
- * while (tx_size != TX_4X4) {
- *   depth++;
- *   tx_size = sub_tx_size_map[tx_size];
- * }
- * assert(depth < 10);
- */
-static INLINE int bsize_to_tx_size_cat(BLOCK_SIZE bsize) {
-  assert(bsize < BLOCK_SIZES_ALL);
-  static const uint8_t bsize_to_tx_size_depth_table[BLOCK_SIZES_ALL] = {
-    0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4,
-    4, 4, 4, 2, 2, 3, 3, 4, 4, 3, 3, 4, 4, 4, 4,
-  };
-  const int depth = bsize_to_tx_size_depth_table[bsize];
-  assert(depth <= MAX_TX_CATS);
-  return depth - 1;
-}
-
 static INLINE TX_SIZE av1_get_adjusted_tx_size(TX_SIZE tx_size) {
   switch (tx_size) {
     case TX_64X64:
@@ -3528,17 +3354,6 @@ static INLINE int is_interintra_allowed(const MB_MODE_INFO *mbmi) {
          is_interintra_allowed_ref(mbmi->ref_frame) && mbmi->bawp_flag[0] == 0;
 }
 
-static INLINE int is_interintra_allowed_bsize_group(int group) {
-  int i;
-  for (i = 0; i < BLOCK_SIZES_ALL; i++) {
-    if (size_group_lookup[i] == group &&
-        is_interintra_allowed_bsize((BLOCK_SIZE)i)) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 static INLINE int is_interintra_pred(const MB_MODE_INFO *mbmi) {
   assert(IMPLIES(is_interintra_mode(mbmi), mbmi->ref_frame[1] == NONE_FRAME));
   return is_interintra_mode(mbmi);
@@ -3636,9 +3451,6 @@ typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
 typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                               [PALETTE_COLORS];
 /* clang-format on */
-
-typedef aom_cdf_prob(*PaletteDirectionCdf);
-typedef const int (*PaletteDirectionCost)[2];
 
 typedef aom_cdf_prob (*IdentityRowCdf)[CDF_SIZE(3)];
 typedef const int (*IdentityRowCost)[PALETTE_ROW_FLAG_CONTEXTS][3];

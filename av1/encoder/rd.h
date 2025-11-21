@@ -52,8 +52,6 @@ extern "C" {
   (((((double)(R)) * (RM)) / (double)(1 << AV1_PROB_COST_SHIFT)) + \
    ((double)((D) >> (2 * (BD - 8))) * (1 << RDDIV_BITS)))
 
-#define QIDX_SKIP_THRESH 115
-
 #define MV_COST_WEIGHT 108
 #define MV_COST_WEIGHT_SUB 120
 
@@ -175,17 +173,6 @@ static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
 #endif
 }
 
-static INLINE void av1_accumulate_rd_stats(RD_STATS *rd_stats, int64_t dist,
-                                           int rate, int skip_txfm, int64_t sse,
-                                           int zero_rate) {
-  assert(rd_stats->rate != INT_MAX && rate != INT_MAX);
-  rd_stats->rate += rate;
-  if (!rd_stats->zero_rate) rd_stats->zero_rate = zero_rate;
-  rd_stats->dist += dist;
-  rd_stats->skip_txfm &= skip_txfm;
-  rd_stats->sse += sse;
-}
-
 static INLINE int64_t av1_calculate_rd_cost(int mult, int rate, int64_t dist) {
   assert(mult >= 0);
   if (rate >= 0) {
@@ -238,8 +225,6 @@ void av1_model_rd_from_var_lapndz(int64_t var, unsigned int n,
 
 void av1_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
                           double *rate_f, double *distbysse_f);
-void av1_model_rd_surffit(BLOCK_SIZE bsize, double sse_norm, double xm,
-                          double yl, double *rate_f, double *distbysse_f);
 
 int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
                             InterpFilter interp_filter);
@@ -248,8 +233,6 @@ YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const struct AV1_COMP *cpi,
                                              MV_REFERENCE_FRAME ref_frame);
 
 void av1_init_me_luts(void);
-
-void av1_set_mvcost(MACROBLOCK *x, int ref, int ref_mv_idx);
 
 void av1_get_entropy_contexts(BLOCK_SIZE plane_bsize,
                               const struct macroblockd_plane *pd,
@@ -268,11 +251,6 @@ static INLINE void reset_thresh_freq_fact(MACROBLOCK *const x) {
       x->thresh_freq_fact[i][j] = RD_THRESH_FAC_FRAC_VAL;
     }
   }
-}
-
-static INLINE int rd_less_than_thresh(int64_t best_rd, int thresh,
-                                      int thresh_fact) {
-  return best_rd < ((int64_t)thresh * thresh_fact >> 5) || thresh == INT_MAX;
 }
 
 void av1_mv_pred(const struct AV1_COMP *cpi, MACROBLOCK *x,

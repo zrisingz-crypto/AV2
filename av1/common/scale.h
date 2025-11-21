@@ -25,7 +25,6 @@ extern "C" {
 #define REF_SCALE_SHIFT 14
 #define REF_NO_SCALE (1 << REF_SCALE_SHIFT)
 #define REF_INVALID_SCALE -1
-#define DIMENTION_SHIFT_BITS 3
 
 struct scale_factors {
   int x_scale_fp;  // horizontal fixed point scale factor
@@ -37,8 +36,6 @@ struct scale_factors {
   int (*scale_value_y)(int val, const struct scale_factors *sf);
   int64_t (*scale_value_warp_x)(int64_t val, const struct scale_factors *sf);
   int64_t (*scale_value_warp_y)(int64_t val, const struct scale_factors *sf);
-  int (*scale_value_x_gen)(int val, const struct scale_factors *sf);
-  int (*scale_value_y_gen)(int val, const struct scale_factors *sf);
 };
 
 MV32 av1_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf);

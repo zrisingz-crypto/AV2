@@ -1911,9 +1911,6 @@ static INLINE char const *get_component_name(int index) {
 }
 #endif
 
-// The maximum number of internal ARFs except ALTREF_FRAME
-#define MAX_INTERNAL_ARFS (REF_FRAMES - BWDREF_FRAME - 1)
-
 /*!\endcond */
 
 /*!
@@ -3312,8 +3309,6 @@ double av1_get_compression_ratio(const AV1_COMMON *const cm,
 
 void av1_new_framerate(AV1_COMP *cpi, double framerate);
 
-#define LAYER_IDS_TO_IDX(sl, tl, num_tl) ((sl) * (num_tl) + (tl))
-
 #if !CONFIG_F024_KEYOBU
 // Don't allow a show_existing_frame to coincide with an error resilient
 // frame. An exception can be made for a forward keyframe since it has no
@@ -3438,7 +3433,6 @@ static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
 aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
 
 #define MAX_GFUBOOST_FACTOR 10.0
-#define MIN_GFUBOOST_FACTOR 4.0
 
 static INLINE int is_frame_tpl_eligible(const GF_GROUP *const gf_group,
                                         uint8_t index) {

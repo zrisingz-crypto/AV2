@@ -482,14 +482,21 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_tip_refinemv = tool_cfg->enable_tip_refinemv;
   seq->enable_tip_hole_fill = seq->enable_tip != 0;
   seq->enable_tip_explicit_qp = 0;
+#if CONFIG_CWG_F377_STILL_PICTURE
+  seq->enable_mv_traj =
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_mv_traj;
+#else
   seq->enable_mv_traj = tool_cfg->enable_mv_traj;
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_bawp = tool_cfg->enable_bawp;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_cwp = seq->single_picture_header_flag ? 0 : tool_cfg->enable_cwp;
+  seq->enable_imp_msk_bld =
+      seq->single_picture_header_flag ? 0 : tool_cfg->enable_imp_msk_bld;
 #else
   seq->enable_cwp = tool_cfg->enable_cwp;
-#endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_imp_msk_bld = tool_cfg->enable_imp_msk_bld;
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->seq_enabled_motion_modes =
       oxcf->motion_mode_cfg.seq_enabled_motion_modes;
 
@@ -679,6 +686,11 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_tcq =
       is_lossless_requested(&oxcf->rc_cfg) ? 0 : tool_cfg->enable_tcq;
+#if CONFIG_CWG_F377_STILL_PICTURE
+  if (seq->enable_tcq != TCQ_DISABLE && seq->single_picture_header_flag) {
+    seq->enable_tcq = TCQ_8ST;
+  }
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   if (seq->enable_tcq == TCQ_DISABLE || seq->enable_tcq >= TCQ_8ST_FR) {
     seq->enable_parity_hiding = is_lossless_requested(&oxcf->rc_cfg)
                                     ? 0
@@ -696,13 +708,16 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
       seq->single_picture_header_flag
           ? 0
           : tool_cfg->enable_short_refresh_frame_flags;
+#if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+  seq->number_of_bits_for_lt_frame_id = seq->single_picture_header_flag ? 0 : 3;
+#endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 #else
   seq->enable_short_refresh_frame_flags =
       tool_cfg->enable_short_refresh_frame_flags;
-#endif  // CONFIG_CWG_F377_STILL_PICTURE
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   seq->number_of_bits_for_lt_frame_id = 3;
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   seq->enable_ext_seg = tool_cfg->enable_ext_seg;
 #if CONFIG_CWG_F377_STILL_PICTURE
   seq->ref_frames = seq->single_picture_header_flag ? 2 : tool_cfg->dpb_size;

@@ -5619,18 +5619,27 @@ void write_sequence_inter_group_tool_flags(
   if (seq_params->enable_tip) {
     aom_wb_write_bit(wb, seq_params->enable_tip_hole_fill);
   }
+#if CONFIG_CWG_F377_STILL_PICTURE
+  if (seq_params->single_picture_header_flag) {
+    assert(!seq_params->enable_mv_traj);
+  } else {
+    aom_wb_write_bit(wb, seq_params->enable_mv_traj);
+  }
+#else
   aom_wb_write_bit(wb, seq_params->enable_mv_traj);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   aom_wb_write_bit(wb, seq_params->enable_bawp);
 #if CONFIG_CWG_F377_STILL_PICTURE
   if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_cwp);
+    assert(!seq_params->enable_imp_msk_bld);
   } else {
-    aom_wb_write_bit(wb, seq_params->enable_cwp);
-  }
-#else
-  aom_wb_write_bit(wb, seq_params->enable_cwp);
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
-  aom_wb_write_bit(wb, seq_params->enable_imp_msk_bld);
+    aom_wb_write_bit(wb, seq_params->enable_cwp);
+    aom_wb_write_bit(wb, seq_params->enable_imp_msk_bld);
+#if CONFIG_CWG_F377_STILL_PICTURE
+  }
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   aom_wb_write_bit(wb, seq_params->enable_fsc);
   if (!seq_params->enable_fsc) {
     aom_wb_write_bit(wb, seq_params->enable_idtx_intra);
@@ -5771,7 +5780,16 @@ void write_sequence_filter_group_tool_flags(
   int enable_tcq = seq_params->enable_tcq;
   aom_wb_write_bit(wb, enable_tcq != 0);
   if (enable_tcq) {
-    aom_wb_write_literal(wb, enable_tcq - 1, 1);
+    int choose_tcq_per_frame = enable_tcq - 1;
+#if CONFIG_CWG_F377_STILL_PICTURE
+    if (seq_params->single_picture_header_flag) {
+      assert(!choose_tcq_per_frame);
+    } else {
+      aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+    }
+#else
+    aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   }
   if (enable_tcq == TCQ_DISABLE || enable_tcq >= TCQ_8ST_FR) {
     // Signal whether parity hiding is used if TCQ is
@@ -5820,7 +5838,15 @@ void write_sequence_transform_group_tool_flags(
   aom_wb_write_bit(wb, seq_params->reduced_tx_part_set);
   if (!seq_params->monochrome) aom_wb_write_bit(wb, seq_params->enable_cctx);
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+#if CONFIG_CWG_F377_STILL_PICTURE
+  if (seq_params->single_picture_header_flag) {
+    assert(seq_params->number_of_bits_for_lt_frame_id == 0);
+  } else {
+    aom_wb_write_literal(wb, seq_params->number_of_bits_for_lt_frame_id, 3);
+  }
+#else
   aom_wb_write_literal(wb, seq_params->number_of_bits_for_lt_frame_id, 3);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   aom_wb_write_bit(wb, seq_params->enable_ext_seg);
 #if CONFIG_MULTI_LEVEL_SEGMENTATION
@@ -5836,7 +5862,16 @@ void write_sequence_transform_group_tool_flags(
   int enable_tcq = seq_params->enable_tcq;
   aom_wb_write_bit(wb, enable_tcq != 0);
   if (enable_tcq) {
-    aom_wb_write_literal(wb, enable_tcq - 1, 1);
+    int choose_tcq_per_frame = enable_tcq - 1;
+#if CONFIG_CWG_F377_STILL_PICTURE
+    if (seq_params->single_picture_header_flag) {
+      assert(!choose_tcq_per_frame);
+    } else {
+      aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+    }
+#else
+    aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   }
   if (enable_tcq == TCQ_DISABLE || enable_tcq >= TCQ_8ST_FR) {
     // Signal whether parity hiding is used if TCQ is
@@ -6212,18 +6247,27 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   if (seq_params->enable_tip) {
     aom_wb_write_bit(wb, seq_params->enable_tip_hole_fill);
   }
+#if CONFIG_CWG_F377_STILL_PICTURE
+  if (seq_params->single_picture_header_flag) {
+    assert(!seq_params->enable_mv_traj);
+  } else {
+    aom_wb_write_bit(wb, seq_params->enable_mv_traj);
+  }
+#else
   aom_wb_write_bit(wb, seq_params->enable_mv_traj);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   aom_wb_write_bit(wb, seq_params->enable_bawp);
 #if CONFIG_CWG_F377_STILL_PICTURE
   if (seq_params->single_picture_header_flag) {
     assert(!seq_params->enable_cwp);
+    assert(!seq_params->enable_imp_msk_bld);
   } else {
-    aom_wb_write_bit(wb, seq_params->enable_cwp);
-  }
-#else
-  aom_wb_write_bit(wb, seq_params->enable_cwp);
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
-  aom_wb_write_bit(wb, seq_params->enable_imp_msk_bld);
+    aom_wb_write_bit(wb, seq_params->enable_cwp);
+    aom_wb_write_bit(wb, seq_params->enable_imp_msk_bld);
+#if CONFIG_CWG_F377_STILL_PICTURE
+  }
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   aom_wb_write_bit(wb, seq_params->enable_fsc);
   if (!seq_params->enable_fsc) {
     aom_wb_write_bit(wb, seq_params->enable_idtx_intra);
@@ -6288,7 +6332,16 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   int enable_tcq = seq_params->enable_tcq;
   aom_wb_write_bit(wb, enable_tcq != 0);
   if (enable_tcq) {
-    aom_wb_write_literal(wb, enable_tcq - 1, 1);
+    int choose_tcq_per_frame = enable_tcq - 1;
+#if CONFIG_CWG_F377_STILL_PICTURE
+    if (seq_params->single_picture_header_flag) {
+      assert(!choose_tcq_per_frame);
+    } else {
+      aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+    }
+#else
+    aom_wb_write_literal(wb, choose_tcq_per_frame, 1);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
   }
   if (enable_tcq == TCQ_DISABLE || enable_tcq >= TCQ_8ST_FR) {
     // Signal whether parity hiding is used if TCQ is
@@ -6322,7 +6375,15 @@ static AOM_INLINE void write_sequence_header_beyond_av1(
   aom_wb_write_bit(wb, seq_params->enable_short_refresh_frame_flags);
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+#if CONFIG_CWG_F377_STILL_PICTURE
+  if (seq_params->single_picture_header_flag) {
+    assert(seq_params->number_of_bits_for_lt_frame_id == 0);
+  } else {
+    aom_wb_write_literal(wb, seq_params->number_of_bits_for_lt_frame_id, 3);
+  }
+#else
   aom_wb_write_literal(wb, seq_params->number_of_bits_for_lt_frame_id, 3);
+#endif  // CONFIG_CWG_F377_STILL_PICTURE
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   aom_wb_write_bit(wb, seq_params->enable_ext_seg);
 #if CONFIG_MULTI_LEVEL_SEGMENTATION

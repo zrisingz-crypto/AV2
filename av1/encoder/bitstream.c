@@ -5568,7 +5568,7 @@ void write_sequence_inter_group_tool_flags(
 
 #if CONFIG_CWG_F377_STILL_PICTURE
   if (seq_params->single_picture_header_flag) {
-    assert(!seq_params->explicit_ref_frame_map);
+    assert(!seq_params->enable_explicit_ref_frame_map);
 
     assert(seq_params->ref_frames == 2);
 
@@ -5576,7 +5576,7 @@ void write_sequence_inter_group_tool_flags(
     assert(!seq_params->allow_frame_max_drl_bits);
   } else {
 #endif  // CONFIG_CWG_F377_STILL_PICTURE
-    aom_wb_write_bit(wb, seq_params->explicit_ref_frame_map);
+    aom_wb_write_bit(wb, seq_params->enable_explicit_ref_frame_map);
 
     const int signal_dpb_explicit =
         seq_params->ref_frames != 8;  // DPB size 8 is the default value
@@ -6422,7 +6422,11 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
 
   int our_ref = cpi->gm_info.base_model_our_ref;
   int their_ref = cpi->gm_info.base_model_their_ref;
-  aom_wb_write_primitive_quniform(wb, num_total_refs + 1, our_ref);
+#if CONFIG_ERROR_RESILIENT_FIX
+  assert(IMPLIES(frame_is_sframe(cm), our_ref == num_total_refs));
+  if (!frame_is_sframe(cm))
+#endif  // CONFIG_ERROR_RESILIENT_FIX
+    aom_wb_write_primitive_quniform(wb, num_total_refs + 1, our_ref);
   if (our_ref >= num_total_refs) {
     // Special case: Use IDENTITY model
     // Nothing more to code
@@ -7153,7 +7157,7 @@ static AOM_INLINE void write_uncompressed_header_obu
 #if !CONFIG_F322_OBUER_ERM
               cm->features.error_resilient_mode ||
 #endif  // !CONFIG_F322_OBUER_ERM
-              frame_is_sframe(cm) || seq_params->explicit_ref_frame_map
+              frame_is_sframe(cm) || seq_params->enable_explicit_ref_frame_map
 #if CONFIG_CWG_F317
               ) &&
           !cm->bridge_frame_info.is_bridge_frame
@@ -7161,7 +7165,7 @@ static AOM_INLINE void write_uncompressed_header_obu
           ;
 #if CONFIG_F322_OBUER_EXPLICIT_REFLIST
       if (!frame_is_intra_only(cm) && !frame_is_sframe(cm) &&
-          seq_params->explicit_ref_frame_map
+          seq_params->enable_explicit_ref_frame_map
 #if CONFIG_CWG_F317
           && !cm->bridge_frame_info.is_bridge_frame
 #endif  // CONFIG_CWG_F317

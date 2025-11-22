@@ -1541,6 +1541,13 @@ static int is_coded_frame(OBU_TYPE obu_type) {
 // On success, return 0. If failed return 1.
 #if OBU_ORDER_IN_TU
 static int check_obu_order(OBU_TYPE prev_obu_type, OBU_TYPE curr_obu_type) {
+  // TODO: avm#1115 - Rewrite check_obu_order() to better express all OBU
+  // ordering constraints.
+#if CONFIG_F153_FGM_OBU
+  if (curr_obu_type == OBU_FGM || prev_obu_type == OBU_FGM) {
+    return 0;
+  }
+#endif  // CONFIG_F153_FGM_OBU
 #if CONFIG_F255_QMOBU
   if (is_coded_frame(curr_obu_type) && prev_obu_type == OBU_QM) {
     return 0;
@@ -1712,6 +1719,12 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   uint32_t acc_qm_id_bitmap = 0;
   bool seq_header_in_tu = false;
 #endif
+#if CONFIG_F153_FGM_OBU
+  // acc_fgm_id_bitmap accumulate fgm_id_bitmap in FGM OBU to check if film
+  // grain models signalled before a coded frame have the same fgm_id
+  uint32_t acc_fgm_id_bitmap = 0;
+  int fgm_seq_id_in_tu = -1;
+#endif  // CONFIG_F153_FGM_OBU
 
   // decode frame as a series of OBUs
   while (!frame_decoding_finished && cm->error.error_code == AOM_CODEC_OK) {
@@ -1876,6 +1889,10 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_MULTI_STREAM
       case OBU_SEQUENCE_HEADER:
         decoded_payload_size = read_sequence_header_obu(pbi, &rb);
+#if CONFIG_F153_FGM_OBU
+        fgm_seq_id_in_tu =
+            pbi->seq_list[pbi->seq_header_count - 1].seq_header_id;
+#endif
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         // The sequence header should not change in the middle of a frame.
         if (pbi->sequence_header_changed && pbi->seen_frame_header) {
@@ -1967,7 +1984,12 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // than once.
         acc_qm_id_bitmap = 0;
 #endif
-
+#if CONFIG_F153_FGM_OBU
+        // It is a requirement that if multiple FGM OBUs are present
+        // consecutively prior to a coded frame, such FGM OBUs will not set
+        // the same FGM ID more than once.
+        acc_fgm_id_bitmap = 0;
+#endif  // CONFIG_F153_FGM_OBU
 #if CONFIG_F106_OBU_TILEGROUP
         decoded_payload_size =
             read_tilegroup_obu(pbi, &rb, data, data + payload_size, p_data_end,
@@ -2174,6 +2196,14 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
 #endif  // CONFIG_SHORT_METADATA
+#if CONFIG_F153_FGM_OBU
+      case OBU_FGM:
+        decoded_payload_size = read_fgm_obu(
+            pbi, obu_header.obu_tlayer_id, obu_header.obu_mlayer_id,
+            &acc_fgm_id_bitmap, fgm_seq_id_in_tu, &rb);
+        if (cm->error.error_code != AOM_CODEC_OK) return -1;
+        break;
+#endif  // CONFIG_F153_FGM_OBU
       case OBU_PADDING:
         decoded_payload_size = read_padding(cm, data, payload_size);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;

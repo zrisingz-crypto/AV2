@@ -625,21 +625,29 @@ static AOM_INLINE void check_opfl_edge(const AV1_COMMON *const cm,
                                        const int scale, TX_SIZE *ts,
                                        int32_t *opfl_edge) {
   const bool is_opfl_mode = opfl_allowed_cur_pred_mode(cm, xd, mbmi);
-  (void)scale;
-  if (plane > 0) return;
+  (void)plane;
   if (is_opfl_mode) {
-    const BLOCK_SIZE bsize_base = mbmi->sb_type[PLANE_TYPE_Y];
     *opfl_edge = 1;
-    const int opfl_ts = (bsize_base == BLOCK_8X8) ? TX_4X4 : TX_8X8;
-    *ts = opfl_ts;
+    const BLOCK_SIZE bsize = mbmi->sb_type[AOM_PLANE_Y];
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    const int use_4x4 = is_tip_ref_frame(mbmi->ref_frame[0]) ? 0 : 1;
+    const int sub_pu_size_y =
+        opfl_get_subblock_size(bw, bh, AOM_PLANE_Y, use_4x4);
+    if (sub_pu_size_y == OF_MIN_BSIZE) {
+      *ts = TX_4X4;
+    } else {
+      const int sub_pu_size = scale ? sub_pu_size_y >> 1 : sub_pu_size_y;
+      *ts = (sub_pu_size == OF_MIN_BSIZE) ? TX_4X4 : TX_8X8;
+    }
   }
 }
 
 // Check whether current block is RFMV mode
 static AOM_INLINE void check_rfmv_edge(const AV1_COMMON *const cm,
                                        const MB_MODE_INFO *const mbmi,
-                                       const int scale, TX_SIZE *ts,
-                                       int32_t *rfmv_edge) {
+                                       const EDGE_DIR edge_dir, const int scale,
+                                       TX_SIZE *ts, int32_t *rfmv_edge) {
   const int tip_ref_frame = is_tip_ref_frame(mbmi->ref_frame[0]);
   int is_rfmv_mode = mbmi->refinemv_flag && !tip_ref_frame;
 
@@ -650,8 +658,26 @@ static AOM_INLINE void check_rfmv_edge(const AV1_COMMON *const cm,
 
   if (is_rfmv_mode) {
     *rfmv_edge = 1;
-    const int rfmv_ts = scale ? TX_8X8 : TX_16X16;
-    *ts = rfmv_ts;
+    const BLOCK_SIZE bsize = mbmi->sb_type[AOM_PLANE_Y];
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    if (bw >= REFINEMV_SUBBLOCK_WIDTH && bh >= REFINEMV_SUBBLOCK_HEIGHT) {
+      *ts = scale ? TX_8X8 : TX_16X16;
+    } else if (bw >= REFINEMV_SUBBLOCK_WIDTH &&
+               bh == (REFINEMV_SUBBLOCK_HEIGHT >> 1)) {
+      if (edge_dir == VERT_EDGE) {
+        *ts = scale ? TX_8X8 : TX_16X16;
+      } else {
+        *ts = scale ? TX_4X4 : TX_8X8;
+      }
+    } else if (bw == (REFINEMV_SUBBLOCK_WIDTH >> 1) &&
+               bh >= REFINEMV_SUBBLOCK_HEIGHT) {
+      if (edge_dir == VERT_EDGE) {
+        *ts = scale ? TX_4X4 : TX_8X8;
+      } else {
+        *ts = scale ? TX_8X8 : TX_16X16;
+      }
+    }
   }
 }
 
@@ -663,7 +689,7 @@ static AOM_INLINE void check_sub_pu_edge(
     const uint32_t coord, TX_SIZE *ts, int32_t *sub_pu_edge,
     int *tx_m_partition_size) {
   if (!cm->features.allow_lf_sub_pu) return;
-  const int is_inter = is_inter_block(mbmi, xd->tree_type);
+  const int is_inter = is_inter_block(mbmi, tree_type);
   if (!is_inter) return;
   int temp_edge = 0;
   TX_SIZE temp_ts = 0;
@@ -673,7 +699,8 @@ static AOM_INLINE void check_sub_pu_edge(
                  cm->seq_params.enable_tip_refinemv);
   if (!temp_edge)
     check_opfl_edge(cm, plane, xd, mbmi, scale, &temp_ts, &temp_edge);
-  if (!temp_edge) check_rfmv_edge(cm, mbmi, scale, &temp_ts, &temp_edge);
+  if (!temp_edge)
+    check_rfmv_edge(cm, mbmi, edge_dir, scale, &temp_ts, &temp_edge);
 
   if (temp_edge) {
     const int sub_pu_size =

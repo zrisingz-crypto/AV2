@@ -53,10 +53,18 @@ typedef struct {
   uint64_t filtered_dist_frame;
   uint64_t *unfiltered_dist_block;
   uint64_t *training_dist_block;
+  int *reuse_total_class_err[CCSO_INPUT_INTERVAL][CCSO_INPUT_INTERVAL]
+                            [CCSO_BAND_NUM];
+  int *reuse_total_class_cnt[CCSO_INPUT_INTERVAL][CCSO_INPUT_INTERVAL]
+                            [CCSO_BAND_NUM];
 } CcsoCtx;
 
 const int ccso_offset[8] = { -10, -7, -3, -1, 0, 1, 3, 7 };
 const int ccso_scale[4] = { 1, 2, 3, 4 };
+
+static INLINE bool reuse_ccso_class_info(const AV1_COMMON *cm) {
+  return !(cm->bru.enabled);
+}
 
 void ccso_derive_src_block_c(const uint16_t *src_y, uint8_t *const src_cls0,
                              uint8_t *const src_cls1, const int src_y_stride,
@@ -162,13 +170,11 @@ static void ccso_derive_src_info(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 /* Compute the aggregated residual between original and reconstructed sample for
  * each entry of the LUT */
-static void ccso_pre_compute_class_err(CcsoCtx *ctx, MACROBLOCKD *xd,
-                                       const int plane, const AV1_COMMON *cm,
-                                       const int proc_unit_log2,
-                                       const uint16_t *src_y,
-                                       const uint16_t *ref, const uint16_t *dst,
-                                       uint8_t *src_cls0, uint8_t *src_cls1,
-                                       const uint8_t shift_bits) {
+static void ccso_pre_compute_class_err(
+    CcsoCtx *ctx, MACROBLOCKD *xd, const int plane, const AV1_COMMON *cm,
+    const int proc_unit_log2, const uint16_t *src_y, const uint16_t *ref,
+    const uint16_t *dst, uint8_t *src_cls0, uint8_t *src_cls1,
+    const uint8_t shift_bits, const uint8_t init_shift_bits) {
   const int pic_height = xd->plane[plane].dst.height;
   const int pic_width = xd->plane[plane].dst.width;
   const int y_uv_hscale = xd->plane[plane].subsampling_x;
@@ -185,6 +191,43 @@ static void ccso_pre_compute_class_err(CcsoCtx *ctx, MACROBLOCKD *xd,
   const int blk_log2_y = CCSO_BLK_SIZE - xd->plane[plane].subsampling_y;
   const int blk_log2_x = CCSO_BLK_SIZE - xd->plane[plane].subsampling_x;
 #endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const int ccso_nvfb =
+      ((mi_params->mi_rows >> xd->plane[plane].subsampling_y) +
+       (1 << blk_log2_y >> 2) - 1) /
+      (1 << blk_log2_y >> 2);
+  const int ccso_nhfb =
+      ((mi_params->mi_cols >> xd->plane[plane].subsampling_x) +
+       (1 << blk_log2_x >> 2) - 1) /
+      (1 << blk_log2_x >> 2);
+  const int sb_count = ccso_nvfb * ccso_nhfb;
+
+  // Error and count of previously computed bands are reused to compute
+  // error and count of the new lower bands.
+  if ((init_shift_bits != shift_bits) && reuse_ccso_class_info(cm)) {
+    const int max_band = 1 << (cm->seq_params.bit_depth - shift_bits);
+    const int num_bins_to_be_summed = 1 << (shift_bits - init_shift_bits);
+    for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+      for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+        for (int fb_cnt = 0; fb_cnt < sb_count; fb_cnt++) {
+          for (int band_num = 0; band_num < max_band; band_num++) {
+            const int bin_index = (band_num * num_bins_to_be_summed);
+            for (int cur_bin_index = bin_index;
+                 cur_bin_index < bin_index + num_bins_to_be_summed;
+                 cur_bin_index++) {
+              ctx->total_class_err[d0][d1][band_num][fb_cnt] +=
+                  ctx->reuse_total_class_err[d0][d1][cur_bin_index][fb_cnt];
+
+              ctx->total_class_cnt[d0][d1][band_num][fb_cnt] +=
+                  ctx->reuse_total_class_cnt[d0][d1][cur_bin_index][fb_cnt];
+            }
+          }
+        }
+      }
+    }
+    return;
+  }
+
   const int blk_size_y = 1 << blk_log2_y;
   const int blk_size_x = 1 << blk_log2_x;
   const int scaled_ext_stride = (ctx->ccso_stride_ext << y_uv_vscale);
@@ -196,6 +239,21 @@ static void ccso_pre_compute_class_err(CcsoCtx *ctx, MACROBLOCKD *xd,
   const int unit_log2_y =
       proc_unit_log2 > blk_log2_y ? blk_log2_y : proc_unit_log2;
   const int unit_size_y = 1 << (unit_log2_y);
+
+  // Initialize total class error and count for each band to reuse
+  if (reuse_ccso_class_info(cm)) {
+    for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+      for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+        for (int band_num = 0; band_num < CCSO_BAND_NUM; band_num++) {
+          av1_zero_array(ctx->reuse_total_class_err[d0][d1][band_num],
+                         sb_count);
+          av1_zero_array(ctx->reuse_total_class_cnt[d0][d1][band_num],
+                         sb_count);
+        }
+      }
+    }
+  }
+
   for (int y = 0; y < pic_height; y += blk_size_y) {
     for (int x = 0; x < pic_width; x += blk_size_x) {
       fb_idx++;
@@ -262,6 +320,20 @@ static void ccso_pre_compute_class_err(CcsoCtx *ctx, MACROBLOCKD *xd,
     src_y += (ctx->ccso_stride_ext << (blk_log2_y + y_uv_vscale));
     src_cls0 += (ctx->ccso_stride << (blk_log2_y + y_uv_vscale));
     src_cls1 += (ctx->ccso_stride << (blk_log2_y + y_uv_vscale));
+  }
+
+  // Store the computed error and count to reuse the same for a given band
+  if (reuse_ccso_class_info(cm)) {
+    for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+      for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+        for (int band_num = 0; band_num < CCSO_BAND_NUM; band_num++) {
+          av1_copy_array(ctx->reuse_total_class_err[d0][d1][band_num],
+                         ctx->total_class_err[d0][d1][band_num], fb_idx);
+          av1_copy_array(ctx->reuse_total_class_cnt[d0][d1][band_num],
+                         ctx->total_class_cnt[d0][d1][band_num], fb_idx);
+        }
+      }
+    }
   }
 }
 
@@ -1154,6 +1226,20 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV1_COMMON *cm, const int plane,
     ctx->total_class_cnt_bo[band_num] =
         aom_malloc(sizeof(*ctx->total_class_cnt_bo[band_num]) * sb_count);
   }
+  // Allocate memory required to store class error and class count
+  // for reusing the same for a given band
+  if (reuse_ccso_class_info(cm)) {
+    for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+      for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+        for (int band_num = 0; band_num < CCSO_BAND_NUM; band_num++) {
+          ctx->reuse_total_class_err[d0][d1][band_num] = aom_malloc(
+              sizeof(*ctx->reuse_total_class_err[d0][d1][band_num]) * sb_count);
+          ctx->reuse_total_class_cnt[d0][d1][band_num] = aom_malloc(
+              sizeof(*ctx->reuse_total_class_cnt[d0][d1][band_num]) * sb_count);
+        }
+      }
+    }
+  }
 
   compute_distortion(org_uv, ctx->ccso_stride, rec_uv, ctx->ccso_stride,
                      log2_filter_unit_size_y, log2_filter_unit_size_x,
@@ -1209,6 +1295,8 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV1_COMMON *cm, const int plane,
   RefCntBuffer *ref_frame = NULL;
   CcsoInfo *ref_frame_ccso_info = NULL;
 
+  int init_shift_bits = -1;
+
   const int num_ref_frames = (frame_is_intra_only(cm) ||
 #if CONFIG_F322_OBUER_ERM
                               frame_is_sframe(cm) ||
@@ -1250,11 +1338,38 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV1_COMMON *cm, const int plane,
                       MI_SIZE_LOG2,
                   quant_sz[scale_idx][quant_idx], ext_filter_support, src_cls0,
                   src_cls1, edge_clf, ctx->ccso_stride, ctx->ccso_stride_ext);
+              // reset so as to populate ccso_pre_compute_class_err data and
+              // reuse the same
+              init_shift_bits = -1;
             }
             int num_band_iter = total_band_log2_plus1;
             if (ccso_bo_only) {
               num_band_iter = total_band_log2_plus1 + 3;
             }
+
+            // compute the total_class_err for minimum shift_bits possible
+            // before the below loop starts, later use the same in the
+            // ccso_pre_compute_class_err calls.
+            if (!ccso_bo_only && (init_shift_bits == -1)) {
+              init_shift_bits = cm->seq_params.bit_depth - (num_band_iter - 1);
+              const int max_band = 1 << (num_band_iter - 1);
+              for (int d0 = 0; d0 < max_edge_interval; d0++) {
+                for (int d1 = 0; d1 < max_edge_interval; d1++) {
+                  for (int band_num = 0; band_num < max_band; band_num++) {
+                    av1_zero_array(ctx->total_class_err[d0][d1][band_num],
+                                   sb_count);
+                    av1_zero_array(ctx->total_class_cnt[d0][d1][band_num],
+                                   sb_count);
+                  }
+                }
+              }
+              ccso_pre_compute_class_err(
+                  ctx, xd, plane, cm,
+                  cm->mib_size_log2 - AOMMAX(ss_x, ss_y) + MI_SIZE_LOG2,
+                  ext_rec_y, org_uv, rec_uv, src_cls0, src_cls1,
+                  init_shift_bits, init_shift_bits);
+            }
+
             for (int max_band_log2 = 0; max_band_log2 < num_band_iter;
                  max_band_log2++) {
               const int shift_bits = cm->seq_params.bit_depth - max_band_log2;
@@ -1283,10 +1398,33 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV1_COMMON *cm, const int plane,
                     }
                   }
                 }
-                ccso_pre_compute_class_err(
-                    ctx, xd, plane, cm,
-                    cm->mib_size_log2 - AOMMAX(ss_x, ss_y) + MI_SIZE_LOG2,
-                    ext_rec_y, org_uv, rec_uv, src_cls0, src_cls1, shift_bits);
+                if ((init_shift_bits != shift_bits) ||
+                    !(reuse_ccso_class_info(cm))) {
+                  ccso_pre_compute_class_err(
+                      ctx, xd, plane, cm,
+                      cm->mib_size_log2 - AOMMAX(ss_x, ss_y) + MI_SIZE_LOG2,
+                      ext_rec_y, org_uv, rec_uv, src_cls0, src_cls1, shift_bits,
+                      init_shift_bits);
+                } else {
+                  // When the shift_bits same as that of the initial value
+                  // computed before the current loop starts, perform a memcpy
+                  // directly
+                  for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+                    for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+                      for (int band_num = 0; band_num < CCSO_BAND_NUM;
+                           band_num++) {
+                        av1_copy_array(
+                            ctx->total_class_err[d0][d1][band_num],
+                            ctx->reuse_total_class_err[d0][d1][band_num],
+                            sb_count);
+                        av1_copy_array(
+                            ctx->total_class_cnt[d0][d1][band_num],
+                            ctx->reuse_total_class_cnt[d0][d1][band_num],
+                            sb_count);
+                      }
+                    }
+                  }
+                }
               }
 
               unsigned int
@@ -1771,6 +1909,16 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV1_COMMON *cm, const int plane,
   for (int band_num = 0; band_num < CCSO_BAND_NUM; band_num++) {
     aom_free(ctx->total_class_err_bo[band_num]);
     aom_free(ctx->total_class_cnt_bo[band_num]);
+  }
+  if (reuse_ccso_class_info(cm)) {
+    for (int d0 = 0; d0 < CCSO_INPUT_INTERVAL; d0++) {
+      for (int d1 = 0; d1 < CCSO_INPUT_INTERVAL; d1++) {
+        for (int band_num = 0; band_num < CCSO_BAND_NUM; band_num++) {
+          aom_free(ctx->reuse_total_class_err[d0][d1][band_num]);
+          aom_free(ctx->reuse_total_class_cnt[d0][d1][band_num]);
+        }
+      }
+    }
   }
 }
 

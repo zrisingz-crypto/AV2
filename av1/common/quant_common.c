@@ -489,7 +489,6 @@ static void calc_wt_matrix(const int txsize, const qm_val_t *iwt_matrix,
 
 #if CONFIG_F255_QMOBU
 qm_val_t ***av1_alloc_qmset(int num_planes) {
-  // const int num_planes = 3;   // Y, U, V planes
   const int num_tx_size = 3;  // 8x8, 8x4, 4x8
   qm_val_t ***mat = (qm_val_t ***)aom_malloc(num_tx_size * sizeof(qm_val_t **));
   for (int q = 0; q < num_tx_size; q++) {

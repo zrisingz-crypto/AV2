@@ -164,6 +164,8 @@ static INLINE void av1_read_sample_aspect_ratio_information(
   }
 }
 
+// TODO: AVM issue #1129 - Check that all instances of a CI OBU in an embedded
+// layer shall contain the same information.
 uint32_t av1_read_content_interpretation_obu(struct AV1Decoder *pbi,
                                              struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;

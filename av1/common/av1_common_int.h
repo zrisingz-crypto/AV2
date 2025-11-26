@@ -2690,6 +2690,9 @@ typedef struct AV1Common {
   /*!
    * Elements part of the content interpretation, when present, applicable for
    * all the frames in the video.
+   *
+   * TODO: AVM issue #1130 - Allow different CI OBUs in different embedded
+   * layers of the same bitstream.
    */
   ContentInterpretation ci_params;
 #endif  // CONFIG_CWG_F270_CI_OBU

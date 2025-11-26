@@ -1235,7 +1235,6 @@ enum aome_enc_control_id {
    * Valid range: 0..1, 0 is 16x16 block size (default), 1 is 32x32 block size
    */
   AV1E_SET_FILM_GRAIN_BLOCK_SIZE = 174,
-
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1740,6 +1739,7 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_BRU, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_BRU
 AOM_CTRL_USE_TYPE(AV1E_GET_ENABLE_BRU, int *)
 #define AOM_CTRL_AV1E_GET_ENABLE_BRU
+
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
 #ifdef __cplusplus

@@ -3048,6 +3048,9 @@ typedef struct EncodeFrameParams {
   // TODO(jkei): if possible remove cm_obu_type
   OBU_TYPE frame_params_obu_type;
 #endif
+#if CONFIG_F356_SEF_DOH
+  int duplicate_existing_frame;
+#endif  // CONFIG_F356_SEF_DOH
   /*!\endcond */
   /*!
    *  Bitmask of which reference buffers may be referenced by this frame.
@@ -3355,7 +3358,16 @@ void av1_new_framerate(AV1_COMP *cpi, double framerate);
 // frame. An exception can be made for a forward keyframe since it has no
 // previous dependencies.
 static INLINE int encode_show_existing_frame(const AV1_COMMON *cm) {
-  return cm->show_existing_frame;
+  if (!cm->show_existing_frame) return 0;
+  // show_existing_frame can be equal to 1
+  // only for a forward key frame
+  return (
+#if CONFIG_F322_OBUER_ERM
+      !frame_is_sframe(cm) &&
+#else
+      !cm->features.error_resilient_mode &&
+#endif  // CONFIG_F322_OBUER_ERM
+      cm->current_frame.frame_type == KEY_FRAME);
 }
 #endif
 

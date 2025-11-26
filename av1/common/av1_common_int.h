@@ -5904,9 +5904,8 @@ static INLINE int compute_log2(int value) {
 static INLINE unsigned int av1_compute_allowed_tiles_log2(
     const AV1_COMMON *const cm) {
   const CommonTileParams *const tiles = &cm->tiles;
-  const unsigned int tiles_rows_log2 = compute_log2(tiles->rows);
-  const unsigned int tiles_cols_log2 = compute_log2(tiles->cols);
-  const unsigned int total_tiles_log2 = tiles_rows_log2 + tiles_cols_log2;
+  const unsigned int num_tiles = tiles->rows * tiles->cols;
+  const unsigned int total_tiles_log2 = compute_log2(num_tiles);
   return AOMMIN(total_tiles_log2, MAX_NUM_TILES_FOR_CDFS_AVG_LOG2);
 }
 

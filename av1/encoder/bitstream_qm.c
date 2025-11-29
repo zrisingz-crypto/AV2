@@ -322,6 +322,8 @@ bool add_userqm_in_qmobulist(AV1_COMP *cpi) {
     }  // if
   }  // for(qm_id)
   cpi->qmobu_list[qmobu_pos].qm_bit_map = qm_bit_map;
+  cpi->qmobu_list[qmobu_pos].qm_chroma_info_present_flag =
+      !cm->seq_params.monochrome;
   if (obu_added) cpi->total_signalled_qmobu_count++;
   return obu_added;
 }

@@ -1448,30 +1448,6 @@ void insert_neighbor_warp_candidate(
 }
 
 // Check if the candidate warp parameters are already in the list or not.
-static int is_this_param_already_in_list(
-    const uint8_t curr_num_of_candidates,
-    WARP_CANDIDATE warp_candidates[MAX_WARP_REF_CANDIDATES],
-    WarpedMotionParams neigh_params) {
-#if CONFIG_WRL_NO_PRUNING
-  (void)curr_num_of_candidates;
-  (void)warp_candidates;
-  (void)neigh_params;
-#else
-  for (int i = 0; i < curr_num_of_candidates; i++) {
-    int same_param =
-        (neigh_params.wmmat[2] == warp_candidates[i].wm_params.wmmat[2]);
-    same_param &=
-        (neigh_params.wmmat[3] == warp_candidates[i].wm_params.wmmat[3]);
-    same_param &=
-        (neigh_params.wmmat[4] == warp_candidates[i].wm_params.wmmat[4]);
-    same_param &=
-        (neigh_params.wmmat[5] == warp_candidates[i].wm_params.wmmat[5]);
-    if (same_param) return 1;
-  }
-#endif  // CONFIG_WRL_NO_PRUNING
-
-  return 0;
-}
 
 void check_this_warp_candidate(
     const AV1_COMMON *cm, const MB_MODE_INFO *const neighbor_mbmi,
@@ -1484,12 +1460,9 @@ void check_this_warp_candidate(
   WarpedMotionParams neigh_params;
   if (*curr_num_of_candidates < max_num_of_candidates &&
       is_valid_warp_parameters(cm, neighbor_mbmi, ref_frame, &neigh_params)) {
-    if (!is_this_param_already_in_list(*curr_num_of_candidates, warp_candidates,
-                                       neigh_params)) {
-      insert_neighbor_warp_candidate(warp_candidates, &neigh_params,
-                                     *curr_num_of_candidates, proj_type);
-      ++(*curr_num_of_candidates);
-    }
+    insert_neighbor_warp_candidate(warp_candidates, &neigh_params,
+                                   *curr_num_of_candidates, proj_type);
+    ++(*curr_num_of_candidates);
   }
 }
 
@@ -2128,7 +2101,6 @@ static AOM_INLINE int fill_warp_corner_projected_point(
   // return if the source point is invalid
   if (pos_col < 0 || pos_row < 0) return 0;
 
-#if CONFIG_WRL_CORNER_MVS
   int mv_row = 0;
   int mv_col = 0;
   int find_match_ref = 0;
@@ -2153,22 +2125,6 @@ static AOM_INLINE int fill_warp_corner_projected_point(
   }
 
   if (!find_match_ref) return 0;
-#else
-  if (!is_inter_ref_frame(neighbor_mi->ref_frame[0])) return 0;
-  if (neighbor_mi->ref_frame[0] != this_ref) return 0;
-  int mv_row;
-  int mv_col;
-  if (is_warp_mode(neighbor_mi->motion_mode)) {
-    int_mv warp_mv =
-        get_warp_motion_vector_xy_pos(xd, &neighbor_mi->wm_params[0], pos_col,
-                                      pos_row, MV_PRECISION_ONE_EIGHTH_PEL);
-    mv_row = warp_mv.as_mv.row;
-    mv_col = warp_mv.as_mv.col;
-  } else {
-    mv_row = neighbor_mi->mv[0].as_mv.row;
-    mv_col = neighbor_mi->mv[0].as_mv.col;
-  }
-#endif  // CONFIG_WRL_CORNER_MVS
   pts[2 * (*n_points)] = pos_col;
   pts[2 * (*n_points) + 1] = pos_row;
   mvs[2 * (*n_points)] = mv_col;
@@ -2178,7 +2134,6 @@ static AOM_INLINE int fill_warp_corner_projected_point(
 }
 
 // Check all 3 neighbors to generate projected points
-#if CONFIG_WRL_CORNER_MVS
 static AOM_INLINE int generate_points_from_corners(
     const MACROBLOCKD *xd, const MVP_UNIT_STATUS corner_unit_status[3],
     int *pts, int *mvs, int *np, MV_REFERENCE_FRAME ref_frame) {
@@ -2239,70 +2194,6 @@ static AOM_INLINE int generate_points_from_corners(
   assert(valid_points <= 3);
   return valid_points;
 }
-#else
-static AOM_INLINE int generate_points_from_corners(
-    const MACROBLOCKD *xd, MVP_UNIT_STATUS row_smvp_state[4], int *pts,
-    int *mvs, int *np, MV_REFERENCE_FRAME ref_frame) {
-  const TileInfo *const tile = &xd->tile;
-  POSITION mi_pos;
-  int valid_points = 0;
-  MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame);
-  MV_REFERENCE_FRAME this_ref = rf[0];
-  const int bw = xd->width * MI_SIZE;
-  const int bh = xd->height * MI_SIZE;
-
-  // top-left
-  mi_pos.row = -1;
-  mi_pos.col = row_smvp_state[3].col_offset;
-  if (is_inside(tile, xd->mi_col, xd->mi_row, &mi_pos) &&
-      row_smvp_state[3].is_available) {
-    const MB_MODE_INFO *neighbor_mi =
-        xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
-    int pos_row = xd->mi_row * MI_SIZE;
-    int pos_col = xd->mi_col * MI_SIZE;
-    int valid = fill_warp_corner_projected_point(
-        xd, neighbor_mi, this_ref, pos_col, pos_row, pts, mvs, np);
-    if (valid) {
-      valid_points++;
-    }
-  }
-
-  // top-right
-  mi_pos.row = -1;
-  mi_pos.col = row_smvp_state[0].col_offset;
-  if (is_inside(tile, xd->mi_col, xd->mi_row, &mi_pos) &&
-      row_smvp_state[0].is_available) {
-    const MB_MODE_INFO *neighbor_mi =
-        xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
-    int pos_row = xd->mi_row * MI_SIZE;
-    int pos_col = xd->mi_col * MI_SIZE + bw;
-    int valid = fill_warp_corner_projected_point(
-        xd, neighbor_mi, this_ref, pos_col, pos_row, pts, mvs, np);
-    if (valid) {
-      valid_points++;
-    }
-  }
-
-  // bottom-left
-  mi_pos.row = xd->height - 1;
-  mi_pos.col = -1;
-  if (is_inside(tile, xd->mi_col, xd->mi_row, &mi_pos) && xd->left_available) {
-    const MB_MODE_INFO *neighbor_mi =
-        xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
-    int pos_row = xd->mi_row * MI_SIZE + bh;
-    int pos_col = xd->mi_col * MI_SIZE;
-    int valid = fill_warp_corner_projected_point(
-        xd, neighbor_mi, this_ref, pos_col, pos_row, pts, mvs, np);
-    if (valid) {
-      valid_points++;
-    }
-  }
-
-  assert(valid_points <= 3);
-  return valid_points;
-}
-#endif  // CONFIG_WRL_CORNER_MVS
 
 static int insert_mvp_candidate(
     MV_REFERENCE_FRAME rf[2], CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
@@ -2404,7 +2295,6 @@ static AOM_INLINE void setup_ref_mv_list(
   // derive a warp model from the 3 corner MVs
   if (warp_param_stack && valid_num_warp_candidates &&
       *valid_num_warp_candidates < max_num_of_warp_candidates) {
-#if CONFIG_WRL_CORNER_MVS
 // 0: top_left, top_right, bottom_left
 // 1: top, top_right_next, bottom_left
 #define WRL_CORNER_MVS_NUM 2
@@ -2439,9 +2329,7 @@ static AOM_INLINE void setup_ref_mv_list(
             &cand_warp_param, pts, valid_points, mvs_32,
             xd->mi[0]->sb_type[PLANE_TYPE_Y],
             get_ref_scale_factors_const(cm, ref_frame));
-        if (valid_model && !cand_warp_param.invalid &&
-            !is_this_param_already_in_list(*valid_num_warp_candidates,
-                                           warp_param_stack, cand_warp_param)) {
+        if (valid_model && !cand_warp_param.invalid) {
           insert_neighbor_warp_candidate(warp_param_stack, &cand_warp_param,
                                          *valid_num_warp_candidates,
                                          PROJ_SPATIAL);
@@ -2450,25 +2338,6 @@ static AOM_INLINE void setup_ref_mv_list(
         }
       }
     }
-#else
-    int mvs_32[2 * 3];
-    int pts[2 * 3];
-    int np = 0;
-    WarpedMotionParams cand_warp_param = default_warp_params;
-    const int valid_points = generate_points_from_corners(
-        xd, row_smvp_state, pts, mvs_32, &np, ref_frame);
-    const int valid_model =
-        get_model_from_corner_mvs(&cand_warp_param, pts, valid_points, mvs_32,
-                                  xd->mi[0]->sb_type[PLANE_TYPE_Y],
-                                  get_ref_scale_factors_const(cm, ref_frame));
-    if (valid_model && !cand_warp_param.invalid &&
-        !is_this_param_already_in_list(*valid_num_warp_candidates,
-                                       warp_param_stack, cand_warp_param)) {
-      insert_neighbor_warp_candidate(warp_param_stack, &cand_warp_param,
-                                     *valid_num_warp_candidates, PROJ_SPATIAL);
-      (*valid_num_warp_candidates)++;
-    }
-#endif  // CONFIG_WRL_CORNER_MVS
   }
 
   if (xd->left_available) {
@@ -2825,9 +2694,7 @@ static AOM_INLINE void setup_ref_mv_list(
       const int idx = (start_idx + count - 1 - idx_bank) % WARP_PARAM_BANK_SIZE;
       const WarpedMotionParams cand_warp_param = queue[idx];
 
-      if (!cand_warp_param.invalid &&
-          !is_this_param_already_in_list(*valid_num_warp_candidates,
-                                         warp_param_stack, cand_warp_param)) {
+      if (!cand_warp_param.invalid) {
         insert_neighbor_warp_candidate(warp_param_stack, &cand_warp_param,
                                        *valid_num_warp_candidates,
                                        PROJ_PARAM_BANK);
@@ -2837,10 +2704,7 @@ static AOM_INLINE void setup_ref_mv_list(
 
     // Insert Global motion of the current
     if (*valid_num_warp_candidates < max_num_of_warp_candidates) {
-      if (!xd->global_motion[ref_frame].invalid &&
-          !is_this_param_already_in_list(*valid_num_warp_candidates,
-                                         warp_param_stack,
-                                         xd->global_motion[ref_frame])) {
+      if (!xd->global_motion[ref_frame].invalid) {
         insert_neighbor_warp_candidate(
             warp_param_stack, &xd->global_motion[ref_frame],
             *valid_num_warp_candidates, PROJ_GLOBAL_MOTION);

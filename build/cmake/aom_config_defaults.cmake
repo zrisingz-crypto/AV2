@@ -233,9 +233,6 @@ set_aom_config_var(OBU_ORDER_IN_TU 1 "Check OBU order in TU")
 set_aom_config_var(CONFIG_TU64_TRAVERSED_ORDER 1
                    "Coding order of TU 64x64 traversed as 128x128 blocks")
 
-set_aom_config_var(CONFIG_REDUCED_REF_FRAME_MVS_MODE 1
-                   "Use reduced reference frame mvs for temporal mv prediction")
-
 set_aom_config_var(CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING 1
                    "Buffer removal timing OBU")
 
@@ -251,9 +248,6 @@ set_aom_config_var(CONFIG_CTX_MODELS_LINE_BUFFER_REDUCTION 1
 set_aom_config_var(CONFIG_FRAME_HALF_PRECISION 1
                    "Enable frame level half precision")
 
-set_aom_config_var(CONFIG_WRL_CORNER_MVS 1
-                   "Improve the WRL from the 3 corner MVs")
-
 set_aom_config_var(CONFIG_DC_DIV_UNIFY 1 "Unify DC division")
 
 set_aom_config_var(CONFIG_MHCCP_BLK_SIZE 1
@@ -264,8 +258,6 @@ set_aom_config_var(CONFIG_MHCCP_SOLVER_BITS 1
 
 set_aom_config_var(CONFIG_RU_SIZE_RESTRICTION 1
                    "RU size shall be larger than or equal to sb size")
-
-set_aom_config_var(CONFIG_WRL_NO_PRUNING 1 "No pruning when construct WRL")
 
 set_aom_config_var(CONFIG_FIX_OPFL_AUTO 1
                    "Fix optical flow auto mode, option 3")

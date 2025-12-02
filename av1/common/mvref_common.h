@@ -1233,32 +1233,50 @@ static AOM_INLINE void tip_get_mv_projection(MV *output, MV ref,
   output->col = (MV_COMP_DATA_TYPE)clamp(mv_col, clamp_min, clamp_max);
 }
 
-// Compute TMVP unit offset related to block mv
-static AOM_INLINE int derive_block_mv_tpl_offset(const AV1_COMMON *const cm,
-                                                 const int blk_tpl_row,
-                                                 const int blk_tpl_col) {
+// Compute TMVP col offset related to block mv
+static AOM_INLINE int derive_col_mv_tpl_offset(const AV1_COMMON *const cm,
+                                               int blk_tpl_col) {
   const int frame_mvs_tpl_cols =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
-  const int frame_mvs_tpl_rows =
-      ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
 
-  int tpl_row_offset = 0;
   int tpl_col_offset = 0;
-  if (blk_tpl_row + tpl_row_offset >= frame_mvs_tpl_rows) {
-    tpl_row_offset = frame_mvs_tpl_rows - 1 - blk_tpl_row;
-  } else if (blk_tpl_row + tpl_row_offset < 0) {
-    tpl_row_offset = -blk_tpl_row;
-  }
-
   if (blk_tpl_col + tpl_col_offset >= frame_mvs_tpl_cols) {
     tpl_col_offset = frame_mvs_tpl_cols - 1 - blk_tpl_col;
   } else if (blk_tpl_col + tpl_col_offset < 0) {
     tpl_col_offset = -blk_tpl_col;
   }
 
-  const int tpl_offset = tpl_row_offset * frame_mvs_tpl_cols + tpl_col_offset;
+  return tpl_col_offset;
+}
 
+// Compute TMVP row offset related to block mv
+static AOM_INLINE int derive_row_mv_tpl_offset(const AV1_COMMON *const cm,
+                                               int blk_tpl_row) {
+  const int frame_mvs_tpl_cols =
+      ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
+  const int frame_mvs_tpl_rows =
+      ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
+
+  int tpl_row_offset = 0;
+  if (blk_tpl_row + tpl_row_offset >= frame_mvs_tpl_rows) {
+    tpl_row_offset = frame_mvs_tpl_rows - 1 - blk_tpl_row;
+  } else if (blk_tpl_row + tpl_row_offset < 0) {
+    tpl_row_offset = -blk_tpl_row;
+  }
+
+  const int tpl_offset = tpl_row_offset * frame_mvs_tpl_cols;
   return tpl_offset;
+}
+
+// Compute TMVP unit offset related to block mv
+static AOM_INLINE int derive_block_mv_tpl_offset(const AV1_COMMON *const cm,
+                                                 const int blk_tpl_row,
+                                                 const int blk_tpl_col) {
+  const int row_offset_to_within_frame =
+      derive_row_mv_tpl_offset(cm, blk_tpl_row);
+  const int col_offset_to_within_frame =
+      derive_col_mv_tpl_offset(cm, blk_tpl_col);
+  return row_offset_to_within_frame + col_offset_to_within_frame;
 }
 
 static AOM_INLINE void get_tip_mv(const AV1_COMMON *cm, const MV *block_mv,

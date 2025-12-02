@@ -43,21 +43,30 @@ void av1_setup_tip_frame(AV1_COMMON *cm, MACROBLOCKD *xd, uint16_t **mc_buf,
 
 // Get the block width when blocks with same MV are combined.
 static AOM_INLINE int get_tip_block_width_with_same_mv(
-    const TPL_MV_REF *tpl_mvs, int unit_blk_size, int blk_col, int blk_col_end,
-    int max_allow_blk_size) {
+    const AV1_COMMON *cm, const TPL_MV_REF *tpl_mvs, int unit_blk_size,
+    int blk_col, int blk_col_end, int max_allow_blk_size) {
   int blk_width = unit_blk_size;
   const int step = unit_blk_size >> TMVP_MI_SZ_LOG2;
   int offset = step;
-  const int is_zero_tpl_mv =
-      tpl_mvs->mfmv0.as_int == 0 || tpl_mvs->mfmv0.as_int == INVALID_MV;
+
+  const int cur_col_offset = blk_col + derive_col_mv_tpl_offset(cm, blk_col);
+  int next_col_offset =
+      blk_col + offset + derive_col_mv_tpl_offset(cm, blk_col + offset);
+  const int is_zero_tpl_mv = tpl_mvs[cur_col_offset].mfmv0.as_int == 0 ||
+                             tpl_mvs[cur_col_offset].mfmv0.as_int == INVALID_MV;
 
   while (blk_col + offset < blk_col_end && blk_width < max_allow_blk_size &&
-         (tpl_mvs->mfmv0.as_int == tpl_mvs[offset].mfmv0.as_int ||
-          (is_zero_tpl_mv && (tpl_mvs[offset].mfmv0.as_int == 0 ||
-                              tpl_mvs[offset].mfmv0.as_int == INVALID_MV)))) {
+         (tpl_mvs[cur_col_offset].mfmv0.as_int ==
+              tpl_mvs[next_col_offset].mfmv0.as_int ||
+          (is_zero_tpl_mv &&
+           (tpl_mvs[next_col_offset].mfmv0.as_int == 0 ||
+            tpl_mvs[next_col_offset].mfmv0.as_int == INVALID_MV)))) {
     blk_width += unit_blk_size;
     offset += step;
+    next_col_offset =
+        blk_col + offset + derive_col_mv_tpl_offset(cm, blk_col + offset);
   }
+
   blk_width = 1 << get_msb(blk_width);
   return blk_width;
 }

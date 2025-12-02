@@ -3886,11 +3886,14 @@ static void build_inter_predictors_8x8_and_bigger_facade(
           const TPL_MV_REF *tpl_mvs_base = cm->tpl_mvs;
           const int mvs_stride =
               ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
-          const int tpl_offset = tpl_row * mvs_stride + tpl_col;
+          const int row_offset_to_within_frame =
+              derive_row_mv_tpl_offset(cm, tpl_row);
+          const int tpl_offset =
+              tpl_row * mvs_stride + row_offset_to_within_frame;
           const TPL_MV_REF *tpl_mvs = tpl_mvs_base + tpl_offset;
           blk_width = get_tip_block_width_with_same_mv(
-              tpl_mvs, unit_blk_size, tpl_col, end_pixel_col >> TMVP_MI_SZ_LOG2,
-              MAX_BLOCK_SIZE_WITH_SAME_MV);
+              cm, tpl_mvs, unit_blk_size, tpl_col,
+              end_pixel_col >> TMVP_MI_SZ_LOG2, MAX_BLOCK_SIZE_WITH_SAME_MV);
         }
 
         // The step size (unit_blk_size) is already determined by whether it is

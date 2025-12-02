@@ -821,7 +821,7 @@ static void tip_setup_tip_frame_plane(
   const int step = (unit_blk_size >> TMVP_MI_SZ_LOG2);
   for (int blk_row = blk_row_start; blk_row < blk_row_end; blk_row += step) {
     for (int blk_col = blk_col_start; blk_col < blk_col_end; blk_col += step) {
-      const int tpl_offset = blk_row * mvs_stride + blk_col;
+      const int tpl_offset = blk_row * mvs_stride;
       const TPL_MV_REF *tpl_mvs = tpl_mvs_base + tpl_offset;
       const int tpl_row = blk_row << TMVP_MI_SZ_LOG2;
       const int tpl_col = blk_col << TMVP_MI_SZ_LOG2;
@@ -831,10 +831,12 @@ static void tip_setup_tip_frame_plane(
       if (is_tip_mv_refinement_disabled_for_unit_size_16x16(
               unit_blk_size, enable_tip_refinemv,
               cm->features.tip_frame_mode)) {
-        blk_width = get_tip_block_width_with_same_mv(
-            tpl_mvs, unit_blk_size, blk_col, blk_col_end, max_allow_blk_size);
+        blk_width = get_tip_block_width_with_same_mv(cm, tpl_mvs, unit_blk_size,
+                                                     blk_col, blk_col_end,
+                                                     max_allow_blk_size);
       }
 
+      tpl_mvs = tpl_mvs + blk_col;
       MV mv[2];
       if (tpl_mvs->mfmv0.as_int != 0 && tpl_mvs->mfmv0.as_int != INVALID_MV) {
         tip_get_mv_projection(&mv[0], tpl_mvs->mfmv0.as_mv,

@@ -330,12 +330,6 @@ typedef struct RefCntBuffer {
   // so it's extremely convenient to keep it here.
   int interp_filter_selected[SWITCHABLE];
 
-  // Inter frame reference frame delta for loop filter
-  int8_t ref_deltas[SINGLE_REF_FRAMES];
-
-  // 0 = ZERO_MV, MV
-  int8_t mode_deltas[MAX_MODE_LF_DELTAS];
-
   FRAME_CONTEXT frame_context;
 
   RestorationInfo rst_info[MAX_MB_PLANE];
@@ -517,13 +511,6 @@ typedef struct {
   int delta_q_present_flag;
   // Resolution of delta quant
   int delta_q_res;
-  int delta_lf_present_flag;
-  // Resolution of delta lf level
-  int delta_lf_res;
-  // This is a flag for number of deltas of loop filter level
-  // 0: use 1 delta, for y_vertical, y_horizontal, u, and v
-  // 1: use separate deltas for each filter level
-  int delta_lf_multi;
 } DeltaQInfo;
 
 typedef struct {

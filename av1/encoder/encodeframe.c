@@ -283,33 +283,6 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
 
   // keep track of any non-zero delta-q used
   td->deltaq_used |= (x->delta_qindex != 0);
-
-#if !CONFIG_DF_DQP
-  if (cpi->oxcf.tool_cfg.enable_deltalf_mode) {
-    const int delta_lf_res = delta_q_info->delta_lf_res;
-    const int lfmask = ~(delta_lf_res - 1);
-    const int delta_lf_from_base =
-        ((x->delta_qindex / 2 + delta_lf_res / 2) & lfmask);
-    const int8_t delta_lf =
-        (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
-    const int frame_lf_count =
-        av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
-    const int mib_size = cm->mib_size;
-
-    // pre-set the delta lf for loop filter. Note that this value is set
-    // before mi is assigned for each block in current superblock
-    for (int j = 0; j < AOMMIN(mib_size, mi_params->mi_rows - mi_row); j++) {
-      for (int k = 0; k < AOMMIN(mib_size, mi_params->mi_cols - mi_col); k++) {
-        const int grid_idx = get_mi_grid_idx(mi_params, mi_row + j, mi_col + k);
-        mi_params->mi_grid_base[grid_idx]->delta_lf_from_base = delta_lf;
-
-        for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id) {
-          mi_params->mi_grid_base[grid_idx]->delta_lf[lf_id] = delta_lf;
-        }
-      }
-    }
-  }
-#endif  // !CONFIG_DF_DQP
 }
 
 static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
@@ -1410,9 +1383,6 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   if (mi_row == tile_info->mi_row_start || row_mt_enabled) {
     if (cm->delta_q_info.delta_q_present_flag)
       xd->current_base_qindex = cm->quant_params.base_qindex;
-    if (cm->delta_q_info.delta_lf_present_flag) {
-      av1_reset_loop_filter_delta(xd, av1_num_planes(cm));
-    }
   }
 
   reset_thresh_freq_fact(x);
@@ -2222,7 +2192,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     else if (deltaq_mode == DELTA_Q_PERCEPTUAL)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
     // Set delta_q_present_flag before it is used for the first time
-    cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
     cm->delta_q_info.delta_q_present_flag = deltaq_mode != NO_DELTA_Q;
 
     // Turn off cm->delta_q_info.delta_q_present_flag if objective delta_q
@@ -2239,15 +2208,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     // Reset delta_q_used flag
     cpi->deltaq_used = 0;
 
-    cm->delta_q_info.delta_lf_present_flag =
-        cm->delta_q_info.delta_q_present_flag &&
-        oxcf->tool_cfg.enable_deltalf_mode;
-    cm->delta_q_info.delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
-
     // update delta_q_present_flag and delta_lf_present_flag based on
     // base_qindex
     cm->delta_q_info.delta_q_present_flag &= quant_params->base_qindex > 0;
-    cm->delta_q_info.delta_lf_present_flag &= quant_params->base_qindex > 0;
   }
 
   av1_frame_init_quantizer(cpi);
@@ -2262,15 +2225,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     cm->last_frame_seg_map = cm->prev_frame->seg_map;
   else
     cm->last_frame_seg_map = NULL;
-  if (features->coded_lossless) {
-    av1_set_default_ref_deltas(cm->lf.ref_deltas);
-    av1_set_default_mode_deltas(cm->lf.mode_deltas);
-  } else if (cm->prev_frame) {
-    memcpy(cm->lf.ref_deltas, cm->prev_frame->ref_deltas, SINGLE_REF_FRAMES);
-    memcpy(cm->lf.mode_deltas, cm->prev_frame->mode_deltas, MAX_MODE_LF_DELTAS);
-  }
-  memcpy(cm->cur_frame->ref_deltas, cm->lf.ref_deltas, SINGLE_REF_FRAMES);
-  memcpy(cm->cur_frame->mode_deltas, cm->lf.mode_deltas, MAX_MODE_LF_DELTAS);
 
   cpi->all_one_sided_refs =
       frame_is_intra_only(cm) ? 0 : refs_are_one_sided(cm);

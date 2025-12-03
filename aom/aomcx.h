@@ -989,15 +989,7 @@ enum aome_enc_control_id {
    */
   AV1E_SET_DELTAQ_MODE = 107,
 
-  /*!\brief Codec control function to turn on/off loopfilter modulation
-   * when delta q modulation is enabled, unsigned int parameter.
-   *
-   * \attention AV1 only supports loopfilter modulation when delta q
-   * modulation is enabled as well.
-   */
-  AV1E_SET_DELTALF_MODE = 108,
-
-  /*!\brief Value 109 is unused.
+  /*!\brief Values 108-109 are unused.
    */
 
   /*!\brief Codec control function to enable the extreme motion vector unit
@@ -1271,10 +1263,9 @@ typedef enum aom_scaling_mode_1d {
 typedef struct aom_roi_map {
   /*! An id between 0 and 7 for each 8x8 region within a frame. */
   unsigned char *roi_map;
-  unsigned int rows;              /**< Number of rows. */
-  unsigned int cols;              /**< Number of columns. */
-  int delta_q[AOM_MAX_SEGMENTS];  /**< Quantizer deltas. */
-  int delta_lf[AOM_MAX_SEGMENTS]; /**< Loop filter deltas. */
+  unsigned int rows;             /**< Number of rows. */
+  unsigned int cols;             /**< Number of columns. */
+  int delta_q[AOM_MAX_SEGMENTS]; /**< Quantizer deltas. */
   /*! Static breakout threshold for each segment. */
   unsigned int static_threshold[AOM_MAX_SEGMENTS];
 } aom_roi_map_t;
@@ -1584,9 +1575,6 @@ AOM_CTRL_USE_TYPE(AV1E_SET_AQ_MODE, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DELTAQ_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_DELTAQ_MODE
-
-AOM_CTRL_USE_TYPE(AV1E_SET_DELTALF_MODE, unsigned int)
-#define AOM_CTRL_AV1E_SET_DELTALF_MODE
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FRAME_PERIODIC_BOOST, unsigned int)
 #define AOM_CTRL_AV1E_SET_FRAME_PERIODIC_BOOST

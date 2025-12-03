@@ -820,8 +820,6 @@ typedef struct {
   aom_bit_depth_t bit_depth;
   // Indicates the superblock size that should be used by the encoder.
   aom_superblock_size_t superblock_size;
-  // Indicates if loopfilter modulation should be enabled.
-  bool enable_deltalf_mode;
   // Indicates if deblocking should be enabled.
   bool enable_deblocking;
   // Indicates if CDEF should be enabled.
@@ -1267,12 +1265,9 @@ typedef struct FRAME_COUNTS {
   // entries for memory optimization code. These are not currently incremented
   // at the encoder to be able to train CDF entries with
   // "aom_entropy_optimizers", these counters will need be incremented properly.
-  unsigned int delta_q_cnts[CDF_SIZE(DELTA_Q_PROBS + 1)];  // placeholder
-  unsigned int delta_lf_multi_cnts[FRAME_LF_COUNT][CDF_SIZE(DELTA_LF_PROBS +
-                                                            1)];  // placeholder
-  unsigned int delta_lf_cnts[CDF_SIZE(DELTA_LF_PROBS + 1)];       // placeholder
-  unsigned int stx_cnts[2][TX_SIZES][CDF_SIZE(STX_TYPES)];        // placeholder
-  unsigned int stx_set_cnts[CDF_SIZE(IST_DIR_SIZE)];              // placeholder
+  unsigned int delta_q_cnts[CDF_SIZE(DELTA_Q_PROBS + 1)];   // placeholder
+  unsigned int stx_cnts[2][TX_SIZES][CDF_SIZE(STX_TYPES)];  // placeholder
+  unsigned int stx_set_cnts[CDF_SIZE(IST_DIR_SIZE)];        // placeholder
   unsigned int pb_mv_mpp_flag_cnts[NUM_MV_PREC_MPP_CONTEXT]
                                   [CDF_SIZE(2)];  // placeholder
   unsigned int pb_mv_precision_cnts[MV_PREC_DOWN_CONTEXTS]
@@ -1466,9 +1461,6 @@ typedef struct FRAME_COUNTS {
   unsigned int skip_txfm[SKIP_CONTEXTS][2];
   unsigned int comp_group_idx[COMP_GROUP_IDX_CONTEXTS][2];
   unsigned int delta_q[DELTA_Q_PROBS][2];
-  unsigned int delta_lf_multi[FRAME_LF_COUNT][DELTA_LF_PROBS][2];
-  unsigned int delta_lf[DELTA_LF_PROBS][2];
-
   unsigned int switchable_flex_restore_cnts[MAX_LR_FLEX_SWITCHABLE_BITS]
                                            [MAX_MB_PLANE][2];  // placeholder
   unsigned int default_ccso_cnts[3][CCSO_CONTEXT][2];

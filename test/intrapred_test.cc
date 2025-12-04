@@ -208,7 +208,7 @@ class HighbdIntraPredTest : public AV1IntraPredTest<HighbdIntraPred, uint16_t> {
   void PredictFncSpeedTest(int num) {
     const int bit_depth = params_.bit_depth;
     for (int i = 0; i < num; i++) {
-      params_.pred_fn(ref_dst_, stride_, above_row_, left_col_, bit_depth);
+      params_.pred_fn(dst_, stride_, above_row_, left_col_, bit_depth);
     }
   }
 };
@@ -227,6 +227,17 @@ TEST_P(HighbdIntraPredTest, Bitexact) {
   RunTest(left_col, above_data, dst, ref_dst);
 }
 
+TEST_P(HighbdIntraPredTest, DISABLED_Speed) {
+  // max block size is 64
+  DECLARE_ALIGNED(16, uint16_t, left_col[2 * 64]);
+  DECLARE_ALIGNED(16, uint16_t, above_data[2 * 64 + 64]);
+  DECLARE_ALIGNED(16, uint16_t, dst[3 * 64 * 64]);
+  DECLARE_ALIGNED(16, uint16_t, ref_dst[3 * 64 * 64]);
+  av1_zero(left_col);
+  av1_zero(above_data);
+  RunSpeedTest(left_col, above_data, dst, ref_dst);
+}
+
 // -----------------------------------------------------------------------------
 // High Bit Depth Tests
 #define highbd_entry(type, width, height, opt, bd)                          \
@@ -235,7 +246,6 @@ TEST_P(HighbdIntraPredTest, Bitexact) {
       &aom_highbd_##type##_predictor_##width##x##height##_c, width, height, \
       bd)
 
-#if 0
 #define highbd_intrapred(type, opt, bd)                                       \
   highbd_entry(type, 4, 4, opt, bd), highbd_entry(type, 4, 8, opt, bd),       \
       highbd_entry(type, 8, 4, opt, bd), highbd_entry(type, 8, 8, opt, bd),   \
@@ -243,7 +253,6 @@ TEST_P(HighbdIntraPredTest, Bitexact) {
       highbd_entry(type, 16, 16, opt, bd),                                    \
       highbd_entry(type, 16, 32, opt, bd),                                    \
       highbd_entry(type, 32, 16, opt, bd), highbd_entry(type, 32, 32, opt, bd)
-#endif
 
 #if HAVE_NEON
 const IntraPredFunc<HighbdIntraPred> HighbdIntraPredTestVectorNeon[] = {
@@ -256,4 +265,21 @@ INSTANTIATE_TEST_SUITE_P(NEON, HighbdIntraPredTest,
                          ::testing::ValuesIn(HighbdIntraPredTestVectorNeon));
 
 #endif  // HAVE_NEON
+
+#if HAVE_SSE2
+const IntraPredFunc<HighbdIntraPred> HighbdIntraPredTestVectorSse2[] = {
+  highbd_intrapred(dc, sse2, 8),       highbd_intrapred(dc, sse2, 10),
+  highbd_intrapred(dc, sse2, 12),      highbd_intrapred(dc_top, sse2, 8),
+  highbd_intrapred(dc_top, sse2, 10),  highbd_intrapred(dc_top, sse2, 12),
+  highbd_intrapred(dc_left, sse2, 8),  highbd_intrapred(dc_left, sse2, 10),
+  highbd_intrapred(dc_left, sse2, 12), highbd_intrapred(dc_128, sse2, 8),
+  highbd_intrapred(dc_128, sse2, 10),  highbd_intrapred(dc_128, sse2, 12),
+  highbd_intrapred(v, sse2, 8),        highbd_intrapred(v, sse2, 10),
+  highbd_intrapred(v, sse2, 12),       highbd_intrapred(h, sse2, 8),
+  highbd_intrapred(h, sse2, 10),       highbd_intrapred(h, sse2, 12),
+};
+
+INSTANTIATE_TEST_SUITE_P(SSE2, HighbdIntraPredTest,
+                         ::testing::ValuesIn(HighbdIntraPredTestVectorSse2));
+#endif  // HAVE_SSE2
 }  // namespace

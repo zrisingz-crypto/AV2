@@ -11750,14 +11750,16 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     }
 #if CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
     if (!pbi->dcb.corrupted) {
-      if (cm->seq_params.enable_avg_cdf && cm->seq_params.avg_cdf_type &&
-          cm->tiles.rows * cm->tiles.cols > 1) {
-        decoder_avg_tiles_cdfs(pbi);
-      } else {
-        assert(pbi->context_update_tile_id < pbi->allocated_tiles);
-        *cm->fc = pbi->tile_data[pbi->context_update_tile_id].tctx;
+      if (!cm->bridge_frame_info.is_bridge_frame) {
+        if (cm->seq_params.enable_avg_cdf && cm->seq_params.avg_cdf_type &&
+            cm->tiles.rows * cm->tiles.cols > 1) {
+          decoder_avg_tiles_cdfs(pbi);
+        } else {
+          assert(pbi->context_update_tile_id < pbi->allocated_tiles);
+          *cm->fc = pbi->tile_data[pbi->context_update_tile_id].tctx;
+        }
+        av1_reset_cdf_symbol_counters(cm->fc);
       }
-      av1_reset_cdf_symbol_counters(cm->fc);
     } else {
       aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                          "Decode failed. Frame data is corrupted.");

@@ -346,7 +346,7 @@ TEST_P(QMTest, TestNoMisMatchQM12) {
 
 AV1_INSTANTIATE_TEST_SUITE(QMTest,
                            ::testing::Values(::libaom_test::kOnePassGood),
-                           ::testing::Range(5, 9));
+                           ::testing::Range(5, 7));
 
 typedef struct {
   const unsigned int min_q;

@@ -2606,9 +2606,11 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
     rsi->temporal_pred_flag = 0;
     cm->cur_frame->rst_info[p].temporal_pred_flag = 0;
 #if CONFIG_CWG_F317
-    if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame)
+    if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame ||
+        cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
 #else
-    if (cm->bru.frame_inactive_flag)
+    if (cm->bru.frame_inactive_flag ||
+        cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
 #endif  // CONFIG_CWG_F317
     {
       rsi->frame_restoration_type = RESTORE_NONE;
@@ -3401,6 +3403,8 @@ static AOM_INLINE void loop_restoration_read_sb_coeffs(AV1_COMMON *cm,
 
 static AOM_INLINE void setup_loopfilter(AV1_COMMON *cm,
                                         struct aom_read_bit_buffer *rb) {
+  CurrentFrame *const current_frame = &cm->current_frame;
+  FeatureFlags *const features = &cm->features;
   const int num_planes = av1_num_planes(cm);
   struct loopfilter *lf = &cm->lf;
   if (cm->features.coded_lossless) {
@@ -3413,6 +3417,22 @@ static AOM_INLINE void setup_loopfilter(AV1_COMMON *cm,
 #else
   if (cm->bru.frame_inactive_flag) return;
 #endif  // CONFIG_CWG_F317
+  if (current_frame->frame_type == INTER_FRAME) {
+    if (cm->seq_params.enable_lf_sub_pu) {
+      features->allow_lf_sub_pu = aom_rb_read_bit(rb);
+    }
+  }
+
+  if (features->tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
+    if (cm->seq_params.enable_lf_sub_pu && features->allow_lf_sub_pu) {
+      cm->lf.tip_filter_level = aom_rb_read_bit(rb);
+      if (cm->lf.tip_filter_level) {
+        cm->lf.tip_delta = 0;
+      }
+    }
+    return;
+  }
+
 #if CONFIG_MULTI_FRAME_HEADER
   assert(cm->mfh_valid[cm->cur_mfh_id]);
   if (cm->mfh_params[cm->cur_mfh_id].mfh_loop_filter_update_flag)
@@ -3511,9 +3531,11 @@ static AOM_INLINE void setup_gdf(AV1_COMMON *cm,
   cm->gdf_info.gdf_mode = 0;
   if (!is_allow_gdf(cm)) return;
 #if CONFIG_CWG_F317
-  if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame)
+  if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame ||
+      cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
 #else
-  if (cm->bru.frame_inactive_flag)
+  if (cm->bru.frame_inactive_flag ||
+      cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
 #endif  // CONFIG_CWG_F317
   {
     return;
@@ -3549,7 +3571,9 @@ static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
     return;
   }
 #endif  // CONFIG_CWG_F317
-  if (cm->bru.frame_inactive_flag) return;
+  if (cm->bru.frame_inactive_flag ||
+      cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
+    return;
 #if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     cdef_info->cdef_frame_enable = 1;
@@ -3609,7 +3633,8 @@ static AOM_INLINE int read_ccso_offset_idx(struct aom_read_bit_buffer *rb) {
 static AOM_INLINE void setup_ccso(AV1_COMMON *cm,
                                   struct aom_read_bit_buffer *rb) {
 #if CONFIG_CWG_F317
-  if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame)
+  if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame ||
+      cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
 #else
   if (cm->bru.frame_inactive_flag)
 #endif  // CONFIG_CWG_F317
@@ -8656,6 +8681,38 @@ static INLINE int get_ref_frame_disp_order_hint(AV1_COMMON *const cm,
 }
 #endif  // CONFIG_F322_OBUER_ERM
 
+static void read_frame_max_bvp_drl_bits(AV1_COMMON *const cm,
+                                        struct aom_read_bit_buffer *rb) {
+  FeatureFlags *const features = &cm->features;
+  const SequenceHeader *const seq_params = &cm->seq_params;
+  features->max_bvp_drl_bits = seq_params->def_max_bvp_drl_bits;
+  if (seq_params->allow_frame_max_bvp_drl_bits) {
+    features->max_bvp_drl_bits =
+        aom_rb_read_primitive_ref_quniform(
+            rb, MAX_MAX_IBC_DRL_BITS - MIN_MAX_IBC_DRL_BITS + 1,
+            seq_params->def_max_bvp_drl_bits - MIN_MAX_IBC_DRL_BITS) +
+        MIN_MAX_IBC_DRL_BITS;
+  }
+}
+static INLINE void read_intrabc_params(AV1_COMMON *const cm,
+                                       struct aom_read_bit_buffer *rb) {
+  CurrentFrame *const current_frame = &cm->current_frame;
+  FeatureFlags *const features = &cm->features;
+  features->allow_intrabc = aom_rb_read_bit(rb);
+
+  if (features->allow_intrabc) {
+    if (current_frame->frame_type == KEY_FRAME ||
+        current_frame->frame_type == INTRA_ONLY_FRAME) {
+      features->allow_global_intrabc = aom_rb_read_bit(rb);
+      features->allow_local_intrabc =
+          features->allow_global_intrabc ? aom_rb_read_bit(rb) : 1;
+    } else {
+      features->allow_global_intrabc = 0;
+      features->allow_local_intrabc = features->allow_intrabc;
+    }
+    read_frame_max_bvp_drl_bits(cm, rb);
+  }
+}
 static INLINE void read_screen_content_params(AV1_COMMON *const cm,
                                               struct aom_read_bit_buffer *rb) {
   const SequenceHeader *const seq_params = &cm->seq_params;
@@ -8761,19 +8818,6 @@ static void read_frame_max_drl_bits(AV1_COMMON *const cm,
   }
 }
 
-static void read_frame_max_bvp_drl_bits(AV1_COMMON *const cm,
-                                        struct aom_read_bit_buffer *rb) {
-  FeatureFlags *const features = &cm->features;
-  const SequenceHeader *const seq_params = &cm->seq_params;
-  features->max_bvp_drl_bits = seq_params->def_max_bvp_drl_bits;
-  if (seq_params->allow_frame_max_bvp_drl_bits) {
-    features->max_bvp_drl_bits =
-        aom_rb_read_primitive_ref_quniform(
-            rb, MAX_MAX_IBC_DRL_BITS - MIN_MAX_IBC_DRL_BITS + 1,
-            seq_params->def_max_bvp_drl_bits - MIN_MAX_IBC_DRL_BITS) +
-        MIN_MAX_IBC_DRL_BITS;
-  }
-}
 #if CONFIG_F024_KEYOBU
 static void reset_buffer_other_than_OLK(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
@@ -10048,14 +10092,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     features->tip_frame_mode = TIP_FRAME_DISABLED;
     setup_frame_size(cm, frame_size_override_flag, rb);
     read_screen_content_params(cm, rb);
-    features->allow_intrabc = aom_rb_read_bit(rb);
-    if (features->allow_intrabc) {
-      features->allow_global_intrabc = aom_rb_read_bit(rb);
-      features->allow_local_intrabc =
-          features->allow_global_intrabc ? aom_rb_read_bit(rb) : 1;
-      read_frame_max_bvp_drl_bits(cm, rb);
-    }
-
+    read_intrabc_params(cm, rb);
     features->allow_ref_frame_mvs = 0;
     cm->prev_frame = NULL;
 
@@ -10073,13 +10110,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif  // !CONFIG_F153_FGM_OBU
       setup_frame_size(cm, frame_size_override_flag, rb);
       read_screen_content_params(cm, rb);
-      features->allow_intrabc = aom_rb_read_bit(rb);
-      if (features->allow_intrabc) {
-        features->allow_global_intrabc = aom_rb_read_bit(rb);
-        features->allow_local_intrabc =
-            features->allow_global_intrabc ? aom_rb_read_bit(rb) : 1;
-        read_frame_max_bvp_drl_bits(cm, rb);
-      }
+      read_intrabc_params(cm, rb);
 
       cm->cur_frame->num_ref_frames = 0;
 
@@ -10389,18 +10420,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         cm->tmvp_sample_stepl2 = 0;
       }
 
-      if (cm->seq_params.enable_lf_sub_pu) {
-#if CONFIG_CWG_F317
-        if (cm->bridge_frame_info.is_bridge_frame) {
-          features->allow_lf_sub_pu = 0;
-        } else {
-#endif  // CONFIG_CWG_F317
-          features->allow_lf_sub_pu = aom_rb_read_bit(rb);
-#if CONFIG_CWG_F317
-        }
-#endif  // CONFIG_CWG_F317
-      }
-
       cm->tip_global_motion.as_int = 0;
       cm->tip_interp_filter = MULTITAP_SHARP;
       cm->tip_global_wtd_index = 0;
@@ -10449,13 +10468,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         if (features->tip_frame_mode && is_unequal_weighted_tip_allowed(cm)) {
           cm->tip_global_wtd_index = aom_rb_read_literal(rb, 3);
         }
-        if (features->tip_frame_mode == TIP_FRAME_AS_OUTPUT &&
-            cm->seq_params.enable_lf_sub_pu && features->allow_lf_sub_pu) {
-          cm->lf.tip_filter_level = aom_rb_read_bit(rb);
-          if (cm->lf.tip_filter_level) {
-            cm->lf.tip_delta = 0;
-          }
-        }
 
         if (features->tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
           int all_zero = aom_rb_read_bit(rb);
@@ -10499,14 +10511,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #endif  // CONFIG_CWG_F317
           !cm->bru.frame_inactive_flag) {
         read_screen_content_params(cm, rb);
-        features->allow_intrabc = aom_rb_read_bit(rb);
-        features->allow_global_intrabc = 0;
-        features->allow_local_intrabc = features->allow_intrabc;
 
         read_frame_max_drl_bits(cm, rb);
-        if (features->allow_intrabc) {
-          read_frame_max_bvp_drl_bits(cm, rb);
-        }
+        read_intrabc_params(cm, rb);
 
         if (features->cur_frame_force_integer_mv) {
           features->fr_mv_precision = MV_PRECISION_ONE_PEL;
@@ -10793,7 +10800,169 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
 
-  if (features->tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
+  if (features->tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
+#if CONFIG_CWG_F317
+    if (!cm->bridge_frame_info.is_bridge_frame) {
+#endif  // CONFIG_CWG_F317
+      features->disable_cdf_update = aom_rb_read_bit(rb);
+#if CONFIG_CWG_F317
+    } else {
+      features->disable_cdf_update = 1;
+    }
+#endif  // CONFIG_CWG_F317
+
+#if !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
+#if CONFIG_CWG_F317
+    if (!cm->bridge_frame_info.is_bridge_frame) {
+#endif  // CONFIG_CWG_F317
+      const int might_bwd_adapt = !(seq_params->single_picture_header_flag) &&
+                                  !(features->disable_cdf_update);
+      if (might_bwd_adapt) {
+        features->refresh_frame_context = aom_rb_read_bit(rb)
+                                              ? REFRESH_FRAME_CONTEXT_DISABLED
+                                              : REFRESH_FRAME_CONTEXT_BACKWARD;
+      } else {
+        features->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
+      }
+#if CONFIG_CWG_F317
+    }
+#endif  // CONFIG_CWG_F317
+#endif  // !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
+
+    read_tile_info(pbi, rb);
+    if (!av1_is_min_tile_width_satisfied(cm)) {
+      aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                         "Minimum tile width requirement not satisfied");
+    }
+
+    CommonQuantParams *const quant_params = &cm->quant_params;
+    setup_quantization(quant_params, av1_num_planes(cm), &cm->seq_params, rb);
+    cm->cur_frame->base_qindex = quant_params->base_qindex;
+    cm->cur_frame->u_ac_delta_q = quant_params->u_ac_delta_q;
+    cm->cur_frame->v_ac_delta_q = quant_params->v_ac_delta_q;
+    xd->bd = (int)seq_params->bit_depth;
+
+    set_primary_ref_frame_and_ctx(pbi);
+
+    CommonContexts *const above_contexts = &cm->above_contexts;
+    if (above_contexts->num_planes < av1_num_planes(cm) ||
+        above_contexts->num_mi_cols < cm->mi_params.mi_cols ||
+        above_contexts->num_tile_rows < cm->tiles.rows) {
+      av1_free_above_context_buffers(above_contexts);
+      if (av1_alloc_above_context_buffers(above_contexts, cm->tiles.rows,
+                                          cm->mi_params.mi_cols,
+                                          av1_num_planes(cm))) {
+        aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+                           "Failed to allocate context buffers");
+      }
+    }
+
+    setup_segmentation(cm, rb);
+
+    setup_qm_params(
+#if CONFIG_F255_QMOBU
+        pbi,
+#else
+        &cm->seq_params,
+#if CONFIG_CWG_E242_SEQ_HDR_ID
+        pbi->active_seq,
+#endif  // CONFIG_CWG_E242_SEQ_HDR_ID
+#endif  // #if CONFIG_F255_QMOBU
+        quant_params, cm->seg.enabled, av1_num_planes(cm), rb);
+    cm->delta_q_info.delta_q_res = 1;
+    cm->delta_q_info.delta_q_present_flag =
+        quant_params->base_qindex > 0 ? aom_rb_read_bit(rb) : 0;
+    if (cm->delta_q_info.delta_q_present_flag) {
+      xd->current_base_qindex = quant_params->base_qindex;
+      cm->delta_q_info.delta_q_res = 1 << aom_rb_read_literal(rb, 2);
+    }
+
+    xd->cur_frame_force_integer_mv = features->cur_frame_force_integer_mv;
+#if CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
+    features->has_lossless_segment = 0;
+#endif  // CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
+
+    const int max_seg_num =
+        cm->seg.enable_ext_seg ? MAX_SEGMENTS : MAX_SEGMENTS_8;
+    for (int i = 0; i < max_seg_num; i++) {
+      const int qindex = av1_get_qindex(&cm->seg, i, quant_params->base_qindex,
+                                        cm->seq_params.bit_depth);
+      xd->lossless[i] =
+          qindex == 0 && cm->delta_q_info.delta_q_present_flag == 0 &&
+          (quant_params->y_dc_delta_q + cm->seq_params.base_y_dc_delta_q <=
+           0) &&
+          (quant_params->u_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <=
+           0) &&
+          (quant_params->v_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <=
+           0) &&
+          (quant_params->u_ac_delta_q + cm->seq_params.base_uv_ac_delta_q <=
+           0) &&
+          (quant_params->v_ac_delta_q + cm->seq_params.base_uv_ac_delta_q <= 0);
+
+#if CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
+      features->lossless_segment[i] = xd->lossless[i];
+      if (xd->lossless[i]) features->has_lossless_segment = 1;
+#endif  // CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
+
+      xd->qindex[i] = qindex;
+      if (av1_use_qmatrix(quant_params, xd, i)) {
+        if (quant_params->qm_index_bits > 0) {
+          quant_params->qm_index[i] =
+              aom_rb_read_literal(rb, quant_params->qm_index_bits);
+#if CONFIG_QM_DEBUG
+          printf("[DEC-FRM] qm_index[%d]: %d\n", i, quant_params->qm_index[i]);
+#endif
+          if (quant_params->qm_index[i] >= quant_params->pic_qm_num) {
+            aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                               "Invalid qm_index[%d]=%d >= %d", i,
+                               quant_params->qm_index[i],
+                               quant_params->pic_qm_num);
+          }
+        } else {
+          quant_params->qm_index[i] = 0;
+        }
+      }
+    }
+    features->coded_lossless = is_coded_lossless(cm, xd);
+    features->all_lossless = features->coded_lossless;
+
+    // Decode frame-level TCQ flag, if applicable.
+    if (features->coded_lossless) {
+      features->tcq_mode = 0;
+    } else if (seq_params->enable_tcq >= TCQ_8ST_FR) {
+      features->tcq_mode = aom_rb_read_bit(rb);
+    } else {
+      features->tcq_mode = seq_params->enable_tcq;
+    }
+
+    if (features->coded_lossless || !cm->seq_params.enable_parity_hiding ||
+        features->tcq_mode)
+      features->allow_parity_hiding = false;
+    else
+      features->allow_parity_hiding = aom_rb_read_bit(rb);
+
+#if CONFIG_F255_QMOBU
+    setup_segmentation_dequant(pbi, xd);
+#else
+    setup_segmentation_dequant(cm, xd);
+#endif  // CONFIG_F255_QMOBU
+
+    if (features->coded_lossless) {
+      cm->lf.filter_level[0] = 0;
+      cm->lf.filter_level[1] = 0;
+    }
+    if (features->coded_lossless || !seq_params->enable_cdef) {
+      cm->cdef_info.cdef_frame_enable = 0;
+    }
+    if (features->all_lossless || !seq_params->enable_restoration) {
+      cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+      cm->rst_info[0].frame_filters_on = 0;
+      cm->rst_info[1].frame_filters_on = 0;
+      cm->rst_info[2].frame_filters_on = 0;
+    }
+  } else {
     if (cm->seq_params.enable_tip_explicit_qp) {
       cm->quant_params.base_qindex = aom_rb_read_literal(
           rb, cm->seq_params.bit_depth == AOM_BITS_8 ? QINDEX_BITS_UNEXT
@@ -10819,179 +10988,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 #if !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
     features->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 #endif  // !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
-    if (cm->seq_params.enable_lf_sub_pu && cm->features.allow_lf_sub_pu &&
-        cm->lf.tip_filter_level) {
-      read_tile_info(pbi, rb);
-    }
     features->disable_cdf_update = 1;
-
-#if CONFIG_F153_FGM_OBU  // tip
-    setup_film_grain(pbi, rb);
-#else
-    cm->cur_frame->film_grain_params_present =
-        seq_params->film_grain_params_present;
-    read_film_grain(cm, rb);
-#endif  // CONFIG_F153_FGM_OBU
-    // TIP frame will be output for displaying
-    // No futher processing needed
-    return 0;
-  }
-#if CONFIG_CWG_F317
-  if (!cm->bridge_frame_info.is_bridge_frame) {
-#endif  // CONFIG_CWG_F317
-    features->disable_cdf_update = aom_rb_read_bit(rb);
-#if CONFIG_CWG_F317
-  } else {
-    features->disable_cdf_update = 1;
-  }
-#endif  // CONFIG_CWG_F317
-
-#if !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
-#if CONFIG_CWG_F317
-  if (!cm->bridge_frame_info.is_bridge_frame) {
-#endif  // CONFIG_CWG_F317
-    const int might_bwd_adapt = !(seq_params->single_picture_header_flag) &&
-                                !(features->disable_cdf_update);
-    if (might_bwd_adapt) {
-      features->refresh_frame_context = aom_rb_read_bit(rb)
-                                            ? REFRESH_FRAME_CONTEXT_DISABLED
-                                            : REFRESH_FRAME_CONTEXT_BACKWARD;
-    } else {
-      features->refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-    }
-#if CONFIG_CWG_F317
-  }
-#endif  // CONFIG_CWG_F317
-#endif  // !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
-
-  read_tile_info(pbi, rb);
-  if (!av1_is_min_tile_width_satisfied(cm)) {
-    aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                       "Minimum tile width requirement not satisfied");
-  }
-
-  CommonQuantParams *const quant_params = &cm->quant_params;
-  setup_quantization(quant_params, av1_num_planes(cm), &cm->seq_params, rb);
-  cm->cur_frame->base_qindex = quant_params->base_qindex;
-  cm->cur_frame->u_ac_delta_q = quant_params->u_ac_delta_q;
-  cm->cur_frame->v_ac_delta_q = quant_params->v_ac_delta_q;
-  xd->bd = (int)seq_params->bit_depth;
-
-  set_primary_ref_frame_and_ctx(pbi);
-
-  CommonContexts *const above_contexts = &cm->above_contexts;
-  if (above_contexts->num_planes < av1_num_planes(cm) ||
-      above_contexts->num_mi_cols < cm->mi_params.mi_cols ||
-      above_contexts->num_tile_rows < cm->tiles.rows) {
-    av1_free_above_context_buffers(above_contexts);
-    if (av1_alloc_above_context_buffers(above_contexts, cm->tiles.rows,
-                                        cm->mi_params.mi_cols,
-                                        av1_num_planes(cm))) {
-      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                         "Failed to allocate context buffers");
-    }
-  }
-
-  setup_segmentation(cm, rb);
-
-  setup_qm_params(
-#if CONFIG_F255_QMOBU
-      pbi,
-#else
-      &cm->seq_params,
-#if CONFIG_CWG_E242_SEQ_HDR_ID
-      pbi->active_seq,
-#endif  // CONFIG_CWG_E242_SEQ_HDR_ID
-#endif  // #if CONFIG_F255_QMOBU
-      quant_params, cm->seg.enabled, av1_num_planes(cm), rb);
-  cm->delta_q_info.delta_q_res = 1;
-  cm->delta_q_info.delta_q_present_flag =
-      quant_params->base_qindex > 0 ? aom_rb_read_bit(rb) : 0;
-  if (cm->delta_q_info.delta_q_present_flag) {
-    xd->current_base_qindex = quant_params->base_qindex;
-    cm->delta_q_info.delta_q_res = 1 << aom_rb_read_literal(rb, 2);
-  }
-
-  xd->cur_frame_force_integer_mv = features->cur_frame_force_integer_mv;
-#if CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
-  features->has_lossless_segment = 0;
-#endif  // CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
-
-  const int max_seg_num =
-      cm->seg.enable_ext_seg ? MAX_SEGMENTS : MAX_SEGMENTS_8;
-  for (int i = 0; i < max_seg_num; i++) {
-    const int qindex = av1_get_qindex(&cm->seg, i, quant_params->base_qindex,
-                                      cm->seq_params.bit_depth);
-    xd->lossless[i] =
-        qindex == 0 && cm->delta_q_info.delta_q_present_flag == 0 &&
-        (quant_params->y_dc_delta_q + cm->seq_params.base_y_dc_delta_q <= 0) &&
-        (quant_params->u_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <= 0) &&
-        (quant_params->v_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <= 0) &&
-        (quant_params->u_ac_delta_q + cm->seq_params.base_uv_ac_delta_q <= 0) &&
-        (quant_params->v_ac_delta_q + cm->seq_params.base_uv_ac_delta_q <= 0);
-
-#if CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
-    features->lossless_segment[i] = xd->lossless[i];
-    if (xd->lossless[i]) features->has_lossless_segment = 1;
-#endif  // CONFIG_DISABLE_LOOP_FILTERS_LOSSLESS
-
-    xd->qindex[i] = qindex;
-    if (av1_use_qmatrix(quant_params, xd, i)) {
-      if (quant_params->qm_index_bits > 0) {
-        quant_params->qm_index[i] =
-            aom_rb_read_literal(rb, quant_params->qm_index_bits);
-#if CONFIG_QM_DEBUG
-        printf("[DEC-FRM] qm_index[%d]: %d\n", i, quant_params->qm_index[i]);
-#endif
-        if (quant_params->qm_index[i] >= quant_params->pic_qm_num) {
-          aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
-                             "Invalid qm_index[%d]=%d >= %d", i,
-                             quant_params->qm_index[i],
-                             quant_params->pic_qm_num);
-        }
-      } else {
-        quant_params->qm_index[i] = 0;
-      }
-    }
-  }
-  features->coded_lossless = is_coded_lossless(cm, xd);
-  features->all_lossless = features->coded_lossless;
-
-  // Decode frame-level TCQ flag, if applicable.
-  if (features->coded_lossless) {
-    features->tcq_mode = 0;
-  } else if (seq_params->enable_tcq >= TCQ_8ST_FR) {
-    features->tcq_mode = aom_rb_read_bit(rb);
-  } else {
-    features->tcq_mode = seq_params->enable_tcq;
-  }
-
-  if (features->coded_lossless || !cm->seq_params.enable_parity_hiding ||
-      features->tcq_mode)
-    features->allow_parity_hiding = false;
-  else
-    features->allow_parity_hiding = aom_rb_read_bit(rb);
-
-#if CONFIG_F255_QMOBU
-  setup_segmentation_dequant(pbi, xd);
-#else
-  setup_segmentation_dequant(cm, xd);
-#endif  // CONFIG_F255_QMOBU
-
-  if (features->coded_lossless) {
-    cm->lf.filter_level[0] = 0;
-    cm->lf.filter_level[1] = 0;
-  }
-  if (features->coded_lossless || !seq_params->enable_cdef) {
-    cm->cdef_info.cdef_frame_enable = 0;
-  }
-  if (features->all_lossless || !seq_params->enable_restoration) {
-    cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
-    cm->rst_info[0].frame_filters_on = 0;
-    cm->rst_info[1].frame_filters_on = 0;
-    cm->rst_info[2].frame_filters_on = 0;
   }
   setup_loopfilter(cm, rb);
 
@@ -11012,7 +11009,22 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!features->coded_lossless && seq_params->enable_ccso) {
     setup_ccso(cm, rb);
   }
-
+  if (features->tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
+    if (cm->seq_params.enable_lf_sub_pu && cm->features.allow_lf_sub_pu &&
+        cm->lf.tip_filter_level) {
+      read_tile_info(pbi, rb);
+    }
+#if CONFIG_F153_FGM_OBU  // tip
+    setup_film_grain(pbi, rb);
+#else
+    cm->cur_frame->film_grain_params_present =
+        seq_params->film_grain_params_present;
+    read_film_grain(cm, rb);
+#endif  // CONFIG_F153_FGM_OBU
+        // TIP frame will be output for displaying
+        // No futher processing needed
+    return 0;
+  }
   features->tx_mode = read_tx_mode(rb, features->coded_lossless);
   current_frame->reference_mode = read_frame_reference_mode(cm, rb);
 

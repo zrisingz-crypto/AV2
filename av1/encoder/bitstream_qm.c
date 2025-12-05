@@ -316,6 +316,9 @@ bool add_userqm_in_qmobulist(AV1_COMP *cpi) {
       qm_bit_map |= 1 << qm_id;
       struct quantization_matrix_set *qm_inobu =
           &cpi->qmobu_list[qmobu_pos].qm_list[qm_id];
+#if CONFIG_QM_REVERT
+      qm_inobu->is_user_defined_qm = true;
+#endif  // CONFIG_QM_REVERT
       if (qm_inobu->quantizer_matrix == NULL) {
         qm_inobu->quantizer_matrix = av1_alloc_qmset();
       }

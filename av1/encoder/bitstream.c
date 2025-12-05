@@ -8692,6 +8692,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
         }
         for (int qm_idx = 0; qm_idx < NUM_CUSTOM_QMS; qm_idx++) {
           if (cpi->user_defined_qm_list[qm_idx] != NULL) {
+            assert(cpi->use_user_defined_qm[qm_idx]);
+            cpi->use_user_defined_qm[qm_idx] = false;
             av1_free_qmset(cpi->user_defined_qm_list[qm_idx]);
             cpi->user_defined_qm_list[qm_idx] = NULL;
           }

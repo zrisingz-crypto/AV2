@@ -1434,11 +1434,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     seq_params->operating_points_cnt_minus_1 =
         oxcf->tool_cfg.operating_points_count - 1;
     av1_init_seq_coding_tools(&cm->seq_params, cm, oxcf);
-#if CONFIG_F255_QMOBU
-    for (int i = 0; i < NUM_CUSTOM_QMS; i++) {
-      cpi->use_user_defined_qm[i] = false;
-    }
-#endif  // CONFIG_F255_QMOBU
     if (seq_params->enable_restoration) set_seq_lr_tools_mask(seq_params, oxcf);
   }
 

@@ -1939,14 +1939,17 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_BRIDGE_FRAME:
 #endif  // CONFIG_CWG_F317
 #if CONFIG_F255_QMOBU
+        for (int i = 0; i < NUM_CUSTOM_QMS; i++) {
+          if (acc_qm_id_bitmap & (1 << i)) {
+            pbi->qm_protected[i] &=
+                (obu_header.type == OBU_CLK || obu_header.type == OBU_OLK);
+          }
+        }
         // It is a requirement that if multiple QM OBUs are present
         // consecutively prior to a coded frame, other than a QM OBU with
         // qm_bit_map equal to 0, such QM OBUs will not set the same QM ID more
         // than once.
         acc_qm_id_bitmap = 0;
-        for (int i = 0; i < NUM_CUSTOM_QMS; i++)
-          pbi->qm_protected[i] &=
-              (obu_header.type == OBU_CLK || obu_header.type == OBU_OLK);
 #endif
 #if CONFIG_F153_FGM_OBU
         // It is a requirement that if multiple FGM OBUs are present

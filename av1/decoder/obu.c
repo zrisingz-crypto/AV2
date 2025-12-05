@@ -1841,6 +1841,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     aom_codec_err_t status = aom_read_obu_header_and_size(
         data, bytes_available, &obu_header, &payload_size, &bytes_read);
 
+    if (status != AOM_CODEC_OK) {
+      cm->error.error_code = status;
+      return -1;
+    }
+
 #if CONFIG_F024_KEYOBU
     // Skip all obus till the random_accessed-th random access point
     // Remove all leading_vcl obus
@@ -1875,11 +1880,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       }
     }
 #endif
-
-    if (status != AOM_CODEC_OK) {
-      cm->error.error_code = status;
-      return -1;
-    }
 
 #if OBU_ORDER_IN_TU
     curr_obu_type = obu_header.type;

@@ -2721,7 +2721,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
     if (aom_rb_read_bit(rb))
       cm->rst_info[0].restoration_unit_size = size >> 1;
     else {
-#if CONFIG_RU_SIZE_RESTRICTION
       if (cm->mib_size == 64) {  // sb_szie == 256
         cm->rst_info[0].restoration_unit_size = size;
       } else {
@@ -2738,16 +2737,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
           }
         }
       }
-#else
-      if (aom_rb_read_bit(rb))
-        cm->rst_info[0].restoration_unit_size = size;
-      else {
-        if (aom_rb_read_bit(rb))
-          cm->rst_info[0].restoration_unit_size = size >> 2;
-        else
-          cm->rst_info[0].restoration_unit_size = size >> 3;
-      }
-#endif  // CONFIG_RU_SIZE_RESTRICTION
     }
   }
   if (num_planes > 1) {
@@ -2756,7 +2745,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
       if (aom_rb_read_bit(rb))
         cm->rst_info[1].restoration_unit_size = size >> 1;
       else {
-#if CONFIG_RU_SIZE_RESTRICTION
         if (cm->mib_size == 64) {  // sb_szie == 256
           cm->rst_info[1].restoration_unit_size = size;
         } else {
@@ -2773,16 +2761,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
             }
           }
         }
-#else
-        if (aom_rb_read_bit(rb))
-          cm->rst_info[1].restoration_unit_size = size;
-        else {
-          if (aom_rb_read_bit(rb))
-            cm->rst_info[1].restoration_unit_size = size >> 2;
-          else
-            cm->rst_info[1].restoration_unit_size = size >> 3;
-        }
-#endif  // CONFIG_RU_SIZE_RESTRICTION
       }
       // ru_size can be not smaller than stripe size, this error could only be
       // triggered for 422 coding.

@@ -3359,16 +3359,12 @@ static AOM_INLINE void encode_restoration_mode(
   int size = RESTORATION_UNITSIZE_MAX;
   if (!luma_none) {
     aom_wb_write_bit(wb, cm->rst_info[0].restoration_unit_size == size >> 1);
-    if (cm->rst_info[0].restoration_unit_size != size >> 1
-#if CONFIG_RU_SIZE_RESTRICTION
-        && cm->mib_size != 64  // sb_size != 256
-#endif                         // CONFIG_RU_SIZE_RESTRICTION
+    if (cm->rst_info[0].restoration_unit_size != size >> 1 &&
+        cm->mib_size != 64  // sb_size != 256
     ) {
       aom_wb_write_bit(wb, cm->rst_info[0].restoration_unit_size == size);
-      if (cm->rst_info[0].restoration_unit_size != size
-#if CONFIG_RU_SIZE_RESTRICTION
-          && cm->mib_size != 32  // sb_size != 128
-#endif                           // CONFIG_RU_SIZE_RESTRICTION
+      if (cm->rst_info[0].restoration_unit_size != size &&
+          cm->mib_size != 32  // sb_size != 128
       ) {
         aom_wb_write_bit(wb,
                          cm->rst_info[0].restoration_unit_size == size >> 2);
@@ -3379,16 +3375,12 @@ static AOM_INLINE void encode_restoration_mode(
     int s = AOMMAX(cm->seq_params.subsampling_x, cm->seq_params.subsampling_y);
     size = RESTORATION_UNITSIZE_MAX >> s;
     aom_wb_write_bit(wb, cm->rst_info[1].restoration_unit_size == size >> 1);
-    if (cm->rst_info[1].restoration_unit_size != size >> 1
-#if CONFIG_RU_SIZE_RESTRICTION
-        && cm->mib_size != 64  // sb_size != 256
-#endif                         // CONFIG_RU_SIZE_RESTRICTION
+    if (cm->rst_info[1].restoration_unit_size != size >> 1 &&
+        cm->mib_size != 64  // sb_size != 256
     ) {
       aom_wb_write_bit(wb, cm->rst_info[1].restoration_unit_size == size);
-      if (cm->rst_info[1].restoration_unit_size != size
-#if CONFIG_RU_SIZE_RESTRICTION
-          && cm->mib_size != 32  // sb_size != 128
-#endif                           // CONFIG_RU_SIZE_RESTRICTION
+      if (cm->rst_info[1].restoration_unit_size != size &&
+          cm->mib_size != 32  // sb_size != 128
       )
         aom_wb_write_bit(wb,
                          cm->rst_info[1].restoration_unit_size == size >> 2);

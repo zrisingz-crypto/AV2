@@ -704,9 +704,9 @@ void reallocate_sb_size_dependent_buffers(AV1_COMP *cpi) {
   const int frame_height = cm->height;
 
   set_restoration_unit_size(
-#if CONFIG_RU_SIZE_RESTRICTION || CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
+#if CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
       cm,
-#endif  // CONFIG_RU_SIZE_RESTRICTION || CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
+#endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
       frame_width, frame_height, seq_params->subsampling_x,
       seq_params->subsampling_y, cm->rst_info);
   if (old_restoration_unit_size != cm->rst_info[0].restoration_unit_size) {

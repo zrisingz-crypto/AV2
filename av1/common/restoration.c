@@ -430,10 +430,8 @@ void set_restoration_unit_size(
     rst[0].min_restoration_unit_size = rst[0].max_restoration_unit_size;
 #endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
 
-#if CONFIG_RU_SIZE_RESTRICTION
   if (rst[0].min_restoration_unit_size < cm->mib_size * 4)
     rst[0].min_restoration_unit_size = cm->mib_size * 4;
-#endif  // CONFIG_RU_SIZE_RESTRICTION
 
   rst[1].max_restoration_unit_size = rst[0].max_restoration_unit_size >> s;
   rst[1].min_restoration_unit_size = rst[0].min_restoration_unit_size >> s;

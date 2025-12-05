@@ -54,10 +54,6 @@ macro(fix_experiment_configs)
     change_config_and_warn(CONFIG_TENSORFLOW_LITE 1 CONFIG_DIP_EXT_PRUNING)
   endif()
 
-  if(CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES)
-    change_config_and_warn(CONFIG_LR_FRAMEFILTERS_IN_HEADER 1
-                           CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES)
-  endif()
   if(CONFIG_CWG_F349_SIGNAL_TILE_INFO)
     change_config_and_warn(CONFIG_CWG_E242_SIGNAL_TILE_INFO 1
                            CONFIG_CWG_F349_SIGNAL_TILE_INFO)

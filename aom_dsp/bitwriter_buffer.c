@@ -130,7 +130,6 @@ void aom_wb_write_primitive_ref_quniform(struct aom_write_bit_buffer *wb,
   }
 }
 
-#if CONFIG_LR_FRAMEFILTERS_IN_HEADER
 static int wb_count_primitive_quniform(uint16_t n, uint16_t v) {
   int bits = 0;
   if (n <= 1) return 0;
@@ -144,7 +143,6 @@ static int wb_count_primitive_quniform(uint16_t n, uint16_t v) {
   }
   return bits;
 }
-#endif  // CONFIG_LR_FRAMEFILTERS_IN_HEADER
 
 static void wb_write_primitive_subexpfin(struct aom_write_bit_buffer *wb,
                                          uint16_t n, uint16_t k, uint16_t v) {
@@ -170,7 +168,6 @@ static void wb_write_primitive_subexpfin(struct aom_write_bit_buffer *wb,
   }
 }
 
-#if CONFIG_LR_FRAMEFILTERS_IN_HEADER
 static int wb_count_primitive_subexpfin(uint16_t n, uint16_t k, uint16_t v) {
   int bits = 0;
   int i = 0;
@@ -195,7 +192,6 @@ static int wb_count_primitive_subexpfin(uint16_t n, uint16_t k, uint16_t v) {
   }
   return bits;
 }
-#endif  // CONFIG_LR_FRAMEFILTERS_IN_HEADER
 
 void aom_wb_write_primitive_refsubexpfin(struct aom_write_bit_buffer *wb,
                                          uint16_t n, uint16_t k, uint16_t ref,
@@ -215,14 +211,12 @@ void aom_wb_write_signed_primitive_refsubexpfin(struct aom_write_bit_buffer *wb,
                                       v + offset);
 }
 
-#if CONFIG_LR_FRAMEFILTERS_IN_HEADER
 int aom_wb_count_primitive_refsubexpfin(uint16_t n, uint16_t k, int16_t ref,
                                         int16_t v) {
   assert(ref < n);
   assert(v < n);
   return wb_count_primitive_subexpfin(n, k, recenter_finite_nonneg(n, ref, v));
 }
-#endif  // CONFIG_LR_FRAMEFILTERS_IN_HEADER
 
 #if CONFIG_MULTILAYER_HLS
 // implementation of leb128() signaling in the specification using

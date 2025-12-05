@@ -3356,7 +3356,6 @@ static AOM_INLINE void encode_restoration_mode(
       rsi->temporal_pred_flag = 0;
     }
   }
-#if CONFIG_MINIMUM_LR_UNIT_SIZE_64x64
   int size = RESTORATION_UNITSIZE_MAX;
   if (!luma_none) {
     aom_wb_write_bit(wb, cm->rst_info[0].restoration_unit_size == size >> 1);
@@ -3397,30 +3396,6 @@ static AOM_INLINE void encode_restoration_mode(
     assert(cm->rst_info[2].restoration_unit_size ==
            cm->rst_info[1].restoration_unit_size);
   }
-#else
-  int size = RESTORATION_UNITSIZE_MAX;
-  if (!luma_none) {
-    aom_wb_write_bit(wb, cm->rst_info[0].restoration_unit_size == size >> 1);
-    if (cm->rst_info[0].restoration_unit_size != size >> 1
-#if CONFIG_RU_SIZE_RESTRICTION
-        && cm->mib_size != 64
-#endif  // CONFIG_RU_SIZE_RESTRICTION
-    )
-      aom_wb_write_bit(wb, cm->rst_info[0].restoration_unit_size == size);
-  }
-  if (!chroma_none) {
-    size = cm->rst_info[1].max_restoration_unit_size;
-    aom_wb_write_bit(wb, cm->rst_info[1].restoration_unit_size == size >> 1);
-    if (cm->rst_info[1].restoration_unit_size != size >> 1
-#if CONFIG_RU_SIZE_RESTRICTION
-        && cm->mib_size != 64
-#endif  // CONFIG_RU_SIZE_RESTRICTION
-    )
-      aom_wb_write_bit(wb, cm->rst_info[1].restoration_unit_size == size);
-    assert(cm->rst_info[2].restoration_unit_size ==
-           cm->rst_info[1].restoration_unit_size);
-  }
-#endif  // CONFIG_MINIMUM_LR_UNIT_SIZE_64x64
 #if CONFIG_LR_FRAMEFILTERS_IN_HEADER
   for (int p = 0; p < num_planes; ++p) {
     if (is_frame_filters_enabled(p) &&

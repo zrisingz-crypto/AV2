@@ -63,11 +63,6 @@ macro(fix_experiment_configs)
                            CONFIG_CWG_F349_SIGNAL_TILE_INFO)
   endif()
 
-  if(CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES)
-    change_config_and_warn(CONFIG_MINIMUM_LR_UNIT_SIZE_64x64 1
-                           CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES)
-  endif()
-
   if(CONFIG_CWG_E242_SEQ_HDR_ID)
     change_config_and_warn(CONFIG_MULTI_FRAME_HEADER 1
                            CONFIG_CWG_E242_SEQ_HDR_ID)

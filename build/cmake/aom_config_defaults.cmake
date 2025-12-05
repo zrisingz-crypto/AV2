@@ -198,9 +198,6 @@ set_aom_config_var(CONFIG_MODIFY_SH 1
 set_aom_config_var(CONFIG_REORDER_SEQ_FLAGS 1 "Group sequence header flags.")
 set_aom_config_var(CONFIG_IMPROVED_REORDER_SEQ_FLAGS 1
                    "Improvement of Group sequence header flags.")
-
-set_aom_config_var(CONFIG_MINIMUM_LR_UNIT_SIZE_64x64 0
-                   "Support minimum LR Unit size ")
 set_aom_config_var(CONFIG_LR_FRAMEFILTERS_IN_HEADER 0
                    "AV2 expt to move frame filters to frame header.")
 set_aom_config_var(CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES 1

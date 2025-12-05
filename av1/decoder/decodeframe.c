@@ -2693,7 +2693,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
     }
     assert(IMPLIES(!rsi->frame_filters_on, !rsi->temporal_pred_flag));
   }
-#if CONFIG_MINIMUM_LR_UNIT_SIZE_64x64
   int subsampling_xy =
       AOMMAX(cm->seq_params.subsampling_x, cm->seq_params.subsampling_y);
 
@@ -2832,82 +2831,6 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
   }
 
 #endif  // CONFIG_CONTROL_LOOPFILTERS_ACROSS_TILES
-#else
-  const int frame_width = cm->width;
-  const int frame_height = cm->height;
-  set_restoration_unit_size(
-#if CONFIG_RU_SIZE_RESTRICTION
-      cm,
-#endif  // CONFIG_RU_SIZE_RESTRICTION
-      frame_width, frame_height, cm->seq_params.subsampling_x,
-      cm->seq_params.subsampling_y, cm->rst_info);
-  int size = cm->rst_info[0].max_restoration_unit_size;
-
-  cm->rst_info[0].restoration_unit_size =
-      cm->rst_info[0].max_restoration_unit_size;
-#if CONFIG_CWG_F317
-  if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame)
-#else
-  if (cm->bru.frame_inactive_flag)
-#endif  // CONFIG_CWG_F317
-  {
-    if (num_planes > 1) {
-      cm->rst_info[1].restoration_unit_size =
-          cm->rst_info[1].max_restoration_unit_size;
-      cm->rst_info[2].restoration_unit_size =
-          cm->rst_info[1].restoration_unit_size;
-    }
-    return;
-  }
-  if (!luma_none) {
-    if (aom_rb_read_bit(rb)) cm->rst_info[0].restoration_unit_size = size >> 1;
-#if CONFIG_RU_SIZE_RESTRICTION
-    else if (cm->mib_size != 64) {
-      if (aom_rb_read_bit(rb))
-        cm->rst_info[0].restoration_unit_size = size;
-      else
-        cm->rst_info[0].restoration_unit_size = size >> 2;
-    } else {
-      cm->rst_info[0].restoration_unit_size = size;
-    }
-#else
-    else {
-      if (aom_rb_read_bit(rb))
-        cm->rst_info[0].restoration_unit_size = size;
-      else
-        cm->rst_info[0].restoration_unit_size = size >> 2;
-    }
-#endif  // CONFIG_RU_SIZE_RESTRICTION
-  }
-  if (num_planes > 1) {
-    cm->rst_info[1].restoration_unit_size =
-        cm->rst_info[1].max_restoration_unit_size;
-    if (!chroma_none) {
-      size = cm->rst_info[1].max_restoration_unit_size;
-      if (aom_rb_read_bit(rb))
-        cm->rst_info[1].restoration_unit_size = size >> 1;
-#if CONFIG_RU_SIZE_RESTRICTION
-      else if (cm->mib_size != 64) {
-        if (aom_rb_read_bit(rb))
-          cm->rst_info[1].restoration_unit_size = size;
-        else
-          cm->rst_info[1].restoration_unit_size = size >> 2;
-      } else {
-        cm->rst_info[1].restoration_unit_size = size;
-      }
-#else
-      else {
-        if (aom_rb_read_bit(rb))
-          cm->rst_info[1].restoration_unit_size = size;
-        else
-          cm->rst_info[1].restoration_unit_size = size >> 2;
-      }
-#endif  // CONFIG_RU_SIZE_RESTRICTION
-    }
-    cm->rst_info[2].restoration_unit_size =
-        cm->rst_info[1].restoration_unit_size;
-  }
-#endif  // CONFIG_MINIMUM_LR_UNIT_SIZE_64x64
 #if CONFIG_LR_FRAMEFILTERS_IN_HEADER
   for (int p = 0; p < num_planes; ++p) {
     if (is_frame_filters_enabled(p) &&

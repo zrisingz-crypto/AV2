@@ -103,8 +103,8 @@ static aom_codec_err_t decoder_init(aom_codec_ctx_t *ctx) {
       ctx->config.dec = &priv->cfg;
     }
     priv->num_grain_image_frame_buffers = 0;
-    // Turn row_mt on by default.
-    priv->row_mt = 1;
+    // Turn row_mt off by default.
+    priv->row_mt = 0;
 
     init_ibp_info(ctx->priv->ibp_directional_weights);
   }

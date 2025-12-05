@@ -9428,8 +9428,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
       && !cm->show_existing_frame
 #endif
   ) {
-    bool need_new_qmobu = check_add_cmqm_in_qmobulist(cpi, add_new_user_qm);
-    if (need_new_qmobu) {
+    if (add_new_user_qm) {
       assert(cpi->total_signalled_qmobu_count > 0);
       obu_header_size = av1_write_obu_header(level_params, OBU_QM, obu_temporal,
                                              obu_layer, data);

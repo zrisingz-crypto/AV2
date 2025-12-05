@@ -83,7 +83,9 @@ struct av1_extracfg {
   unsigned int qm_min;
   unsigned int qm_max;
   unsigned int user_defined_qmatrix;
+#if !CONFIG_F255_QMOBU
   unsigned int qm_data_present[NUM_CUSTOM_QMS];
+#endif  // !CONFIG_F255_QMOBU
   unsigned int frame_multi_qmatrix_unit_test;
 #if CONFIG_F356_SEF_DOH
   unsigned int sef_with_order_hint_test;
@@ -424,7 +426,9 @@ static struct av1_extracfg default_extra_cfg = {
   DEFAULT_QM_FIRST,             // qm_min
   DEFAULT_QM_LAST,              // qm_max
   0,                                                // user-defined qmatrix
+#if !CONFIG_F255_QMOBU
   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // qm_data_present
+#endif  // !CONFIG_F255_QMOBU
   0,                            // enable frame multi qmatrix unit test
 #if CONFIG_F356_SEF_DOH
   0,                            // enable show existing frame with order hint test;
@@ -1512,9 +1516,11 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   q_cfg->qm_minlevel = extra_cfg->qm_min;
   q_cfg->qm_maxlevel = extra_cfg->qm_max;
   q_cfg->user_defined_qmatrix = extra_cfg->user_defined_qmatrix != 0;
+#if !CONFIG_F255_QMOBU
   for (int i = 0; i < NUM_CUSTOM_QMS; i++) {
     q_cfg->qm_data_present[i] = extra_cfg->qm_data_present[i];
   }
+#endif  // !CONFIG_F255_QMOBU
   q_cfg->quant_b_adapt = extra_cfg->quant_b_adapt;
   q_cfg->enable_chroma_deltaq = extra_cfg->enable_chroma_deltaq;
   q_cfg->aq_mode = extra_cfg->aq_mode;
@@ -2263,11 +2269,13 @@ static aom_codec_err_t ctrl_set_user_defined_qmatrix(aom_codec_alg_priv_t *ctx,
 #endif  // !CONFIG_F255_QMOBU
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.user_defined_qmatrix = 1;
+#if !CONFIG_F255_QMOBU
   extra_cfg.qm_data_present[level] = 1;
   // We need to send a new sequence header OBU to signal the user-defined QM
   // data. Since the sequence header OBU has changed, it marks the beginning of
   // a new coded video sequence, so the next frame must be a key frame.
   ctx->next_frame_flags |= AOM_EFLAG_FORCE_KF;
+#endif  // !CONFIG_F255_QMOBU
 
   return update_extra_cfg(ctx, &extra_cfg);
 }

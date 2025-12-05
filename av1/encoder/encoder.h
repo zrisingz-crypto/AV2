@@ -766,7 +766,9 @@ typedef struct {
   bool using_qm;
   // Indicates whether user-defined quantization matrices should be used
   bool user_defined_qmatrix;
+#if !CONFIG_F255_QMOBU
   bool qm_data_present[NUM_CUSTOM_QMS];
+#endif  // !CONFIG_F255_QMOBU
   bool is_ra;
 } QuantizationCfg;
 

@@ -129,6 +129,118 @@ static const int temp_dist_score_lookup[7] = {
   0, 64, 96, 112, 120, 124, 126,
 };
 
+int is_layer_restricted(const int current_layer_id, const int max_layer_id) {
+  return current_layer_id > max_layer_id;
+}
+
+// Note: This function is only used for bitstream conformance check in the AVM
+// reference software. Decoder implementations may skip this check since this
+// function shall not change the reference mapping for different operating
+// points.
+int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+#if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                                      int key_frame_only,
+#endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                                      RefFrameMapPair *ref_frame_map_pairs,
+                                      const int op_max_mlayer_id,
+                                      const int op_max_tlayer_id) {
+  assert(op_max_mlayer_id >= 0 && op_max_tlayer_id >= 0);
+  RefScoreData scores[REF_FRAMES];
+  memset(scores, 0, REF_FRAMES * sizeof(*scores));
+  for (int i = 0; i < cm->seq_params.ref_frames; i++) {
+    scores[i].score = INT_MAX;
+  }
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+    cm->op_remapped_ref_idx[i] = INVALID_IDX;
+  }
+  int n_ranked = 0;
+
+  // Give more weight to base_qindex if all references are from the past
+  int max_disp = 0;
+  for (int i = 0; i < cm->seq_params.ref_frames; i++) {
+    RefFrameMapPair cur_ref = ref_frame_map_pairs[i];
+    if (cur_ref.ref_frame_for_inference == -1) continue;
+    max_disp = AOMMAX(max_disp, cur_ref.disp_order);
+  }
+
+  // Compute a score for each reference buffer
+  for (int i = 0; i < cm->seq_params.ref_frames; i++) {
+    // Get reference frame buffer
+    RefFrameMapPair cur_ref = ref_frame_map_pairs[i];
+    if (cur_ref.ref_frame_for_inference == -1) continue;
+#if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+    if (key_frame_only && cur_ref.frame_type != KEY_FRAME) continue;
+#endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+
+    const int ref_disp = cur_ref.disp_order;
+    const int cur_mlayer_id = cm->current_frame.mlayer_id;
+    const int ref_mlayer_id = cur_ref.mlayer_id;
+    const int cur_temporal_id = cm->current_frame.temporal_layer_id;
+    const int ref_temporal_id = cur_ref.temporal_layer_id;
+    if (!is_tlayer_scalable_and_dependent(&cm->seq_params, cur_temporal_id,
+                                          ref_temporal_id) ||
+        !is_mlayer_scalable_and_dependent(&cm->seq_params, cur_mlayer_id,
+                                          ref_mlayer_id))
+      continue;
+
+    if (is_layer_restricted(cur_ref.mlayer_id, op_max_mlayer_id) ||
+        is_layer_restricted(cur_ref.temporal_layer_id, op_max_tlayer_id))
+      continue;
+
+    // In error resilient mode, ref mapping must be independent of the
+    // base_qindex to ensure decoding independency
+    const int ref_base_qindex = cur_ref.base_qindex;
+    const int disp_diff = get_relative_dist(&cm->seq_params.order_hint_info,
+                                            cur_frame_disp, ref_disp);
+    // The log2 ratio of current and reference frame resolution is
+    // log2(num_pixel_cur) - log2(num_pixel_ref), where the first term is a
+    // constant so it can be dropped. This term is included in the reference
+    // score to prefer frames with higher resolutions
+    const int res_ratio_log2 = -get_msb(cur_ref.width * cur_ref.height);
+    // The current frame can only refer to a reference with the same layer id or
+    // a reference with lower layer ids. The continue statement above makes sure
+    // that 'ref_mlayer_id <= cur_mlayer_id' is always true
+    const int layer_diff = cur_mlayer_id - ref_mlayer_id;
+    assert(layer_diff >= 0);
+    int tdist = abs(disp_diff) + layer_diff;
+    const int score =
+        (max_disp > cur_frame_disp
+             ? (tdist << DIST_WEIGHT_BITS)
+             : (temp_dist_score_lookup[AOMMIN(tdist, DECAY_DIST_CAP)] +
+                AOMMAX(tdist - DECAY_DIST_CAP, 0))) +
+        res_ratio_log2 * (1 << RES_RATIO_LOG2_BITS) + ref_base_qindex;
+    if (is_in_ref_score(scores, ref_disp, ref_mlayer_id, score, n_ranked))
+      continue;
+
+    scores[n_ranked].index = i;
+    scores[n_ranked].score = score;
+    scores[n_ranked].distance = disp_diff;
+    scores[n_ranked].disp_order = ref_disp;
+    scores[n_ranked].base_qindex = ref_base_qindex;
+    scores[n_ranked].mlayer_id = ref_mlayer_id;
+    scores[n_ranked].res_ratio_log2 = res_ratio_log2;
+    n_ranked++;
+  }
+  if (n_ranked > INTER_REFS_PER_FRAME) {
+    const int unmapped_idx = get_unmapped_ref(scores, n_ranked);
+    if (unmapped_idx != INVALID_IDX) scores[unmapped_idx].score = INT_MAX;
+  }
+
+  // Sort the references according to their score
+  bubble_sort_ref_scores(scores, n_ranked);
+
+  for (int i = 0; i < cm->ref_frames_info.num_total_refs; i++) {
+    cm->op_remapped_ref_idx[i] = scores[i].index;
+  }
+  // Fill any slots that are empty (should only happen for the first 7 frames)
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+    if (cm->op_remapped_ref_idx[i] == INVALID_IDX) {
+      cm->op_remapped_ref_idx[i] = scores[0].index;
+    }
+  }
+  return scores[0].index;  // return default index for invalid case
+}
+
 // Determine reference mapping by ranking the reference frames based on a
 // score function.
 int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,

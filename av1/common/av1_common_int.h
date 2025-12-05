@@ -2463,6 +2463,10 @@ typedef struct AV1Common {
    */
   int remapped_ref_idx[INTER_REFS_PER_FRAME];
   /*!
+   * Operating point constrained version of the reference remapped index
+   */
+  int op_remapped_ref_idx[INTER_REFS_PER_FRAME];
+  /*!
    * Resolution independent version of the reference remapped index
    */
   int remapped_ref_idx_res_indep[INTER_REFS_PER_FRAME];

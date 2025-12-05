@@ -113,6 +113,16 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                        RefFrameMapPair *ref_frame_map_pairs);
 
+int is_layer_restricted(const int current_layer_id, const int max_layer_id);
+
+int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+#if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                                      int key_frame_only,
+#endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                                      RefFrameMapPair *ref_frame_map_pairs,
+                                      const int op_max_mlayer_id,
+                                      const int op_max_tlayer_id);
+
 // Derive the primary & secondary reference frame from the reference list based
 // on qindex and frame distances.
 void choose_primary_secondary_ref_frame(const AV1_COMMON *const cm,

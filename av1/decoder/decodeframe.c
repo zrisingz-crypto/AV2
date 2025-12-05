@@ -8336,13 +8336,27 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
   av1_zero_unused_internal_frame_buffers(&cm->buffer_pool->int_frame_buffers);
   unlock_buffer_pool(cm->buffer_pool);
 }
+
 #if CONFIG_F024_KEYOBU
 static INLINE int get_disp_order_hint(AV1_COMMON *const cm, OBU_TYPE obu_type,
-                                      bool random_accessed)
+                                      bool random_accessed,
+                                      bool is_op_constrained,
+                                      const int op_max_mlayer_id,
+                                      const int op_max_tlayer_id)
 #else
 static INLINE int get_disp_order_hint(AV1_COMMON *const cm)
 #endif
 {
+  if (is_op_constrained) {
+    // This configuration is only used for conformance checking in the AVM
+    // reference software.
+    assert(op_max_mlayer_id >= 0 && op_max_tlayer_id >= 0);
+  } else {
+    // This configuration is used in actual decoding process. Thus,
+    // op_max_mlayer_id and op_max_tlayer_id are not needed and should be set to
+    // -1 if is_op_constrained is false.
+    assert(op_max_mlayer_id == -1 && op_max_tlayer_id == -1);
+  }
   CurrentFrame *const current_frame = &cm->current_frame;
 #if CONFIG_F024_KEYOBU
   if (obu_type == OBU_CLK) {
@@ -8377,6 +8391,15 @@ static INLINE int get_disp_order_hint(AV1_COMMON *const cm)
         !is_mlayer_scalable_and_dependent(&cm->seq_params, cm->mlayer_id,
                                           buf->mlayer_id))
       continue;
+    // Note: Exercising this condition is only used for the bitstream
+    // conformance check in the AVM reference software. Decoder implementations
+    // may skip this check since this conditional check shall not change the
+    // display order hint derivation.
+    if (is_op_constrained &&
+        (is_layer_restricted(buf->mlayer_id, op_max_mlayer_id) ||
+         is_layer_restricted(buf->temporal_layer_id, op_max_tlayer_id)))
+      continue;
+
     if ((int)buf->display_order_hint > max_disp_order_hint)
       max_disp_order_hint = buf->display_order_hint;
   }
@@ -8644,11 +8667,36 @@ static int read_show_existing_frame(AV1Decoder *pbi,
 
     current_frame->display_order_hint =
 #if CONFIG_F024_KEYOBU
-        get_disp_order_hint(
-            cm, is_regular_obu ? OBU_REGULAR_SEF : OBU_LEADING_SEF, false);
+        get_disp_order_hint(cm,
+                            is_regular_obu ? OBU_REGULAR_SEF : OBU_LEADING_SEF,
+                            false, false, -1, -1);
 #else
         get_disp_order_hint(cm);
 #endif  // CONFIG_F024_KEYOBU
+    // Note: The following if block implements bitstream constraint checks for
+    // consistent display order hint derivation when (embedded or temporal)
+    // layers are selectively dropped based on operating points. The following
+    // code provides checks for all the possible operating point combinations
+    // and decoders may choose to simplify this check depending on the desired
+    // operating point(s) specificed in the operating point set (OPS).
+    if (pbi->current_operating_point > 0) {
+      const int disp_order_unconstrained = current_frame->display_order_hint;
+      int disp_order_op_constrained = 0;
+      for (int op_mlayer = seq_params->max_mlayer_id; op_mlayer >= 0;
+           op_mlayer--) {
+        for (int op_tlayer = seq_params->max_tlayer_id; op_tlayer >= 0;
+             op_tlayer--) {
+          disp_order_op_constrained = get_disp_order_hint(
+              cm, is_regular_obu ? OBU_REGULAR_SEF : OBU_LEADING_SEF, false,
+              true, op_mlayer, op_tlayer);
+          if (disp_order_unconstrained != disp_order_op_constrained) {
+            aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                               "Inconsistent display order hint derivation "
+                               "accross different operating points.");
+          }
+        }
+      }
+    }
     current_frame->frame_number = current_frame->order_hint;
     // Since a SEF frame is not used as a reference frame, its display order
     // hint cannot be used to derive display order hints of subsequent frames.
@@ -8983,6 +9031,16 @@ static void activate_sequence_header(AV1Decoder *pbi,
 #endif  // CONFIG_F153_FGM_OBU
 }
 #endif  // CONFIG_CWG_E242_SEQ_HDR_ID
+
+static int is_reference_mapping_consistent(
+    int ref_list1[INTER_REFS_PER_FRAME], int ref_list2[INTER_REFS_PER_FRAME]) {
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+    if (ref_list1[i] != ref_list2[i]) {
+      return 0;
+    }
+  }
+  return 1;
+}
 
 // On success, returns 0. On failure, calls aom_internal_error and does not
 // return.
@@ -9518,11 +9576,34 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       current_frame->order_hint = aom_rb_read_literal(
           rb, seq_params->order_hint_info.order_hint_bits_minus_1 + 1);
 #if CONFIG_F024_KEYOBU
-      current_frame->display_order_hint =
-          get_disp_order_hint(cm, obu_type, pbi->random_accessed);
+      current_frame->display_order_hint = get_disp_order_hint(
+          cm, obu_type, pbi->random_accessed, false, -1, -1);
 #else
     current_frame->display_order_hint = get_disp_order_hint(cm);
 #endif  // CONFIG_F024_KEYOBU
+      // Note: The following if block implements bitstream constraint checks for
+      // consistent display order hint derivation when (embedded or temporal)
+      // layers are selectively dropped based on operating points. The following
+      // code provides checks for all the possible operating point combinations
+      // and decoders may choose to simplify this check depending on the desired
+      // operating point(s) specificed in the operating point set (OPS).
+      if (pbi->current_operating_point > 0) {
+        const int disp_order_unconstrained = current_frame->display_order_hint;
+        int disp_order_op_constrained = 0;
+        for (int op_mlayer = seq_params->max_mlayer_id; op_mlayer >= 0;
+             op_mlayer--) {
+          for (int op_tlayer = seq_params->max_tlayer_id; op_tlayer >= 0;
+               op_tlayer--) {
+            disp_order_op_constrained = get_disp_order_hint(
+                cm, obu_type, pbi->random_accessed, true, op_mlayer, op_tlayer);
+            if (disp_order_unconstrained != disp_order_op_constrained) {
+              aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                                 "Inconsistent display order hint derivation "
+                                 "accross different operating points.");
+            }
+          }
+        }
+      }
       current_frame->frame_number = current_frame->order_hint;
 #if CONFIG_CWG_F317
     }
@@ -10024,6 +10105,53 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                            0,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                            cm->ref_frame_map_pairs);
+        // Note: The following if block implements bitstream constraint checks
+        // for consistent reference frame mapping when (embedded or temporal)
+        // layers are selectively dropped based on operating points. The
+        // following code provides checks for possible operating point
+        // combinations and decoders may choose to simplify this check depending
+        // on the desired operating point(s) specificed in the operating point
+        // set (OPS).
+        if (pbi->current_operating_point > 0) {
+          int ref_index_list[INTER_REFS_PER_FRAME];
+          int constrained_ref_index_list[INTER_REFS_PER_FRAME];
+          for (int op_mlayer = seq_params->max_mlayer_id; op_mlayer >= 0;
+               op_mlayer--) {
+            for (int op_tlayer = seq_params->max_tlayer_id; op_tlayer >= 0;
+                 op_tlayer--) {
+              // derive OP constrainted mapping and store in
+              // cm->op_remapped_ref_idx[]
+              const int default_map_idx = av1_get_op_constrained_ref_frames(
+                  cm, current_frame->display_order_hint,
+#if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                  0,
+#endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+                  cm->ref_frame_map_pairs, op_mlayer, op_tlayer);
+              for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+                // get constrained mapped reference list
+                constrained_ref_index_list[i] = cm->op_remapped_ref_idx[i];
+                // set ref_index_list for lower operating points
+                const int map_idx = cm->remapped_ref_idx[i];
+                ref_index_list[i] = map_idx;
+                const RefFrameMapPair ref_info =
+                    cm->ref_frame_map_pairs[map_idx];
+                if (is_layer_restricted(ref_info.mlayer_id, op_mlayer) ||
+                    is_layer_restricted(ref_info.temporal_layer_id,
+                                        op_tlayer)) {
+                  ref_index_list[i] = default_map_idx;
+                }
+              }
+              // check if reference mapping is consistent accross possible
+              // operating points
+              if (!is_reference_mapping_consistent(
+                      ref_index_list, constrained_ref_index_list)) {
+                aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                                   "Inconsistent reference index mapping "
+                                   "accross different operating points.");
+              }
+            }
+          }
+        }
       }
 
       // Check to make sure all reference frames have valid dimensions.

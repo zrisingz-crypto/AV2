@@ -1082,7 +1082,10 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
         (mode == SMOOTH_H_PRED))
       transpose = 1;
     mode_t = txfm_param->sec_tx_set;
-    assert(mode_t < IST_SET_SIZE);
+    if (sb_size == 8)
+      assert(mode_t < IST_8x8_SET_SIZE);
+    else
+      assert(mode_t < IST_4x4_SET_SIZE);
 #if STX_COEFF_DEBUG
     fprintf(stderr,
             "[fwd stx] inter %d ptx %d txs %dx%d tp %d stx_set %d stx_type %d\n"
@@ -1106,7 +1109,9 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
     }
     int reduced_width = sb_size == 8 ? IST_8x8_WIDTH : IST_4x4_WIDTH;
     const int16_t *sup_reg_mapping =
-        &coeff8x8_mapping[txfm_param->sec_tx_set * 3 + stx_type - 1][0];
+        sb_size == 8
+            ? &coeff8x8_mapping[txfm_param->sec_tx_set * 3 + stx_type - 1][0]
+            : NULL;
     for (int r = 0; r < reduced_width; r++) {
       *tmp = sb_size == 8 ? src[scan_order_in[sup_reg_mapping[r]]]
                           : src[scan_order_in[r]];

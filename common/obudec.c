@@ -121,12 +121,8 @@ static int is_multi_tile_vcl_obu(OBU_TYPE obu_type) {
 #endif  // CONFIG_F024_KEYOBU
 
 static int peek_obu_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
-                              ObuHeader *obu_header
-#if CONFIG_F106_OBU_TILEGROUP
-                              ,
-                              uint8_t *first_tile_group
-#endif
-) {
+                              ObuHeader *obu_header,
+                              uint8_t *first_tile_group) {
   if (!f) {
     return -2;
   }
@@ -140,7 +136,6 @@ static int peek_obu_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
     // bytes_read is already 0
     return -1;
   }
-#if CONFIG_F106_OBU_TILEGROUP
   // TODO(any): The `if` and `else if` conditions below combined are same
   // as the condition used in 2 places with TODOs below. Need to refactor
   // after macros are cleaned up.
@@ -177,7 +172,7 @@ static int peek_obu_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
   } else {
     *first_tile_group = 0;
   }
-#endif
+
   if (fseeko(f, fpos, SEEK_SET) != 0) {
     fprintf(stderr, "obudec: Failure restoring file position indicator.\n");
     return -2;
@@ -267,16 +262,10 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
       else
         break;
     }
-#if CONFIG_F106_OBU_TILEGROUP
     uint8_t first_tile_group_byte = 0;
-#endif
     const int read_status =
-        peek_obu_from_file(f, (size_t)obu_size, &detect_buf[0], &obu_header
-#if CONFIG_F106_OBU_TILEGROUP
-                           ,
-                           &first_tile_group_byte
-#endif
-        );
+        peek_obu_from_file(f, (size_t)obu_size, &detect_buf[0], &obu_header,
+                           &first_tile_group_byte);
     if (read_status == -2) {
       return -1;
     } else if (read_status == -1) {
@@ -289,7 +278,6 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
     int decoding_unit_token =
         (obu_header.type == OBU_TEMPORAL_DELIMITER && first_td != 1);
     if (!obu_ctx->has_temporal_delimiter) {
-#if CONFIG_F106_OBU_TILEGROUP
       int first_tile_group_in_frame =
 #if CONFIG_F024_KEYOBU
           is_multi_tile_vcl_obu(obu_header.type)
@@ -298,7 +286,6 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 #endif  // CONFIG_F024_KEYOBU
               ? ((first_tile_group_byte >> 7) & 1u)
               : first_tile_group_byte;
-#endif  // CONFIG_F106_OBU_TILEGROUP
       // TODO(any): OBU header type condition is almost same as
       // `is_coded_frame`, except `type == OBU_BRIDGE_FRAME` condition. Need to
       // refactor after macros are cleaned up.
@@ -315,20 +302,13 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
              )
 #endif  // CONFIG_F024_KEYOBU
-#if CONFIG_F106_OBU_TILEGROUP
-            && first_tile_group_in_frame
-#endif
-            )
-#if !CONFIG_F106_OBU_TILEGROUP
-           || (vcl_obu_count > 0 && obu_header.type == OBU_FRAME_HEADER)
-#endif
-           || (vcl_obu_count > 0 && obu_header.type == OBU_SEQUENCE_HEADER));
+            && first_tile_group_in_frame) ||
+           (vcl_obu_count > 0 && obu_header.type == OBU_SEQUENCE_HEADER));
     }
     if (decoding_unit_token) {
       break;
     } else {
       if (obu_header.type == OBU_TEMPORAL_DELIMITER) first_td = 0;
-#if CONFIG_F106_OBU_TILEGROUP
 #if CONFIG_F024_KEYOBU
       if (is_multi_tile_vcl_obu(obu_header.type) ||
           obu_header.type == OBU_REGULAR_SEF ||
@@ -343,10 +323,6 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
       )
 #endif  // CONFIG_F024_KEYOBU
-#else   // CONFIG_F106_OBU_TILEGROUP
-      if (obu_header.type == OBU_FRAME || obu_header.type == OBU_FRAME_HEADER ||
-          obu_header.type == OBU_REDUNDANT_FRAME_HEADER)
-#endif  // CONFIG_F106_OBU_TILEGROUP
         vcl_obu_count++;
       if (fseeko(f, (FileOffset)obu_size, SEEK_CUR) != 0) {
         fprintf(stderr, "obudec: Failure seeking to end of OBU.\n");

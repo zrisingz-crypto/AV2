@@ -2310,13 +2310,13 @@ component
   int overlap_flag;
   /*!
    * indicates that clipping to the restricted (studio) range shall be applied
-   to the sample values after adding the fi lm grain
+   * to the sample values after adding the film grain
    */
   int clip_to_restricted_range;
 #if CONFIG_FGS_IDENT
   /*!
-   * indicates that clipping to the restricted should use the mc_identity
-   * values range
+   * indicates that clipping to the restricted (studio) range should use the
+   * mc_identity values range
    */
   int mc_identity;
 #endif  // CONFIG_FGS_IDENT

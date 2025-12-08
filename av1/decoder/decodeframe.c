@@ -3879,28 +3879,7 @@ static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
     return;
   }
 #endif  // CONFIG_CWG_F317
-#if !CONFIG_CWG_F248_RENDER_SIZE
-#if CONFIG_MULTI_FRAME_HEADER
-  assert(cm->mfh_valid[cm->cur_mfh_id]);
-#if CONFIG_CWG_E242_PARSING_INDEP
-  if (cm->mfh_params[cm->cur_mfh_id].mfh_render_size_present_flag) {
-    cm->render_width = cm->mfh_params[cm->cur_mfh_id].mfh_render_width;
-    cm->render_height = cm->mfh_params[cm->cur_mfh_id].mfh_render_height;
-  } else {
-    cm->render_width = cm->width;
-    cm->render_height = cm->height;
-  }
-#else
-  cm->render_width = cm->mfh_params[cm->cur_mfh_id].mfh_render_width;
-  cm->render_height = cm->mfh_params[cm->cur_mfh_id].mfh_render_height;
-#endif  // CONFIG_CWG_E242_PARSING_INDEP
-#else   // CONFIG_MULTI_FRAME_HEADER
-  cm->render_width = cm->width;
-  cm->render_height = cm->height;
-#endif  // CONFIG_MULTI_FRAME_HEADER
-#endif  // !CONFIG_CWG_F248_RENDER_SIZE
 
-#if CONFIG_CWG_F248_RENDER_SIZE
   (void)rb;
 #if CONFIG_MULTILAYER_HLS
   // Note: if Local LCR information is used, then the layer_id =
@@ -3922,10 +3901,6 @@ static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
 #if CONFIG_MULTILAYER_HLS
   }
 #endif  // CONFIG_MULTILAYER_HLS
-#else
-  if (aom_rb_read_bit(rb))
-    av1_read_frame_size(rb, 16, 16, &cm->render_width, &cm->render_height);
-#endif  // CONFIG_CWG_F248_RENDER_SIZE
 }
 
 static AOM_INLINE void resize_context_buffers(AV1_COMMON *cm, int width,
@@ -6597,10 +6572,6 @@ void av1_read_decoder_model_info(aom_dec_model_info_t *decoder_model_info,
   decoder_model_info->num_units_in_decoding_tick =
       aom_rb_read_unsigned_literal(rb,
                                    32);  // Number of units in a decoding tick
-#if !CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
-  decoder_model_info->buffer_removal_time_length =
-      aom_rb_read_literal(rb, 5) + 1;
-#endif  // !CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
   decoder_model_info->frame_presentation_time_length =
       aom_rb_read_literal(rb, 5) + 1;
 }
@@ -8043,26 +8014,6 @@ void av1_read_multi_frame_header(AV1_COMMON *cm,
   mfh_param->mfh_frame_height = height;
 #endif  // CONFIG_CWG_E242_PARSING_INDEP
 
-#if CONFIG_CWG_E242_PARSING_INDEP
-#if !CONFIG_CWG_F248_RENDER_SIZE
-  mfh_param->mfh_render_size_present_flag = aom_rb_read_bit(rb);
-  if (mfh_param->mfh_render_size_present_flag) {
-    av1_read_frame_size(rb, 16, 16, &mfh_param->mfh_render_width,
-                        &mfh_param->mfh_render_height);
-  }
-#endif  // !CONFIG_CWG_F248_RENDER_SIZE
-#else
-#if !CONFIG_CWG_F248_RENDER_SIZE
-  if (aom_rb_read_bit(rb)) {
-    av1_read_frame_size(rb, 16, 16, &mfh_param->mfh_render_width,
-                        &mfh_param->mfh_render_height);
-  } else {
-    mfh_param->mfh_render_width = mfh_param->mfh_frame_width;
-    mfh_param->mfh_render_height = mfh_param->mfh_frame_height;
-  }
-#endif  // CONFIG_CWG_E242_PARSING_INDEP
-#endif  // !CONFIG_CWG_F248_RENDER_SIZE
-
   mfh_param->mfh_loop_filter_update_flag = aom_rb_read_bit(rb);
   if (mfh_param->mfh_loop_filter_update_flag) {
     for (int i = 0; i < 4; i++) {
@@ -9111,12 +9062,6 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
           seq_params->max_frame_width;
       cm->mfh_params[cm->cur_mfh_id].mfh_frame_height =
           seq_params->max_frame_height;
-#if !CONFIG_CWG_F248_RENDER_SIZE
-      cm->mfh_params[cm->cur_mfh_id].mfh_render_width =
-          seq_params->max_frame_width;
-      cm->mfh_params[cm->cur_mfh_id].mfh_render_height =
-          seq_params->max_frame_height;
-#endif  // !CONFIG_CWG_F248_RENDER_SIZE
       cm->mfh_params[cm->cur_mfh_id].mfh_loop_filter_update_flag = 0;
       for (int i = 0; i < 4; i++) {
         cm->mfh_params[cm->cur_mfh_id].mfh_loop_filter_level[i] = 0;
@@ -9465,40 +9410,6 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
 #endif  // CONFIG_CWG_F317
     }
   }
-
-#if !CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
-  if (seq_params->decoder_model_info_present_flag) {
-#if CONFIG_CWG_F317
-    if (cm->bridge_frame_info.is_bridge_frame) {
-      cm->buffer_removal_time_present = 0;
-    } else {
-#endif  // CONFIG_CWG_F317
-      cm->buffer_removal_time_present = aom_rb_read_bit(rb);
-#if CONFIG_CWG_F317
-    }
-#endif  // CONFIG_CWG_F317
-    if (cm->buffer_removal_time_present) {
-      for (int op_num = 0;
-           op_num < seq_params->operating_points_cnt_minus_1 + 1; op_num++) {
-        if (seq_params->op_params[op_num].decoder_model_param_present_flag) {
-          if ((((seq_params->operating_point_idc[op_num] >> cm->tlayer_id) &
-                0x1) &&
-               ((seq_params->operating_point_idc[op_num] >>
-                 (cm->mlayer_id + MAX_NUM_TLAYERS)) &
-                0x1)) ||
-              seq_params->operating_point_idc[op_num] == 0) {
-            cm->buffer_removal_times[op_num] = aom_rb_read_unsigned_literal(
-                rb, seq_params->decoder_model_info.buffer_removal_time_length);
-          } else {
-            cm->buffer_removal_times[op_num] = 0;
-          }
-        } else {
-          cm->buffer_removal_times[op_num] = 0;
-        }
-      }
-    }
-  }
-#endif  // !CONFIG_CWG_F293_BUFFER_REMOVAL_TIMING
 
 #if CONFIG_F024_KEYOBU
   if (obu_type == OBU_CLK || obu_type == OBU_OLK)

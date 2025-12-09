@@ -222,8 +222,6 @@ set_aom_config_var(
   CONFIG_QM_DEBUG 0
   "Enable debug information for extension to AV1 quantization matrices.")
 
-set_aom_config_var(CONFIG_DC_DIV_UNIFY 1 "Unify DC division")
-
 set_aom_config_var(CONFIG_MHCCP_BLK_SIZE 1
                    "Add block size constraint for MHCCP")
 
@@ -258,8 +256,6 @@ set_aom_config_var(CONFIG_CWG_F362 1
 set_aom_config_var(
   CONFIG_CWG_F377_STILL_PICTURE 1
   "Sequence header OBU changes for single_picture_header_flag.")
-
-set_aom_config_var(CONFIG_DF_DQP 1 "Adding DQP to the deblocking filter")
 
 set_aom_config_var(CONFIG_FGS_IDENT 1
                    "Fixing an issue with MC_IDENTITY moved to CI_OBU")

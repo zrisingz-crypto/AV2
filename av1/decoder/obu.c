@@ -151,7 +151,6 @@ static
   return !memcmp(seq_params_old, seq_params_new,
                  offsetof(SequenceHeader, op_params));
 }
-#if CONFIG_MULTI_STREAM
 static uint32_t read_multi_stream_decoder_operation_obu(
     AV1Decoder *pbi, struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
@@ -210,7 +209,6 @@ static uint32_t read_multi_stream_decoder_operation_obu(
 
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
 }
-#endif  // CONFIG_MULTI_STREAM
 
 #if CONFIG_MULTI_FRAME_HEADER
 static INLINE void reset_mfh_valid(AV1_COMMON *cm) {
@@ -1769,7 +1767,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     prev_obu_type_initialized = 1;
 #endif  // OBU_ORDER_IN_TU
 
-#if CONFIG_MULTI_STREAM
     if (obu_header.type == OBU_MSDO) {
       if (obu_header.obu_tlayer_id != 0)
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
@@ -1784,7 +1781,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
                            "Incorrect obu_xlayer_id for MSDO: %d",
                            obu_header.obu_xlayer_id);
     }
-#endif  // CONFIG_MULTI_STREAM
 
     // Record obu size header information.
     pbi->obu_size_hdr.data = data + obu_header.size;
@@ -1853,13 +1849,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         pbi->seen_frame_header = 0;
         pbi->next_start_tile = 0;
         break;
-#if CONFIG_MULTI_STREAM
       case OBU_MSDO:
         decoded_payload_size =
             read_multi_stream_decoder_operation_obu(pbi, &rb);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
-#endif  // CONFIG_MULTI_STREAM
       case OBU_SEQUENCE_HEADER:
         decoded_payload_size = read_sequence_header_obu(pbi, &rb);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;

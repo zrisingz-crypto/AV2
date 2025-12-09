@@ -2912,7 +2912,6 @@ typedef struct AV1Common {
   YV12_BUFFER_CONFIG predicted_pixels;
   YV12_BUFFER_CONFIG prefiltered_pixels;
 #endif  // CONFIG_INSPECTION
-#if CONFIG_MULTI_STREAM
   /*!
    * Number of sub-streams
    */
@@ -2921,7 +2920,6 @@ typedef struct AV1Common {
    * Sub-stream IDs
    */
   int stream_ids[AOM_MAX_NUM_STREAMS];
-#endif  // CONFIG_MULTI_STREAM
   /*!
    * True if we are in a decoding process.
    */

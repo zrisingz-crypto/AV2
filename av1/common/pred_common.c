@@ -171,6 +171,11 @@ int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
     if (key_frame_only && cur_ref.frame_type != KEY_FRAME) continue;
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
+    // In resize mode, only frames within 1/16 to 2 times the current frame in
+    // each dimension can be used as references.
+    if (!valid_ref_frame_size(cur_ref.width, cur_ref.height, cm->width,
+                              cm->height))
+      continue;
 
     const int ref_disp = cur_ref.disp_order;
     const int cur_mlayer_id = cm->current_frame.mlayer_id;

@@ -161,10 +161,8 @@ list(
   "${AOM_ROOT}/av1/decoder/obu.c"
   "${AOM_ROOT}/av1/decoder/obu_ci.c")
 
-if(CONFIG_MULTILAYER_HLS)
-  list(APPEND AOM_AV1_DECODER_SOURCES "${AOM_ROOT}/av1/decoder/obu_atlas.c"
-       "${AOM_ROOT}/av1/decoder/obu_lcr.c" "${AOM_ROOT}/av1/decoder/obu_ops.c")
-endif()
+list(APPEND AOM_AV1_DECODER_SOURCES "${AOM_ROOT}/av1/decoder/obu_atlas.c"
+     "${AOM_ROOT}/av1/decoder/obu_lcr.c" "${AOM_ROOT}/av1/decoder/obu_ops.c")
 
 list(APPEND AOM_AV1_DECODER_SOURCES "${AOM_ROOT}/av1/decoder/obu_buf.c")
 
@@ -333,12 +331,9 @@ if(CONFIG_DIP_EXT_PRUNING)
     "${AOM_ROOT}/av1/encoder/intra_dip_mode_prune_weights.cc")
 endif()
 
-if(CONFIG_MULTILAYER_HLS)
-  list(
-    APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/bitstream_atlas.c"
-    "${AOM_ROOT}/av1/encoder/bitstream_lcr.c"
-    "${AOM_ROOT}/av1/encoder/bitstream_ops.c")
-endif()
+list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/bitstream_atlas.c"
+     "${AOM_ROOT}/av1/encoder/bitstream_lcr.c"
+     "${AOM_ROOT}/av1/encoder/bitstream_ops.c")
 
 list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/bitstream_buf.c")
 

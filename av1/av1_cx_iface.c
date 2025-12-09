@@ -1243,9 +1243,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   QuantizationCfg *const q_cfg = &oxcf->q_cfg;
 
   ColorCfg *const color_cfg = &oxcf->color_cfg;
-#if CONFIG_MULTILAYER_HLS
+
   LayerCfg *const layer_cfg = &oxcf->layer_cfg;
-#endif  // CONFIG_MULTILAYER_HLS
+
   InputCfg *const input_cfg = &oxcf->input_cfg;
 
   AlgoCfg *const algo_cfg = &oxcf->algo_cfg;
@@ -1752,11 +1752,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   }
 
   oxcf->signal_td = cfg->signal_td;
-#if CONFIG_MULTILAYER_HLS
   layer_cfg->enable_lcr = cfg->enable_lcr;
   layer_cfg->enable_ops = cfg->enable_ops;
   layer_cfg->enable_atlas = cfg->enable_atlas;
-#endif
 
   // Set unit test related configuration.
   oxcf->unit_test_cfg.motion_vector_unit_test =
@@ -4608,21 +4606,19 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
     2000,  // rc_two_pass_vbrmax_section
 
     // keyframing settings (kf)
-    0,            // fwd_kf_enabled
-    AOM_KF_AUTO,  // kf_mode
-    0,            // kf_min_dist
-    9999,         // kf_max_dist
-    0,            // sframe_dist
-    1,            // sframe_mode
-    0,            // monochrome
-    0,            // full_still_picture_hdr
-    1,            // enable_tcq
-    0,            // signal_td
-#if CONFIG_MULTILAYER_HLS
+    0,                           // fwd_kf_enabled
+    AOM_KF_AUTO,                 // kf_mode
+    0,                           // kf_min_dist
+    9999,                        // kf_max_dist
+    0,                           // sframe_dist
+    1,                           // sframe_mode
+    0,                           // monochrome
+    0,                           // full_still_picture_hdr
+    1,                           // enable_tcq
+    0,                           // signal_td
     0,                           // enable_lcr
     0,                           // enable_ops
     0,                           // enable_atlas
-#endif                           // CONFIG_MULTILAYER_HLS
     0,                           // tile_width_count
     0,                           // tile_height_count
     { 0 },                       // tile_widths

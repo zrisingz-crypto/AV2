@@ -647,7 +647,6 @@ typedef struct {
   int br_buffer_removal_time[MAX_NUM_XLAYERS][MAX_NUM_OPS_ID][MAX_OPS_COUNT];
 } BufferRemovalTimingInfo;
 
-#if CONFIG_MULTILAYER_HLS
 typedef struct CroppingWindow {
   int crop_window_present_flag;
   int crop_win_left_offset;
@@ -902,7 +901,6 @@ typedef struct OperatingPointSet {
   struct OpsDecoderModelInfo *ops_decoder_model_info;
   struct OpsDecoderModelInfo ops_decoder_model_info_s;
 } OperatingPointSet;
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_CWG_F270_CI_OBU
 // This structure specifies the color info params
@@ -2626,7 +2624,6 @@ typedef struct AV1Common {
   //! Index for TIP weighted prediction parameters.
   int8_t tip_global_wtd_index;
 
-#if CONFIG_MULTILAYER_HLS
   /*!
    * Elements part of the layer configuration record
    */
@@ -2641,7 +2638,6 @@ typedef struct AV1Common {
    * Operating Point Set part of the operating point set
    */
   OperatingPointSet ops_params;
-#endif  // CONFIG_MULTILAYER_HLS
 
   /*!
    * Elements part of the sequence header, that are applicable for all the
@@ -2938,7 +2934,6 @@ typedef struct AV1Common {
    */
   bool wedge_mask_initialized;
 
-#if CONFIG_MULTILAYER_HLS
   /*!
    * Layer config record (LCR) id.
    */
@@ -2963,7 +2958,6 @@ typedef struct AV1Common {
    * Operating point set (OPS) structure.
    */
   struct OperatingPointSet *ops;
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_SCAN_TYPE_METADATA
   /*!

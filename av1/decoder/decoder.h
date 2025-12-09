@@ -408,7 +408,6 @@ typedef struct AV1Decoder {
   uint64_t frame_component_time[kTimingComponents];
 #endif
 
-#if CONFIG_MULTILAYER_HLS
   struct LayerConfigurationRecord lcr_list[MAX_NUM_LCR];
   int lcr_counter;
   struct AtlasSegmentInfo atlas_list[MAX_NUM_ATLAS_SEG_ID];
@@ -425,7 +424,6 @@ typedef struct AV1Decoder {
    */
   struct AtlasSegmentInfo *active_atlas_segment_info;
 #endif  // CONFIG_LCR_ID_IN_SH
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_CWG_E242_SEQ_HDR_ID
   /*!

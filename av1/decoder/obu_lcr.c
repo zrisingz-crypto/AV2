@@ -24,7 +24,7 @@
 
 // TODO(hegilmez) to be specified, depending on profile, tier definitions
 static int read_lcr_profile_tier_level(int isGlobal, int xId) {
-#if CONFIG_MULTILAYER_HLS_REMOVE_LOGS
+#if MULTILAYER_HLS_REMOVE_LOGS
   (void)isGlobal;
   (void)xId;
 #else
@@ -32,7 +32,7 @@ static int read_lcr_profile_tier_level(int isGlobal, int xId) {
       "read_lcr_profile_tier_level(isGlobal=%d,xId=%d): profile, tier, level "
       "are not defined yet\n",
       isGlobal, xId);
-#endif  // CONFIG_MULTILAYER_HLS_REMOVE_LOGS
+#endif  // MULTILAYER_HLS_REMOVE_LOGS
   return 0;
 }
 

@@ -147,7 +147,6 @@ int16_t aom_rb_read_signed_primitive_refsubexpfin(
          offset;
 }
 
-#if CONFIG_MULTILAYER_HLS
 // implementation of leb128() signaling in the specification using
 // aom_read_bit_buffer
 uint32_t aom_rb_read_uleb(struct aom_read_bit_buffer *rb) {
@@ -172,7 +171,6 @@ uint32_t aom_rb_read_uleb(struct aom_read_bit_buffer *rb) {
   }
   return 0;
 }
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_CWG_F270_CI_OBU
 uint32_t aom_rb_read_rice_golomb(struct aom_read_bit_buffer *rb, int k) {

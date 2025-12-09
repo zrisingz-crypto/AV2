@@ -285,7 +285,6 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       ARG_DEF(NULL, "sframe-mode", 1, "S-Frame insertion mode (1..2)"),
   .signal_td =
       ARG_DEF(NULL, "use-temporal-delimiter", 1, "Signal temproal delimiters"),
-#if CONFIG_MULTILAYER_HLS
   .enable_lcr =
       ARG_DEF(NULL, "enable-lcr", 1,
               "Enable layer config record (LCR) OBU (0: off (default), 1: on)"),
@@ -294,7 +293,6 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
               "Enable operating point set (OPS) OBU (0: off (default), 1: on)"),
   .enable_atlas = ARG_DEF(NULL, "enable-atlas", 1,
                           "Enable atlas segment OBU (0: off (default), 1: on)"),
-#endif  // CONFIG_MULTILAYER_HLS
   .noise_sens = ARG_DEF(NULL, "noise-sensitivity", 1,
                         "Noise sensitivity (frames to blur)"),
   .sharpness = ARG_DEF(NULL, "sharpness", 1, "Loop filter sharpness (0..7)"),

@@ -3881,7 +3881,6 @@ static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
 #endif  // CONFIG_CWG_F317
 
   (void)rb;
-#if CONFIG_MULTILAYER_HLS
   // Note: if Local LCR information is used, then the layer_id =
   // lcr_params.xlayer_id If Global LCR is used, then for each extended layer
   // i.e, xlayer_info(1,n) is specified, where n is xlayer_id[i] of the i-th
@@ -3895,12 +3894,9 @@ static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
     cm->render_width = cm->lcr_params.rep_params.lcr_max_pic_width;
     cm->render_height = cm->lcr_params.rep_params.lcr_max_pic_height;
   } else {
-#endif  // CONFIG_MULTILAYER_HLS
     cm->render_width = cm->width;
     cm->render_height = cm->height;
-#if CONFIG_MULTILAYER_HLS
   }
-#endif  // CONFIG_MULTILAYER_HLS
 }
 
 static AOM_INLINE void resize_context_buffers(AV1_COMMON *cm, int width,

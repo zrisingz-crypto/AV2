@@ -65,9 +65,7 @@ void aom_wb_write_primitive_ref_quniform(struct aom_write_bit_buffer *wb,
 int aom_wb_count_primitive_refsubexpfin(uint16_t n, uint16_t k, int16_t ref,
                                         int16_t v);
 
-#if CONFIG_MULTILAYER_HLS
 void aom_wb_write_uleb(struct aom_write_bit_buffer *wb, uint32_t value);
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_CWG_F270_CI_OBU
 void aom_wb_write_rice_golomb(struct aom_write_bit_buffer *wb, uint32_t data,

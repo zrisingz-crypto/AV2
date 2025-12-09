@@ -63,7 +63,6 @@ int av1_write_uleb_obu_size(size_t obu_header_size, size_t obu_payload_size,
 
 void av1_add_trailing_bits(struct aom_write_bit_buffer *wb);
 
-#if CONFIG_MULTILAYER_HLS
 uint32_t av1_write_layer_configuration_record_obu(AV1_COMP *const cpi,
                                                   int xlayer_id,
                                                   uint8_t *const dst);
@@ -83,7 +82,6 @@ int av1_set_atlas_segment_info_params(AV1_COMP *cpi,
 
 int av1_set_ops_params(AV1_COMP *cpi, struct OperatingPointSet *ops,
                        int xlayer_id);
-#endif  // CONFIG_MULTILAYER_HLS
 
 uint32_t av1_write_buffer_removal_timing_obu(
     const BufferRemovalTimingInfo *brt_info, uint8_t *const dst);

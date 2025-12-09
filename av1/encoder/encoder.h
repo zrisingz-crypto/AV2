@@ -674,7 +674,7 @@ typedef struct {
   // Indicates if a limited color range or full color range should be used.
   aom_color_range_t color_range;
 } ColorCfg;
-#if CONFIG_MULTILAYER_HLS
+
 typedef struct {
   // Indicates the LCR OBU (OBU_LAYER_CONFIGURATION_RECORD) is enabled.
   bool enable_lcr;
@@ -683,7 +683,7 @@ typedef struct {
   // Indicates the Atlas Segment OBU (OBU_ATLAS_SEGMENT) is enabled.
   bool enable_atlas;
 } LayerCfg;
-#endif  // CONFIG_MULTILAYER_HLS
+
 typedef struct {
   // Indicates if extreme motion vector unit test should be enabled or not.
   unsigned int motion_vector_unit_test;
@@ -1201,10 +1201,9 @@ typedef struct AV1EncoderConfig {
   // Indicates the temporal delimiter is signaled.
   bool signal_td;
 
-#if CONFIG_MULTILAYER_HLS
   // Configuration related to layering information.
   LayerCfg layer_cfg;
-#endif  // CONFIG_MULTILAYER_HLS
+
   // 0-31 = manually set operating_points_cnt_minus_1
   int operating_points_count;
   /*!\endcond */
@@ -2920,8 +2919,6 @@ typedef struct AV1_COMP {
    * Write the Buffer Removal Timing OBU
    */
   int write_brt_obu;
-
-#if CONFIG_MULTILAYER_HLS
   /*!
    * list for Layer Config Record (LCR) information
    */
@@ -2934,7 +2931,6 @@ typedef struct AV1_COMP {
    * list for Atlas information
    */
   struct AtlasSegmentInfo atlas_list[MAX_NUM_ATLAS_SEG_ID];
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
   /*!

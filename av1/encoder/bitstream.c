@@ -8539,7 +8539,6 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
     data += obu_header_size + obu_payload_size + length_field_size;
   }
 
-#if CONFIG_MULTILAYER_HLS
   if (av1_is_shown_keyframe(cpi, cm->current_frame.frame_type)) {
     const LayerCfg *const layer_cfg = &cpi->oxcf.layer_cfg;
     // Layer Configuration Record
@@ -8596,7 +8595,6 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
       data += obu_header_size + obu_payload_size + length_field_size;
     }
   }
-#endif  // CONFIG_MULTILAYER_HLS
 
   // write sequence header obu if KEY_FRAME, preceded by 4-byte size
 #if CONFIG_F024_KEYOBU

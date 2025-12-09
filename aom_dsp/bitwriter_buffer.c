@@ -218,7 +218,6 @@ int aom_wb_count_primitive_refsubexpfin(uint16_t n, uint16_t k, int16_t ref,
   return wb_count_primitive_subexpfin(n, k, recenter_finite_nonneg(n, ref, v));
 }
 
-#if CONFIG_MULTILAYER_HLS
 // implementation of leb128() signaling in the specification using
 // aom_write_bit_buffer
 void aom_wb_write_uleb(struct aom_write_bit_buffer *wb, uint32_t value) {
@@ -231,7 +230,6 @@ void aom_wb_write_uleb(struct aom_write_bit_buffer *wb, uint32_t value) {
     aom_wb_write_literal(wb, encoded_byte, 8);
   }
 }
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_CWG_F270_CI_OBU
 // Implementation of Rice Golomb coding.

@@ -38,7 +38,6 @@ void av1_read_conformance_window(struct aom_read_bit_buffer *rb,
                                  struct SequenceHeader *seq_params);
 #endif  // CONFIG_CROP_WIN_CWG_F220
 
-#if CONFIG_MULTILAYER_HLS
 uint32_t av1_read_layer_configuration_record_obu(
     struct AV1Decoder *pbi, int obu_xlayer_id, struct aom_read_bit_buffer *rb);
 
@@ -49,7 +48,6 @@ uint32_t av1_read_operating_point_set_obu(struct AV1Decoder *pbi,
 uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
                                          int obu_xLayer_id,
                                          struct aom_read_bit_buffer *rb);
-#endif  // CONFIG_MULTILAYER_HLS
 
 #if CONFIG_F153_FGM_OBU
 void copy_fgm_from_list(AV1_COMMON *cm, aom_film_grain_t *pars,

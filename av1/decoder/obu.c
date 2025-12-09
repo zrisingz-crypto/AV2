@@ -1872,7 +1872,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             av1_read_buffer_removal_timing_obu(pbi, &rb, cm->xlayer_id);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
-#if CONFIG_MULTILAYER_HLS
       case OBU_LAYER_CONFIGURATION_RECORD:
         decoded_payload_size =
             av1_read_layer_configuration_record_obu(pbi, cm->xlayer_id, &rb);
@@ -1888,7 +1887,6 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
             av1_read_operating_point_set_obu(pbi, cm->xlayer_id, &rb);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
         break;
-#endif  // CONFIG_MULTILAYER_HLS
 #if CONFIG_CWG_F270_CI_OBU
       case OBU_CONTENT_INTERPRETATION:
         if (!pbi->sequence_header_ready) {

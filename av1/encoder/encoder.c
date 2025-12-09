@@ -897,7 +897,6 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->input_cfg.init_framerate;
 
-#if CONFIG_MULTILAYER_HLS
   //  Initialize LCR information
   for (int i = 0; i < MAX_NUM_LCR; i++)
     memset(&cpi->lcr_list[i], 0, sizeof(struct LayerConfigurationRecord));
@@ -926,7 +925,7 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   for (int i = 0; i < MAX_NUM_ATLAS_SEG_ID; i++)
     memset(&cpi->atlas_list[i], 0, sizeof(struct AtlasSegmentInfo));
   cm->atlas = &cpi->atlas_list[0];
-#endif  // CONFIG_MULTILAYER_HLS
+
 #if CONFIG_F153_FGM_OBU
   cpi->written_fgm_num = 0;
 #endif  // CONFIG_F153_FGM_OBU
@@ -1373,13 +1372,11 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
 
-#if CONFIG_MULTILAYER_HLS
   if (cm->lcr->lcr_rep_info_present_flag[0][0] == 1) {
     // NOTE: if LCR exist
     cm->lcr_params.rep_params.lcr_max_pic_width = cm->width;
     cm->lcr_params.rep_params.lcr_max_pic_height = cm->height;
   }
-#endif  // CONFIG_MULTILAYER_HLS
 
   BLOCK_SIZE sb_size = cm->sb_size;
   BLOCK_SIZE new_sb_size = av1_select_sb_size(cpi);

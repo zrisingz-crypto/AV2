@@ -295,7 +295,6 @@ enum {
 #define OP_POINTS_CNT_MINUS_1_BITS (TLAYER_BITS + MLAYER_BITS)
 #define OP_POINTS_IDC_BITS (MAX_NUM_TLAYERS + MAX_NUM_MLAYERS)
 
-#if CONFIG_MULTILAYER_HLS
 // LCR
 #define LCR_ID_BITS 3
 #define MAX_NUM_LCR (1 << LCR_ID_BITS)
@@ -315,10 +314,10 @@ enum {
 
 // Enabling this macro removes the prompting in lcr_profile_tier_level() to be
 // included after profile, tier and level definitions are finalized.
-#define CONFIG_MULTILAYER_HLS_REMOVE_LOGS 1
+// TODO: remove this macro after definition of profile, tier and level
+#define MULTILAYER_HLS_REMOVE_LOGS 1
 
 #if CONFIG_LCR_ID_IN_SH
-// Note can be removed when CONFIG_MULTILAYER_HLS is removed
 #define MAX_NUM_SEQ_LCR_ID 7
 #define LCR_ID_UNSPECIFIED 0
 #endif  // CONFIG_LCR_ID_IN_SH
@@ -362,7 +361,6 @@ enum {
   SUBREGION_PLAYBACK,
   GLOBAL_PURPOSE_ID_TYPES
 };
-#endif  // CONFIG_MULTILAYER_HLS
 
 // Note: Some enums use the attribute 'packed' to use smallest possible integer
 // type, so that we can save memory when they are used in structs/arrays.

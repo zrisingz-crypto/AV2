@@ -8910,21 +8910,18 @@ static void activate_sequence_header(AV1Decoder *pbi,
     if (pbi->qm_protected[qm_pos]) continue;
     // copy from predefined
     struct quantization_matrix_set *qmset = &pbi->qm_list[qm_pos];
-    if (!qmset->quantizer_matrix_allocated) {
-      alloc_qmatrix(qmset);
-    }
+    qmset->qm_id = qm_pos;
+    qmset->qm_mlayer_id = -1;
+    qmset->qm_tlayer_id = -1;
 #if CONFIG_QM_REVERT
     qmset->is_user_defined_qm = false;
 #else
     int qm_default_index = qm_pos;
     qmset->qm_default_index = qm_pos;
-#endif  // !CONFIG_QM_REVERT
-    qmset->qm_id = qm_pos;
-    qmset->qm_mlayer_id = -1;
-    qmset->qm_tlayer_id = -1;
+    if (!qmset->quantizer_matrix_allocated) {
+      alloc_qmatrix(qmset);
+    }
     qmset->quantizer_matrix_num_planes = cm->seq_params.monochrome ? 1 : 3;
-
-#if !CONFIG_QM_REVERT
     // copy predefined[qm_default_index] to qmset
     for (int c = 0; c < qmset->quantizer_matrix_num_planes; ++c) {
       // plane_type: 0:luma, 1:chroma
@@ -8939,7 +8936,7 @@ static void activate_sequence_header(AV1Decoder *pbi,
              predefined_4x8_iwt_base_matrix[qm_default_index][plane_type],
              4 * 8 * sizeof(qm_val_t));
     }
-#endif  // !CONFIG_QM_REVERT
+#endif  // CONFIG_QM_REVERT
   }  // qm_pos
 #endif  // CONFIG_F255_QMOBU
 

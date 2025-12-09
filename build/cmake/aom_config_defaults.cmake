@@ -149,8 +149,6 @@ set_aom_config_var(CONFIG_ATLAS_ALPHA_SEGMENT 1
 set_aom_config_var(CONFIG_PARAKIT_COLLECT_DATA 0
                    "enables data collection for ParaKit training.")
 
-set_aom_config_var(CONFIG_EXT_FRAME_BUFFER_POOL 1 "Buffer pool extension.")
-
 # AV2 experiment flags.
 set_aom_config_var(CONFIG_F356_SEF_DOH 1 "Signl order hint for SEF.")
 
@@ -206,10 +204,6 @@ set_aom_config_var(CONFIG_CWG_E242_MFH_ID_UVLC 1
                    "Signaling multi-frame header ID in UVLC")
 set_aom_config_var(CONFIG_RANDOM_ACCESS_SWITCH_FRAME 1
                    "Enable random access switch (RAS) frame")
-set_aom_config_var(CONFIG_TEMPORAL_UNIT_BASED_ON_OUTPUT_FRAME 1
-                   "Enable temporal unit based on showable frame")
-set_aom_config_var(CONFIG_REMOVAL_REDUNDANT_FRAME_HEADER 1
-                   "Remove redundant frame header OBU from OBU types")
 set_aom_config_var(OBU_ORDER_IN_TU 1 "Check OBU order in TU")
 
 set_aom_config_var(
@@ -237,10 +231,6 @@ set_aom_config_var(CONFIG_QM_REVERT 1
 
 set_aom_config_var(CONFIG_ML_PART_SPLIT 1
                    "Partition SPLIT pruning/forcing as predicted by ML.")
-
-set_aom_config_var(CONFIG_UNIFORM_TILE 1
-                   "Enable better uniform tile distribution")
-
 set_aom_config_var(
   CONFIG_ADJ_PYR_Q_OFFSET_LD 1
   "Encoder-only config to adjust pyr qp offsets for LD from nominal.")

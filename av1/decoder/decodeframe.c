@@ -3544,8 +3544,9 @@ static AOM_INLINE void setup_quantization(CommonQuantParams *quant_params,
 #if CONFIG_F255_QMOBU
 void setup_quant_matrices(AV1Decoder *pbi, CommonQuantParams *quant_params,
                           int plane, int qmlevel) {
+  AV1_COMMON *const cm = &pbi->common;
   if (qmlevel >= NUM_QM_LEVELS) {
-    aom_internal_error(&pbi->common.error, AOM_CODEC_UNSUP_BITSTREAM,
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "qmlevel %d is out of boundary", qmlevel);
   }
   if (qmlevel == NUM_QM_LEVELS - 1) {
@@ -3563,8 +3564,16 @@ void setup_quant_matrices(AV1Decoder *pbi, CommonQuantParams *quant_params,
     }
   }
   if (qm_pos_found < 0) {
-    aom_internal_error(&pbi->common.error, AOM_CODEC_UNSUP_BITSTREAM,
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "quantiztion matrix with Id[%d] is not found", qmlevel);
+  }
+  const struct quantization_matrix_set *qmset = &pbi->qm_list[qm_pos_found];
+
+  if (qmset->quantizer_matrix_num_planes != av1_num_planes(cm)) {
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+                       "the quantization matrix and sequence header indicate "
+                       "different numbers of planes: (%d, %d)",
+                       qmset->quantizer_matrix_num_planes, av1_num_planes(cm));
   }
 
   //  when a picture indicated in an embedded layer with id equal obu_mlayer_id
@@ -3573,25 +3582,22 @@ void setup_quant_matrices(AV1Decoder *pbi, CommonQuantParams *quant_params,
   //  and qmTlayerId, respectively for which
   //  mlayer_dependency_map[obu_mlayer_id][qmMlayerId] and
   //  tlayer_dependency_map[obu_tlayer_id][qmTlayerId] are both equal to 1.
-  if ((pbi->qm_list[qm_pos_found].qm_tlayer_id != -1 &&
-       pbi->common.seq_params.tlayer_dependency_map[pbi->common.tlayer_id]
-                                                   [pbi->qm_list[qm_pos_found]
-                                                        .qm_tlayer_id] != 1) ||
-      (pbi->qm_list[qm_pos_found].qm_mlayer_id != -1 &&
-       pbi->common.seq_params.mlayer_dependency_map[pbi->common.mlayer_id]
-                                                   [pbi->qm_list[qm_pos_found]
-                                                        .qm_mlayer_id] != 1)) {
-    aom_internal_error(&pbi->common.error, AOM_CODEC_UNSUP_BITSTREAM,
+  if ((qmset->qm_tlayer_id != -1 &&
+       cm->seq_params.tlayer_dependency_map[cm->tlayer_id]
+                                           [qmset->qm_tlayer_id] != 1) ||
+      (qmset->qm_mlayer_id != -1 &&
+       cm->seq_params.mlayer_dependency_map[cm->mlayer_id]
+                                           [qmset->qm_mlayer_id] != 1)) {
+    aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "the layer ids of the quantization matrices are out"
                        "of the limit: (%d, %d)",
-                       pbi->qm_list[qm_pos_found].qm_tlayer_id,
-                       pbi->qm_list[qm_pos_found].qm_mlayer_id);
+                       qmset->qm_tlayer_id, qmset->qm_mlayer_id);
   }
 
   // Generate matrices for each tx size
   int current = 0;
 #if CONFIG_QM_REVERT
-  const bool is_user_defined_qm = pbi->qm_list[qm_pos_found].is_user_defined_qm;
+  const bool is_user_defined_qm = qmset->is_user_defined_qm;
 #endif
   for (int t = 0; t < TX_SIZES_ALL; ++t) {
     const int size = tx_size_2d[t];
@@ -3606,7 +3612,7 @@ void setup_quant_matrices(AV1Decoder *pbi, CommonQuantParams *quant_params,
       assert(current + size <= QM_TOTAL_SIZE);
       // Generate the iwt matrices from the base matrices.
       scale_tx(t, plane, &quant_params->iwt_matrix_ref[qmlevel][plane][current],
-               pbi->qm_list[qm_pos_found].quantizer_matrix);
+               qmset->quantizer_matrix);
       quant_params->giqmatrix[qmlevel][plane][t] =
           &quant_params->iwt_matrix_ref[qmlevel][plane][current];
       current += size;
@@ -3622,7 +3628,7 @@ void setup_quant_matrices(AV1Decoder *pbi, CommonQuantParams *quant_params,
       assert(current + size <= QM_TOTAL_SIZE);
       // Generate the iwt matrices from the base matrices.
       scale_tx(t, plane, &quant_params->iwt_matrix_ref[qmlevel][plane][current],
-               pbi->qm_list[qm_pos_found].quantizer_matrix);
+               qmset->quantizer_matrix);
       quant_params->giqmatrix[qmlevel][plane][t] =
           &quant_params->iwt_matrix_ref[qmlevel][plane][current];
       current += size;

@@ -8695,14 +8695,6 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
             }
           }
         }
-        for (int qm_idx = 0; qm_idx < NUM_CUSTOM_QMS; qm_idx++) {
-          if (cpi->user_defined_qm_list[qm_idx] != NULL) {
-            assert(cpi->use_user_defined_qm[qm_idx]);
-            cpi->use_user_defined_qm[qm_idx] = false;
-            av2_free_qmset(cpi->user_defined_qm_list[qm_idx]);
-            cpi->user_defined_qm_list[qm_idx] = NULL;
-          }
-        }
       }  // cpi->total_signalled_qmobu_count != 0
       cpi->total_signalled_qmobu_count = 0;
       cpi->obu_is_written = 0;

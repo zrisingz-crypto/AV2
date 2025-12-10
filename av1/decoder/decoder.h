@@ -333,6 +333,7 @@ typedef struct AV1Decoder {
 #endif
   int sequence_header_ready;
   int sequence_header_changed;
+  int stream_switched;
 #if CONFIG_INSPECTION
   // Inspection callback at the end of each frame.
   aom_inspect_cb inspect_cb;
@@ -452,6 +453,10 @@ typedef struct AV1Decoder {
   int qm_protected[NUM_CUSTOM_QMS];
 #endif  // CONFIG_F255_QMOBU
 
+  RefCntBuffer *ref_frame_map_buf[AOM_MAX_NUM_STREAMS][REF_FRAMES];
+  int remapped_ref_idx_buf[AOM_MAX_NUM_STREAMS][REF_FRAMES];
+  SequenceHeader seq_params_buf[AOM_MAX_NUM_STREAMS];
+  MultiFrameHeader mfh_params_buf[AOM_MAX_NUM_STREAMS][MAX_MFH_NUM];
 #if CONFIG_F024_KEYOBU
   /*!
    * Indicates an OLK is encountered in any layer
@@ -556,6 +561,8 @@ static INLINE bool is_frame_eligible_for_output(RefCntBuffer *const buf) {
 static INLINE void check_ref_count_status_dec(struct AV1Decoder *pbi) {
   AV1_COMMON *volatile const cm = &pbi->common;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
+  if (cm->num_streams > 1) return;
+
   for (int i = 0; i < FRAME_BUFFERS; ++i) {
     int ref_frame_map_cnt = 0, cur_frame_cnt = 0, output_frames_cnt = 0;
     int calculated_ref_count = 0;

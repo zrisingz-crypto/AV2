@@ -24,7 +24,8 @@ int av1_alloc_internal_frame_buffers(InternalFrameBufferList *list) {
   // frame buffers is (total references numbers + current frame) * 2 + working
   // buffers for multh-threads
   list->num_internal_frame_buffers =
-      (AOM_MAXIMUM_REF_BUFFERS + 1) * 2 + AOM_MAXIMUM_WORK_BUFFERS;
+      (AOM_MAXIMUM_REF_BUFFERS + 1) * 2 * AOM_MAX_NUM_STREAMS +
+      AOM_MAXIMUM_WORK_BUFFERS;
   list->int_fb = (InternalFrameBuffer *)aom_calloc(
       list->num_internal_frame_buffers, sizeof(*list->int_fb));
   if (list->int_fb == NULL) {

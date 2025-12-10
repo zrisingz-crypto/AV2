@@ -38,6 +38,7 @@
 #include "av1/encoder/hash_motion.h"
 #include "aom_dsp/grain_synthesis.h"
 #include "aom_dsp/grain_table.h"
+#include "aom/aom_frame_buffer.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -297,6 +298,7 @@ typedef struct RefCntBuffer {
   int ref_order_hints[INTER_REFS_PER_FRAME];
   int ref_display_order_hint[INTER_REFS_PER_FRAME];
   int mlayer_id;
+  int xlayer_id;
   int ref_mlayer_ids[INTER_REFS_PER_FRAME];
 
   // These variables are used only in encoder and compare the absolute
@@ -1201,6 +1203,7 @@ typedef struct {
   unsigned int key_frame_number;
   unsigned int frame_number;
   int mlayer_id;
+  int xlayer_id;
   SkipModeInfo skip_mode_info;
   int refresh_frame_flags;  // Which ref frames are overwritten by this frame
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO

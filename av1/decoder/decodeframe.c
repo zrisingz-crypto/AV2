@@ -9089,8 +9089,10 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
       pbi->sequence_header_changed = 0;
       pbi->decoding_first_frame = 1;
       reset_frame_buffers(cm);
+    } else if (pbi->stream_switched) {
+      pbi->stream_switched = 0;
+      reset_frame_buffers(cm);
     }
-
     cm->cur_frame->frame_output_done = 0;
 
   } else {
@@ -9213,6 +9215,9 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
                            "Sequence header has changed without a keyframe.");
 #endif
       }
+    } else if (pbi->stream_switched) {
+      pbi->stream_switched = 0;
+      reset_frame_buffers(cm);
     }
 
     if (cm->bridge_frame_info.is_bridge_frame) {
@@ -9558,7 +9563,7 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
     cm->current_frame.pyramid_level = 1;
     cm->current_frame.temporal_layer_id = cm->tlayer_id;
     cm->current_frame.mlayer_id = cm->mlayer_id;
-
+    cm->current_frame.xlayer_id = cm->xlayer_id;
     features->tip_frame_mode = TIP_FRAME_DISABLED;
     setup_frame_size(cm, frame_size_override_flag, rb);
     read_screen_content_params(cm, rb);
@@ -9570,6 +9575,7 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
   } else {
     cm->current_frame.temporal_layer_id = cm->tlayer_id;
     cm->current_frame.mlayer_id = cm->mlayer_id;
+    cm->current_frame.xlayer_id = cm->xlayer_id;
 
     features->allow_ref_frame_mvs = 0;
     features->tip_frame_mode = TIP_FRAME_DISABLED;

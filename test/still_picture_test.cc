@@ -20,14 +20,14 @@ namespace {
 
 // This class is used to test the presence of still picture feature.
 class StillPicturePresenceTestLarge
-    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
+                                                 aom_rc_mode>,
       public ::libaom_test::EncoderTest {
  protected:
   StillPicturePresenceTestLarge()
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
-        enable_full_header_(GET_PARAM(2)) {
-    still_picture_coding_violated_ = false;
-  }
+        still_picture_coding_violated_(false),
+        enable_full_header_(GET_PARAM(2)), end_usage_(GET_PARAM(3)) {}
   virtual ~StillPicturePresenceTestLarge() {}
 
   virtual void SetUp() {
@@ -35,7 +35,7 @@ class StillPicturePresenceTestLarge
     SetMode(encoding_mode_);
     const aom_rational timebase = { 1, 30 };
     cfg_.g_timebase = timebase;
-    cfg_.rc_end_usage = AOM_Q;
+    cfg_.rc_end_usage = end_usage_;
     cfg_.g_threads = 1;
     cfg_.full_still_picture_hdr = enable_full_header_;
     cfg_.g_limit = 1;
@@ -56,13 +56,13 @@ class StillPicturePresenceTestLarge
     EXPECT_EQ(AOM_CODEC_OK, res_dec) << decoder->DecodeError();
     if (AOM_CODEC_OK == res_dec) {
       aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
+      aom_still_picture_info still_pic_info;
       AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_STILL_PICTURE,
-                                    &still_pic_info_);
-      if (still_pic_info_.is_still_picture != 1) {
+                                    &still_pic_info);
+      if (still_pic_info.is_still_picture != 1) {
         still_picture_coding_violated_ = true;
       }
-      if (still_pic_info_.is_single_picture_header_flag ==
-          enable_full_header_) {
+      if (still_pic_info.is_single_picture_header_flag == enable_full_header_) {
         /* If full_still_picture_header is enabled in encoder config but
          * bitstream contains single_picture_header_flag set, then set
          * still_picture_coding_violated_ to true.
@@ -79,8 +79,7 @@ class StillPicturePresenceTestLarge
   ::libaom_test::TestMode encoding_mode_;
   bool still_picture_coding_violated_;
   int enable_full_header_;
-  aom_still_picture_info still_pic_info_;
-  aom_rc_mode end_usage_check_;
+  aom_rc_mode end_usage_;
 };
 
 TEST_P(StillPicturePresenceTestLarge, StillPictureEncodePresenceTest) {
@@ -92,5 +91,6 @@ TEST_P(StillPicturePresenceTestLarge, StillPictureEncodePresenceTest) {
 }
 
 AV1_INSTANTIATE_TEST_SUITE(StillPicturePresenceTestLarge,
-                           GOODQUALITY_TEST_MODES, ::testing::Values(1, 0));
+                           GOODQUALITY_TEST_MODES, ::testing::Values(1, 0),
+                           ::testing::Values(AOM_VBR, AOM_Q));
 }  // namespace

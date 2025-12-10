@@ -8474,7 +8474,8 @@ static void reset_buffer_other_than_OLK(AV1Decoder *pbi) {
 }
 static int is_regular_non_olk_obu(OBU_TYPE obu_type) {
   return obu_type == OBU_REGULAR_SEF || obu_type == OBU_REGULAR_TIP ||
-         obu_type == OBU_REGULAR_TILE_GROUP;
+         obu_type == OBU_SWITCH || obu_type == OBU_RAS_FRAME ||
+         obu_type == OBU_BRIDGE_FRAME || obu_type == OBU_REGULAR_TILE_GROUP;
 }
 #endif
 static int read_show_existing_frame(AV1Decoder *pbi,
@@ -9268,9 +9269,7 @@ static int read_uncompressed_header(AV1Decoder *pbi, OBU_TYPE obu_type,
 
   if (!seq_params->single_picture_header_flag) {
 #if CONFIG_F024_KEYOBU
-    if (pbi->olk_encountered &&
-        (is_regular_non_olk_obu(obu_type) || obu_type == OBU_BRIDGE_FRAME ||
-         obu_type == OBU_SWITCH)) {
+    if (pbi->olk_encountered && is_regular_non_olk_obu(obu_type)) {
       pbi->olk_encountered = 0;
       lock_buffer_pool(pool);
       reset_buffer_other_than_OLK(pbi);

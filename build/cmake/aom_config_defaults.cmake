@@ -250,9 +250,6 @@ set_aom_config_var(
 set_aom_config_var(CONFIG_FGS_IDENT 1
                    "Fixing an issue with MC_IDENTITY moved to CI_OBU")
 
-set_aom_config_var(CONFIG_SHORT_METADATA 1
-                   "Enable short metadata OBU header support")
-
 set_aom_config_var(
   CONFIG_MIXED_LOSSLESS_ENCODE 0
   "Encoder only flag to configure encoder to enable mixed lossy/lossless coding"

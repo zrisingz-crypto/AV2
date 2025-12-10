@@ -1426,6 +1426,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tool_cfg->g_error_resilient_mode = cfg->g_error_resilient;
   tool_cfg->frame_hash_metadata = cfg->frame_hash_metadata;
   tool_cfg->frame_hash_per_plane = cfg->frame_hash_per_plane;
+#if CONFIG_METADATA
+  tool_cfg->use_short_metadata = cfg->use_short_metadata;
+#endif  // CONFIG_METADATA
   tool_cfg->frame_parallel_decoding_mode =
       extra_cfg->frame_parallel_decoding_mode;
   tool_cfg->max_drl_refmvs = extra_cfg->max_drl_refmvs;
@@ -4354,6 +4357,11 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
     extra_cfg.scan_type_info_present_flag =
         arg_parse_int_helper(&arg, err_string);
 #endif  // CONFIG_SCAN_TYPE_METADATA
+#if CONFIG_METADATA
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.use_short_metadata,
+                              argv, err_string)) {
+    ctx->cfg.use_short_metadata = arg_parse_int_helper(&arg, err_string);
+#endif  // CONFIG_METADATA
 #if CONFIG_MULTI_FRAME_HEADER
   } else if (arg_match_helper(&arg,
                               &g_av1_codec_arg_defs.enable_mfh_obu_signaling,
@@ -4596,6 +4604,9 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
     { -1, -1, -1, -1, -1, -1 },  // fixed_qp_offsets
     0,                           // frame_hash_metadata;
     0,                           // frame_hash_per_plane;
+#if CONFIG_METADATA
+    0,  // use_short_metadata;
+#endif  // CONFIG_METADATA
     {
         0,    // init_by_cfg_file
         128,  // superblock_size

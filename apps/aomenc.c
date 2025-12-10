@@ -491,6 +491,9 @@ const arg_def_t *av1_key_val_args[] = {
 #if CONFIG_SCAN_TYPE_METADATA
   &g_av1_codec_arg_defs.scan_type_info_present_flag,
 #endif  // CONFIG_SCAN_TYPE_METADATA
+#if CONFIG_METADATA
+  &g_av1_codec_arg_defs.use_short_metadata,
+#endif  // CONFIG_METADATA
 #if CONFIG_MULTI_FRAME_HEADER
   &g_av1_codec_arg_defs.enable_mfh_obu_signaling,
 #endif  // CONFIG_MULTI_FRAME_HEADER

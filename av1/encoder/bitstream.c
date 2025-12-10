@@ -7830,12 +7830,16 @@ static uint32_t write_tilegroup_obu(
 }
 
 #if CONFIG_METADATA
-static size_t av1_write_metadata_obsp_header(uint8_t *const dst,
-                                             const size_t count,
-                                             aom_metadata_t *first_metadata) {
+static size_t av1_write_metadata_group_header(uint8_t *const dst,
+                                              const size_t count,
+                                              aom_metadata_t *first_metadata) {
   assert((first_metadata->necessity_idc & 3) == first_metadata->necessity_idc);
   assert((first_metadata->application_id & 31) ==
          first_metadata->application_id);
+  assert(count > 0);  // Must have at least one metadata unit
+  // Ensure metadata_unit_cnt doesn't exceed 2^14 - 1 (to keep uleb128 <= 2
+  // bytes)
+  assert(count <= 16383);
 
   struct aom_write_bit_buffer wb = { dst, 0 };
 
@@ -7847,7 +7851,9 @@ static size_t av1_write_metadata_obsp_header(uint8_t *const dst,
   assert(bytes_written == 1);
 
   size_t coded_cnt_size = 0;
-  if (aom_uleb_encode(count, sizeof(count), dst + bytes_written,
+  // Spec changed from metadata_unit_cnt to metadata_unit_cnt_minus_1
+  const size_t count_minus_1 = count - 1;
+  if (aom_uleb_encode(count_minus_1, sizeof(count_minus_1), dst + bytes_written,
                       &coded_cnt_size) != 0) {
     return 0;
   }
@@ -7941,12 +7947,10 @@ static size_t av1_write_metadata_obu(const aom_metadata_t *metadata,
   return (uint32_t)(coded_metadata_size + metadata->sz + 1);
 #endif  // CONFIG_METADATA
 }
-#if CONFIG_SHORT_METADATA
 static size_t av1_write_metadata_obu(const aom_metadata_t *metadata,
                                      uint8_t *const dst) {
   size_t coded_metadata_size = 0;
 
-#if CONFIG_SHORT_METADATA
   struct aom_write_bit_buffer wb = { dst, 0 };
 
   aom_wb_write_bit(&wb, metadata->is_suffix);
@@ -7956,53 +7960,29 @@ static size_t av1_write_metadata_obu(const aom_metadata_t *metadata,
 
   size_t bytes_written = aom_wb_bytes_written(&wb);
   assert(bytes_written == 1);
-#endif  // CONFIG_SHORT_METADATA
 
   const uint64_t metadata_type = (uint64_t)metadata->type;
-  if (aom_uleb_encode(metadata_type, sizeof(metadata_type),
-                      dst
-#if CONFIG_SHORT_METADATA
-                          + bytes_written
-#endif  // CONFIG_SHORT_METADATA
-                      ,
+  if (aom_uleb_encode(metadata_type, sizeof(metadata_type), dst + bytes_written,
                       &coded_metadata_size) != 0) {
     return 0;
   }
 
-#if CONFIG_SHORT_METADATA
   if (!metadata->cancel_flag)
-#endif  // CONFIG_SHORT_METADATA
-    memcpy(dst + coded_metadata_size
-#if CONFIG_SHORT_METADATA
-               + bytes_written
-#endif  // CONFIG_SHORT_METADATA
-           ,
-           metadata->payload, metadata->sz);
+    memcpy(dst + coded_metadata_size + bytes_written, metadata->payload,
+           metadata->sz);
   // Add trailing bits.
-  dst[coded_metadata_size
-#if CONFIG_SHORT_METADATA
-      + bytes_written
-#endif  // CONFIG_SHORT_METADATA
-      + metadata->sz] = 0x80;
+  dst[coded_metadata_size + bytes_written + metadata->sz] = 0x80;
 
-#if CONFIG_SHORT_METADATA
   return (uint32_t)(coded_metadata_size + bytes_written +
                     (!metadata->cancel_flag) * metadata->sz + 1);
-#else
-  return (uint32_t)(coded_metadata_size + metadata->sz + 1);
-#endif  // CONFIG_SHORT_METADATA
 }
-#endif  // !CONFIG_SHORT_METADATA
 
 static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
 #if CONFIG_METADATA
                                        ,
-                                       const bool is_suffix
-#endif  // CONFIG_METADATA
-#if CONFIG_METADATA && CONFIG_SHORT_METADATA
-                                       ,
+                                       const bool is_suffix,
                                        bool is_short_metadata
-#endif
+#endif  // CONFIG_METADATA
 ) {
   if (!cpi->source) return 0;
   AV1_COMMON *const cm = &cpi->common;
@@ -8013,9 +7993,7 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
   size_t total_bytes_written = 0;
   size_t length_field_size = 0;
 #if CONFIG_METADATA
-#if CONFIG_SHORT_METADATA
   if (!is_short_metadata) {
-#endif  // CONFIG_SHORT_METADATA
     // category is a set of medata sharing the same `application_id` and
     // `necessity_id`
     int *categories = (int *)aom_malloc(arr->sz * sizeof(int));
@@ -8057,11 +8035,7 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
     }
     ObuHeader obu_header;
     memset(&obu_header, 0, sizeof(obu_header));
-#if CONFIG_SHORT_METADATA
     obu_header.type = OBU_METADATA_GROUP;
-#else
-  obu_header.type = OBU_METADATA;
-#endif
     obu_header.obu_tlayer_id = cm->tlayer_id;
     obu_header.obu_mlayer_id = cm->mlayer_id;
     obu_header.obu_xlayer_id = 0;
@@ -8078,8 +8052,8 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
 
       obu_header_size =
           av1_write_obu_header(&cpi->level_params, obu_header.type, 0, 0, dst);
-      obu_payload_size = av1_write_metadata_obsp_header(dst + obu_header_size,
-                                                        count, metadata);
+      obu_payload_size = av1_write_metadata_group_header(dst + obu_header_size,
+                                                         count, metadata);
       total_bytes_written += obu_header_size + obu_payload_size;
 
       for (size_t i = 0; i < arr->sz; i++) {
@@ -8113,7 +8087,6 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
       }
     }
     aom_free(categories);
-#if CONFIG_SHORT_METADATA
   } else {
     for (size_t i = 0; i < arr->sz; i++) {
       aom_metadata_t *current_metadata = arr->metadata_array[i];
@@ -8123,8 +8096,8 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
             (cm->current_frame.frame_type != KEY_FRAME &&
              current_metadata->insert_flag == AOM_MIF_NON_KEY_FRAME) ||
             current_metadata->insert_flag == AOM_MIF_ANY_FRAME) {
-          obu_header_size =
-              av1_write_obu_header(&cpi->level_params, OBU_METADATA, 0, 0, dst);
+          obu_header_size = av1_write_obu_header(&cpi->level_params,
+                                                 OBU_METADATA_SHORT, 0, 0, dst);
           obu_payload_size =
               av1_write_metadata_obu(current_metadata, dst + obu_header_size);
           length_field_size =
@@ -8142,7 +8115,6 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst
       }
     }
   }
-#endif  // CONFIG_SHORT_METADATA
 #else
   for (size_t i = 0; i < arr->sz; i++) {
     aom_metadata_t *current_metadata = arr->metadata_array[i];
@@ -8284,8 +8256,16 @@ static size_t write_temporal_point_info_metadata(AV1_COMP *const cpi,
   metadata->layer_idc = AOM_LAYER_CURRENT;
 
   size_t total_bytes_written = 0;
+#if !CONFIG_METADATA
   size_t obu_header_size =
       av1_write_obu_header(&cpi->level_params, OBU_METADATA, 0, 0, dst);
+#else
+  OBU_TYPE obu_type = cpi->oxcf.tool_cfg.use_short_metadata
+                          ? OBU_METADATA_SHORT
+                          : OBU_METADATA_GROUP;
+  size_t obu_header_size =
+      av1_write_obu_header(&cpi->level_params, obu_type, 0, 0, dst);
+#endif  // CONFIG_METADATA
   size_t obu_payload_size =
       av1_write_metadata_obu(metadata, dst + obu_header_size);
   size_t length_field_size =
@@ -8457,16 +8437,16 @@ size_t av1_write_banding_hints_metadata(
                        "Error allocating banding hints metadata");
     return 0;
   }
-  // TODO: [@anorkin] this part may need to be updated considering
-  // CONFIG_SHORT_METADATA and CONFIG_METADATA
   size_t total_bytes_written = 0;
-  size_t obu_header_size = av1_write_obu_header(&cpi->level_params,
-#if CONFIG_SHORT_METADATA
-                                                OBU_METADATA_GROUP,
+#if CONFIG_METADATA
+  OBU_TYPE obu_type = cpi->oxcf.tool_cfg.use_short_metadata
+                          ? OBU_METADATA_SHORT
+                          : OBU_METADATA_GROUP;
 #else
-                                                OBU_METADATA,
-#endif
-                                                0, 0, dst);
+  OBU_TYPE obu_type = OBU_METADATA;
+#endif  // CONFIG_METADATA
+  size_t obu_header_size =
+      av1_write_obu_header(&cpi->level_params, obu_type, 0, 0, dst);
   size_t obu_payload_size =
 #if CONFIG_METADATA
       av1_write_metadata_unit
@@ -8779,12 +8759,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   // write metadata obus before the frame obu that has the show_frame flag set
   if (cm->show_frame)
 #if CONFIG_METADATA
-    data += av1_write_metadata_array(cpi, data, false
-#if CONFIG_SHORT_METADATA
-                                     ,
-                                     false
-#endif
-    );
+    data += av1_write_metadata_array(cpi, data, false,
+                                     cpi->oxcf.tool_cfg.use_short_metadata);
 #else
     data += av1_write_metadata_array(cpi, data);
 #endif  // CONFIG_METADATA
@@ -8832,36 +8808,77 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
       obu_header.obu_tlayer_id = cm->tlayer_id;
       obu_header.obu_mlayer_id = cm->mlayer_id;
       obu_header.obu_xlayer_id = 0;
-#if CONFIG_SHORT_METADATA
-      obu_header.type = OBU_METADATA_GROUP;
-#else
-      obu_header.type = OBU_METADATA;
-#endif
-      obu_header_size =
-          av1_write_obu_header(&cpi->level_params, obu_header.type, 0, 0, data);
-      obu_payload_size = 0;
-      obu_payload_size += av1_write_metadata_obsp_header(
-          data + obu_header_size, arr.sz, &metadata_base);
-      if (write_raw_frame_hash)
-        obu_payload_size += av1_write_frame_hash_metadata(
-            cpi, data + obu_header_size + obu_payload_size, NULL, &obu_header);
-      if (write_grain_frame_hash)
-        obu_payload_size += av1_write_frame_hash_metadata(
-            cpi, data + obu_header_size + obu_payload_size, grain_params,
-            &obu_header);
 
-      // trailing bits
-      data[obu_header_size + obu_payload_size] = 0x80;
-      obu_payload_size++;
-
-      size_t length_field_size =
-          obu_memmove(obu_header_size, obu_payload_size, data);
-      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) ==
-          AOM_CODEC_OK) {
-        data += obu_header_size + length_field_size + obu_payload_size;
+      if (cpi->oxcf.tool_cfg.use_short_metadata) {
+        // SHORT format: write each metadata as separate OBU
+        if (write_raw_frame_hash) {
+          obu_header.type = OBU_METADATA_SHORT;
+          obu_header_size = av1_write_obu_header(&cpi->level_params,
+                                                 obu_header.type, 0, 0, data);
+          obu_payload_size = (uint32_t)av1_write_frame_hash_metadata(
+              cpi, data + obu_header_size, NULL, &obu_header);
+          // Add trailing bits
+          data[obu_header_size + obu_payload_size] = 0x80;
+          obu_payload_size++;
+          size_t length_field_size =
+              obu_memmove(obu_header_size, obu_payload_size, data);
+          if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size,
+                                      data) == AOM_CODEC_OK) {
+            data += obu_header_size + length_field_size + obu_payload_size;
+          } else {
+            aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
+                               "Error writing frame hash metadata OBU size");
+          }
+        }
+        if (write_grain_frame_hash) {
+          obu_header.type = OBU_METADATA_SHORT;
+          obu_header_size = av1_write_obu_header(&cpi->level_params,
+                                                 obu_header.type, 0, 0, data);
+          obu_payload_size = (uint32_t)av1_write_frame_hash_metadata(
+              cpi, data + obu_header_size, grain_params, &obu_header);
+          // Add trailing bits
+          data[obu_header_size + obu_payload_size] = 0x80;
+          obu_payload_size++;
+          size_t length_field_size =
+              obu_memmove(obu_header_size, obu_payload_size, data);
+          if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size,
+                                      data) == AOM_CODEC_OK) {
+            data += obu_header_size + length_field_size + obu_payload_size;
+          } else {
+            aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
+                               "Error writing frame hash metadata OBU size");
+          }
+        }
       } else {
-        aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
-                           "Error writing metadata OBU size");
+        // GROUP format: write all metadata units in one OBU
+        obu_header.type = OBU_METADATA_GROUP;
+        obu_header_size = av1_write_obu_header(&cpi->level_params,
+                                               obu_header.type, 0, 0, data);
+        obu_payload_size = 0;
+        obu_payload_size += av1_write_metadata_group_header(
+            data + obu_header_size, arr.sz, &metadata_base);
+        if (write_raw_frame_hash)
+          obu_payload_size += av1_write_frame_hash_metadata(
+              cpi, data + obu_header_size + obu_payload_size, NULL,
+              &obu_header);
+        if (write_grain_frame_hash)
+          obu_payload_size += av1_write_frame_hash_metadata(
+              cpi, data + obu_header_size + obu_payload_size, grain_params,
+              &obu_header);
+
+        // trailing bits
+        data[obu_header_size + obu_payload_size] = 0x80;
+        obu_payload_size++;
+
+        size_t length_field_size =
+            obu_memmove(obu_header_size, obu_payload_size, data);
+        if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) ==
+            AOM_CODEC_OK) {
+          data += obu_header_size + length_field_size + obu_payload_size;
+        } else {
+          aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
+                             "Error writing metadata OBU size");
+        }
       }
     }
 #endif  // !CONFIG_METADATA
@@ -8951,12 +8968,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   // write suffix metadata obus after the frame obu that has the show_frame flag
   // set
   if (cm->show_frame)
-    data += av1_write_metadata_array(cpi, data, true
-#if CONFIG_SHORT_METADATA
-                                     ,
-                                     false
-#endif  // CONFIG_SHORT_METADATA
-    );
+    data += av1_write_metadata_array(cpi, data, true,
+                                     cpi->oxcf.tool_cfg.use_short_metadata);
 #endif  // CONFIG_METADATA
 
 #if CONFIG_SCAN_TYPE_METADATA
@@ -8977,27 +8990,51 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
     obu_header.obu_tlayer_id = cm->tlayer_id;
     obu_header.obu_mlayer_id = cm->mlayer_id;
     obu_header.obu_xlayer_id = 0;
-    obu_header.type = OBU_METADATA_GROUP;
-    obu_header_size =
-        av1_write_obu_header(&cpi->level_params, obu_header.type, 0, 0, data);
-    obu_payload_size = 0;
-    obu_payload_size += av1_write_metadata_obsp_header(data + obu_header_size,
-                                                       arr.sz, &metadata_base);
-    obu_payload_size += write_scan_type_metadata(
-        cpi, data + obu_header_size + obu_payload_size, &obu_header);
 
-    // trailing bits
-    data[obu_header_size + obu_payload_size] = 0x80;
-    obu_payload_size++;
+    if (cpi->oxcf.tool_cfg.use_short_metadata) {
+      // SHORT format: write single metadata as OBU_METADATA_SHORT
+      obu_header.type = OBU_METADATA_SHORT;
+      obu_header_size =
+          av1_write_obu_header(&cpi->level_params, obu_header.type, 0, 0, data);
+      obu_payload_size = (uint32_t)write_scan_type_metadata(
+          cpi, data + obu_header_size, &obu_header);
+      // Add trailing bits
+      data[obu_header_size + obu_payload_size] = 0x80;
+      obu_payload_size++;
 
-    size_t length_field_size =
-        obu_memmove(obu_header_size, obu_payload_size, data);
-    if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) ==
-        AOM_CODEC_OK) {
-      data += obu_header_size + length_field_size + obu_payload_size;
+      size_t length_field_size =
+          obu_memmove(obu_header_size, obu_payload_size, data);
+      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) ==
+          AOM_CODEC_OK) {
+        data += obu_header_size + length_field_size + obu_payload_size;
+      } else {
+        aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
+                           "Error writing metadata OBU size");
+      }
     } else {
-      aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
-                         "Error writing metadata OBU size");
+      // GROUP format: write metadata in GROUP OBU
+      obu_header.type = OBU_METADATA_GROUP;
+      obu_header_size =
+          av1_write_obu_header(&cpi->level_params, obu_header.type, 0, 0, data);
+      obu_payload_size = 0;
+      obu_payload_size += av1_write_metadata_group_header(
+          data + obu_header_size, arr.sz, &metadata_base);
+      obu_payload_size += write_scan_type_metadata(
+          cpi, data + obu_header_size + obu_payload_size, &obu_header);
+
+      // trailing bits
+      data[obu_header_size + obu_payload_size] = 0x80;
+      obu_payload_size++;
+
+      size_t length_field_size =
+          obu_memmove(obu_header_size, obu_payload_size, data);
+      if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, data) ==
+          AOM_CODEC_OK) {
+        data += obu_header_size + length_field_size + obu_payload_size;
+      } else {
+        aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
+                           "Error writing metadata OBU size");
+      }
     }
   }
 #endif

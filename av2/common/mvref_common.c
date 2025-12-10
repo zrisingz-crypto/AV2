@@ -3144,9 +3144,16 @@ static void check_and_add_process_ref(const AV2_COMMON *cm, int max_check,
                                       int *checked_count,
                                       struct ProcessRefTMVP *process_ref,
                                       int *process_count) {
-  if (get_ref_frame_buf(cm, start_frame) == NULL ||
-      get_ref_frame_buf(cm, start_frame)->frame_type != INTER_FRAME)
-    return;
+  const RefCntBuffer *const start_frame_buf =
+      get_ref_frame_buf(cm, start_frame);
+  if (!is_ref_motion_field_eligible(cm, start_frame_buf)) return;
+
+  const int start_frame_order_hint = start_frame_buf->display_order_hint;
+  const int cur_order_hint = cm->cur_frame->display_order_hint;
+  int start_to_current_frame_offset = get_relative_dist(
+      &cm->seq_params.order_hint_info, start_frame_order_hint, cur_order_hint);
+  if (abs(start_to_current_frame_offset) > MAX_FRAME_DISTANCE) return;
+
   if (cm->bru.enabled && cm->bru.update_ref_idx != -1) {
     if (start_frame == cm->bru.update_ref_idx) return;
     if (target_frame == cm->bru.update_ref_idx) return;
@@ -3489,16 +3496,10 @@ static int motion_field_projection_side(AV2_COMMON *cm,
 
   const RefCntBuffer *const start_frame_buf =
       get_ref_frame_buf(cm, start_frame);
-  if (!is_ref_motion_field_eligible(cm, start_frame_buf)) return 0;
-
   const int start_frame_order_hint = start_frame_buf->display_order_hint;
   const int cur_order_hint = cm->cur_frame->display_order_hint;
   int start_to_current_frame_offset = get_relative_dist(
       &cm->seq_params.order_hint_info, start_frame_order_hint, cur_order_hint);
-
-  if (abs(start_to_current_frame_offset) > MAX_FRAME_DISTANCE) {
-    return 0;
-  }
 
   int temporal_scale_factor[REF_FRAMES] = { 0 };
   int ref_temporal_scale_factor[REF_FRAMES] = { 0 };

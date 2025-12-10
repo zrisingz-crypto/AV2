@@ -8470,8 +8470,11 @@ size_t av1_write_banding_hints_metadata(
 }
 #endif  // CONFIG_BAND_METADATA
 
-int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
-                       int *const largest_tile_id) {
+// This function actually writes to the bistream. The av1_pack_bitstream()
+// function is a thin wrapper around this function.
+static int av1_pack_bitstream_internal(AV1_COMP *const cpi, uint8_t *dst,
+                                       size_t *size,
+                                       int *const largest_tile_id) {
   uint8_t *data = dst;
   AV1_COMMON *const cm = &cpi->common;
   AV1LevelParams *const level_params = &cpi->level_params;
@@ -9054,4 +9057,50 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
 
   *size = data - dst;
   return AOM_CODEC_OK;
+}
+
+// In addition to writing to the bitstream, this function handles the temporary
+// change and restoration of some sequence-level flags when
+// single_picture_header_flag is true.
+int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
+                       int *const largest_tile_id) {
+  AV1_COMMON *const cm = &cpi->common;
+
+  // For some pairs of sequence-level and frame-level flags, if
+  // single_picture_header_flag is true and the frame-level flag is 0, force
+  // the sequence-level flag to 0 while writing to the bitstream.
+
+  // Save the sequence-level flags.
+  const uint8_t enable_gdf_save = cm->seq_params.enable_gdf;
+  const uint8_t enable_cdef_save = cm->seq_params.enable_cdef;
+  const uint8_t enable_ccso_save = cm->seq_params.enable_ccso;
+  const uint8_t film_grain_params_present_save =
+      cm->seq_params.film_grain_params_present;
+
+#if CONFIG_CWG_F362
+  if (cm->seq_params.single_picture_header_flag) {
+    if (cm->gdf_info.gdf_mode == 0) {
+      cm->seq_params.enable_gdf = 0;
+    }
+    if (!cm->cdef_info.cdef_frame_enable) {
+      cm->seq_params.enable_cdef = 0;
+    }
+    if (!cm->ccso_info.ccso_frame_flag) {
+      cm->seq_params.enable_ccso = 0;
+    }
+    if (!cm->film_grain_params.apply_grain) {
+      cm->seq_params.film_grain_params_present = 0;
+    }
+  }
+#endif  // CONFIG_CWG_F362
+
+  const int res = av1_pack_bitstream_internal(cpi, dst, size, largest_tile_id);
+
+  // Restore the sequence-level flags.
+  cm->seq_params.enable_gdf = enable_gdf_save;
+  cm->seq_params.enable_cdef = enable_cdef_save;
+  cm->seq_params.enable_ccso = enable_ccso_save;
+  cm->seq_params.film_grain_params_present = film_grain_params_present_save;
+
+  return res;
 }

@@ -634,7 +634,10 @@ void av2_init_txk_skip_array(const AV2_COMMON *cm, int mi_row, int mi_col,
                              TREE_TYPE tree_type,
                              const CHROMA_REF_INFO *chroma_ref_info,
                              int plane_start, int plane_end) {
-  const bool is_chroma_ref = chroma_ref_info->is_chroma_ref;
+  const bool is_chroma_ref = tree_type == SHARED_PART
+                                 ? chroma_ref_info->is_chroma_ref
+                             : tree_type == LUMA_PART ? 0
+                                                      : 1;
   for (int plane = plane_start; plane < plane_end; plane++) {
     if (plane && !is_chroma_ref) {
       break;

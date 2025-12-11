@@ -1628,16 +1628,22 @@ static AVM_INLINE void set_offsets_for_pred_and_recon(AV2Decoder *const pbi,
   xd->cctx_type_map_stride = mi_params->mi_stride;
 
   // It is assumed that CHROMA_REF_INFO is already set (during parsing stage).
-  CHROMA_REF_INFO *chroma_ref_info = &xd->mi[0]->chroma_ref_info;
-  set_plane_n4(xd, bw, bh, num_planes, chroma_ref_info);
+  CHROMA_REF_INFO chroma_ref_info = xd->mi[0]->chroma_ref_info;
+  // In case of semi-decoupled partitions, the variable is_chroma_ref is set to
+  // 0 while parsing luma tree and is set to 1 while parsing chroma tree. Thus,
+  // the value of is_chroma_ref set during parsing stage cannot be used and
+  // needs to be explicitly updated here based on tree type.
+  if (xd->tree_type != SHARED_PART)
+    chroma_ref_info.is_chroma_ref = xd->tree_type == LUMA_PART ? 0 : 1;
+  set_plane_n4(xd, bw, bh, num_planes, &chroma_ref_info);
 
   // Distance of Mb to the various image edges. These are specified to 8th pel
   // as they are always compared to values that are in 1/8th pel units
   set_mi_row_col(cm, xd, tile, mi_row, bh, mi_col, bw, mi_params->mi_rows,
-                 mi_params->mi_cols, chroma_ref_info);
+                 mi_params->mi_cols, &chroma_ref_info);
 
   av2_setup_dst_planes(xd->plane, &cm->cur_frame->buf, mi_row, mi_col, 0,
-                       num_planes, chroma_ref_info);
+                       num_planes, &chroma_ref_info);
 }
 
 static AVM_INLINE void decode_block(AV2Decoder *const pbi, ThreadData *const td,

@@ -14,13 +14,13 @@
 #include <math.h>
 #include <string.h>
 
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/cdef.h"
-#include "av1/common/cdef_block.h"
-#include "av1/common/reconinter.h"
+#include "avm/avm_integer.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/cdef.h"
+#include "av2/common/cdef_block.h"
+#include "av2/common/reconinter.h"
 
 static int is_8x8_block_skip(MB_MODE_INFO **grid, int mi_row, int mi_col,
                              int mi_stride) {
@@ -37,7 +37,7 @@ static int is_8x8_block_skip(MB_MODE_INFO **grid, int mi_row, int mi_col,
 // Check any 4x4 sub-block of the entire block is lossless or not.
 // If one of the 4x4 sub-block is lossless, filter of full block will be
 // skipped.
-static int contains_lossless_8x8(const AV1_COMMON *const cm,
+static int contains_lossless_8x8(const AV2_COMMON *const cm,
                                  MB_MODE_INFO **grid, int mi_row, int mi_col,
                                  int mi_stride, int plane) {
   if (!cm->features.has_lossless_segment) return 0;
@@ -52,7 +52,7 @@ static int contains_lossless_8x8(const AV1_COMMON *const cm,
   return 0;
 }
 
-int av1_cdef_compute_sb_list(const AV1_COMMON *const cm,
+int av2_cdef_compute_sb_list(const AV2_COMMON *const cm,
                              const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
                              BLOCK_SIZE bs, int num_planes) {
@@ -61,17 +61,17 @@ int av1_cdef_compute_sb_list(const AV1_COMMON *const cm,
   int maxr = mi_params->mi_rows - mi_row;
 
   if (bs == BLOCK_256X256 || bs == BLOCK_256X128) {
-    maxc = AOMMIN(maxc, MI_SIZE_256X256);
+    maxc = AVMMIN(maxc, MI_SIZE_256X256);
   } else if (bs == BLOCK_128X128 || bs == BLOCK_128X64)
-    maxc = AOMMIN(maxc, MI_SIZE_128X128);
+    maxc = AVMMIN(maxc, MI_SIZE_128X128);
   else
-    maxc = AOMMIN(maxc, MI_SIZE_64X64);
+    maxc = AVMMIN(maxc, MI_SIZE_64X64);
   if (bs == BLOCK_256X256 || bs == BLOCK_128X256) {
-    maxr = AOMMIN(maxr, MI_SIZE_256X256);
+    maxr = AVMMIN(maxr, MI_SIZE_256X256);
   } else if (bs == BLOCK_128X128 || bs == BLOCK_64X128)
-    maxr = AOMMIN(maxr, MI_SIZE_128X128);
+    maxr = AVMMIN(maxr, MI_SIZE_128X128);
   else
-    maxr = AOMMIN(maxr, MI_SIZE_64X64);
+    maxr = AVMMIN(maxr, MI_SIZE_64X64);
 
   const int r_step = 2;  // mi_size_high[BLOCK_8X8]
   const int c_step = 2;  // mi_size_wide[BLOCK_8X8]
@@ -112,7 +112,7 @@ void cdef_copy_rect8_16bit_to_16bit_c(uint16_t *dst, int dstride,
   }
 }
 
-void av1_cdef_copy_sb8_16(AV1_COMMON *const cm, uint16_t *const dst,
+void av2_cdef_copy_sb8_16(AV2_COMMON *const cm, uint16_t *const dst,
                           int dstride, const uint16_t *src, int src_voffset,
                           int src_hoffset, int sstride, int vsize, int hsize) {
   (void)cm;
@@ -141,7 +141,7 @@ static INLINE void copy_rect(uint16_t *dst, int dstride, const uint16_t *src,
 // Apply CDEF filtering on a filter block for the given plane.
 static INLINE void cdef_filter_fb(CdefBlockInfo *const fb_info, int plane) {
   const int offset = fb_info->dst_stride * fb_info->roffset + fb_info->coffset;
-  av1_cdef_filter_fb(NULL, fb_info->dst + offset, fb_info->dst_stride,
+  av2_cdef_filter_fb(NULL, fb_info->dst + offset, fb_info->dst_stride,
                      &fb_info->src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER],
                      fb_info->xdec, fb_info->ydec, fb_info->dir, NULL,
                      fb_info->var, plane, fb_info->dlist, fb_info->cdef_count,
@@ -159,7 +159,7 @@ static INLINE void cdef_filter_fb(CdefBlockInfo *const fb_info, int plane) {
 //   plane: plane index Y/CB/CR.
 // Returns:
 //   Nothing will be returned.
-static void cdef_prepare_fb(AV1_COMMON *const cm, CdefBlockInfo *const fb_info,
+static void cdef_prepare_fb(AV2_COMMON *const cm, CdefBlockInfo *const fb_info,
                             uint16_t **const colbuf, int cdef_left, int fbc,
                             int fbr, int plane) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -172,16 +172,16 @@ static void cdef_prepare_fb(AV1_COMMON *const cm, CdefBlockInfo *const fb_info,
   if (!cdef_left) cstart = -CDEF_HBORDER;
   int rend, cend;
   const int nhb =
-      AOMMIN(MI_SIZE_64X64, mi_params->mi_cols - MI_SIZE_64X64 * fbc);
+      AVMMIN(MI_SIZE_64X64, mi_params->mi_cols - MI_SIZE_64X64 * fbc);
   const int nvb =
-      AOMMIN(MI_SIZE_64X64, mi_params->mi_rows - MI_SIZE_64X64 * fbr);
+      AVMMIN(MI_SIZE_64X64, mi_params->mi_rows - MI_SIZE_64X64 * fbr);
   const int hsize = nhb << fb_info->mi_wide_l2;
   const int vsize = nvb << fb_info->mi_high_l2;
   const uint16_t *top_linebuf = fb_info->top_linebuf[plane];
   const uint16_t *bot_linebuf = fb_info->bot_linebuf[plane];
   const int bot_offset = (vsize + CDEF_VBORDER) * CDEF_BSTRIDE;
   const int stride =
-      luma_stride >> (plane == AOM_PLANE_Y ? 0 : cm->seq_params.subsampling_x);
+      luma_stride >> (plane == AVM_PLANE_Y ? 0 : cm->seq_params.subsampling_x);
 
   if (fbc == nhfb - 1)
     cend = hsize;
@@ -217,7 +217,7 @@ static void cdef_prepare_fb(AV1_COMMON *const cm, CdefBlockInfo *const fb_info,
 
   /* Copy in the pixels we need from the current superblock for
   deringing.*/
-  av1_cdef_copy_sb8_16(
+  av2_cdef_copy_sb8_16(
       cm, &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER + cstart],
       CDEF_BSTRIDE, fb_info->dst, fb_info->roffset, fb_info->coffset + cstart,
       fb_info->dst_stride, vsize, cend - cstart);
@@ -320,7 +320,7 @@ static INLINE void cdef_init_fb_col(MACROBLOCKD *const xd,
 
 // Process filter block with CDEF for all planes.
 // Returns true if filtering was applied, false if skipped.
-static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+static void cdef_fb_col(AV2_COMMON *const cm, MACROBLOCKD *const xd,
                         CdefBlockInfo *const fb_info, uint16_t **const colbuf,
                         int *const cdef_left, int fbc, int fbr) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -329,7 +329,7 @@ static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
           ->mi_grid_base[MI_SIZE_64X64 * fbr * mi_params->mi_stride +
                          MI_SIZE_64X64 * fbc]
           ->cdef_strength;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   int is_zero_level[PLANE_TYPES] = { 1, 1 };
   int level[PLANE_TYPES] = { 0 };
   int sec_strength[PLANE_TYPES] = { 0 };
@@ -338,7 +338,7 @@ static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   if (mi_params->mi_grid_base[MI_SIZE_64X64 * fbr * mi_params->mi_stride +
                               MI_SIZE_64X64 * fbc] == NULL ||
       mbmi_cdef_strength == -1) {
-    av1_zero_array(cdef_left, num_planes);
+    av2_zero_array(cdef_left, num_planes);
     return;
   }
 
@@ -362,15 +362,15 @@ static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 
   if (is_zero_level[PLANE_TYPE_Y] && is_zero_level[PLANE_TYPE_UV]) {
-    av1_zero_array(cdef_left, num_planes);
+    av2_zero_array(cdef_left, num_planes);
     return;
   }
 
-  fb_info->cdef_count = av1_cdef_compute_sb_list(
+  fb_info->cdef_count = av2_cdef_compute_sb_list(
       cm, mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, fb_info->dlist,
       BLOCK_64X64, num_planes);
   if (!fb_info->cdef_count) {
-    av1_zero_array(cdef_left, num_planes);
+    av2_zero_array(cdef_left, num_planes);
     return;
   }
 
@@ -387,8 +387,8 @@ static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
               ->mi_grid_base[MI_SIZE_64X64 * fbr * mi_params->mi_stride +
                              MI_SIZE_64X64 * fbc]
               ->sb_active_mode != BRU_ACTIVE_SB) {
-        aom_internal_error(
-            &cm->error, AOM_CODEC_ERROR,
+        avm_internal_error(
+            &cm->error, AVM_CODEC_ERROR,
             "Invalid BRU activity in CDEF: only active SB can be filtered");
       }
     }
@@ -398,12 +398,12 @@ static void cdef_fb_col(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
-void av1_cdef_init_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void av2_cdef_init_fb_row(AV2_COMMON *const cm, MACROBLOCKD *const xd,
                           CdefBlockInfo *const fb_info,
                           uint16_t **const linebuf, uint16_t *const src,
-                          struct AV1CdefSyncData *const cdef_sync, int fbr) {
+                          struct AV2CdefSyncData *const cdef_sync, int fbr) {
   (void)cdef_sync;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const int nvfb = (cm->mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   const int luma_stride =
       ALIGN_POWER_OF_TWO(cm->mi_params.mi_cols << MI_SIZE_LOG2, 4);
@@ -427,9 +427,9 @@ void av1_cdef_init_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
 
   fb_info->src = src;
   fb_info->damping = cm->cdef_info.cdef_damping;
-  fb_info->coeff_shift = AOMMAX(cm->seq_params.bit_depth - 8, 0);
-  av1_zero(fb_info->dir);
-  av1_zero(fb_info->var);
+  fb_info->coeff_shift = AVMMAX(cm->seq_params.bit_depth - 8, 0);
+  av2_zero(fb_info->dir);
+  av2_zero(fb_info->var);
 
   for (int plane = 0; plane < num_planes; plane++) {
     const int mi_high_l2 = MI_SIZE_LOG2 - xd->plane[plane].subsampling_y;
@@ -442,24 +442,24 @@ void av1_cdef_init_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     fb_info->bot_linebuf[plane] = &linebuf[plane][(CDEF_VBORDER << 1) * stride];
 
     if (fbr != nvfb - 1)  // top line buffer copy
-      av1_cdef_copy_sb8_16(cm, top_linebuf, stride, xd->plane[plane].dst.buf,
+      av2_cdef_copy_sb8_16(cm, top_linebuf, stride, xd->plane[plane].dst.buf,
                            offset - CDEF_VBORDER, 0,
                            xd->plane[plane].dst.stride, CDEF_VBORDER, stride);
     fb_info->top_linebuf[plane] =
         &linebuf[plane][(!ping_pong) * CDEF_VBORDER * stride];
 
     if (fbr != nvfb - 1)  // bottom line buffer copy
-      av1_cdef_copy_sb8_16(cm, fb_info->bot_linebuf[plane], stride,
+      av2_cdef_copy_sb8_16(cm, fb_info->bot_linebuf[plane], stride,
                            xd->plane[plane].dst.buf, offset, 0,
                            xd->plane[plane].dst.stride, CDEF_VBORDER, stride);
   }
 }
 
-void av1_cdef_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void av2_cdef_fb_row(AV2_COMMON *const cm, MACROBLOCKD *const xd,
                      uint16_t **const linebuf, uint16_t **const colbuf,
                      uint16_t *const src, int fbr,
                      cdef_init_fb_row_t cdef_init_fb_row_fn,
-                     struct AV1CdefSyncData *const cdef_sync) {
+                     struct AV2CdefSyncData *const cdef_sync) {
   CdefBlockInfo fb_info;
   int cdef_left[MAX_MB_PLANE] = { 1, 1, 1 };
   const int nhfb = (cm->mi_params.mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
@@ -476,14 +476,14 @@ void av1_cdef_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_cdef_frame(YV12_BUFFER_CONFIG *frame, AV2_COMMON *cm, MACROBLOCKD *xd,
                     cdef_init_fb_row_t cdef_init_fb_row_fn) {
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const int nvfb = (cm->mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
 
-  av1_setup_dst_planes(xd->plane, frame, 0, 0, 0, num_planes, NULL);
+  av2_setup_dst_planes(xd->plane, frame, 0, 0, 0, num_planes, NULL);
 
   for (int fbr = 0; fbr < nvfb; fbr++)
-    av1_cdef_fb_row(cm, xd, cm->cdef_info.linebuf, cm->cdef_info.colbuf,
+    av2_cdef_fb_row(cm, xd, cm->cdef_info.linebuf, cm->cdef_info.colbuf,
                     cm->cdef_info.srcbuf, fbr, cdef_init_fb_row_fn, NULL);
 }

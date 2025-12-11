@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/mips/macros_msa.h"
+#include "avm_dsp/mips/macros_msa.h"
 
 #define SAD_INSVE_W4(RTYPE, in0, in1, in2, in3, out)       \
   {                                                        \
@@ -628,105 +628,105 @@ static uint32_t avgsad_64width_msa(const uint8_t *src, int32_t src_stride,
   return HADD_SW_S32(sad);
 }
 
-#define AOM_SAD_4xHEIGHT_MSA(height)                                         \
-  uint32_t aom_sad4x##height##_msa(const uint8_t *src, int32_t src_stride,   \
+#define AVM_SAD_4xHEIGHT_MSA(height)                                         \
+  uint32_t avm_sad4x##height##_msa(const uint8_t *src, int32_t src_stride,   \
                                    const uint8_t *ref, int32_t ref_stride) { \
     return sad_4width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_8xHEIGHT_MSA(height)                                         \
-  uint32_t aom_sad8x##height##_msa(const uint8_t *src, int32_t src_stride,   \
+#define AVM_SAD_8xHEIGHT_MSA(height)                                         \
+  uint32_t avm_sad8x##height##_msa(const uint8_t *src, int32_t src_stride,   \
                                    const uint8_t *ref, int32_t ref_stride) { \
     return sad_8width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_16xHEIGHT_MSA(height)                                         \
-  uint32_t aom_sad16x##height##_msa(const uint8_t *src, int32_t src_stride,   \
+#define AVM_SAD_16xHEIGHT_MSA(height)                                         \
+  uint32_t avm_sad16x##height##_msa(const uint8_t *src, int32_t src_stride,   \
                                     const uint8_t *ref, int32_t ref_stride) { \
     return sad_16width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_32xHEIGHT_MSA(height)                                         \
-  uint32_t aom_sad32x##height##_msa(const uint8_t *src, int32_t src_stride,   \
+#define AVM_SAD_32xHEIGHT_MSA(height)                                         \
+  uint32_t avm_sad32x##height##_msa(const uint8_t *src, int32_t src_stride,   \
                                     const uint8_t *ref, int32_t ref_stride) { \
     return sad_32width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_64xHEIGHT_MSA(height)                                         \
-  uint32_t aom_sad64x##height##_msa(const uint8_t *src, int32_t src_stride,   \
+#define AVM_SAD_64xHEIGHT_MSA(height)                                         \
+  uint32_t avm_sad64x##height##_msa(const uint8_t *src, int32_t src_stride,   \
                                     const uint8_t *ref, int32_t ref_stride) { \
     return sad_64width_msa(src, src_stride, ref, ref_stride, height);         \
   }
 
-#define AOM_SAD_4xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad4x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_SAD_4xHEIGHTx4D_MSA(height)                                   \
+  void avm_sad4x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
                                   const uint8_t *const refs[],            \
                                   int32_t ref_stride, uint32_t *sads) {   \
     sad_4width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
   }
 
-#define AOM_SAD_8xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad8x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_SAD_8xHEIGHTx4D_MSA(height)                                   \
+  void avm_sad8x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
                                   const uint8_t *const refs[],            \
                                   int32_t ref_stride, uint32_t *sads) {   \
     sad_8width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
   }
 
-#define AOM_SAD_16xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad16x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_SAD_16xHEIGHTx4D_MSA(height)                                   \
+  void avm_sad16x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
                                    const uint8_t *const refs[],            \
                                    int32_t ref_stride, uint32_t *sads) {   \
     sad_16width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
   }
 
-#define AOM_SAD_32xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad32x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_SAD_32xHEIGHTx4D_MSA(height)                                   \
+  void avm_sad32x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
                                    const uint8_t *const refs[],            \
                                    int32_t ref_stride, uint32_t *sads) {   \
     sad_32width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
   }
 
-#define AOM_SAD_64xHEIGHTx4D_MSA(height)                                   \
-  void aom_sad64x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_SAD_64xHEIGHTx4D_MSA(height)                                   \
+  void avm_sad64x##height##x4d_msa(const uint8_t *src, int32_t src_stride, \
                                    const uint8_t *const refs[],            \
                                    int32_t ref_stride, uint32_t *sads) {   \
     sad_64width_x4d_msa(src, src_stride, refs, ref_stride, height, sads);  \
   }
 
-#define AOM_AVGSAD_4xHEIGHT_MSA(height)                                        \
-  uint32_t aom_sad4x##height##_avg_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_AVGSAD_4xHEIGHT_MSA(height)                                        \
+  uint32_t avm_sad4x##height##_avg_msa(const uint8_t *src, int32_t src_stride, \
                                        const uint8_t *ref, int32_t ref_stride, \
                                        const uint8_t *second_pred) {           \
     return avgsad_4width_msa(src, src_stride, ref, ref_stride, height,         \
                              second_pred);                                     \
   }
 
-#define AOM_AVGSAD_8xHEIGHT_MSA(height)                                        \
-  uint32_t aom_sad8x##height##_avg_msa(const uint8_t *src, int32_t src_stride, \
+#define AVM_AVGSAD_8xHEIGHT_MSA(height)                                        \
+  uint32_t avm_sad8x##height##_avg_msa(const uint8_t *src, int32_t src_stride, \
                                        const uint8_t *ref, int32_t ref_stride, \
                                        const uint8_t *second_pred) {           \
     return avgsad_8width_msa(src, src_stride, ref, ref_stride, height,         \
                              second_pred);                                     \
   }
 
-#define AOM_AVGSAD_16xHEIGHT_MSA(height)                                \
-  uint32_t aom_sad16x##height##_avg_msa(                                \
+#define AVM_AVGSAD_16xHEIGHT_MSA(height)                                \
+  uint32_t avm_sad16x##height##_avg_msa(                                \
       const uint8_t *src, int32_t src_stride, const uint8_t *ref,       \
       int32_t ref_stride, const uint8_t *second_pred) {                 \
     return avgsad_16width_msa(src, src_stride, ref, ref_stride, height, \
                               second_pred);                             \
   }
 
-#define AOM_AVGSAD_32xHEIGHT_MSA(height)                                \
-  uint32_t aom_sad32x##height##_avg_msa(                                \
+#define AVM_AVGSAD_32xHEIGHT_MSA(height)                                \
+  uint32_t avm_sad32x##height##_avg_msa(                                \
       const uint8_t *src, int32_t src_stride, const uint8_t *ref,       \
       int32_t ref_stride, const uint8_t *second_pred) {                 \
     return avgsad_32width_msa(src, src_stride, ref, ref_stride, height, \
                               second_pred);                             \
   }
 
-#define AOM_AVGSAD_64xHEIGHT_MSA(height)                                \
-  uint32_t aom_sad64x##height##_avg_msa(                                \
+#define AVM_AVGSAD_64xHEIGHT_MSA(height)                                \
+  uint32_t avm_sad64x##height##_avg_msa(                                \
       const uint8_t *src, int32_t src_stride, const uint8_t *ref,       \
       int32_t ref_stride, const uint8_t *second_pred) {                 \
     return avgsad_64width_msa(src, src_stride, ref, ref_stride, height, \
@@ -735,67 +735,67 @@ static uint32_t avgsad_64width_msa(const uint8_t *src, int32_t src_stride,
 
 /* clang-format off */
 // 64x64
-AOM_SAD_64xHEIGHT_MSA(64)
-AOM_SAD_64xHEIGHTx4D_MSA(64)
-AOM_AVGSAD_64xHEIGHT_MSA(64)
+AVM_SAD_64xHEIGHT_MSA(64)
+AVM_SAD_64xHEIGHTx4D_MSA(64)
+AVM_AVGSAD_64xHEIGHT_MSA(64)
 
 // 64x32
-AOM_SAD_64xHEIGHT_MSA(32)
-AOM_SAD_64xHEIGHTx4D_MSA(32)
-AOM_AVGSAD_64xHEIGHT_MSA(32)
+AVM_SAD_64xHEIGHT_MSA(32)
+AVM_SAD_64xHEIGHTx4D_MSA(32)
+AVM_AVGSAD_64xHEIGHT_MSA(32)
 
 // 32x64
-AOM_SAD_32xHEIGHT_MSA(64)
-AOM_SAD_32xHEIGHTx4D_MSA(64)
-AOM_AVGSAD_32xHEIGHT_MSA(64)
+AVM_SAD_32xHEIGHT_MSA(64)
+AVM_SAD_32xHEIGHTx4D_MSA(64)
+AVM_AVGSAD_32xHEIGHT_MSA(64)
 
 // 32x32
-AOM_SAD_32xHEIGHT_MSA(32)
-AOM_SAD_32xHEIGHTx4D_MSA(32)
-AOM_AVGSAD_32xHEIGHT_MSA(32)
+AVM_SAD_32xHEIGHT_MSA(32)
+AVM_SAD_32xHEIGHTx4D_MSA(32)
+AVM_AVGSAD_32xHEIGHT_MSA(32)
 
 // 32x16
-AOM_SAD_32xHEIGHT_MSA(16)
-AOM_SAD_32xHEIGHTx4D_MSA(16)
-AOM_AVGSAD_32xHEIGHT_MSA(16)
+AVM_SAD_32xHEIGHT_MSA(16)
+AVM_SAD_32xHEIGHTx4D_MSA(16)
+AVM_AVGSAD_32xHEIGHT_MSA(16)
 
 // 16x32
-AOM_SAD_16xHEIGHT_MSA(32)
-AOM_SAD_16xHEIGHTx4D_MSA(32)
-AOM_AVGSAD_16xHEIGHT_MSA(32)
+AVM_SAD_16xHEIGHT_MSA(32)
+AVM_SAD_16xHEIGHTx4D_MSA(32)
+AVM_AVGSAD_16xHEIGHT_MSA(32)
 
 // 16x16
-AOM_SAD_16xHEIGHT_MSA(16)
-AOM_SAD_16xHEIGHTx4D_MSA(16)
-AOM_AVGSAD_16xHEIGHT_MSA(16)
+AVM_SAD_16xHEIGHT_MSA(16)
+AVM_SAD_16xHEIGHTx4D_MSA(16)
+AVM_AVGSAD_16xHEIGHT_MSA(16)
 
 // 16x8
-AOM_SAD_16xHEIGHT_MSA(8)
-AOM_SAD_16xHEIGHTx4D_MSA(8)
-AOM_AVGSAD_16xHEIGHT_MSA(8)
+AVM_SAD_16xHEIGHT_MSA(8)
+AVM_SAD_16xHEIGHTx4D_MSA(8)
+AVM_AVGSAD_16xHEIGHT_MSA(8)
 
 // 8x16
-AOM_SAD_8xHEIGHT_MSA(16)
-AOM_SAD_8xHEIGHTx4D_MSA(16)
-AOM_AVGSAD_8xHEIGHT_MSA(16)
+AVM_SAD_8xHEIGHT_MSA(16)
+AVM_SAD_8xHEIGHTx4D_MSA(16)
+AVM_AVGSAD_8xHEIGHT_MSA(16)
 
 // 8x8
-AOM_SAD_8xHEIGHT_MSA(8)
-AOM_SAD_8xHEIGHTx4D_MSA(8)
-AOM_AVGSAD_8xHEIGHT_MSA(8)
+AVM_SAD_8xHEIGHT_MSA(8)
+AVM_SAD_8xHEIGHTx4D_MSA(8)
+AVM_AVGSAD_8xHEIGHT_MSA(8)
 
 // 8x4
-AOM_SAD_8xHEIGHT_MSA(4)
-AOM_SAD_8xHEIGHTx4D_MSA(4)
-AOM_AVGSAD_8xHEIGHT_MSA(4)
+AVM_SAD_8xHEIGHT_MSA(4)
+AVM_SAD_8xHEIGHTx4D_MSA(4)
+AVM_AVGSAD_8xHEIGHT_MSA(4)
 
 // 4x8
-AOM_SAD_4xHEIGHT_MSA(8)
-AOM_SAD_4xHEIGHTx4D_MSA(8)
-AOM_AVGSAD_4xHEIGHT_MSA(8)
+AVM_SAD_4xHEIGHT_MSA(8)
+AVM_SAD_4xHEIGHTx4D_MSA(8)
+AVM_AVGSAD_4xHEIGHT_MSA(8)
 
 // 4x4
-AOM_SAD_4xHEIGHT_MSA(4)
-AOM_SAD_4xHEIGHTx4D_MSA(4)
-AOM_AVGSAD_4xHEIGHT_MSA(4)
+AVM_SAD_4xHEIGHT_MSA(4)
+AVM_SAD_4xHEIGHTx4D_MSA(4)
+AVM_AVGSAD_4xHEIGHT_MSA(4)
     /* clang-format on */

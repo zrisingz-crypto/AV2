@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/bitreader.h"
+#include "avm_dsp/bitreader.h"
 
-int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size) {
+int avm_reader_init(avm_reader *r, const uint8_t *buffer, size_t size) {
   if (size && !buffer) {
     return 1;
   }
@@ -25,18 +25,18 @@ int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size) {
   return 0;
 }
 
-const uint8_t *aom_reader_find_begin(aom_reader *r) { return r->buffer; }
+const uint8_t *avm_reader_find_begin(avm_reader *r) { return r->buffer; }
 
-const uint8_t *aom_reader_find_end(aom_reader *r) { return r->buffer_end; }
+const uint8_t *avm_reader_find_end(avm_reader *r) { return r->buffer_end; }
 
-uint32_t aom_reader_tell(const aom_reader *r) { return od_ec_dec_tell(&r->ec); }
+uint32_t avm_reader_tell(const avm_reader *r) { return od_ec_dec_tell(&r->ec); }
 
-uint64_t aom_reader_tell_frac(const aom_reader *r) {
+uint64_t avm_reader_tell_frac(const avm_reader *r) {
   return od_ec_dec_tell_frac(&r->ec);
 }
 
-int aom_reader_has_overflowed(const aom_reader *r) {
-  const uint32_t tell_bits = aom_reader_tell(r);
+int avm_reader_has_overflowed(const avm_reader *r) {
+  const uint32_t tell_bits = avm_reader_tell(r);
   const uint32_t tell_bytes = (tell_bits + 7) >> 3;
   return ((ptrdiff_t)tell_bytes > r->buffer_end - r->buffer);
 }

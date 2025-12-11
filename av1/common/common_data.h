@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_COMMON_DATA_H_
-#define AOM_AV1_COMMON_COMMON_DATA_H_
+#ifndef AVM_AV2_COMMON_COMMON_DATA_H_
+#define AVM_AV2_COMMON_COMMON_DATA_H_
 
 #include <assert.h>
 #include <stdbool.h>
 
-#include "av1/common/enums.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "av2/common/enums.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,7 +64,7 @@ static const uint16_t block_size_high[BLOCK_SIZES_ALL] = {
 
 // Maps a block size to a context.
 // The Size_Group table in the spec (Section 9.3. Conversion tables).
-// AOMMIN(3, AOMMIN(mi_size_wide_log2(bsize), mi_size_high_log2(bsize)))
+// AVMMIN(3, AVMMIN(mi_size_wide_log2(bsize), mi_size_high_log2(bsize)))
 static const uint8_t size_group_lookup[BLOCK_SIZES_ALL] = {
   0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3,
   3, 3, 3, 0, 0, 1, 1, 2, 2, 1, 1, 2, 2, 2, 2,
@@ -342,7 +342,7 @@ static const BLOCK_SIZE
 };
 /* clang-format on */
 
-static AOM_INLINE PARTITION_TYPE sdp_chroma_part_from_luma(
+static AVM_INLINE PARTITION_TYPE sdp_chroma_part_from_luma(
     BLOCK_SIZE bsize, PARTITION_TYPE luma_part, int ssx, int ssy) {
   const int bh_chr = block_size_high[bsize] >> ssy;
   const int bw_chr = block_size_wide[bsize] >> ssx;
@@ -843,16 +843,16 @@ static const int quant_dist_lookup_table[4][2] = {
 };
 
 // Mapping of mode dependent TX  based on intra modes.
-static const int av1_md_class[INTRA_MODES] = {
+static const int av2_md_class[INTRA_MODES] = {
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
 };
 
 // Mapping between mode dependent TX size groups based on allowed TX sizes.
-static const int av1_size_class[TX_SIZES_ALL] = { 0, 1, 2, 3, 3, 0, 0, 1, 1,
+static const int av2_size_class[TX_SIZES_ALL] = { 0, 1, 2, 3, 3, 0, 0, 1, 1,
                                                   3, 3, 3, 3, 1, 1, 3, 3, 3,
                                                   3, 3, 3, 3, 3, 3, 3 };
 
-static AOM_INLINE bool is_bsize_geq(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {
+static AVM_INLINE bool is_bsize_geq(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {
   if (bsize1 == BLOCK_INVALID || bsize2 == BLOCK_INVALID) {
     return false;
   }
@@ -860,7 +860,7 @@ static AOM_INLINE bool is_bsize_geq(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {
          block_size_high[bsize1] >= block_size_high[bsize2];
 }
 
-static AOM_INLINE bool is_bsize_gt(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {
+static AVM_INLINE bool is_bsize_gt(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {
   if (bsize1 == BLOCK_INVALID || bsize2 == BLOCK_INVALID) {
     return false;
   }
@@ -966,4 +966,4 @@ static const int g_ver_tx_type[TX_TYPES] = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_COMMON_DATA_H_
+#endif  // AVM_AV2_COMMON_COMMON_DATA_H_

@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/bru.h"
-#include "av1/common/common_data.h"
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/ccso.h"
+#include "av2/common/bru.h"
+#include "av2/common/common_data.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/ccso.h"
 
 /* clean up tx_skip array for support and inactive SBs */
-static void bru_update_txk_skip_array(const AV1_COMMON *cm, int mi_row,
+static void bru_update_txk_skip_array(const AV2_COMMON *cm, int mi_row,
                                       int mi_col, TREE_TYPE tree_type,
                                       const CHROMA_REF_INFO *chroma_ref_info,
                                       int plane, int blk_w, int blk_h) {
@@ -66,7 +66,7 @@ static void bru_copy_segment_id(const CommonModeInfoParams *const mi_params,
 }
 
 /* set segment id for support and inactive SBs*/
-static void bru_set_segment_id(const AV1_COMMON *cm, int mi_offset,
+static void bru_set_segment_id(const AV2_COMMON *cm, int mi_offset,
                                int x_inside_boundary, int y_inside_boundary,
                                int segment_id) {
   assert(segment_id >= 0 && segment_id < MAX_SEGMENTS);
@@ -79,7 +79,7 @@ static void bru_set_segment_id(const AV1_COMMON *cm, int mi_offset,
 
 /* Set correct mbmi address for inactive and support SB since there is no chance
  * to set them in later stage  */
-BruActiveMode set_sb_mbmi_bru_mode(const AV1_COMMON *cm, MACROBLOCKD *const xd,
+BruActiveMode set_sb_mbmi_bru_mode(const AV2_COMMON *cm, MACROBLOCKD *const xd,
                                    const int mi_col, const int mi_row,
                                    const BLOCK_SIZE bsize,
                                    const BruActiveMode bru_sb_mode) {
@@ -102,9 +102,9 @@ BruActiveMode set_sb_mbmi_bru_mode(const AV1_COMMON *cm, MACROBLOCKD *const xd,
       const int mi_w = mi_size_wide[bsize];
       MB_MODE_INFO *const mi_addr = xd->mi[0];
       const int x_inside_boundary =
-          AOMMIN(mi_w, cm->mi_params.mi_cols - mi_col);
+          AVMMIN(mi_w, cm->mi_params.mi_cols - mi_col);
       const int y_inside_boundary =
-          AOMMIN(mi_h, cm->mi_params.mi_rows - mi_row);
+          AVMMIN(mi_h, cm->mi_params.mi_rows - mi_row);
       const int mis = cm->mi_params.mi_stride;
       for (int y = 0; y < y_inside_boundary; y++) {
         for (int x_idx = 0; x_idx < x_inside_boundary; x_idx++) {
@@ -119,7 +119,7 @@ BruActiveMode set_sb_mbmi_bru_mode(const AV1_COMMON *cm, MACROBLOCKD *const xd,
 
 /* Copy recon data from BRU ref to current frame buffer. This is only used for
  * BRU_SUPPORT_SB of BRU optimized decoder/encoder */
-void bru_copy_sb(const struct AV1Common *cm, const int mi_col,
+void bru_copy_sb(const struct AV2Common *cm, const int mi_col,
                  const int mi_row) {
   if (cm->bru.update_ref_idx < 0)
     return;  // now ref_idx is the sole indicator of frame level bru
@@ -129,13 +129,13 @@ void bru_copy_sb(const struct AV1Common *cm, const int mi_col,
   RefCntBuffer *const ref_buf = get_ref_frame_buf(cm, cm->bru.update_ref_idx);
   YV12_BUFFER_CONFIG *const ref_src = &ref_buf->buf;
   YV12_BUFFER_CONFIG *const rec_dst = &cm->cur_frame->buf;
-  const int x_inside_boundary = AOMMIN(w, cm->mi_params.mi_cols - mi_col)
+  const int x_inside_boundary = AVMMIN(w, cm->mi_params.mi_cols - mi_col)
                                 << MI_SIZE_LOG2;
-  const int y_inside_boundary = AOMMIN(h, cm->mi_params.mi_rows - mi_row)
+  const int y_inside_boundary = AVMMIN(h, cm->mi_params.mi_rows - mi_row)
                                 << MI_SIZE_LOG2;
   const int x = mi_col << MI_SIZE_LOG2;
   const int y = mi_row << MI_SIZE_LOG2;
-  for (int i_plane = 0; i_plane < av1_num_planes(cm); ++i_plane) {
+  for (int i_plane = 0; i_plane < av2_num_planes(cm); ++i_plane) {
     uint16_t *rec_data = rec_dst->buffers[i_plane];
     uint16_t *ref_data = ref_src->buffers[i_plane];
     int rec_stride = i_plane > 0 ? rec_dst->uv_stride : rec_dst->y_stride;
@@ -160,7 +160,7 @@ void bru_copy_sb(const struct AV1Common *cm, const int mi_col,
 
 /* Update recon data from current frame buffer to BRU ref. This is only used for
  * BRU_ACTIVE_SB of BRU optimized decoder/encoder */
-void bru_update_sb(const struct AV1Common *cm, const int mi_col,
+void bru_update_sb(const struct AV2Common *cm, const int mi_col,
                    const int mi_row) {
   if (cm->bru.update_ref_idx < 0)
     return;  // now ref_idx is the sole indicator of frame level bru
@@ -171,14 +171,14 @@ void bru_update_sb(const struct AV1Common *cm, const int mi_col,
   const int sb_size = cm->seq_params.sb_size;
   const int w = mi_size_wide[sb_size];
   const int h = mi_size_high[sb_size];
-  const int x_inside_boundary = AOMMIN(w, cm->mi_params.mi_cols - mi_col)
+  const int x_inside_boundary = AVMMIN(w, cm->mi_params.mi_cols - mi_col)
                                 << MI_SIZE_LOG2;
-  const int y_inside_boundary = AOMMIN(h, cm->mi_params.mi_rows - mi_row)
+  const int y_inside_boundary = AVMMIN(h, cm->mi_params.mi_rows - mi_row)
                                 << MI_SIZE_LOG2;
   const int x = mi_col << MI_SIZE_LOG2;
   const int y = mi_row << MI_SIZE_LOG2;
 
-  for (int i_plane = 0; i_plane < av1_num_planes(cm); ++i_plane) {
+  for (int i_plane = 0; i_plane < av2_num_planes(cm); ++i_plane) {
     uint16_t *rec_data = rec_dst->buffers[i_plane];
     uint16_t *ref_data = ref_src->buffers[i_plane];
     const int rec_stride = i_plane > 0 ? rec_dst->uv_stride : rec_dst->y_stride;
@@ -204,7 +204,7 @@ void bru_update_sb(const struct AV1Common *cm, const int mi_col,
 }
 
 /* Set default inter mode for Support and Inactive SBs */
-void bru_set_default_inter_mb_mode_info(const AV1_COMMON *const cm,
+void bru_set_default_inter_mb_mode_info(const AV2_COMMON *const cm,
                                         MACROBLOCKD *const xd,
                                         MB_MODE_INFO *const mbmi,
                                         BLOCK_SIZE bsize) {
@@ -279,7 +279,7 @@ void bru_set_default_inter_mb_mode_info(const AV1_COMMON *const cm,
   mbmi->local_gdf_mode = 0;
   mbmi->current_qindex = xd->current_base_qindex;
   int seg_qindex =
-      av1_get_qindex(&cm->seg, mbmi->segment_id, xd->current_base_qindex,
+      av2_get_qindex(&cm->seg, mbmi->segment_id, xd->current_base_qindex,
                      cm->seq_params.bit_depth);
   get_qindex_with_offsets(cm, seg_qindex, mbmi->final_qindex_dc,
                           mbmi->final_qindex_ac);
@@ -307,9 +307,9 @@ void bru_set_default_inter_mb_mode_info(const AV1_COMMON *const cm,
     const int bw = mi_size_wide[bsize];
     const int bh = mi_size_high[bsize];
     const int x_inside_boundary =
-        AOMMIN(cm->mi_params.mi_cols - xd->mi_col, bw);
+        AVMMIN(cm->mi_params.mi_cols - xd->mi_col, bw);
     const int y_inside_boundary =
-        AOMMIN(cm->mi_params.mi_rows - xd->mi_row, bh);
+        AVMMIN(cm->mi_params.mi_rows - xd->mi_row, bh);
     if (!cm->seg.update_map) {
       bru_copy_segment_id(&cm->mi_params, cm->last_frame_seg_map,
                           cm->cur_frame->seg_map, mi_offset, x_inside_boundary,
@@ -323,7 +323,7 @@ void bru_set_default_inter_mb_mode_info(const AV1_COMMON *const cm,
 
 /* Core function of swap BRU reference frame and current frame for BRU optimized
  * decoder/encoder*/
-RefCntBuffer *bru_swap_common(AV1_COMMON *cm) {
+RefCntBuffer *bru_swap_common(AV2_COMMON *cm) {
   // should not use this function at all in none bru frames
   if (cm->bru.enabled) {
     assert(cm->bru.update_ref_idx >= 0);
@@ -371,9 +371,9 @@ RefCntBuffer *bru_swap_common(AV1_COMMON *cm) {
     ref_buf->rst_info[0] = tmp_buf->rst_info[0];
     ref_buf->rst_info[1] = tmp_buf->rst_info[1];
     ref_buf->rst_info[2] = tmp_buf->rst_info[2];
-    av1_copy_rst_frame_filters(&ref_buf->rst_info[0], &tmp_buf->rst_info[0]);
-    av1_copy_rst_frame_filters(&ref_buf->rst_info[1], &tmp_buf->rst_info[1]);
-    av1_copy_rst_frame_filters(&ref_buf->rst_info[2], &tmp_buf->rst_info[2]);
+    av2_copy_rst_frame_filters(&ref_buf->rst_info[0], &tmp_buf->rst_info[0]);
+    av2_copy_rst_frame_filters(&ref_buf->rst_info[1], &tmp_buf->rst_info[1]);
+    av2_copy_rst_frame_filters(&ref_buf->rst_info[2], &tmp_buf->rst_info[2]);
     if (cm->bru.frame_inactive_flag) {
       ref_buf->ccso_info.ccso_frame_flag = 0;
     } else {
@@ -381,7 +381,7 @@ RefCntBuffer *bru_swap_common(AV1_COMMON *cm) {
     }
     for (int plane = 0; plane < CCSO_NUM_COMPONENTS; plane++) {
       if (cm->bru.frame_inactive_flag) {
-        av1_copy_ccso_filters(&ref_buf->ccso_info, &cm->ccso_info, plane, 1, 0,
+        av2_copy_ccso_filters(&ref_buf->ccso_info, &cm->ccso_info, plane, 1, 0,
                               0);
         continue;
       }
@@ -418,7 +418,7 @@ RefCntBuffer *bru_swap_common(AV1_COMMON *cm) {
                              (1 << log2_filter_unit_size_x >> 2) - 1) /
                             (1 << log2_filter_unit_size_x >> 2);
       const int sb_count = ccso_nvfb * ccso_nhfb;
-      av1_copy_ccso_filters(&ref_buf->ccso_info, &tmp_buf->ccso_info, plane, 1,
+      av2_copy_ccso_filters(&ref_buf->ccso_info, &tmp_buf->ccso_info, plane, 1,
                             1, sb_count);
     }
     // replace cur by bru_ref

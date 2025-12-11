@@ -12,9 +12,9 @@
 
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-uint64_t aom_sum_squares_2d_i16_c(const int16_t *src, int src_stride, int width,
+uint64_t avm_sum_squares_2d_i16_c(const int16_t *src, int src_stride, int width,
                                   int height) {
   assert(width > 0 && height > 0);
   int r, c;
@@ -31,7 +31,7 @@ uint64_t aom_sum_squares_2d_i16_c(const int16_t *src, int src_stride, int width,
   return ss;
 }
 
-uint64_t aom_sum_squares_i16_c(const int16_t *src, uint32_t n) {
+uint64_t avm_sum_squares_i16_c(const int16_t *src, uint32_t n) {
   uint64_t ss = 0;
   do {
     const int16_t v = *src++;
@@ -41,7 +41,7 @@ uint64_t aom_sum_squares_i16_c(const int16_t *src, uint32_t n) {
   return ss;
 }
 
-uint64_t aom_sum_squares_i32_c(const int32_t *src, int32_t n) {
+uint64_t avm_sum_squares_i32_c(const int32_t *src, int32_t n) {
   uint64_t ss = 0;
   do {
     const int32_t v = *src++;
@@ -51,7 +51,7 @@ uint64_t aom_sum_squares_i32_c(const int32_t *src, int32_t n) {
   return ss;
 }
 
-uint64_t aom_var_2d_u8_c(uint8_t *src, int src_stride, int width, int height) {
+uint64_t avm_var_2d_u8_c(uint8_t *src, int src_stride, int width, int height) {
   int r, c;
   uint64_t ss = 0, s = 0;
 
@@ -67,7 +67,7 @@ uint64_t aom_var_2d_u8_c(uint8_t *src, int src_stride, int width, int height) {
   return (ss - s * s / (width * height));
 }
 
-uint64_t aom_var_2d_u16_c(uint16_t *srcp, int src_stride, int width,
+uint64_t avm_var_2d_u16_c(uint16_t *srcp, int src_stride, int width,
                           int height) {
   int r, c;
   uint64_t ss = 0, s = 0;
@@ -84,7 +84,7 @@ uint64_t aom_var_2d_u16_c(uint16_t *srcp, int src_stride, int width,
   return (ss - s * s / (width * height));
 }
 
-uint64_t aom_sum_sse_2d_i16_c(const int16_t *src, int src_stride, int width,
+uint64_t avm_sum_sse_2d_i16_c(const int16_t *src, int src_stride, int width,
                               int height, int *sum) {
   int r, c;
   int16_t *srcp = (int16_t *)src;

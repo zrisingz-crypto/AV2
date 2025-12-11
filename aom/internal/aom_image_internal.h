@@ -11,35 +11,35 @@
  */
 
 /*!\file
- * \brief Describes the internal functions associated with the aom image
+ * \brief Describes the internal functions associated with the avm image
  * descriptor.
  *
  */
-#ifndef AOM_AOM_INTERNAL_AOM_IMAGE_INTERNAL_H_
-#define AOM_AOM_INTERNAL_AOM_IMAGE_INTERNAL_H_
+#ifndef AVM_AVM_INTERNAL_AVM_IMAGE_INTERNAL_H_
+#define AVM_AVM_INTERNAL_AVM_IMAGE_INTERNAL_H_
 
-#include "aom/aom_image.h"
+#include "avm/avm_image.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*!\brief Array of aom_metadata structs for an image. */
-struct aom_metadata_array {
+/*!\brief Array of avm_metadata structs for an image. */
+struct avm_metadata_array {
   size_t sz;                       /* Number of metadata structs in the list */
-  aom_metadata_t **metadata_array; /* Array of metadata structs */
+  avm_metadata_t **metadata_array; /* Array of metadata structs */
 };
 
-/*!\brief Alloc memory for aom_metadata_array struct.
+/*!\brief Alloc memory for avm_metadata_array struct.
  *
- * Allocate memory for aom_metadata_array struct.
- * If sz is 0 the aom_metadata_array struct's internal buffer list will be
- * NULL, but the aom_metadata_array struct itself will still be allocated.
+ * Allocate memory for avm_metadata_array struct.
+ * If sz is 0 the avm_metadata_array struct's internal buffer list will be
+ * NULL, but the avm_metadata_array struct itself will still be allocated.
  * Returns a pointer to the allocated struct or NULL on failure.
  *
  * \param[in]    sz       Size of internal metadata list buffer
  */
-aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz);
+avm_metadata_array_t *avm_img_metadata_array_alloc(size_t sz);
 
 /*!\brief Free metadata array struct.
  *
@@ -47,21 +47,21 @@ aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz);
  *
  * \param[in]    arr       Metadata array struct pointer
  */
-void aom_img_metadata_array_free(aom_metadata_array_t *arr);
+void avm_img_metadata_array_free(avm_metadata_array_t *arr);
 
-typedef void *(*aom_alloc_img_data_cb_fn_t)(void *priv, size_t size);
+typedef void *(*avm_alloc_img_data_cb_fn_t)(void *priv, size_t size);
 
 /*!\brief Open a descriptor, allocating storage for the underlying image by
  * using the provided callback function.
  *
  * Returns a descriptor for storing an image of the given format. The storage
  * for the image is allocated by using the provided callback function. Unlike
- * aom_img_alloc(), the returned descriptor does not own the storage for the
+ * avm_img_alloc(), the returned descriptor does not own the storage for the
  * image. The caller is responsible for freeing the storage for the image.
  *
  * Note: If the callback function is invoked and succeeds,
- * aom_img_alloc_with_cb() is guaranteed to succeed. Therefore, if
- * aom_img_alloc_with_cb() fails, the caller is assured that no storage was
+ * avm_img_alloc_with_cb() is guaranteed to succeed. Therefore, if
+ * avm_img_alloc_with_cb() fails, the caller is assured that no storage was
  * allocated.
  *
  * \param[in]    img       Pointer to storage for descriptor. If this parameter
@@ -81,16 +81,16 @@ typedef void *(*aom_alloc_img_data_cb_fn_t)(void *priv, size_t size);
  *         parameter is non-null, the value of the img parameter will be
  *         returned.
  */
-aom_image_t *aom_img_alloc_with_cb(aom_image_t *img, aom_img_fmt_t fmt,
+avm_image_t *avm_img_alloc_with_cb(avm_image_t *img, avm_img_fmt_t fmt,
                                    unsigned int d_w, unsigned int d_h,
                                    unsigned int align,
-                                   aom_alloc_img_data_cb_fn_t alloc_cb,
+                                   avm_alloc_img_data_cb_fn_t alloc_cb,
                                    void *cb_priv);
 
-void aom_img_upshift(aom_image_t *dst, const aom_image_t *src, int input_shift);
+void avm_img_upshift(avm_image_t *dst, const avm_image_t *src, int input_shift);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_INTERNAL_AOM_IMAGE_INTERNAL_H_
+#endif  // AVM_AVM_INTERNAL_AVM_IMAGE_INTERNAL_H_

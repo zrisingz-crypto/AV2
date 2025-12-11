@@ -17,19 +17,19 @@
 #include <math.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "av1/encoder/global_motion.h"
+#include "av2/encoder/global_motion.h"
 
-#include "av1/common/convolve.h"
-#include "av1/common/warped_motion.h"
+#include "av2/common/convolve.h"
+#include "av2/common/warped_motion.h"
 
-#include "av1/encoder/segmentation.h"
+#include "av2/encoder/segmentation.h"
 
 // Border over which to compute the global motion
 #define ERRORADV_BORDER 0
 
-int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost) {
+int av2_is_enough_erroradvantage(double best_erroradvantage, int params_cost) {
   return best_erroradvantage < erroradv_tr &&
          best_erroradvantage * params_cost < erroradv_prod_tr;
 }
@@ -68,15 +68,15 @@ static void force_wmtype(WarpedMotionParams *wm, TransformationType wmtype) {
     case IDENTITY:
       wm->wmmat[0] = 0;
       wm->wmmat[1] = 0;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case TRANSLATION:
       wm->wmmat[2] = 1 << WARPEDMODEL_PREC_BITS;
       wm->wmmat[3] = 0;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case ROTZOOM:
       wm->wmmat[4] = -wm->wmmat[3];
       wm->wmmat[5] = wm->wmmat[2];
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case AFFINE: wm->wmmat[6] = wm->wmmat[7] = 0; break;
     default: assert(0);
   }
@@ -109,8 +109,8 @@ static int64_t highbd_segmented_frame_error(
     int segment_map_stride) {
   (void)bd;
   int patch_w, patch_h;
-  const int error_bsize_w = AOMMIN(p_width, WARP_ERROR_BLOCK);
-  const int error_bsize_h = AOMMIN(p_height, WARP_ERROR_BLOCK);
+  const int error_bsize_w = AVMMIN(p_width, WARP_ERROR_BLOCK);
+  const int error_bsize_h = AVMMIN(p_height, WARP_ERROR_BLOCK);
   int64_t sum_error = 0;
   for (int i = 0; i < p_height; i += WARP_ERROR_BLOCK) {
     for (int j = 0; j < p_width; j += WARP_ERROR_BLOCK) {
@@ -121,11 +121,11 @@ static int64_t highbd_segmented_frame_error(
       if (!segment_map[seg_y * segment_map_stride + seg_x]) continue;
 
       // avoid computing error into the frame padding
-      patch_w = AOMMIN(error_bsize_w, p_width - j);
-      patch_h = AOMMIN(error_bsize_h, p_height - i);
+      patch_w = AVMMIN(error_bsize_w, p_width - j);
+      patch_h = AVMMIN(error_bsize_h, p_height - i);
 
       if (patch_w == WARP_ERROR_BLOCK && patch_h == WARP_ERROR_BLOCK) {
-        sum_error += aom_highbd_sad32x32(ref + j + i * ref_stride, ref_stride,
+        sum_error += avm_highbd_sad32x32(ref + j + i * ref_stride, ref_stride,
                                          dst + j + i * dst_stride, dst_stride);
       } else {
         sum_error += generic_sad_highbd(ref + j + i * ref_stride, ref_stride,
@@ -149,8 +149,8 @@ static int64_t highbd_warp_error(WarpedMotionParams *wm,
                                  int subsampling_y, int bd, int64_t best_error,
                                  uint8_t *segment_map, int segment_map_stride) {
   int64_t gm_sumerr = 0;
-  const int error_bsize_w = AOMMIN(p_width, WARP_ERROR_BLOCK);
-  const int error_bsize_h = AOMMIN(p_height, WARP_ERROR_BLOCK);
+  const int error_bsize_w = AVMMIN(p_width, WARP_ERROR_BLOCK);
+  const int error_bsize_h = AVMMIN(p_height, WARP_ERROR_BLOCK);
   DECLARE_ALIGNED(32, uint16_t, tmp[WARP_ERROR_BLOCK * WARP_ERROR_BLOCK]);
 
   ConvolveParams conv_params = get_conv_params(0, 0, bd);
@@ -163,8 +163,8 @@ static int64_t highbd_warp_error(WarpedMotionParams *wm,
       if (!segment_map[seg_y * segment_map_stride + seg_x]) continue;
       // avoid warping extra 8x8 blocks in the padded region of the frame
       // when p_width and p_height are not multiples of WARP_ERROR_BLOCK
-      const int warp_w = AOMMIN(error_bsize_w, p_col + ref_width - j);
-      const int warp_h = AOMMIN(error_bsize_h, p_row + ref_height - i);
+      const int warp_w = AVMMIN(error_bsize_w, p_col + ref_width - j);
+      const int warp_h = AVMMIN(error_bsize_h, p_row + ref_height - i);
       highbd_warp_plane(wm, ref, ref_width, ref_height, ref_stride, tmp, j, i,
                         warp_w, warp_h, WARP_ERROR_BLOCK, subsampling_x,
                         subsampling_y, bd, &conv_params, NULL
@@ -173,7 +173,7 @@ static int64_t highbd_warp_error(WarpedMotionParams *wm,
                         0, NULL);
 
       if (warp_w == WARP_ERROR_BLOCK && warp_h == WARP_ERROR_BLOCK) {
-        gm_sumerr += aom_highbd_sad32x32(tmp, WARP_ERROR_BLOCK,
+        gm_sumerr += avm_highbd_sad32x32(tmp, WARP_ERROR_BLOCK,
                                          dst + j + i * dst_stride, dst_stride);
       } else {
         gm_sumerr +=
@@ -187,7 +187,7 @@ static int64_t highbd_warp_error(WarpedMotionParams *wm,
   return gm_sumerr;
 }
 
-int64_t av1_segmented_frame_error(int bd, const uint16_t *ref, int stride,
+int64_t av2_segmented_frame_error(int bd, const uint16_t *ref, int stride,
                                   uint16_t *dst, int p_width, int p_height,
                                   int p_stride, uint8_t *segment_map,
                                   int segment_map_stride) {
@@ -196,15 +196,15 @@ int64_t av1_segmented_frame_error(int bd, const uint16_t *ref, int stride,
                                       segment_map_stride);
 }
 
-int64_t av1_warp_error(WarpedMotionParams *wm, int bd, const uint16_t *ref,
+int64_t av2_warp_error(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                        int width, int height, int stride, uint16_t *dst,
                        int p_col, int p_row, int p_width, int p_height,
                        int p_stride, int subsampling_x, int subsampling_y,
                        int64_t best_error, uint8_t *segment_map,
                        int segment_map_stride) {
   if (wm->wmtype <= AFFINE) {
-    av1_reduce_warp_model(wm);
-    if (!av1_get_shear_params(wm, NULL
+    av2_reduce_warp_model(wm);
+    if (!av2_get_shear_params(wm, NULL
 
                               ))
       return INT64_MAX;
@@ -216,7 +216,7 @@ int64_t av1_warp_error(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                            segment_map_stride);
 }
 
-int64_t av1_refine_integerized_param(
+int64_t av2_refine_integerized_param(
     WarpedMotionParams *wm, TransformationType wmtype, int bd, uint16_t *ref,
     int r_width, int r_height, int r_stride, uint16_t *dst, int d_width,
     int d_height, int d_stride, int n_refinements, int64_t ref_frame_error,
@@ -239,10 +239,10 @@ int64_t av1_refine_integerized_param(
 
   if (n_refinements == 0) {
     // Compute the maximum error value that will be accepted, so that
-    // av1_warp_error can terminate early if it proves the model will not
+    // av2_warp_error can terminate early if it proves the model will not
     // be accepted.
     int64_t selection_threshold = (int64_t)lrint(ref_frame_error * erroradv_tr);
-    return av1_warp_error(wm, bd, ref, r_width, r_height, r_stride,
+    return av2_warp_error(wm, bd, ref, r_width, r_height, r_stride,
                           dst + border * d_stride + border, d_stride, border,
                           border, d_width - 2 * border, d_height - 2 * border,
                           0, 0, selection_threshold, segment_map,
@@ -254,7 +254,7 @@ int64_t av1_refine_integerized_param(
   int64_t selection_threshold =
       (int64_t)lrint(ref_frame_error * erroradv_early_tr);
   best_error =
-      av1_warp_error(wm, bd, ref, r_width, r_height, r_stride,
+      av2_warp_error(wm, bd, ref, r_width, r_height, r_stride,
                      dst + border * d_stride + border, d_stride, border, border,
                      d_width - 2 * border, d_height - 2 * border, 0, 0,
                      selection_threshold, segment_map, segment_map_stride);
@@ -276,7 +276,7 @@ int64_t av1_refine_integerized_param(
       *param = add_param_offset(p, curr_param, -step);
       force_wmtype(wm, wmtype);
       step_error =
-          av1_warp_error(wm, bd, ref, r_width, r_height, r_stride,
+          av2_warp_error(wm, bd, ref, r_width, r_height, r_stride,
                          dst + border * d_stride + border, d_stride, border,
                          border, d_width - 2 * border, d_height - 2 * border, 0,
                          0, best_error, segment_map, segment_map_stride);
@@ -290,7 +290,7 @@ int64_t av1_refine_integerized_param(
       *param = add_param_offset(p, curr_param, step);
       force_wmtype(wm, wmtype);
       step_error =
-          av1_warp_error(wm, bd, ref, r_width, r_height, r_stride,
+          av2_warp_error(wm, bd, ref, r_width, r_height, r_stride,
                          dst + border * d_stride + border, d_stride, border,
                          border, d_width - 2 * border, d_height - 2 * border, 0,
                          0, best_error, segment_map, segment_map_stride);
@@ -306,7 +306,7 @@ int64_t av1_refine_integerized_param(
         *param = add_param_offset(p, best_param, step * step_dir);
         force_wmtype(wm, wmtype);
         step_error =
-            av1_warp_error(wm, bd, ref, r_width, r_height, r_stride,
+            av2_warp_error(wm, bd, ref, r_width, r_height, r_stride,
                            dst + border * d_stride + border, d_stride, border,
                            border, d_width - 2 * border, d_height - 2 * border,
                            0, 0, best_error, segment_map, segment_map_stride);
@@ -327,7 +327,7 @@ int64_t av1_refine_integerized_param(
   wm->wmtype = get_wmtype(wm);
   // Recompute shear params for the refined model
   // This should never fail, because we only ever consider warp-able models
-  if (!av1_get_shear_params(wm, sf
+  if (!av2_get_shear_params(wm, sf
 
                             )) {
     assert(0);
@@ -337,7 +337,7 @@ int64_t av1_refine_integerized_param(
 
 #define FEAT_COUNT_TR 3
 #define SEG_COUNT_TR 48
-void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
+void av2_compute_feature_segmentation_map(uint8_t *segment_map, int width,
                                           int height, int *inliers,
                                           int num_inliers) {
   int seg_count = 0;

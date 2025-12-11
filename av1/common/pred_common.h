@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_PRED_COMMON_H_
-#define AOM_AV1_COMMON_PRED_COMMON_H_
+#ifndef AVM_AV2_COMMON_PRED_COMMON_H_
+#define AVM_AV2_COMMON_PRED_COMMON_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/mvref_common.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/mvref_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static INLINE void init_ref_map_pair(AV1_COMMON *cm,
+static INLINE void init_ref_map_pair(AV2_COMMON *cm,
                                      RefFrameMapPair *ref_frame_map_pairs,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                                      int is_key, int is_ras) {
@@ -113,8 +113,8 @@ typedef struct {
 } RefScoreData;
 /*!\endcond */
 
-void av1_get_past_future_cur_ref_lists(AV1_COMMON *cm, RefScoreData *scores);
-int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+void av2_get_past_future_cur_ref_lists(AV2_COMMON *cm, RefScoreData *scores);
+int av2_get_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
                        int resolution_available,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                        int key_frame_only,
@@ -123,7 +123,7 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
 
 int is_layer_restricted(const int current_layer_id, const int max_layer_id);
 
-int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+int av2_get_op_constrained_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                                       int key_frame_only,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
@@ -133,11 +133,11 @@ int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
 
 // Derive the primary & secondary reference frame from the reference list based
 // on qindex and frame distances.
-void choose_primary_secondary_ref_frame(const AV1_COMMON *const cm,
+void choose_primary_secondary_ref_frame(const AV2_COMMON *const cm,
                                         int *ref_frame);
 
 // Find the reference that is furthest in the future
-static INLINE int get_furthest_future_ref_index(const AV1_COMMON *const cm) {
+static INLINE int get_furthest_future_ref_index(const AV2_COMMON *const cm) {
   int index = NONE_FRAME;
   int ref_disp_order = -1;
   for (int i = 0; i < cm->ref_frames_info.num_future_refs; i++) {
@@ -153,7 +153,7 @@ static INLINE int get_furthest_future_ref_index(const AV1_COMMON *const cm) {
 }
 
 // Get the past reference that is temporally closest to the current frame
-static INLINE int get_closest_past_ref_index(const AV1_COMMON *const cm) {
+static INLINE int get_closest_past_ref_index(const AV2_COMMON *const cm) {
   int index = NONE_FRAME;
   int best_dist = INT_MAX;
   for (int i = 0; i < cm->ref_frames_info.num_past_refs; i++) {
@@ -171,7 +171,7 @@ static INLINE int get_closest_past_ref_index(const AV1_COMMON *const cm) {
 // 1. Get current frame if it is available in the reference list.
 // 2. Otherwise get the closest past reference if there is any past reference.
 // 3. Otherwise use ref 0.
-static INLINE int get_closest_pastcur_ref_or_ref0(const AV1_COMMON *const cm) {
+static INLINE int get_closest_pastcur_ref_or_ref0(const AV2_COMMON *const cm) {
   if (cm->ref_frames_info.num_cur_refs > 0)
     return cm->ref_frames_info.cur_refs[0];
   if (cm->ref_frames_info.num_past_refs > 0)
@@ -179,7 +179,7 @@ static INLINE int get_closest_pastcur_ref_or_ref0(const AV1_COMMON *const cm) {
   return 0;
 }
 
-static INLINE int get_best_past_ref_index(const AV1_COMMON *const cm) {
+static INLINE int get_best_past_ref_index(const AV2_COMMON *const cm) {
   const int index = cm->ref_frames_info.num_past_refs > 0
                         ? cm->ref_frames_info.past_refs[0]
                         : NONE_FRAME;
@@ -192,7 +192,7 @@ static INLINE int get_best_past_ref_index(const AV1_COMMON *const cm) {
 // list, 1 if found in future list, -1 if not found in either (error).
 // Note dir_refrank can be NULL, in which case only the direction
 // is returned, the ranks are not output.
-static INLINE int get_dir_rank(const AV1_COMMON *const cm, int refrank,
+static INLINE int get_dir_rank(const AV2_COMMON *const cm, int refrank,
                                int *dir_refrank) {
   if (!is_inter_ref_frame(refrank)) return -1;
   if (is_tip_ref_frame(refrank)) {
@@ -237,7 +237,7 @@ static INLINE int get_tip_ctx(const MACROBLOCKD *xd) {
   return ctx;
 }
 
-static INLINE int is_tip_allowed(const AV1_COMMON *const cm,
+static INLINE int is_tip_allowed(const AV2_COMMON *const cm,
                                  const MACROBLOCKD *const xd) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_allowed_bsize = is_tip_allowed_bsize(mbmi);
@@ -249,7 +249,7 @@ static INLINE int is_tip_allowed(const AV1_COMMON *const cm,
   return 0;
 }
 
-static INLINE int is_skip_mode_allowed(const AV1_COMMON *const cm,
+static INLINE int is_skip_mode_allowed(const AV2_COMMON *const cm,
                                        const MACROBLOCKD *const xd) {
   MB_MODE_INFO *const mi = xd->mi[0];
   if (!cm->current_frame.skip_mode_info.skip_mode_flag) return 0;
@@ -274,7 +274,7 @@ static INLINE int is_skip_mode_allowed(const AV1_COMMON *const cm,
   return 1;
 }
 
-static INLINE void set_skip_mode_ref_frame(const AV1_COMMON *const cm,
+static INLINE void set_skip_mode_ref_frame(const AV2_COMMON *const cm,
                                            const MACROBLOCKD *const xd,
                                            MV_REFERENCE_FRAME ref_frame[2]) {
   const SkipModeInfo *const skip_mode_info = &cm->current_frame.skip_mode_info;
@@ -286,9 +286,9 @@ static INLINE void set_skip_mode_ref_frame(const AV1_COMMON *const cm,
     if (neighbor != NULL && is_inter_ref_frame(neighbor->ref_frame[0])) {
       if (is_tip_ref_frame(neighbor->ref_frame[0])) {
         ref_frame[0] =
-            AOMMIN(cm->tip_ref.ref_frame[0], cm->tip_ref.ref_frame[1]);
+            AVMMIN(cm->tip_ref.ref_frame[0], cm->tip_ref.ref_frame[1]);
         ref_frame[1] =
-            AOMMAX(cm->tip_ref.ref_frame[0], cm->tip_ref.ref_frame[1]);
+            AVMMAX(cm->tip_ref.ref_frame[0], cm->tip_ref.ref_frame[1]);
       } else if (is_inter_ref_frame(neighbor->ref_frame[1])) {
         ref_frame[0] = neighbor->ref_frame[0];
         ref_frame[1] = neighbor->ref_frame[1];
@@ -304,13 +304,13 @@ static INLINE int get_segment_id(const CommonModeInfoParams *const mi_params,
   const int mi_offset = mi_row * mi_params->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
-  const int xmis = AOMMIN(mi_params->mi_cols - mi_col, bw);
-  const int ymis = AOMMIN(mi_params->mi_rows - mi_row, bh);
+  const int xmis = AVMMIN(mi_params->mi_cols - mi_col, bw);
+  const int ymis = AVMMIN(mi_params->mi_rows - mi_row, bh);
   int segment_id = MAX_SEGMENTS;
 
   for (int y = 0; y < ymis; ++y) {
     for (int x = 0; x < xmis; ++x) {
-      segment_id = AOMMIN(segment_id,
+      segment_id = AVMMIN(segment_id,
                           segment_ids[mi_offset + y * mi_params->mi_cols + x]);
     }
   }
@@ -319,7 +319,7 @@ static INLINE int get_segment_id(const CommonModeInfoParams *const mi_params,
   return segment_id;
 }
 
-static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
+static INLINE int av2_get_spatial_seg_pred(const AV2_COMMON *const cm,
                                            const MACROBLOCKD *const xd,
                                            int *cdf_index) {
   int prev_ul = -1;  // top left segment_id
@@ -365,7 +365,7 @@ static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
   return (prev_ul == prev_u) ? prev_u : prev_l;
 }
 
-static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
+static INLINE int av2_get_pred_context_seg_id(const MACROBLOCKD *xd) {
   const MB_MODE_INFO *const above_mi = xd->above_mbmi;
   const MB_MODE_INFO *const left_mi = xd->left_mbmi;
   const int above_sip = (above_mi != NULL) ? above_mi->seg_id_predicted : 0;
@@ -374,7 +374,7 @@ static INLINE int av1_get_pred_context_seg_id(const MACROBLOCKD *xd) {
   return above_sip + left_sip;
 }
 
-static INLINE int derive_comp_one_ref_context(const AV1_COMMON *cm,
+static INLINE int derive_comp_one_ref_context(const AV2_COMMON *cm,
                                               const MB_MODE_INFO *const mi) {
   MV_REFERENCE_FRAME furthest_future_ref = get_furthest_future_ref_index(cm);
   int ctx = 0;
@@ -388,7 +388,7 @@ static INLINE int derive_comp_one_ref_context(const AV1_COMMON *cm,
   return ctx;
 }
 
-static INLINE int get_comp_group_idx_context(const AV1_COMMON *cm,
+static INLINE int get_comp_group_idx_context(const AV2_COMMON *cm,
                                              const MACROBLOCKD *xd) {
   (void)cm;
   MB_MODE_INFO *mbmi = xd->mi[0];
@@ -415,12 +415,12 @@ static INLINE int get_comp_group_idx_context(const AV1_COMMON *cm,
   return ctxmap[3 * ctx0 + ctx1] + offset * 6;
 }
 
-static INLINE aom_cdf_prob *av1_get_pred_cdf_seg_id(
+static INLINE avm_cdf_prob *av2_get_pred_cdf_seg_id(
     struct segmentation_probs *segp, const MACROBLOCKD *xd) {
-  return segp->pred_cdf[av1_get_pred_context_seg_id(xd)];
+  return segp->pred_cdf[av2_get_pred_context_seg_id(xd)];
 }
 
-static INLINE int av1_get_skip_mode_context(const MACROBLOCKD *xd) {
+static INLINE int av2_get_skip_mode_context(const MACROBLOCKD *xd) {
   int ctx = 0;
   for (int i = 0; i < MAX_NUM_NEIGHBORS; ++i) {
     const MB_MODE_INFO *const neighbor = xd->neighbors_line_buffer[i];
@@ -432,7 +432,7 @@ static INLINE int av1_get_skip_mode_context(const MACROBLOCKD *xd) {
   return ctx;
 }
 
-static INLINE int av1_get_skip_txfm_context(const MACROBLOCKD *xd) {
+static INLINE int av2_get_skip_txfm_context(const MACROBLOCKD *xd) {
   int ctx = 0;
   for (int i = 0; i < MAX_NUM_NEIGHBORS; ++i) {
     const MB_MODE_INFO *const neighbor = xd->neighbors_line_buffer[i];
@@ -469,13 +469,13 @@ static INLINE int get_morph_pred_ctx(const MACROBLOCKD *xd) {
   return ctx;
 }
 
-static INLINE int is_cctx_enabled(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
+static INLINE int is_cctx_enabled(const AV2_COMMON *cm, const MACROBLOCKD *xd) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   return cm->seq_params.enable_cctx && !xd->lossless[mbmi->segment_id];
 }
 
 // Determine whether to allow cctx or not for a given block
-static INLINE int is_cctx_allowed(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
+static INLINE int is_cctx_allowed(const AV2_COMMON *cm, const MACROBLOCKD *xd) {
   if (!is_cctx_enabled(cm, xd)) return 0;
 
   if (xd->tree_type == LUMA_PART) {
@@ -484,11 +484,11 @@ static INLINE int is_cctx_allowed(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
 
   // Disable cctx for 32x32 or larger blocks in 422/444 formats, in which case
   // the speed and quality tradeoff is worse.
-  const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
+  const struct macroblockd_plane *const pd = &xd->plane[AVM_PLANE_U];
   const int ss_x = pd->subsampling_x;
   const int ss_y = pd->subsampling_y;
   const BLOCK_SIZE chroma_plane_bsize =
-      get_mb_plane_block_size(xd, xd->mi[0], AOM_PLANE_U, ss_x, ss_y);
+      get_mb_plane_block_size(xd, xd->mi[0], AVM_PLANE_U, ss_x, ss_y);
   assert(chroma_plane_bsize <= BLOCK_SIZES_ALL);
   if (ss_x == 0 || ss_y == 0)
     return block_size_wide[chroma_plane_bsize] < 32 ||
@@ -496,49 +496,49 @@ static INLINE int is_cctx_allowed(const AV1_COMMON *cm, const MACROBLOCKD *xd) {
   return 1;
 }
 
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
+int av2_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir);
 
 // Get a list of palette base colors that are used in the above and left blocks,
 // referred to as "color cache". The return value is the number of colors in the
 // cache (<= 2 * PALETTE_MAX_SIZE). The color values are stored in "cache"
 // in ascending order.
-int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
+int av2_get_palette_cache(const MACROBLOCKD *const xd, int plane,
                           uint16_t *cache);
 
-int av1_get_intra_inter_context(const MACROBLOCKD *xd);
+int av2_get_intra_inter_context(const MACROBLOCKD *xd);
 
-bool av1_check_ccso_mbmi_inside_tile(const AV1_COMMON *cm,
+bool av2_check_ccso_mbmi_inside_tile(const AV2_COMMON *cm,
                                      const MACROBLOCKD *xd,
                                      const MB_MODE_INFO *const mbmi);
-int av1_get_ccso_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int av2_get_ccso_context(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                          int plane);
 
-int av1_get_cdef_context(const AV1_COMMON *const cm,
+int av2_get_cdef_context(const AV2_COMMON *const cm,
                          const MACROBLOCKD *const xd);
 
-int av1_get_reference_mode_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
+int av2_get_reference_mode_context(const AV2_COMMON *cm, const MACROBLOCKD *xd);
 
-static INLINE aom_cdf_prob *av1_get_reference_mode_cdf(const AV1_COMMON *cm,
+static INLINE avm_cdf_prob *av2_get_reference_mode_cdf(const AV2_COMMON *cm,
                                                        const MACROBLOCKD *xd) {
-  return xd->tile_ctx->comp_inter_cdf[av1_get_reference_mode_context(cm, xd)];
+  return xd->tile_ctx->comp_inter_cdf[av2_get_reference_mode_context(cm, xd)];
 }
 
-int av1_get_ref_pred_context(const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref,
+int av2_get_ref_pred_context(const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref,
                              int num_total_refs);
 
 // Obtain cdf of reference frame for single prediction
-static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref(const MACROBLOCKD *xd,
+static INLINE avm_cdf_prob *av2_get_pred_cdf_single_ref(const MACROBLOCKD *xd,
                                                         MV_REFERENCE_FRAME ref,
                                                         int num_total_refs) {
   assert((ref + 1) < num_total_refs);
   return xd->tile_ctx
-      ->single_ref_cdf[av1_get_ref_pred_context(xd, ref, num_total_refs)][ref];
+      ->single_ref_cdf[av2_get_ref_pred_context(xd, ref, num_total_refs)][ref];
 }
 
 // This function checks whether the previously coded reference frame is on the
 // same side as the frame to be coded. The returned value is used as the cdf
 // context.
-static INLINE int av1_get_compound_ref_bit_type(
+static INLINE int av2_get_compound_ref_bit_type(
     const RefFramesInfo *const ref_frames_info, int i, int j) {
   const int bit_type = (ref_frames_info->ref_frame_distance[i] >= 0) ^
                        (ref_frames_info->ref_frame_distance[j] >= 0);
@@ -546,16 +546,16 @@ static INLINE int av1_get_compound_ref_bit_type(
 }
 
 // Obtain cdf of reference frame for compound prediction
-static INLINE aom_cdf_prob *av1_get_pred_cdf_compound_ref(
+static INLINE avm_cdf_prob *av2_get_pred_cdf_compound_ref(
     const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref, int n_bits, int bit_type,
     int num_total_refs) {
   assert(ref < num_total_refs);
   assert(n_bits < 2);
   assert(bit_type < COMPREF_BIT_TYPES);
   assert(IMPLIES(n_bits == 0, ref < RANKED_REF0_TO_PRUNE - 1));
-  return n_bits == 0 ? xd->tile_ctx->comp_ref0_cdf[av1_get_ref_pred_context(
+  return n_bits == 0 ? xd->tile_ctx->comp_ref0_cdf[av2_get_ref_pred_context(
                            xd, ref, num_total_refs)][ref]
-                     : xd->tile_ctx->comp_ref1_cdf[av1_get_ref_pred_context(
+                     : xd->tile_ctx->comp_ref1_cdf[av2_get_ref_pred_context(
                            xd, ref, num_total_refs)][bit_type][ref];
 }
 
@@ -563,4 +563,4 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_compound_ref(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_PRED_COMMON_H_
+#endif  // AVM_AV2_COMMON_PRED_COMMON_H_

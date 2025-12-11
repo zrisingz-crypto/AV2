@@ -13,9 +13,9 @@
 #include <ostream>
 #include <set>
 #include <vector>
-#include "aom_ports/aom_timer.h"
-#include "config/av1_rtcd.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm_ports/avm_timer.h"
+#include "config/av2_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #include "test/acm_random.h"
@@ -24,7 +24,7 @@
 #include "test/util.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "av1/common/restoration.h"
+#include "av2/common/restoration.h"
 
 namespace {
 
@@ -127,7 +127,7 @@ std::vector<TestParam<T>> GetTestParams(std::initializer_list<int> bit_depths,
 }
 
 // Test the test-parameters generators work as expected.
-class AV1ConvolveParametersTest : public ::testing::Test {};
+class AV2ConvolveParametersTest : public ::testing::Test {};
 
 template <typename T>
 std::vector<TestParam<T>> GetHighbdTestParams(T test_func) {
@@ -140,14 +140,14 @@ template <typename T>
   return ::testing::ValuesIn(GetHighbdTestParams(test_func));
 }
 
-TEST_F(AV1ConvolveParametersTest, GetHighbdTestParams) {
-  auto v = GetHighbdTestParams(av1_highbd_convolve_x_sr_c);
+TEST_F(AV2ConvolveParametersTest, GetHighbdTestParams) {
+  auto v = GetHighbdTestParams(av2_highbd_convolve_x_sr_c);
   ASSERT_EQ(82U, v.size());
   int num_10 = 0;
   int num_12 = 0;
   for (const auto &p : v) {
     ASSERT_TRUE(p.BitDepth() == 10 || p.BitDepth() == 12);
-    bool same_fn = av1_highbd_convolve_x_sr_c == p.TestFunction();
+    bool same_fn = av2_highbd_convolve_x_sr_c == p.TestFunction();
     ASSERT_TRUE(same_fn);
     if (p.BitDepth() == 10) {
       ++num_10;
@@ -158,21 +158,21 @@ TEST_F(AV1ConvolveParametersTest, GetHighbdTestParams) {
   ASSERT_EQ(num_10, num_12);
 }
 
-// AV1ConvolveTest is the base class that all convolve tests should derive from.
+// AV2ConvolveTest is the base class that all convolve tests should derive from.
 // It provides storage/methods for generating randomized buffers for both
 // low bit-depth and high bit-depth, and setup/teardown methods for clearing
 // system state. Implementors can get the bit-depth / block-size /
 // test function by calling GetParam().
 template <typename T>
-class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
+class AV2ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
  public:
-  virtual ~AV1ConvolveTest() { TearDown(); }
+  virtual ~AV2ConvolveTest() { TearDown(); }
 
   virtual void SetUp() override {
-    rnd_.Reset(libaom_test::ACMRandom::DeterministicSeed());
+    rnd_.Reset(libavm_test::ACMRandom::DeterministicSeed());
   }
 
-  virtual void TearDown() override { libaom_test::ClearSystemState(); }
+  virtual void TearDown() override { libavm_test::ClearSystemState(); }
 
   // Randomizes the 8-bit input buffer and returns a pointer to it. Note that
   // the pointer is safe to use with an 8-tap filter. The stride can range
@@ -318,7 +318,7 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
 
   static constexpr int kInputStride = MAX_SB_SIZE + kInputPadding;
 
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   // Statically allocate all the memory that is needed for the tests. Note
   // that we cannot allocate output memory here. It must use DECLARE_ALIGNED,
   // which is a C99 feature and interacts badly with C++ member variables.
@@ -336,7 +336,7 @@ typedef void (*highbd_convolve_x_func)(
     int h, const InterpFilterParams *filter_params_x, const int subpel_x_qn,
     ConvolveParams *conv_params, int bd);
 
-class AV1ConvolveXHighbdTest : public AV1ConvolveTest<highbd_convolve_x_func> {
+class AV2ConvolveXHighbdTest : public AV2ConvolveTest<highbd_convolve_x_func> {
  public:
   void RunTest() {
     for (int sub_x = 0; sub_x < 16; ++sub_x) {
@@ -354,12 +354,12 @@ class AV1ConvolveXHighbdTest : public AV1ConvolveTest<highbd_convolve_x_func> {
     const int height = GetParam().Block().Height();
     const int bit_depth = GetParam().BitDepth();
     const InterpFilterParams *filter_params_x =
-        av1_get_interp_filter_params_with_block_size(filter, width);
+        av2_get_interp_filter_params_with_block_size(filter, width);
     ConvolveParams conv_params1 =
         get_conv_params_no_round(0, 0, NULL, 0, 0, bit_depth);
     const uint16_t *input = FirstRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
-    av1_highbd_convolve_x_sr_c(input, width, reference, kOutputStride, width,
+    av2_highbd_convolve_x_sr_c(input, width, reference, kOutputStride, width,
                                height, filter_params_x, sub_x, &conv_params1,
                                bit_depth);
 
@@ -372,19 +372,19 @@ class AV1ConvolveXHighbdTest : public AV1ConvolveTest<highbd_convolve_x_func> {
   }
 };
 
-TEST_P(AV1ConvolveXHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2ConvolveXHighbdTest, RunTest) { RunTest(); }
 
-INSTANTIATE_TEST_SUITE_P(C, AV1ConvolveXHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_x_sr_c));
+INSTANTIATE_TEST_SUITE_P(C, AV2ConvolveXHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_x_sr_c));
 
 #if HAVE_SSSE3
-INSTANTIATE_TEST_SUITE_P(SSSE3, AV1ConvolveXHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_x_sr_ssse3));
+INSTANTIATE_TEST_SUITE_P(SSSE3, AV2ConvolveXHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_x_sr_ssse3));
 #endif
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveXHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_x_sr_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2ConvolveXHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_x_sr_avx2));
 #endif
 
 /////////////////////////////////////////////////////////
@@ -395,7 +395,7 @@ typedef void (*highbd_convolve_y_func)(
     int h, const InterpFilterParams *filter_params_y, const int subpel_y_qn,
     int bd);
 
-class AV1ConvolveYHighbdTest : public AV1ConvolveTest<highbd_convolve_y_func> {
+class AV2ConvolveYHighbdTest : public AV2ConvolveTest<highbd_convolve_y_func> {
  public:
   void RunTest() {
     for (int sub_y = 0; sub_y < 16; ++sub_y) {
@@ -413,10 +413,10 @@ class AV1ConvolveYHighbdTest : public AV1ConvolveTest<highbd_convolve_y_func> {
     const int height = GetParam().Block().Height();
     const int bit_depth = GetParam().BitDepth();
     const InterpFilterParams *filter_params_y =
-        av1_get_interp_filter_params_with_block_size(filter, height);
+        av2_get_interp_filter_params_with_block_size(filter, height);
     const uint16_t *input = FirstRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
-    av1_highbd_convolve_y_sr_c(input, width, reference, kOutputStride, width,
+    av2_highbd_convolve_y_sr_c(input, width, reference, kOutputStride, width,
                                height, filter_params_y, sub_y, bit_depth);
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
     GetParam().TestFunction()(input, width, test, kOutputStride, width, height,
@@ -425,19 +425,19 @@ class AV1ConvolveYHighbdTest : public AV1ConvolveTest<highbd_convolve_y_func> {
   }
 };
 
-TEST_P(AV1ConvolveYHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2ConvolveYHighbdTest, RunTest) { RunTest(); }
 
-INSTANTIATE_TEST_SUITE_P(C, AV1ConvolveYHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_y_sr_c));
+INSTANTIATE_TEST_SUITE_P(C, AV2ConvolveYHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_y_sr_c));
 
 #if HAVE_SSSE3
-INSTANTIATE_TEST_SUITE_P(SSSE3, AV1ConvolveYHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_y_sr_ssse3));
+INSTANTIATE_TEST_SUITE_P(SSSE3, AV2ConvolveYHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_y_sr_ssse3));
 #endif
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveYHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_y_sr_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2ConvolveYHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_y_sr_avx2));
 #endif
 
 ///////////////////////////////////////////////////////////////
@@ -447,8 +447,8 @@ typedef void (*highbd_convolve_copy_func)(const uint16_t *src,
                                           ptrdiff_t src_stride, uint16_t *dst,
                                           ptrdiff_t dst_stride, int w, int h);
 
-class AV1ConvolveCopyHighbdTest
-    : public AV1ConvolveTest<highbd_convolve_copy_func> {
+class AV2ConvolveCopyHighbdTest
+    : public AV2ConvolveTest<highbd_convolve_copy_func> {
  public:
   void RunTest() {
     const BlockSize &block = GetParam().Block();
@@ -456,7 +456,7 @@ class AV1ConvolveCopyHighbdTest
     const int height = block.Height();
     const uint16_t *input = FirstRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
-    aom_highbd_convolve_copy_c(input, width, reference, kOutputStride, width,
+    avm_highbd_convolve_copy_c(input, width, reference, kOutputStride, width,
                                height);
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
     GetParam().TestFunction()(input, width, test, kOutputStride, width, height);
@@ -464,19 +464,19 @@ class AV1ConvolveCopyHighbdTest
   }
 };
 
-TEST_P(AV1ConvolveCopyHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2ConvolveCopyHighbdTest, RunTest) { RunTest(); }
 
-INSTANTIATE_TEST_SUITE_P(C, AV1ConvolveCopyHighbdTest,
-                         BuildHighbdParams(aom_highbd_convolve_copy_c));
+INSTANTIATE_TEST_SUITE_P(C, AV2ConvolveCopyHighbdTest,
+                         BuildHighbdParams(avm_highbd_convolve_copy_c));
 
 #if HAVE_SSE2
-INSTANTIATE_TEST_SUITE_P(SSE2, AV1ConvolveCopyHighbdTest,
-                         BuildHighbdParams(aom_highbd_convolve_copy_sse2));
+INSTANTIATE_TEST_SUITE_P(SSE2, AV2ConvolveCopyHighbdTest,
+                         BuildHighbdParams(avm_highbd_convolve_copy_sse2));
 #endif
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveCopyHighbdTest,
-                         BuildHighbdParams(aom_highbd_convolve_copy_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2ConvolveCopyHighbdTest,
+                         BuildHighbdParams(avm_highbd_convolve_copy_avx2));
 #endif
 
 //////////////////////////////////////////////////////////
@@ -489,8 +489,8 @@ typedef void (*highbd_convolve_2d_func)(
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
     const int subpel_y_qn, ConvolveParams *conv_params, int bd);
 
-class AV1Convolve2DHighbdTest
-    : public AV1ConvolveTest<highbd_convolve_2d_func> {
+class AV2Convolve2DHighbdTest
+    : public AV2ConvolveTest<highbd_convolve_2d_func> {
  public:
   void RunTest() {
     for (int sub_x = 0; sub_x < 16; ++sub_x) {
@@ -521,14 +521,14 @@ class AV1Convolve2DHighbdTest
     const int height = GetParam().Block().Height();
     const int bit_depth = GetParam().BitDepth();
     const InterpFilterParams *filter_params_x =
-        av1_get_interp_filter_params_with_block_size(h_f, width);
+        av2_get_interp_filter_params_with_block_size(h_f, width);
     const InterpFilterParams *filter_params_y =
-        av1_get_interp_filter_params_with_block_size(v_f, height);
+        av2_get_interp_filter_params_with_block_size(v_f, height);
     const uint16_t *input = FirstRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
     ConvolveParams conv_params1 =
         get_conv_params_no_round(0, 0, NULL, 0, 0, bit_depth);
-    av1_highbd_convolve_2d_sr_c(input, width, reference, kOutputStride, width,
+    av2_highbd_convolve_2d_sr_c(input, width, reference, kOutputStride, width,
                                 height, filter_params_x, filter_params_y, sub_x,
                                 sub_y, &conv_params1, bit_depth);
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
@@ -546,35 +546,35 @@ class AV1Convolve2DHighbdTest
     const int height = GetParam().Block().Height();
     const int bit_depth = GetParam().BitDepth();
     const InterpFilterParams *filter_params_x =
-        av1_get_interp_filter_params_with_block_size(h_f, width);
+        av2_get_interp_filter_params_with_block_size(h_f, width);
     const InterpFilterParams *filter_params_y =
-        av1_get_interp_filter_params_with_block_size(v_f, height);
+        av2_get_interp_filter_params_with_block_size(v_f, height);
 
     const uint16_t *input = FirstRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
     ConvolveParams conv_params1 =
         get_conv_params_no_round(0, 0, nullptr, 0, 0, bit_depth);
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
+    avm_usec_timer timer;
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < num_iters; ++i) {
-      av1_highbd_convolve_2d_sr_c(input, width, reference, kOutputStride, width,
+      av2_highbd_convolve_2d_sr_c(input, width, reference, kOutputStride, width,
                                   height, filter_params_x, filter_params_y,
                                   sub_x, sub_y, &conv_params1, bit_depth);
     }
-    aom_usec_timer_mark(&timer);
-    const int time1 = static_cast<int>(aom_usec_timer_elapsed(&timer));
+    avm_usec_timer_mark(&timer);
+    const int time1 = static_cast<int>(avm_usec_timer_elapsed(&timer));
 
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
     ConvolveParams conv_params2 =
         get_conv_params_no_round(0, 0, nullptr, 0, 0, bit_depth);
-    aom_usec_timer_start(&timer);
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < num_iters; ++i) {
       GetParam().TestFunction()(input, width, test, kOutputStride, width,
                                 height, filter_params_x, filter_params_y, sub_x,
                                 sub_y, &conv_params2, bit_depth);
     }
-    aom_usec_timer_mark(&timer);
-    const int time2 = static_cast<int>(aom_usec_timer_elapsed(&timer));
+    avm_usec_timer_mark(&timer);
+    const int time2 = static_cast<int>(avm_usec_timer_elapsed(&timer));
 
     printf("%d - %d %3dx%-3d bd: %d ref: %d mod: %d (%3.2f)\n", h_f, v_f, width,
            height, bit_depth, time1, time2, (double)time1 / time2);
@@ -582,20 +582,20 @@ class AV1Convolve2DHighbdTest
   }
 };
 
-TEST_P(AV1Convolve2DHighbdTest, RunTest) { RunTest(); }
-TEST_P(AV1Convolve2DHighbdTest, DISABLED_Speed) { SpeedTest(); }
+TEST_P(AV2Convolve2DHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2Convolve2DHighbdTest, DISABLED_Speed) { SpeedTest(); }
 
-INSTANTIATE_TEST_SUITE_P(C, AV1Convolve2DHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_2d_sr_c));
+INSTANTIATE_TEST_SUITE_P(C, AV2Convolve2DHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_2d_sr_c));
 
 #if HAVE_SSSE3
-INSTANTIATE_TEST_SUITE_P(SSSE3, AV1Convolve2DHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_2d_sr_ssse3));
+INSTANTIATE_TEST_SUITE_P(SSSE3, AV2Convolve2DHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_2d_sr_ssse3));
 #endif
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1Convolve2DHighbdTest,
-                         BuildHighbdParams(av1_highbd_convolve_2d_sr_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2Convolve2DHighbdTest,
+                         BuildHighbdParams(av2_highbd_convolve_2d_sr_avx2));
 #endif
 
 //////////////////////////
@@ -627,14 +627,14 @@ std::vector<TestParam<T>> GetHighbdLumaTestParams(T test_func) {
   return GetLumaTestParams({ 10, 12 }, test_func);
 }
 
-TEST_F(AV1ConvolveParametersTest, GetHighbdLumaTestParams) {
-  auto v = GetHighbdLumaTestParams(av1_highbd_dist_wtd_convolve_x_c);
+TEST_F(AV2ConvolveParametersTest, GetHighbdLumaTestParams) {
+  auto v = GetHighbdLumaTestParams(av2_highbd_dist_wtd_convolve_x_c);
   ASSERT_EQ(static_cast<size_t>(BLOCK_SIZES_ALL * 2), v.size());
   int num_10 = 0;
   int num_12 = 0;
   for (const auto &e : v) {
     ASSERT_TRUE(10 == e.BitDepth() || 12 == e.BitDepth());
-    bool same_fn = av1_highbd_dist_wtd_convolve_x_c == e.TestFunction();
+    bool same_fn = av2_highbd_dist_wtd_convolve_x_c == e.TestFunction();
     ASSERT_TRUE(same_fn);
     if (e.BitDepth() == 10) {
       ++num_10;
@@ -682,7 +682,7 @@ std::vector<CompoundParam> GetCompoundParams() {
   return result;
 }
 
-TEST_F(AV1ConvolveParametersTest, GetCompoundParams) {
+TEST_F(AV2ConvolveParametersTest, GetCompoundParams) {
   auto v = GetCompoundParams();
   ASSERT_EQ(9U, v.size());
   ASSERT_FALSE(v[0].UseWtdCompAvg());
@@ -705,8 +705,8 @@ ConvolveParams GetConvolveParams(int do_average, CONV_BUF_TYPE *conv_buf,
   return conv_params;
 }
 
-class AV1ConvolveXHighbdCompoundTest
-    : public AV1ConvolveTest<highbd_convolve_x_func> {
+class AV2ConvolveXHighbdCompoundTest
+    : public AV2ConvolveTest<highbd_convolve_x_func> {
  public:
   void RunTest() {
     auto compound_params = GetCompoundParams();
@@ -722,11 +722,11 @@ class AV1ConvolveXHighbdCompoundTest
  protected:
   virtual const InterpFilterParams *FilterParams(InterpFilter f,
                                                  const BlockSize &block) const {
-    return av1_get_interp_filter_params_with_block_size(f, block.Width());
+    return av2_get_interp_filter_params_with_block_size(f, block.Width());
   }
 
   virtual highbd_convolve_x_func ReferenceFunc() const {
-    return av1_highbd_dist_wtd_convolve_x_c;
+    return av2_highbd_dist_wtd_convolve_x_c;
   }
 
  private:
@@ -771,22 +771,22 @@ class AV1ConvolveXHighbdCompoundTest
   }
 };
 
-TEST_P(AV1ConvolveXHighbdCompoundTest, RunTest) { RunTest(); }
+TEST_P(AV2ConvolveXHighbdCompoundTest, RunTest) { RunTest(); }
 
 INSTANTIATE_TEST_SUITE_P(
-    C, AV1ConvolveXHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_c));
+    C, AV2ConvolveXHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_x_c));
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
-    SSE4_1, AV1ConvolveXHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_sse4_1));
+    SSE4_1, AV2ConvolveXHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_x_sse4_1));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveXHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_avx2));
+    AVX2, AV2ConvolveXHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_x_avx2));
 #endif
 
 /////////////////////////////////////////////////
@@ -794,32 +794,32 @@ INSTANTIATE_TEST_SUITE_P(
 /////////////////////////////////////////////////
 
 // Again, the X and Y convolve functions have the same type signature and logic.
-class AV1ConvolveYHighbdCompoundTest : public AV1ConvolveXHighbdCompoundTest {
+class AV2ConvolveYHighbdCompoundTest : public AV2ConvolveXHighbdCompoundTest {
   virtual highbd_convolve_x_func ReferenceFunc() const override {
-    return av1_highbd_dist_wtd_convolve_y_c;
+    return av2_highbd_dist_wtd_convolve_y_c;
   }
   virtual const InterpFilterParams *FilterParams(
       InterpFilter f, const BlockSize &block) const override {
-    return av1_get_interp_filter_params_with_block_size(f, block.Height());
+    return av2_get_interp_filter_params_with_block_size(f, block.Height());
   }
 };
 
-TEST_P(AV1ConvolveYHighbdCompoundTest, RunTest) { RunTest(); }
+TEST_P(AV2ConvolveYHighbdCompoundTest, RunTest) { RunTest(); }
 
 INSTANTIATE_TEST_SUITE_P(
-    C, AV1ConvolveYHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_c));
+    C, AV2ConvolveYHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_y_c));
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
-    SSE4_1, AV1ConvolveYHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_sse4_1));
+    SSE4_1, AV2ConvolveYHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_y_sse4_1));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveYHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_avx2));
+    AVX2, AV2ConvolveYHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_y_avx2));
 #endif
 
 ///////////////////////////////////////////////////////
@@ -831,8 +831,8 @@ typedef void (*highbd_compound_conv_2d_copy_func)(const uint16_t *src,
                                                   ConvolveParams *conv_params,
                                                   int bd);
 
-class AV1Convolve2DCopyHighbdCompoundTest
-    : public AV1ConvolveTest<highbd_compound_conv_2d_copy_func> {
+class AV2Convolve2DCopyHighbdCompoundTest
+    : public AV2ConvolveTest<highbd_compound_conv_2d_copy_func> {
  public:
   void RunTest() {
     auto compound_params = GetCompoundParams();
@@ -866,29 +866,29 @@ class AV1Convolve2DCopyHighbdCompoundTest
     ConvolveParams conv_params_do_avg =
         GetConvolveParams(1, conv_buf, kOutputStride, bit_depth, compound);
 
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
+    avm_usec_timer timer;
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < nob; i++) {
-      av1_highbd_dist_wtd_convolve_2d_copy_c(input, width, conv_buf,
+      av2_highbd_dist_wtd_convolve_2d_copy_c(input, width, conv_buf,
                                              kOutputStride, width, height,
                                              &conv_params, bit_depth);
-      av1_highbd_dist_wtd_convolve_2d_copy_c(input, width, conv_buf,
+      av2_highbd_dist_wtd_convolve_2d_copy_c(input, width, conv_buf,
                                              kOutputStride, width, height,
                                              &conv_params_do_avg, bit_depth);
     }
-    aom_usec_timer_mark(&timer);
-    const int elapsed_time = static_cast<int>(aom_usec_timer_elapsed(&timer));
+    avm_usec_timer_mark(&timer);
+    const int elapsed_time = static_cast<int>(avm_usec_timer_elapsed(&timer));
 
-    aom_usec_timer timer1;
-    aom_usec_timer_start(&timer1);
+    avm_usec_timer timer1;
+    avm_usec_timer_start(&timer1);
     for (int i = 0; i < nob; i++) {
       test_func(input, width, conv_buf, kOutputStride, width, height,
                 &conv_params, bit_depth);
       test_func(input, width, conv_buf, kOutputStride, width, height,
                 &conv_params_do_avg, bit_depth);
     }
-    aom_usec_timer_mark(&timer1);
-    const int elapsed_time1 = static_cast<int>(aom_usec_timer_elapsed(&timer1));
+    avm_usec_timer_mark(&timer1);
+    const int elapsed_time1 = static_cast<int>(avm_usec_timer_elapsed(&timer1));
     printf("%d x %d block: bd: %d, Scaling = %.2f\n", width, height, bit_depth,
            (double)elapsed_time / elapsed_time1);
   }
@@ -903,7 +903,7 @@ class AV1Convolve2DCopyHighbdCompoundTest
     const uint16_t *input2 = SecondRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
     DECLARE_ALIGNED(32, CONV_BUF_TYPE, reference_conv_buf[MAX_SB_SQUARE]);
-    Convolve(av1_highbd_dist_wtd_convolve_2d_copy_c, input1, input2, reference,
+    Convolve(av2_highbd_dist_wtd_convolve_2d_copy_c, input1, input2, reference,
              reference_conv_buf, compound);
 
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
@@ -935,31 +935,31 @@ class AV1Convolve2DCopyHighbdCompoundTest
   }
 };
 
-TEST_P(AV1Convolve2DCopyHighbdCompoundTest, RunTest) { RunTest(); }
-TEST_P(AV1Convolve2DCopyHighbdCompoundTest, DISABLED_SpeedTest) { SpeedTest(); }
+TEST_P(AV2Convolve2DCopyHighbdCompoundTest, RunTest) { RunTest(); }
+TEST_P(AV2Convolve2DCopyHighbdCompoundTest, DISABLED_SpeedTest) { SpeedTest(); }
 
 INSTANTIATE_TEST_SUITE_P(
-    C, AV1Convolve2DCopyHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_c));
+    C, AV2Convolve2DCopyHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_copy_c));
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
-    SSE4_1, AV1Convolve2DCopyHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_sse4_1));
+    SSE4_1, AV2Convolve2DCopyHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_copy_sse4_1));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1Convolve2DCopyHighbdCompoundTest,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_avx2));
+    AVX2, AV2Convolve2DCopyHighbdCompoundTest,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_copy_avx2));
 #endif
 
 //////////////////////////////////////////////////
 // Compound convolve-2d functions (high bit-depth)
 //////////////////////////////////////////////////
 
-class AV1Convolve2DHighbdCompoundTestLarge
-    : public AV1ConvolveTest<highbd_convolve_2d_func> {
+class AV2Convolve2DHighbdCompoundTestLarge
+    : public AV2ConvolveTest<highbd_convolve_2d_func> {
  public:
   void RunTest() {
     auto compound_params = GetCompoundParams();
@@ -989,7 +989,7 @@ class AV1Convolve2DHighbdCompoundTestLarge
     const uint16_t *input2 = SecondRandomInput12(GetParam());
     DECLARE_ALIGNED(32, uint16_t, reference[MAX_SB_SQUARE]);
     DECLARE_ALIGNED(32, CONV_BUF_TYPE, reference_conv_buf[MAX_SB_SQUARE]);
-    Convolve(av1_highbd_dist_wtd_convolve_2d_c, input1, input2, reference,
+    Convolve(av2_highbd_dist_wtd_convolve_2d_c, input1, input2, reference,
              reference_conv_buf, compound, h_f, v_f, sub_x, sub_y);
 
     DECLARE_ALIGNED(32, uint16_t, test[MAX_SB_SQUARE]);
@@ -1011,9 +1011,9 @@ class AV1Convolve2DHighbdCompoundTestLarge
     const int height = block.Height();
 
     const InterpFilterParams *filter_params_x =
-        av1_get_interp_filter_params_with_block_size(h_f, width);
+        av2_get_interp_filter_params_with_block_size(h_f, width);
     const InterpFilterParams *filter_params_y =
-        av1_get_interp_filter_params_with_block_size(v_f, height);
+        av2_get_interp_filter_params_with_block_size(v_f, height);
     const int bit_depth = GetParam().BitDepth();
     ConvolveParams conv_params =
         GetConvolveParams(0, conv_buf, kOutputStride, bit_depth, compound);
@@ -1027,22 +1027,22 @@ class AV1Convolve2DHighbdCompoundTestLarge
   }
 };
 
-TEST_P(AV1Convolve2DHighbdCompoundTestLarge, RunTest) { RunTest(); }
+TEST_P(AV2Convolve2DHighbdCompoundTestLarge, RunTest) { RunTest(); }
 
 INSTANTIATE_TEST_SUITE_P(
-    C, AV1Convolve2DHighbdCompoundTestLarge,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_c));
+    C, AV2Convolve2DHighbdCompoundTestLarge,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_c));
 
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
-    SSE4_1, AV1Convolve2DHighbdCompoundTestLarge,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_sse4_1));
+    SSE4_1, AV2Convolve2DHighbdCompoundTestLarge,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_sse4_1));
 #endif
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1Convolve2DHighbdCompoundTestLarge,
-    BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_avx2));
+    AVX2, AV2Convolve2DHighbdCompoundTestLarge,
+    BuildHighbdLumaParams(av2_highbd_dist_wtd_convolve_2d_avx2));
 #endif
 
 //////////////////////////////////////////////////////////
@@ -1055,8 +1055,8 @@ typedef void (*highbd_convolve_nonsep_2d_func)(
     uint16_t *dst, int dst_stride, int bit_depth, int block_row_begin,
     int block_row_end, int block_col_begin, int block_col_end);
 
-class AV1ConvolveNonSep2DHighbdTest
-    : public AV1ConvolveTest<highbd_convolve_nonsep_2d_func> {
+class AV2ConvolveNonSep2DHighbdTest
+    : public AV2ConvolveTest<highbd_convolve_nonsep_2d_func> {
  public:
   void RunTest(RestorationType rtype) {
     for (int i = 0; i < kTestIterations; i++) {
@@ -1075,11 +1075,11 @@ class AV1ConvolveNonSep2DHighbdTest
                     int block_row_begin, int block_row_end, int block_col_begin,
                     int block_col_end, RestorationType rtype) {
     const NonsepFilterConfig *filter_config[2] = { NULL, NULL };
-    highbd_convolve_nonsep_2d_func ref_func = av1_convolve_symmetric_highbd_c;
+    highbd_convolve_nonsep_2d_func ref_func = av2_convolve_symmetric_highbd_c;
     const int num_planes = 2;
 
     if (rtype == RESTORE_PC_WIENER) {
-      ref_func = av1_convolve_symmetric_highbd_c;
+      ref_func = av2_convolve_symmetric_highbd_c;
       filter_config[0] = &UnconstrainedSumFilterConfig_;
       filter_config[1] = &PcWienerNonsepFilterConfigChroma_;
     }
@@ -1088,7 +1088,7 @@ class AV1ConvolveNonSep2DHighbdTest
     // of filter taps and both needs to be tested. Here, luma is tested for
     // 12/13-tap filtering whereas chroma is tested for 6-tap filtering.
     if (rtype == RESTORE_WIENER_NONSEP) {
-      ref_func = av1_convolve_symmetric_subtract_center_highbd_c;
+      ref_func = av2_convolve_symmetric_subtract_center_highbd_c;
       filter_config[0] = &UnitSumFilterConfig_;
       filter_config[1] = &UnitSumFilterConfigChroma_;
     }
@@ -1145,10 +1145,10 @@ class AV1ConvolveNonSep2DHighbdTest
 
     // Calculate time taken for C function
     const NonsepFilterConfig *filter_config[2] = { NULL, NULL };
-    highbd_convolve_nonsep_2d_func ref_func = av1_convolve_symmetric_highbd_c;
+    highbd_convolve_nonsep_2d_func ref_func = av2_convolve_symmetric_highbd_c;
 
     if (rtype == RESTORE_PC_WIENER) {
-      ref_func = av1_convolve_symmetric_highbd_c;
+      ref_func = av2_convolve_symmetric_highbd_c;
       filter_config[0] = &UnconstrainedSumFilterConfig_;
       filter_config[1] = &PcWienerNonsepFilterConfigChroma_;
     }
@@ -1157,31 +1157,31 @@ class AV1ConvolveNonSep2DHighbdTest
     // filter taps and both needs to be tested. Here, luma is tested for
     // 12/13-tap filtering whereas chroma is tested for 6-tap filtering.
     if (rtype == RESTORE_WIENER_NONSEP) {
-      ref_func = av1_convolve_symmetric_subtract_center_highbd_c;
+      ref_func = av2_convolve_symmetric_subtract_center_highbd_c;
       filter_config[0] = &UnitSumFilterConfig_;
       filter_config[1] = &UnitSumFilterConfigChroma_;
     }
 
     for (int plane = 0; plane < num_planes; plane++) {
       // Calculate time taken by reference/c function
-      aom_usec_timer timer;
-      aom_usec_timer_start(&timer);
+      avm_usec_timer timer;
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         ref_func(input, width, filter_config[plane], filter, reference,
                  kOutputStride, bit_depth, 0, height, 0, width);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
       // Calculate time taken by optimized/intrinsic function
-      aom_usec_timer_start(&timer);
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         GetParam().TestFunction()(input, width, filter_config[plane], filter,
                                   test, kOutputStride, bit_depth, 0, height, 0,
                                   width);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
       float c_time_per_pixel =
           (float)1000.0 * elapsed_time_c / (kSpeedIterations * width * height);
@@ -1229,7 +1229,7 @@ class AV1ConvolveNonSep2DHighbdTest
     return (value >> 7) & 0x1;
   }
 
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   static constexpr int kMaxPrecisionBeforeOverflow = 12;
   static constexpr int kMaxNumSymmetricTaps = 18;
   static constexpr int kMaxTapOffset = 3;  // Filters are 7x7.
@@ -1292,49 +1292,49 @@ class AV1ConvolveNonSep2DHighbdTest
   int16_t FilterTaps_[kMaxNumSymmetricTaps + 1];
 };
 
-TEST_P(AV1ConvolveNonSep2DHighbdTest, DISABLED_RunTest) {
+TEST_P(AV2ConvolveNonSep2DHighbdTest, DISABLED_RunTest) {
   RunTest(RESTORE_PC_WIENER);
 }
 
-TEST_P(AV1ConvolveNonSep2DHighbdTest, DISABLED_Speed) {
+TEST_P(AV2ConvolveNonSep2DHighbdTest, DISABLED_Speed) {
   RunSpeedTest(RESTORE_PC_WIENER);
 }
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveNonSep2DHighbdTest,
-                         BuildHighbdParams(av1_convolve_symmetric_highbd_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2ConvolveNonSep2DHighbdTest,
+                         BuildHighbdParams(av2_convolve_symmetric_highbd_avx2));
 #endif
 
-class AV1ConvolveWienerNonSep2DHighbdTest
-    : public AV1ConvolveNonSep2DHighbdTest {};
+class AV2ConvolveWienerNonSep2DHighbdTest
+    : public AV2ConvolveNonSep2DHighbdTest {};
 
-TEST_P(AV1ConvolveWienerNonSep2DHighbdTest, RunTest) {
+TEST_P(AV2ConvolveWienerNonSep2DHighbdTest, RunTest) {
   RunTest(RESTORE_WIENER_NONSEP);
 }
-TEST_P(AV1ConvolveWienerNonSep2DHighbdTest, DISABLED_Speed) {
+TEST_P(AV2ConvolveWienerNonSep2DHighbdTest, DISABLED_Speed) {
   RunSpeedTest(RESTORE_WIENER_NONSEP);
 }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveWienerNonSep2DHighbdTest,
-    BuildHighbdParams(av1_convolve_symmetric_subtract_center_highbd_avx2));
+    AVX2, AV2ConvolveWienerNonSep2DHighbdTest,
+    BuildHighbdParams(av2_convolve_symmetric_subtract_center_highbd_avx2));
 #endif
 
-class AV1ConvolveNonSepBlk8x82DHighbdTest
-    : public AV1ConvolveNonSep2DHighbdTest {};
+class AV2ConvolveNonSepBlk8x82DHighbdTest
+    : public AV2ConvolveNonSep2DHighbdTest {};
 
-TEST_P(AV1ConvolveNonSepBlk8x82DHighbdTest, RunTest) {
+TEST_P(AV2ConvolveNonSepBlk8x82DHighbdTest, RunTest) {
   RunTest(RESTORE_PC_WIENER);
 }
-TEST_P(AV1ConvolveNonSepBlk8x82DHighbdTest, DISABLED_Speed) {
+TEST_P(AV2ConvolveNonSepBlk8x82DHighbdTest, DISABLED_Speed) {
   RunSpeedTest(RESTORE_PC_WIENER);
 }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveNonSepBlk8x82DHighbdTest,
-    BuildHighbdParams(av1_convolve_symmetric_blk8x8_highbd_avx2));
+    AVX2, AV2ConvolveNonSepBlk8x82DHighbdTest,
+    BuildHighbdParams(av2_convolve_symmetric_blk8x8_highbd_avx2));
 #endif
 
 //////////////////////////////////////////////////////////
@@ -1348,8 +1348,8 @@ typedef void (*highbd_convolve_nonsep_dual_2d_func)(
     int block_row_begin, int block_row_end, int block_col_begin,
     int block_col_end);
 
-class AV1ConvolveNonSep_dual2DHighbdTest
-    : public AV1ConvolveTest<highbd_convolve_nonsep_dual_2d_func> {
+class AV2ConvolveNonSep_dual2DHighbdTest
+    : public AV2ConvolveTest<highbd_convolve_nonsep_dual_2d_func> {
  public:
   void RunTest(int is_subtract_center) {
     for (int i = 0; i < kTestIterations; i++) {
@@ -1362,7 +1362,7 @@ class AV1ConvolveNonSep_dual2DHighbdTest
   };
 
  private:
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   static constexpr int kMaxPrecisionBeforeOverflow = 12;
   static constexpr int kNumSubtractCenterOffTaps = 20;
   static constexpr int kMaxTapOffset = 2;  // Filters are 5x5.
@@ -1413,10 +1413,10 @@ class AV1ConvolveNonSep_dual2DHighbdTest
     const NonsepFilterConfig *filter_cfg;
 
     filter_cfg = &DualFilterWithCenterConfig_;
-    ref_func = av1_convolve_symmetric_dual_subtract_center_highbd_c;
+    ref_func = av2_convolve_symmetric_dual_subtract_center_highbd_c;
 
     if (!is_subtract_center) {
-      ref_func = av1_convolve_symmetric_dual_highbd_c;
+      ref_func = av2_convolve_symmetric_dual_highbd_c;
       filter_cfg = &DualFilterWithoutCenterConfig_;
     }
     // Reference function
@@ -1479,32 +1479,32 @@ class AV1ConvolveNonSep_dual2DHighbdTest
     const NonsepFilterConfig *filter_cfg;
 
     filter_cfg = &DualFilterWithCenterConfig_;
-    ref_func = av1_convolve_symmetric_dual_subtract_center_highbd_c;
+    ref_func = av2_convolve_symmetric_dual_subtract_center_highbd_c;
 
     if (!is_subtract_center) {
-      ref_func = av1_convolve_symmetric_dual_highbd_c;
+      ref_func = av2_convolve_symmetric_dual_highbd_c;
       filter_cfg = &DualFilterWithoutCenterConfig_;
     }
 
     // Calculate time taken by reference/c function
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
+    avm_usec_timer timer;
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < kSpeedIterations; ++i) {
       ref_func(dgd, width, dgd_dual, width, filter_cfg, filter, reference,
                kOutputStride, bit_depth, 0, height, 0, width);
     }
-    aom_usec_timer_mark(&timer);
-    auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+    avm_usec_timer_mark(&timer);
+    auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
     // Calculate time taken by optimized/intrinsic function
-    aom_usec_timer_start(&timer);
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < kSpeedIterations; ++i) {
       GetParam().TestFunction()(dgd, width, dgd_dual, width, filter_cfg, filter,
                                 test, kOutputStride, bit_depth, 0, height, 0,
                                 width);
     }
-    aom_usec_timer_mark(&timer);
-    auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+    avm_usec_timer_mark(&timer);
+    auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
     float c_time_per_pixel =
         (float)1000.0 * elapsed_time_c / (kSpeedIterations * width * height);
@@ -1548,28 +1548,28 @@ class AV1ConvolveNonSep_dual2DHighbdTest
   };
 };
 
-TEST_P(AV1ConvolveNonSep_dual2DHighbdTest, RunTest) { RunTest(1); }
-TEST_P(AV1ConvolveNonSep_dual2DHighbdTest, DISABLED_Speed) { RunSpeedTest(1); }
+TEST_P(AV2ConvolveNonSep_dual2DHighbdTest, RunTest) { RunTest(1); }
+TEST_P(AV2ConvolveNonSep_dual2DHighbdTest, DISABLED_Speed) { RunSpeedTest(1); }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveNonSep_dual2DHighbdTest,
-    BuildHighbdParams(av1_convolve_symmetric_dual_subtract_center_highbd_avx2));
+    AVX2, AV2ConvolveNonSep_dual2DHighbdTest,
+    BuildHighbdParams(av2_convolve_symmetric_dual_subtract_center_highbd_avx2));
 #endif  // HAVE_AVX2
 
 /* Dual with subtract center off unit-test*/
-class AV1ConvolveDualWithoutsubtract2DHighbdTest
-    : public AV1ConvolveNonSep_dual2DHighbdTest {};
+class AV2ConvolveDualWithoutsubtract2DHighbdTest
+    : public AV2ConvolveNonSep_dual2DHighbdTest {};
 
-TEST_P(AV1ConvolveDualWithoutsubtract2DHighbdTest, RunTest) { RunTest(0); }
-TEST_P(AV1ConvolveDualWithoutsubtract2DHighbdTest, DISABLED_Speed) {
+TEST_P(AV2ConvolveDualWithoutsubtract2DHighbdTest, RunTest) { RunTest(0); }
+TEST_P(AV2ConvolveDualWithoutsubtract2DHighbdTest, DISABLED_Speed) {
   RunSpeedTest(0);
 }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1ConvolveDualWithoutsubtract2DHighbdTest,
-    BuildHighbdParams(av1_convolve_symmetric_dual_highbd_avx2));
+    AVX2, AV2ConvolveDualWithoutsubtract2DHighbdTest,
+    BuildHighbdParams(av2_convolve_symmetric_dual_highbd_avx2));
 #endif
 
 //////////////////////////////////////////////////////////
@@ -1614,8 +1614,8 @@ typedef void (*fill_directional_feature_buffers_highbd_func)(
     int buffer_row, const uint16_t *dgd, int dgd_stride, int width,
     int feature_lead, int feature_lag);
 
-class AV1FillDirFeatureBufHighbdTest
-    : public AV1ConvolveTest<fill_directional_feature_buffers_highbd_func> {
+class AV2FillDirFeatureBufHighbdTest
+    : public AV2ConvolveTest<fill_directional_feature_buffers_highbd_func> {
  public:
   void RunTest() {
     for (int i = 0; i < kTestIterations; i++) {
@@ -1631,37 +1631,37 @@ class AV1FillDirFeatureBufHighbdTest
   virtual void SetUp() {
     for (int j = 0; j < NUM_FEATURE_LINE_BUFFERS; ++j) {
       feature_line_buffers_c_[j] = static_cast<int16_t *>(
-          (aom_malloc(buffer_width_ * sizeof(*feature_line_buffers_c_[j]))));
+          (avm_malloc(buffer_width_ * sizeof(*feature_line_buffers_c_[j]))));
       ASSERT_NE(feature_line_buffers_c_[j], nullptr);
 
       feature_line_buffers_simd_[j] = static_cast<int16_t *>(
-          (aom_malloc(buffer_width_ * sizeof(*feature_line_buffers_simd_[j]))));
+          (avm_malloc(buffer_width_ * sizeof(*feature_line_buffers_simd_[j]))));
       ASSERT_NE(feature_line_buffers_simd_[j], nullptr);
     }
 
     for (int j = 0; j < NUM_PC_WIENER_FEATURES; ++j) {
       feature_sum_buffers_c_[j] = static_cast<int *>(
-          (aom_malloc(buffer_width_ * sizeof(*feature_sum_buffers_c_[j]))));
+          (avm_malloc(buffer_width_ * sizeof(*feature_sum_buffers_c_[j]))));
       ASSERT_NE(feature_sum_buffers_c_[j], nullptr);
 
       feature_sum_buffers_simd_[j] = static_cast<int *>(
-          (aom_malloc(buffer_width_ * sizeof(*feature_sum_buffers_simd_[j]))));
+          (avm_malloc(buffer_width_ * sizeof(*feature_sum_buffers_simd_[j]))));
       ASSERT_NE(feature_sum_buffers_simd_[j], nullptr);
     }
   }
 
   virtual void TearDown() {
     for (int j = 0; j < NUM_FEATURE_LINE_BUFFERS; ++j) {
-      aom_free(feature_line_buffers_c_[j]);
+      avm_free(feature_line_buffers_c_[j]);
       feature_line_buffers_c_[j] = NULL;
-      aom_free(feature_line_buffers_simd_[j]);
+      avm_free(feature_line_buffers_simd_[j]);
       feature_line_buffers_simd_[j] = NULL;
     }
 
     for (int j = 0; j < NUM_PC_WIENER_FEATURES; ++j) {
-      aom_free(feature_sum_buffers_c_[j]);
+      avm_free(feature_sum_buffers_c_[j]);
       feature_sum_buffers_c_[j] = NULL;
-      aom_free(feature_sum_buffers_simd_[j]);
+      avm_free(feature_sum_buffers_simd_[j]);
       feature_sum_buffers_simd_[j] = NULL;
     }
   }
@@ -1682,7 +1682,7 @@ class AV1FillDirFeatureBufHighbdTest
   }
 
  private:
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   static constexpr int kSpeedIterations = 10000;
   static constexpr int kTestIterations = 100;
 
@@ -1695,7 +1695,7 @@ class AV1FillDirFeatureBufHighbdTest
 
     // C function call
     for (int i = 0; i < height; ++i) {
-      const int row_to_process = AOMMIN(i + feature_lag, height + 3 - 2);
+      const int row_to_process = AVMMIN(i + feature_lag, height + 3 - 2);
       fill_directional_feature_buffers_highbd_c(
           feature_sum_buffers_c_, feature_line_buffers_c_, row_to_process,
           feature_length - 1, input, input_stride, width, feature_lead,
@@ -1704,7 +1704,7 @@ class AV1FillDirFeatureBufHighbdTest
 
     // SIMD function call
     for (int i = 0; i < height; ++i) {
-      const int row_to_process = AOMMIN(i + feature_lag, height + 3 - 2);
+      const int row_to_process = AVMMIN(i + feature_lag, height + 3 - 2);
       GetParam().TestFunction()(feature_sum_buffers_simd_,
                                 feature_line_buffers_simd_, row_to_process,
                                 feature_length - 1, input, input_stride, width,
@@ -1731,33 +1731,33 @@ class AV1FillDirFeatureBufHighbdTest
     const int input_stride = width;
 
     // Calculate time taken for C function
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
+    avm_usec_timer timer;
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < kSpeedIterations; ++i) {
       for (int i = 0; i < height; ++i) {
-        const int row_to_process = AOMMIN(i + feature_lag, height + 3 - 2);
+        const int row_to_process = AVMMIN(i + feature_lag, height + 3 - 2);
         fill_directional_feature_buffers_highbd_c(
             feature_sum_buffers_c_, feature_line_buffers_c_, row_to_process,
             feature_length - 1, input, input_stride, width, feature_lead,
             feature_lag);
       }
     }
-    aom_usec_timer_mark(&timer);
-    auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+    avm_usec_timer_mark(&timer);
+    auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
     // Calculate time taken by optimized/intrinsic function
-    aom_usec_timer_start(&timer);
+    avm_usec_timer_start(&timer);
     for (int i = 0; i < kSpeedIterations; ++i) {
       for (int i = 0; i < height; ++i) {
-        const int row_to_process = AOMMIN(i + feature_lag, height + 3 - 2);
+        const int row_to_process = AVMMIN(i + feature_lag, height + 3 - 2);
         GetParam().TestFunction()(feature_sum_buffers_simd_,
                                   feature_line_buffers_simd_, row_to_process,
                                   feature_length - 1, input, input_stride,
                                   width, feature_lead, feature_lag);
       }
     }
-    aom_usec_timer_mark(&timer);
-    auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+    avm_usec_timer_mark(&timer);
+    auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
     float c_time_per_pixel =
         (float)1000.0 * elapsed_time_c / (kSpeedIterations * width * height);
@@ -1797,13 +1797,13 @@ class AV1FillDirFeatureBufHighbdTest
   const int buffer_width_ = MAX_SB_SIZE + kInputPadding;
 };
 
-TEST_P(AV1FillDirFeatureBufHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2FillDirFeatureBufHighbdTest, RunTest) { RunTest(); }
 
-TEST_P(AV1FillDirFeatureBufHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
+TEST_P(AV2FillDirFeatureBufHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1FillDirFeatureBufHighbdTest,
+    AVX2, AV2FillDirFeatureBufHighbdTest,
     BuildHighbdPCWienerParams(fill_directional_feature_buffers_highbd_avx2));
 #endif  // HAVE_AVX2
 
@@ -1813,10 +1813,10 @@ typedef void (*FillTSkipSumBufferFunc)(int row, const uint8_t *tskip,
                                        int height, int tskip_lead,
                                        int tskip_lag, bool use_strict_bounds);
 
-typedef std::tuple<const FillTSkipSumBufferFunc> AV1FillTSkipSumBufferFuncParam;
+typedef std::tuple<const FillTSkipSumBufferFunc> AV2FillTSkipSumBufferFuncParam;
 
-class AV1Fill_TSkip_Sum_BufferTest
-    : public ::testing::TestWithParam<AV1FillTSkipSumBufferFuncParam> {
+class AV2Fill_TSkip_Sum_BufferTest
+    : public ::testing::TestWithParam<AV2FillTSkipSumBufferFuncParam> {
  public:
   virtual void SetUp() { target_func_ = GET_PARAM(0); }
 
@@ -1828,7 +1828,7 @@ class AV1Fill_TSkip_Sum_BufferTest
   void RunSpeedTest() { SpeedTestTSkipSum(); };
 
  private:
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   FillTSkipSumBufferFunc target_func_;
 
   static constexpr int kSpeedIterations = 10000;
@@ -1871,7 +1871,7 @@ class AV1Fill_TSkip_Sum_BufferTest
 
       // Reference function
       for (int row = -tskip_lead; row < (tskip_lag + plane_height); ++row) {
-        av1_fill_tskip_sum_buffer_c(row, input_buffer_, kInputStride,
+        av2_fill_tskip_sum_buffer_c(row, input_buffer_, kInputStride,
                                     ref_buffer_, plane_width, plane_height,
                                     tskip_lead, tskip_lag, tskip_strict_);
       }
@@ -1909,22 +1909,22 @@ class AV1Fill_TSkip_Sum_BufferTest
       memset(test_buffer_, 0, sizeof(*test_buffer_) * kOutputWidth);
 
       // Calculate time taken by reference/c function
-      aom_usec_timer timer;
-      aom_usec_timer_start(&timer);
+      avm_usec_timer timer;
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         // Reference function
         for (int row = -tskip_lead; row < (tskip_lag + plane_height - 1);
              ++row) {
-          av1_fill_tskip_sum_buffer_c(row, input_buffer_, kInputStride,
+          av2_fill_tskip_sum_buffer_c(row, input_buffer_, kInputStride,
                                       ref_buffer_, plane_width, plane_height,
                                       tskip_lead, tskip_lag, tskip_strict_);
         }
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
       // Calculate time taken by optimized/intrinsic function
-      aom_usec_timer_start(&timer);
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         for (int row = -tskip_lead; row < (tskip_lag + plane_height - 1);
              ++row) {
@@ -1933,8 +1933,8 @@ class AV1Fill_TSkip_Sum_BufferTest
                        tskip_strict_);
         }
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
       float c_time_per_pixel =
           (float)1000.0 * elapsed_time_c / kSpeedIterations;
@@ -1950,12 +1950,12 @@ class AV1Fill_TSkip_Sum_BufferTest
   }
 };
 
-TEST_P(AV1Fill_TSkip_Sum_BufferTest, RunTest) { RunTest(); }
-TEST_P(AV1Fill_TSkip_Sum_BufferTest, DISABLED_Speed) { RunSpeedTest(); }
+TEST_P(AV2Fill_TSkip_Sum_BufferTest, RunTest) { RunTest(); }
+TEST_P(AV2Fill_TSkip_Sum_BufferTest, DISABLED_Speed) { RunSpeedTest(); }
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1Fill_TSkip_Sum_BufferTest,
-                         ::testing::Values(av1_fill_tskip_sum_buffer_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2Fill_TSkip_Sum_BufferTest,
+                         ::testing::Values(av2_fill_tskip_sum_buffer_avx2));
 #endif  // HAVE_AVX2
 
 //////////////////////////////////////////////////////////
@@ -1967,10 +1967,10 @@ typedef void (*FillDirFeatureAccumFunc)(
     int feature_lead, int feature_lag);
 
 typedef std::tuple<const FillDirFeatureAccumFunc>
-    AV1FillDirFeatureAccumFuncParam;
+    AV2FillDirFeatureAccumFuncParam;
 
-class AV1FeatureDirAccumHighbdTest
-    : public ::testing::TestWithParam<AV1FillDirFeatureAccumFuncParam> {
+class AV2FeatureDirAccumHighbdTest
+    : public ::testing::TestWithParam<AV2FillDirFeatureAccumFuncParam> {
  public:
   void RunTest() {
     for (int i = 0; i < kTestIterations; i++) {
@@ -1986,19 +1986,19 @@ class AV1FeatureDirAccumHighbdTest
 
     for (int j = 0; j < NUM_PC_WIENER_FEATURES; ++j) {
       feature_sum_buf[j] =
-          (int *)(aom_malloc(kInputWidth * sizeof(*feature_sum_buf[j])));
+          (int *)(avm_malloc(kInputWidth * sizeof(*feature_sum_buf[j])));
     }
   }
 
   virtual void TearDown() {
     for (int j = 0; j < NUM_PC_WIENER_FEATURES; ++j) {
-      aom_free(feature_sum_buf[j]);
+      avm_free(feature_sum_buf[j]);
       feature_sum_buf[j] = NULL;
     }
   }
 
  private:
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   FillDirFeatureAccumFunc target_func_;
 
   static constexpr int kSpeedIterations = 1000000;
@@ -2032,8 +2032,8 @@ class AV1FeatureDirAccumHighbdTest
       }
     }
     // Reset output buffers
-    av1_zero(dir_feature_accum_buf_c);
-    av1_zero(dir_feature_accum_buf_simd);
+    av2_zero(dir_feature_accum_buf_c);
+    av2_zero(dir_feature_accum_buf_simd);
   }
 
   void TestFillDirFeatureAccum() {
@@ -2045,11 +2045,11 @@ class AV1FeatureDirAccumHighbdTest
       const int feature_lag = PC_WIENER_FEATURE_LAG_LUMA;
 
       // Reset output buffers
-      av1_zero(dir_feature_accum_buf_c);
-      av1_zero(dir_feature_accum_buf_simd);
+      av2_zero(dir_feature_accum_buf_c);
+      av2_zero(dir_feature_accum_buf_simd);
 
       // C function call
-      av1_fill_directional_feature_accumulators_c(
+      av2_fill_directional_feature_accumulators_c(
           dir_feature_accum_buf_c, feature_sum_buf, plane_width, feature_lag,
           feature_lead, feature_lag);
 
@@ -2079,24 +2079,24 @@ class AV1FeatureDirAccumHighbdTest
       FillInputBufs();
 
       // Calculate time taken by reference/c function
-      aom_usec_timer timer;
-      aom_usec_timer_start(&timer);
+      avm_usec_timer timer;
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
-        av1_fill_directional_feature_accumulators_c(
+        av2_fill_directional_feature_accumulators_c(
             dir_feature_accum_buf_c, feature_sum_buf, plane_width, feature_lag,
             feature_lead, feature_lag);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
       // Calculate time taken by optimized/intrinsic function
-      aom_usec_timer_start(&timer);
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         target_func_(dir_feature_accum_buf_simd, feature_sum_buf, plane_width,
                      feature_lag, feature_lead, feature_lag);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
       float c_time_per_pixel =
           (float)1000.0 * elapsed_time_c / (kSpeedIterations * plane_width);
@@ -2111,13 +2111,13 @@ class AV1FeatureDirAccumHighbdTest
   }
 };
 
-TEST_P(AV1FeatureDirAccumHighbdTest, RunTest) { RunTest(); }
-TEST_P(AV1FeatureDirAccumHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
+TEST_P(AV2FeatureDirAccumHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2FeatureDirAccumHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1FeatureDirAccumHighbdTest,
-    ::testing::Values(av1_fill_directional_feature_accumulators_avx2));
+    AVX2, AV2FeatureDirAccumHighbdTest,
+    ::testing::Values(av2_fill_directional_feature_accumulators_avx2));
 #endif  // HAVE_AVX2
 
 //////////////////////////////////////////////////////////
@@ -2128,10 +2128,10 @@ typedef void (*FillTskip_Accumulator_func)(
     int8_t *tskip_sum_buff, int width, int col_offset, int tskip_lead,
     int tskip_lag);
 typedef std::tuple<const FillTskip_Accumulator_func>
-    AV1FillTSkipAccumBufferFuncParam;
+    AV2FillTSkipAccumBufferFuncParam;
 
-class AV1TskipAccumHighbdTest
-    : public ::testing::TestWithParam<AV1FillTSkipAccumBufferFuncParam> {
+class AV2TskipAccumHighbdTest
+    : public ::testing::TestWithParam<AV2FillTSkipAccumBufferFuncParam> {
  public:
   virtual void SetUp() { target_func_ = GET_PARAM(0); }
 
@@ -2142,7 +2142,7 @@ class AV1TskipAccumHighbdTest
   void RunSpeedTest() { SpeedTestTskipAccum(); };
 
  private:
-  libaom_test::ACMRandom rnd_;
+  libavm_test::ACMRandom rnd_;
   FillTskip_Accumulator_func target_func_;
 
   static constexpr int kSpeedIterations = 1000000;
@@ -2158,7 +2158,7 @@ class AV1TskipAccumHighbdTest
 
   void buffer_alloc_and_set_data() {
     tskip_sum_buf =
-        (int8_t *)(aom_malloc(kInputWidth * sizeof(*tskip_sum_buf)));
+        (int8_t *)(avm_malloc(kInputWidth * sizeof(*tskip_sum_buf)));
     // Input buffer filling. Tskip buffer max value will not cross width of
     // restoration unit size. Hence, the generated values are clipped to the
     // same.
@@ -2186,11 +2186,11 @@ class AV1TskipAccumHighbdTest
       const int plane_width = kWidth >> ss_x;
       const int tskip_lead = PC_WIENER_TSKIP_LEAD_LUMA;
       const int tskip_lag = PC_WIENER_TSKIP_LAG_LUMA;
-      av1_zero(tskip_feature_accum_c);
-      av1_zero(tskip_feature_accum_simd);
+      av2_zero(tskip_feature_accum_c);
+      av2_zero(tskip_feature_accum_simd);
 
       // C function call
-      av1_fill_tskip_feature_accumulator_c(tskip_feature_accum_c, tskip_sum_buf,
+      av2_fill_tskip_feature_accumulator_c(tskip_feature_accum_c, tskip_sum_buf,
                                            plane_width, tskip_lag, tskip_lead,
                                            tskip_lag);
 
@@ -2205,7 +2205,7 @@ class AV1TskipAccumHighbdTest
             << ")";
       }
     }
-    aom_free(tskip_sum_buf);
+    avm_free(tskip_sum_buf);
     tskip_sum_buf = NULL;
   }
 
@@ -2221,24 +2221,24 @@ class AV1TskipAccumHighbdTest
       const int tskip_lag = PC_WIENER_TSKIP_LAG_LUMA;
 
       // Calculate time taken by reference/c function
-      aom_usec_timer timer;
-      aom_usec_timer_start(&timer);
+      avm_usec_timer timer;
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
-        av1_fill_tskip_feature_accumulator_c(tskip_feature_accum_c,
+        av2_fill_tskip_feature_accumulator_c(tskip_feature_accum_c,
                                              tskip_sum_buf, plane_width,
                                              tskip_lag, tskip_lead, tskip_lag);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
       // Calculate time taken by optimized/intrinsic function
-      aom_usec_timer_start(&timer);
+      avm_usec_timer_start(&timer);
       for (int i = 0; i < kSpeedIterations; ++i) {
         target_func_(tskip_feature_accum_simd, tskip_sum_buf, plane_width,
                      tskip_lag, tskip_lead, tskip_lag);
       }
-      aom_usec_timer_mark(&timer);
-      auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+      avm_usec_timer_mark(&timer);
+      auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
       float c_time_per_pixel =
           (float)1000.0 * elapsed_time_c / (kSpeedIterations * plane_width);
@@ -2250,24 +2250,24 @@ class AV1TskipAccumHighbdTest
           "opt_time_per_pixel=%10.5f,  scaling=%f \n",
           plane_width, c_time_per_pixel, opt_time_per_pixel, scaling);
     }
-    aom_free(tskip_sum_buf);
+    avm_free(tskip_sum_buf);
     tskip_sum_buf = NULL;
   }
 };
 
-TEST_P(AV1TskipAccumHighbdTest, RunTest) { RunTest(); }
-TEST_P(AV1TskipAccumHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
+TEST_P(AV2TskipAccumHighbdTest, RunTest) { RunTest(); }
+TEST_P(AV2TskipAccumHighbdTest, DISABLED_Speed) { RunSpeedTest(); }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
-    AVX2, AV1TskipAccumHighbdTest,
-    ::testing::Values(av1_fill_tskip_feature_accumulator_avx2));
+    AVX2, AV2TskipAccumHighbdTest,
+    ::testing::Values(av2_fill_tskip_feature_accumulator_avx2));
 #endif  // HAVE_AVX2
 
 //////////////////////////////////////////////////////////
 //     unit-test for 'calc_wieners_ds_luma'             //
 //////////////////////////////////////////////////////////
-using libaom_test::ACMRandom;
+using libavm_test::ACMRandom;
 using std::get;
 using std::make_tuple;
 using std::tuple;
@@ -2340,11 +2340,11 @@ void WienersDSLumaTest::SetUp() {
   out_stride_ = width_ >> ss_x_;
   width_uv_ = out_stride_;
   height_uv_ = height_ >> ss_y_;
-  src_ = (uint16_t *)aom_memalign(16, width_ * height_ * sizeof(*src_));
+  src_ = (uint16_t *)avm_memalign(16, width_ * height_ * sizeof(*src_));
   ASSERT_NE(src_, nullptr);
-  out1_ = (uint16_t *)aom_memalign(16, width_uv_ * height_uv_ * sizeof(*out1_));
+  out1_ = (uint16_t *)avm_memalign(16, width_uv_ * height_uv_ * sizeof(*out1_));
   ASSERT_NE(out1_, nullptr);
-  out2_ = (uint16_t *)aom_memalign(16, width_uv_ * height_uv_ * sizeof(*out2_));
+  out2_ = (uint16_t *)avm_memalign(16, width_uv_ * height_uv_ * sizeof(*out2_));
   ASSERT_NE(out2_, nullptr);
 
   for (int i = 0; i < width_ * height_; ++i) {
@@ -2353,9 +2353,9 @@ void WienersDSLumaTest::SetUp() {
 }
 
 void WienersDSLumaTest::TearDown() {
-  aom_free(src_);
-  aom_free(out1_);
-  aom_free(out2_);
+  avm_free(src_);
+  avm_free(out1_);
+  avm_free(out2_);
 }
 
 void WienersDSLumaTest::RunCheckOutput() {
@@ -2376,16 +2376,16 @@ void WienersDSLumaTest::RunSpeedTest() {
                                              test_fun_ };
   double elapsed_time[2] = { 0.0 };
   for (int i = 0; i < 2; ++i) {
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
+    avm_usec_timer timer;
+    avm_usec_timer_start(&timer);
     calc_wieners_ds_luma_func func = functions[i];
     for (int j = 0; j < num_loops; ++j) {
       for (int ds_type = 0; ds_type < 3; ds_type++)
         func(src_, src_stride_, out1_, out_stride_, ds_type, height_uv_,
              width_uv_, ss_x_, ss_y_, 0);
     }
-    aom_usec_timer_mark(&timer);
-    const double time = static_cast<double>(aom_usec_timer_elapsed(&timer));
+    avm_usec_timer_mark(&timer);
+    const double time = static_cast<double>(avm_usec_timer_elapsed(&timer));
     elapsed_time[i] = 1000.0 * time;
   }
   printf(

@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENCODEFRAME_H_
-#define AOM_AV1_ENCODER_ENCODEFRAME_H_
+#ifndef AVM_AV2_ENCODER_ENCODEFRAME_H_
+#define AVM_AV2_ENCODER_ENCODEFRAME_H_
 
-#include "aom/aom_integer.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
-#include "av1/common/reconinter.h"
+#include "avm/avm_integer.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
+#include "av2/common/reconinter.h"
 
-#include "av1/encoder/global_motion.h"
+#include "av2/encoder/global_motion.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,34 +30,34 @@ extern "C" {
 
 struct macroblock;
 struct yv12_buffer_config;
-struct AV1_COMP;
+struct AV2_COMP;
 struct ThreadData;
 
-void av1_setup_src_planes(struct macroblock *x,
+void av2_setup_src_planes(struct macroblock *x,
                           const struct yv12_buffer_config *src, int mi_row,
                           int mi_col, const int num_planes,
                           const CHROMA_REF_INFO *chroma_ref_info);
 
-void av1_encode_frame(struct AV1_COMP *cpi);
+void av2_encode_frame(struct AV2_COMP *cpi);
 
-void av1_alloc_tile_data(struct AV1_COMP *cpi);
-void av1_init_tile_data(struct AV1_COMP *cpi);
-void av1_encode_tile(struct AV1_COMP *cpi, struct ThreadData *td, int tile_row,
+void av2_alloc_tile_data(struct AV2_COMP *cpi);
+void av2_init_tile_data(struct AV2_COMP *cpi);
+void av2_encode_tile(struct AV2_COMP *cpi, struct ThreadData *td, int tile_row,
                      int tile_col);
-void av1_encode_sb_row(struct AV1_COMP *cpi, struct ThreadData *td,
+void av2_encode_sb_row(struct AV2_COMP *cpi, struct ThreadData *td,
                        int tile_row, int tile_col, int mi_row);
-void av1_enc_calc_subpel_params(const MV *const src_mv,
+void av2_enc_calc_subpel_params(const MV *const src_mv,
                                 InterPredParams *const inter_pred_params,
                                 MACROBLOCKD *xd, int mi_x, int mi_y, int ref,
                                 int use_optflow_refinement, uint16_t **mc_buf,
                                 uint16_t **pre, SubpelParams *subpel_params,
                                 int *src_stride);
-void av1_set_lossless(struct AV1_COMP *cpi);
-void av1_enc_setup_ph_frame(struct AV1_COMP *cpi);
-void av1_set_frame_tcq_mode(struct AV1_COMP *cpi);
+void av2_set_lossless(struct AV2_COMP *cpi);
+void av2_enc_setup_ph_frame(struct AV2_COMP *cpi);
+void av2_set_frame_tcq_mode(struct AV2_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODEFRAME_H_
+#endif  // AVM_AV2_ENCODER_ENCODEFRAME_H_

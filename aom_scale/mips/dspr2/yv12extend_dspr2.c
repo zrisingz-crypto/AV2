@@ -12,11 +12,11 @@
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_scale/yv12config.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_scale/aom_scale.h"
+#include "avm_scale/yv12config.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_scale/avm_scale.h"
 
 #if HAVE_DSPR2
 static void extend_plane(uint8_t *const src, int src_stride, int width,
@@ -128,17 +128,17 @@ static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size) {
   extend_plane(ybf->v_buffer, ybf->uv_stride, c_w, c_h, c_et, c_el, c_eb, c_er);
 }
 
-void aom_extend_frame_borders_dspr2(YV12_BUFFER_CONFIG *ybf,
+void avm_extend_frame_borders_dspr2(YV12_BUFFER_CONFIG *ybf,
                                     const int num_planes, bool decoding) {
   (void)decoding;
   // if (decoding) return;
   extend_frame(ybf, ybf->border, num_planes);
 }
 
-void aom_extend_frame_inner_borders_dspr2(YV12_BUFFER_CONFIG *ybf,
+void avm_extend_frame_inner_borders_dspr2(YV12_BUFFER_CONFIG *ybf,
                                           const int num_planes) {
-  const int inner_bw = (ybf->border > AOMINNERBORDERINPIXELS)
-                           ? AOMINNERBORDERINPIXELS
+  const int inner_bw = (ybf->border > AVMINNERBORDERINPIXELS)
+                           ? AVMINNERBORDERINPIXELS
                            : ybf->border;
   extend_frame(ybf, inner_bw, num_planes);
 }

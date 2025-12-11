@@ -13,28 +13,28 @@
 #include <assert.h>
 #include <emmintrin.h>  // SSE2
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms.h"
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/filter.h"
-#include "av1/common/reconinter.h"
-#include "av1/encoder/reconinter_enc.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/filter.h"
+#include "av2/common/reconinter.h"
+#include "av2/encoder/reconinter_enc.h"
 
 typedef uint32_t (*high_variance_fn_t)(const uint16_t *src, int src_stride,
                                        const uint16_t *ref, int ref_stride,
                                        uint32_t *sse, int *sum);
 
-uint32_t aom_highbd_calc8x8var_sse2(const uint16_t *src, int src_stride,
+uint32_t avm_highbd_calc8x8var_sse2(const uint16_t *src, int src_stride,
                                     const uint16_t *ref, int ref_stride,
                                     uint32_t *sse, int *sum);
 
-uint32_t aom_highbd_calc16x16var_sse2(const uint16_t *src, int src_stride,
+uint32_t avm_highbd_calc16x16var_sse2(const uint16_t *src, int src_stride,
                                       const uint16_t *ref, int ref_stride,
                                       uint32_t *sse, int *sum);
 
@@ -104,26 +104,26 @@ static void highbd_12_variance_sse2(const uint16_t *src, int src_stride,
 }
 
 #define HIGH_GET_VAR(S)                                                       \
-  void aom_highbd_get##S##x##S##var_sse2(const uint16_t *src, int src_stride, \
+  void avm_highbd_get##S##x##S##var_sse2(const uint16_t *src, int src_stride, \
                                          const uint16_t *ref, int ref_stride, \
                                          uint32_t *sse, int *sum) {           \
-    aom_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
+    avm_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
                                        sum);                                  \
   }                                                                           \
                                                                               \
-  void aom_highbd_10_get##S##x##S##var_sse2(                                  \
+  void avm_highbd_10_get##S##x##S##var_sse2(                                  \
       const uint16_t *src, int src_stride, const uint16_t *ref,               \
       int ref_stride, uint32_t *sse, int *sum) {                              \
-    aom_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
+    avm_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
                                        sum);                                  \
     *sum = ROUND_POWER_OF_TWO(*sum, 2);                                       \
     *sse = ROUND_POWER_OF_TWO(*sse, 4);                                       \
   }                                                                           \
                                                                               \
-  void aom_highbd_12_get##S##x##S##var_sse2(                                  \
+  void avm_highbd_12_get##S##x##S##var_sse2(                                  \
       const uint16_t *src, int src_stride, const uint16_t *ref,               \
       int ref_stride, uint32_t *sse, int *sum) {                              \
-    aom_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
+    avm_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
                                        sum);                                  \
     *sum = ROUND_POWER_OF_TWO(*sum, 4);                                       \
     *sse = ROUND_POWER_OF_TWO(*sse, 8);                                       \
@@ -135,36 +135,36 @@ HIGH_GET_VAR(8);
 #undef HIGH_GET_VAR
 
 #define VAR_FN(w, h, block_size, shift)                                    \
-  uint32_t aom_highbd_8_variance##w##x##h##_sse2(                          \
+  uint32_t avm_highbd_8_variance##w##x##h##_sse2(                          \
       const uint16_t *src, int src_stride, const uint16_t *ref,            \
       int ref_stride, uint32_t *sse) {                                     \
     int sum;                                                               \
     highbd_8_variance_sse2(                                                \
         src, src_stride, ref, ref_stride, w, h, sse, &sum,                 \
-        aom_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
+        avm_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
     return *sse - (uint32_t)(((int64_t)sum * sum) >> shift);               \
   }                                                                        \
                                                                            \
-  uint32_t aom_highbd_10_variance##w##x##h##_sse2(                         \
+  uint32_t avm_highbd_10_variance##w##x##h##_sse2(                         \
       const uint16_t *src, int src_stride, const uint16_t *ref,            \
       int ref_stride, uint32_t *sse) {                                     \
     int sum;                                                               \
     int64_t var;                                                           \
     highbd_10_variance_sse2(                                               \
         src, src_stride, ref, ref_stride, w, h, sse, &sum,                 \
-        aom_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
+        avm_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
     var = (int64_t)(*sse) - (((int64_t)sum * sum) >> shift);               \
     return (var >= 0) ? (uint32_t)var : 0;                                 \
   }                                                                        \
                                                                            \
-  uint32_t aom_highbd_12_variance##w##x##h##_sse2(                         \
+  uint32_t avm_highbd_12_variance##w##x##h##_sse2(                         \
       const uint16_t *src, int src_stride, const uint16_t *ref,            \
       int ref_stride, uint32_t *sse) {                                     \
     int sum;                                                               \
     int64_t var;                                                           \
     highbd_12_variance_sse2(                                               \
         src, src_stride, ref, ref_stride, w, h, sse, &sum,                 \
-        aom_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
+        avm_highbd_calc##block_size##x##block_size##var_sse2, block_size); \
     var = (int64_t)(*sse) - (((int64_t)sum * sum) >> shift);               \
     return (var >= 0) ? (uint32_t)var : 0;                                 \
   }
@@ -191,57 +191,57 @@ VAR_FN(64, 8, 8, 9);
 
 #undef VAR_FN
 
-unsigned int aom_highbd_8_mse16x16_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_8_mse16x16_sse2(const uint16_t *src, int src_stride,
                                         const uint16_t *ref, int ref_stride,
                                         unsigned int *sse) {
   int sum;
   highbd_8_variance_sse2(src, src_stride, ref, ref_stride, 16, 16, sse, &sum,
-                         aom_highbd_calc16x16var_sse2, 16);
+                         avm_highbd_calc16x16var_sse2, 16);
   return *sse;
 }
 
-unsigned int aom_highbd_10_mse16x16_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_10_mse16x16_sse2(const uint16_t *src, int src_stride,
                                          const uint16_t *ref, int ref_stride,
                                          unsigned int *sse) {
   int sum;
   highbd_10_variance_sse2(src, src_stride, ref, ref_stride, 16, 16, sse, &sum,
-                          aom_highbd_calc16x16var_sse2, 16);
+                          avm_highbd_calc16x16var_sse2, 16);
   return *sse;
 }
 
-unsigned int aom_highbd_12_mse16x16_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_12_mse16x16_sse2(const uint16_t *src, int src_stride,
                                          const uint16_t *ref, int ref_stride,
                                          unsigned int *sse) {
   int sum;
   highbd_12_variance_sse2(src, src_stride, ref, ref_stride, 16, 16, sse, &sum,
-                          aom_highbd_calc16x16var_sse2, 16);
+                          avm_highbd_calc16x16var_sse2, 16);
   return *sse;
 }
 
-unsigned int aom_highbd_8_mse8x8_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_8_mse8x8_sse2(const uint16_t *src, int src_stride,
                                       const uint16_t *ref, int ref_stride,
                                       unsigned int *sse) {
   int sum;
   highbd_8_variance_sse2(src, src_stride, ref, ref_stride, 8, 8, sse, &sum,
-                         aom_highbd_calc8x8var_sse2, 8);
+                         avm_highbd_calc8x8var_sse2, 8);
   return *sse;
 }
 
-unsigned int aom_highbd_10_mse8x8_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_10_mse8x8_sse2(const uint16_t *src, int src_stride,
                                        const uint16_t *ref, int ref_stride,
                                        unsigned int *sse) {
   int sum;
   highbd_10_variance_sse2(src, src_stride, ref, ref_stride, 8, 8, sse, &sum,
-                          aom_highbd_calc8x8var_sse2, 8);
+                          avm_highbd_calc8x8var_sse2, 8);
   return *sse;
 }
 
-unsigned int aom_highbd_12_mse8x8_sse2(const uint16_t *src, int src_stride,
+unsigned int avm_highbd_12_mse8x8_sse2(const uint16_t *src, int src_stride,
                                        const uint16_t *ref, int ref_stride,
                                        unsigned int *sse) {
   int sum;
   highbd_12_variance_sse2(src, src_stride, ref, ref_stride, 8, 8, sse, &sum,
-                          aom_highbd_calc8x8var_sse2, 8);
+                          avm_highbd_calc8x8var_sse2, 8);
   return *sse;
 }
 
@@ -249,7 +249,7 @@ unsigned int aom_highbd_12_mse8x8_sse2(const uint16_t *src, int src_stride,
 // These definitions are for functions defined in
 // highbd_subpel_variance_impl_sse2.asm
 #define DECL(w, opt)                                                         \
-  int aom_highbd_sub_pixel_variance##w##xh_##opt(                            \
+  int avm_highbd_sub_pixel_variance##w##xh_##opt(                            \
       const uint16_t *src, ptrdiff_t src_stride, int x_offset, int y_offset, \
       const uint16_t *dst, ptrdiff_t dst_stride, int height,                 \
       unsigned int *sse, void *unused0, void *unused);
@@ -264,54 +264,54 @@ DECLS(sse2);
 #undef DECL
 
 #define FN(w, h, wf, wlog2, hlog2, opt, cast)                                  \
-  uint32_t aom_highbd_8_sub_pixel_variance##w##x##h##_##opt(                   \
+  uint32_t avm_highbd_8_sub_pixel_variance##w##x##h##_##opt(                   \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr) {                \
     int se = 0;                                                                \
     unsigned int sse = 0;                                                      \
     unsigned int sse2;                                                         \
     const int row_rep = (w > 128) ? 4 : (w > 64) ? 2 : 1;                      \
-    const int wr = AOMMIN(w, 64);                                              \
+    const int wr = AVMMIN(w, 64);                                              \
     for (int wd_64 = 0; wd_64 < row_rep; wd_64++) {                            \
-      int se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+      int se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
           src, src_stride, x_offset, y_offset, dst, dst_stride, h, &sse2,      \
           NULL, NULL);                                                         \
       se += se2;                                                               \
       sse += sse2;                                                             \
       if (wr > wf) {                                                           \
-        se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                     \
+        se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                     \
             src + wf, src_stride, x_offset, y_offset, dst + wf, dst_stride, h, \
             &sse2, NULL, NULL);                                                \
         se += se2;                                                             \
         sse += sse2;                                                           \
         if (wr > wf * 2) {                                                     \
-          se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+          se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
               src + 2 * wf, src_stride, x_offset, y_offset, dst + 2 * wf,      \
               dst_stride, h, &sse2, NULL, NULL);                               \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+          se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
               src + 3 * wf, src_stride, x_offset, y_offset, dst + 3 * wf,      \
               dst_stride, h, &sse2, NULL, NULL);                               \
           se += se2;                                                           \
           sse += sse2;                                                         \
           if (wr > 4 * wf) {                                                   \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 4 * wf, src_stride, x_offset, y_offset, dst + 4 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             sse += sse2;                                                       \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 5 * wf, src_stride, x_offset, y_offset, dst + 5 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             sse += sse2;                                                       \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 6 * wf, src_stride, x_offset, y_offset, dst + 6 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             sse += sse2;                                                       \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 7 * wf, src_stride, x_offset, y_offset, dst + 7 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
@@ -326,7 +326,7 @@ DECLS(sse2);
     return sse - (uint32_t)((cast se * se) >> (wlog2 + hlog2));                \
   }                                                                            \
                                                                                \
-  uint32_t aom_highbd_10_sub_pixel_variance##w##x##h##_##opt(                  \
+  uint32_t avm_highbd_10_sub_pixel_variance##w##x##h##_##opt(                  \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr) {                \
     int64_t var;                                                               \
@@ -334,48 +334,48 @@ DECLS(sse2);
     uint64_t long_sse = 0;                                                     \
     int se = 0;                                                                \
     const int row_rep = (w > 128) ? 4 : (w > 64) ? 2 : 1;                      \
-    const int wr = AOMMIN(w, 64);                                              \
+    const int wr = AVMMIN(w, 64);                                              \
     for (int wd_64 = 0; wd_64 < row_rep; wd_64++) {                            \
-      int se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+      int se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
           src, src_stride, x_offset, y_offset, dst, dst_stride, h, &sse, NULL, \
           NULL);                                                               \
       se += se2;                                                               \
       long_sse += sse;                                                         \
       if (wr > wf) {                                                           \
         uint32_t sse2;                                                         \
-        se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                     \
+        se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                     \
             src + wf, src_stride, x_offset, y_offset, dst + wf, dst_stride, h, \
             &sse2, NULL, NULL);                                                \
         se += se2;                                                             \
         long_sse += sse2;                                                      \
         if (wr > wf * 2) {                                                     \
-          se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+          se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
               src + 2 * wf, src_stride, x_offset, y_offset, dst + 2 * wf,      \
               dst_stride, h, &sse2, NULL, NULL);                               \
           se += se2;                                                           \
           long_sse += sse2;                                                    \
-          se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+          se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
               src + 3 * wf, src_stride, x_offset, y_offset, dst + 3 * wf,      \
               dst_stride, h, &sse2, NULL, NULL);                               \
           se += se2;                                                           \
           long_sse += sse2;                                                    \
           if (wr > 4 * wf) {                                                   \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 4 * wf, src_stride, x_offset, y_offset, dst + 4 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 5 * wf, src_stride, x_offset, y_offset, dst + 5 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 6 * wf, src_stride, x_offset, y_offset, dst + 6 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src + 7 * wf, src_stride, x_offset, y_offset, dst + 7 * wf,    \
                 dst_stride, h, &sse2, NULL, NULL);                             \
             se += se2;                                                         \
@@ -393,7 +393,7 @@ DECLS(sse2);
     return (var >= 0) ? (uint32_t)var : 0;                                     \
   }                                                                            \
                                                                                \
-  uint32_t aom_highbd_12_sub_pixel_variance##w##x##h##_##opt(                  \
+  uint32_t avm_highbd_12_sub_pixel_variance##w##x##h##_##opt(                  \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr) {                \
     int start_row;                                                             \
@@ -402,52 +402,52 @@ DECLS(sse2);
     int64_t var;                                                               \
     uint64_t long_sse = 0;                                                     \
     const int row_rep = (w > 128) ? 4 : (w > 64) ? 2 : 1;                      \
-    const int wr = AOMMIN(w, 64);                                              \
+    const int wr = AVMMIN(w, 64);                                              \
     for (start_row = 0; start_row < h; start_row += 16) {                      \
       uint32_t sse2;                                                           \
       int height = h - start_row < 16 ? h - start_row : 16;                    \
       uint16_t *src_tmp = (uint16_t *)src + (start_row * src_stride);          \
       uint16_t *dst_tmp = (uint16_t *)dst + (start_row * dst_stride);          \
       for (int wd_64 = 0; wd_64 < row_rep; wd_64++) {                          \
-        int se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+        int se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
             src_tmp, src_stride, x_offset, y_offset, dst_tmp, dst_stride,      \
             height, &sse2, NULL, NULL);                                        \
         se += se2;                                                             \
         long_sse += sse2;                                                      \
         if (wr > wf) {                                                         \
-          se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                   \
+          se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                   \
               src_tmp + wf, src_stride, x_offset, y_offset, dst_tmp + wf,      \
               dst_stride, height, &sse2, NULL, NULL);                          \
           se += se2;                                                           \
           long_sse += sse2;                                                    \
           if (wr > wf * 2) {                                                   \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src_tmp + 2 * wf, src_stride, x_offset, y_offset,              \
                 dst_tmp + 2 * wf, dst_stride, height, &sse2, NULL, NULL);      \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(                 \
+            se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(                 \
                 src_tmp + 3 * wf, src_stride, x_offset, y_offset,              \
                 dst_tmp + 3 * wf, dst_stride, height, &sse2, NULL, NULL);      \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
             if (wr > 4 * wf) {                                                 \
-              se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(               \
+              se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(               \
                   src_tmp + 4 * wf, src_stride, x_offset, y_offset,            \
                   dst_tmp + 4 * wf, dst_stride, height, &sse2, NULL, NULL);    \
               se += se2;                                                       \
               long_sse += sse2;                                                \
-              se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(               \
+              se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(               \
                   src_tmp + 5 * wf, src_stride, x_offset, y_offset,            \
                   dst_tmp + 5 * wf, dst_stride, height, &sse2, NULL, NULL);    \
               se += se2;                                                       \
               long_sse += sse2;                                                \
-              se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(               \
+              se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(               \
                   src_tmp + 6 * wf, src_stride, x_offset, y_offset,            \
                   dst_tmp + 6 * wf, dst_stride, height, &sse2, NULL, NULL);    \
               se += se2;                                                       \
               long_sse += sse2;                                                \
-              se2 = aom_highbd_sub_pixel_variance##wf##xh_##opt(               \
+              se2 = avm_highbd_sub_pixel_variance##wf##xh_##opt(               \
                   src_tmp + 7 * wf, src_stride, x_offset, y_offset,            \
                   dst_tmp + 7 * wf, dst_stride, height, &sse2, NULL, NULL);    \
               se += se2;                                                       \
@@ -499,7 +499,7 @@ FNS(sse2);
 
 // The 2 unused parameters are place holders for PIC enabled build.
 #define DECL(w, opt)                                                         \
-  int aom_highbd_sub_pixel_avg_variance##w##xh_##opt(                        \
+  int avm_highbd_sub_pixel_avg_variance##w##xh_##opt(                        \
       const uint16_t *src, ptrdiff_t src_stride, int x_offset, int y_offset, \
       const uint16_t *dst, ptrdiff_t dst_stride, const uint16_t *sec,        \
       ptrdiff_t sec_stride, int height, unsigned int *sse, void *unused0,    \
@@ -513,49 +513,49 @@ DECLS(sse2);
 #undef DECLS
 
 #define FN(w, h, wf, wlog2, hlog2, opt, cast)                                  \
-  uint32_t aom_highbd_8_sub_pixel_avg_variance##w##x##h##_##opt(               \
+  uint32_t avm_highbd_8_sub_pixel_avg_variance##w##x##h##_##opt(               \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr,                  \
       const uint16_t *sec) {                                                   \
     uint32_t sse;                                                              \
-    int se = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                  \
+    int se = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                  \
         src, src_stride, x_offset, y_offset, dst, dst_stride, sec, w, h, &sse, \
         NULL, NULL);                                                           \
     if (w > wf) {                                                              \
       uint32_t sse2;                                                           \
-      int se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+      int se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
           src + wf, src_stride, x_offset, y_offset, dst + wf, dst_stride,      \
           sec + wf, w, h, &sse2, NULL, NULL);                                  \
       se += se2;                                                               \
       sse += sse2;                                                             \
       if (w > wf * 2) {                                                        \
-        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+        se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
             src + 2 * wf, src_stride, x_offset, y_offset, dst + 2 * wf,        \
             dst_stride, sec + 2 * wf, w, h, &sse2, NULL, NULL);                \
         se += se2;                                                             \
         sse += sse2;                                                           \
-        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+        se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
             src + 3 * wf, src_stride, x_offset, y_offset, dst + 3 * wf,        \
             dst_stride, sec + 3 * wf, w, h, &sse2, NULL, NULL);                \
         se += se2;                                                             \
         sse += sse2;                                                           \
         if (w > wf * 4) {                                                      \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 4 * wf, src_stride, x_offset, y_offset, dst + 4 * wf,      \
               dst_stride, sec + 4 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 5 * wf, src_stride, x_offset, y_offset, dst + 5 * wf,      \
               dst_stride, sec + 5 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 6 * wf, src_stride, x_offset, y_offset, dst + 6 * wf,      \
               dst_stride, sec + 6 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 7 * wf, src_stride, x_offset, y_offset, dst + 7 * wf,      \
               dst_stride, sec + 7 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
@@ -567,50 +567,50 @@ DECLS(sse2);
     return sse - (uint32_t)((cast se * se) >> (wlog2 + hlog2));                \
   }                                                                            \
                                                                                \
-  uint32_t aom_highbd_10_sub_pixel_avg_variance##w##x##h##_##opt(              \
+  uint32_t avm_highbd_10_sub_pixel_avg_variance##w##x##h##_##opt(              \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr,                  \
       const uint16_t *sec) {                                                   \
     int64_t var;                                                               \
     uint32_t sse;                                                              \
-    int se = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                  \
+    int se = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                  \
         src, src_stride, x_offset, y_offset, dst, dst_stride, sec, w, h, &sse, \
         NULL, NULL);                                                           \
     if (w > wf) {                                                              \
       uint32_t sse2;                                                           \
-      int se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+      int se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
           src + wf, src_stride, x_offset, y_offset, dst + wf, dst_stride,      \
           sec + wf, w, h, &sse2, NULL, NULL);                                  \
       se += se2;                                                               \
       sse += sse2;                                                             \
       if (w > wf * 2) {                                                        \
-        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+        se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
             src + 2 * wf, src_stride, x_offset, y_offset, dst + 2 * wf,        \
             dst_stride, sec + 2 * wf, w, h, &sse2, NULL, NULL);                \
         se += se2;                                                             \
         sse += sse2;                                                           \
-        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+        se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
             src + 3 * wf, src_stride, x_offset, y_offset, dst + 3 * wf,        \
             dst_stride, sec + 3 * wf, w, h, &sse2, NULL, NULL);                \
         se += se2;                                                             \
         sse += sse2;                                                           \
         if (w > wf * 4) {                                                      \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 4 * wf, src_stride, x_offset, y_offset, dst + 4 * wf,      \
               dst_stride, sec + 4 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 5 * wf, src_stride, x_offset, y_offset, dst + 5 * wf,      \
               dst_stride, sec + 5 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 6 * wf, src_stride, x_offset, y_offset, dst + 6 * wf,      \
               dst_stride, sec + 6 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
           sse += sse2;                                                         \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 7 * wf, src_stride, x_offset, y_offset, dst + 7 * wf,      \
               dst_stride, sec + 7 * wf, w, h, &sse2, NULL, NULL);              \
           se += se2;                                                           \
@@ -625,7 +625,7 @@ DECLS(sse2);
     return (var >= 0) ? (uint32_t)var : 0;                                     \
   }                                                                            \
                                                                                \
-  uint32_t aom_highbd_12_sub_pixel_avg_variance##w##x##h##_##opt(              \
+  uint32_t avm_highbd_12_sub_pixel_avg_variance##w##x##h##_##opt(              \
       const uint16_t *src, int src_stride, int x_offset, int y_offset,         \
       const uint16_t *dst, int dst_stride, uint32_t *sse_ptr,                  \
       const uint16_t *sec) {                                                   \
@@ -637,52 +637,52 @@ DECLS(sse2);
     for (start_row = 0; start_row < h; start_row += 16) {                      \
       uint32_t sse2;                                                           \
       int height = h - start_row < 16 ? h - start_row : 16;                    \
-      int se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+      int se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
           src + (start_row * src_stride), src_stride, x_offset, y_offset,      \
           dst + (start_row * dst_stride), dst_stride, sec + (start_row * w),   \
           w, height, &sse2, NULL, NULL);                                       \
       se += se2;                                                               \
       long_sse += sse2;                                                        \
       if (w > wf) {                                                            \
-        se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
+        se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(                 \
             src + wf + (start_row * src_stride), src_stride, x_offset,         \
             y_offset, dst + wf + (start_row * dst_stride), dst_stride,         \
             sec + wf + (start_row * w), w, height, &sse2, NULL, NULL);         \
         se += se2;                                                             \
         long_sse += sse2;                                                      \
         if (w > wf * 2) {                                                      \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 2 * wf + (start_row * src_stride), src_stride, x_offset,   \
               y_offset, dst + 2 * wf + (start_row * dst_stride), dst_stride,   \
               sec + 2 * wf + (start_row * w), w, height, &sse2, NULL, NULL);   \
           se += se2;                                                           \
           long_sse += sse2;                                                    \
-          se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
+          se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(               \
               src + 3 * wf + (start_row * src_stride), src_stride, x_offset,   \
               y_offset, dst + 3 * wf + (start_row * dst_stride), dst_stride,   \
               sec + 3 * wf + (start_row * w), w, height, &sse2, NULL, NULL);   \
           se += se2;                                                           \
           long_sse += sse2;                                                    \
           if (w > wf * 4) {                                                    \
-            se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
+            se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
                 src + 4 * wf + (start_row * src_stride), src_stride, x_offset, \
                 y_offset, dst + 4 * wf + (start_row * dst_stride), dst_stride, \
                 sec + 4 * wf + (start_row * w), w, height, &sse2, NULL, NULL); \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
+            se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
                 src + 5 * wf + (start_row * src_stride), src_stride, x_offset, \
                 y_offset, dst + 5 * wf + (start_row * dst_stride), dst_stride, \
                 sec + 5 * wf + (start_row * w), w, height, &sse2, NULL, NULL); \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
+            se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
                 src + 6 * wf + (start_row * src_stride), src_stride, x_offset, \
                 y_offset, dst + 6 * wf + (start_row * dst_stride), dst_stride, \
                 sec + 6 * wf + (start_row * w), w, height, &sse2, NULL, NULL); \
             se += se2;                                                         \
             long_sse += sse2;                                                  \
-            se2 = aom_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
+            se2 = avm_highbd_sub_pixel_avg_variance##wf##xh_##opt(             \
                 src + 7 * wf + (start_row * src_stride), src_stride, x_offset, \
                 y_offset, dst + 7 * wf + (start_row * dst_stride), dst_stride, \
                 sec + 7 * wf + (start_row * w), w, height, &sse2, NULL, NULL); \
@@ -724,8 +724,8 @@ FNS(sse2);
 #undef FNS
 #undef FN
 
-void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
-                                    const struct AV1Common *const cm,
+void avm_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
+                                    const struct AV2Common *const cm,
                                     int mi_row, int mi_col, const MV *const mv,
                                     uint16_t *comp_pred, int width, int height,
                                     int subpel_x_q3, int subpel_y_q3,
@@ -740,7 +740,7 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
         (is_intrabc || is_scaled_ref) ? &cm->sf_identity
                                       : xd->block_ref_scale_factors[ref_num];
 
-    const int is_scaled = av1_is_scaled(sf);
+    const int is_scaled = av2_is_scaled(sf);
 
     if (is_scaled) {
       int plane = 0;
@@ -754,36 +754,36 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
       InterPredParams inter_pred_params;
       inter_pred_params.conv_params = get_conv_params(0, plane, xd->bd);
       const InterpFilter filters = EIGHTTAP_REGULAR;
-      av1_init_inter_params(
+      av2_init_inter_params(
           &inter_pred_params, width, height, mi_y >> pd->subsampling_y,
           mi_x >> pd->subsampling_x, pd->subsampling_x, pd->subsampling_y,
           xd->bd, is_intrabc, sf, pre_buf, filters);
-      av1_enc_build_one_inter_predictor(comp_pred, width, mv,
+      av2_enc_build_one_inter_predictor(comp_pred, width, mv,
                                         &inter_pred_params);
       return;
     }
   }
 
-  const InterpFilterParams *filter = av1_get_filter(subpel_search);
+  const InterpFilterParams *filter = av2_get_filter(subpel_search);
   int filter_taps = (subpel_search <= USE_4_TAPS) ? 4 : SUBPEL_TAPS;
   if (!subpel_x_q3 && !subpel_y_q3) {
-    aom_highbd_convolve_copy(ref, ref_stride, comp_pred, width, width, height);
+    avm_highbd_convolve_copy(ref, ref_stride, comp_pred, width, width, height);
   } else if (!subpel_y_q3) {
     const int16_t *const kernel =
-        av1_get_interp_filter_subpel_kernel(filter, subpel_x_q3 << 1);
-    aom_highbd_convolve8_horiz(ref, ref_stride, comp_pred, width, kernel, 16,
+        av2_get_interp_filter_subpel_kernel(filter, subpel_x_q3 << 1);
+    avm_highbd_convolve8_horiz(ref, ref_stride, comp_pred, width, kernel, 16,
                                NULL, -1, width, height, bd);
   } else if (!subpel_x_q3) {
     const int16_t *const kernel =
-        av1_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
-    aom_highbd_convolve8_vert(ref, ref_stride, comp_pred, width, NULL, -1,
+        av2_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
+    avm_highbd_convolve8_vert(ref, ref_stride, comp_pred, width, NULL, -1,
                               kernel, 16, width, height, bd);
   } else {
     uint16_t *temp = comp_pred;
     const int16_t *const kernel_x =
-        av1_get_interp_filter_subpel_kernel(filter, subpel_x_q3 << 1);
+        av2_get_interp_filter_subpel_kernel(filter, subpel_x_q3 << 1);
     const int16_t *const kernel_y =
-        av1_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
+        av2_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
     const uint16_t *ref_start = ref - ref_stride * ((filter_taps >> 1) - 1);
     uint16_t *temp_start_horiz = (subpel_search <= USE_4_TAPS)
                                      ? temp + (filter_taps >> 1) * MAX_SB_SIZE
@@ -792,20 +792,20 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
     const int intermediate_height =
         (((height - 1) * 8 + subpel_y_q3) >> 3) + filter_taps;
     assert(intermediate_height <= (MAX_SB_SIZE * 2 + 16) + 16);
-    aom_highbd_convolve8_horiz(ref_start, ref_stride, (temp_start_horiz),
+    avm_highbd_convolve8_horiz(ref_start, ref_stride, (temp_start_horiz),
                                MAX_SB_SIZE, kernel_x, 16, NULL, -1, width,
                                intermediate_height, bd);
-    aom_highbd_convolve8_vert((temp_start_vert), MAX_SB_SIZE, comp_pred, width,
+    avm_highbd_convolve8_vert((temp_start_vert), MAX_SB_SIZE, comp_pred, width,
                               NULL, -1, kernel_y, 16, width, height, bd);
   }
 }
 
-void aom_highbd_comp_avg_upsampled_pred_sse2(
-    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+void avm_highbd_comp_avg_upsampled_pred_sse2(
+    MACROBLOCKD *xd, const struct AV2Common *const cm, int mi_row, int mi_col,
     const MV *const mv, uint16_t *comp_pred16, const uint16_t *pred, int width,
     int height, int subpel_x_q3, int subpel_y_q3, const uint16_t *ref,
     int ref_stride, int bd, int subpel_search, int is_scaled_ref) {
-  aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred16, width,
+  avm_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred16, width,
                             height, subpel_x_q3, subpel_y_q3, ref, ref_stride,
                             bd, subpel_search, is_scaled_ref);
   /*The total number of pixels must be a multiple of 8 (e.g., 4x4).*/
@@ -835,7 +835,7 @@ static INLINE void highbd_compute_dist_wtd_comp_avg(__m128i *p0, __m128i *p1,
   xx_storeu_128(result, shift);
 }
 
-void aom_highbd_dist_wtd_comp_avg_pred_sse2(
+void avm_highbd_dist_wtd_comp_avg_pred_sse2(
     uint16_t *comp_pred, const uint16_t *pred, int width, int height,
     const uint16_t *ref, int ref_stride,
     const DIST_WTD_COMP_PARAMS *jcp_param) {
@@ -883,15 +883,15 @@ void aom_highbd_dist_wtd_comp_avg_pred_sse2(
   }
 }
 
-void aom_highbd_dist_wtd_comp_avg_upsampled_pred_sse2(
-    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+void avm_highbd_dist_wtd_comp_avg_upsampled_pred_sse2(
+    MACROBLOCKD *xd, const struct AV2Common *const cm, int mi_row, int mi_col,
     const MV *const mv, uint16_t *comp_pred16, const uint16_t *pred, int width,
     int height, int subpel_x_q3, int subpel_y_q3, const uint16_t *ref,
     int ref_stride, int bd, const DIST_WTD_COMP_PARAMS *jcp_param,
     int subpel_search, int is_scaled_ref) {
   int n;
   int i;
-  aom_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred16, width,
+  avm_highbd_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred16, width,
                             height, subpel_x_q3, subpel_y_q3, ref, ref_stride,
                             bd, subpel_search, is_scaled_ref);
   assert(!(width * height & 7));
@@ -916,7 +916,7 @@ void aom_highbd_dist_wtd_comp_avg_upsampled_pred_sse2(
   }
 }
 
-uint64_t aom_mse_4xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
+uint64_t avm_mse_4xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
                                        uint16_t *src, int sstride, int h) {
   uint64_t sum = 0;
   __m128i reg0_4x16, reg1_4x16;
@@ -961,7 +961,7 @@ uint64_t aom_mse_4xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
   return sum;
 }
 
-uint64_t aom_mse_8xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
+uint64_t avm_mse_8xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
                                        uint16_t *src, int sstride, int h) {
   uint64_t sum = 0;
   __m128i src_8x16;
@@ -1001,14 +1001,14 @@ uint64_t aom_mse_8xh_16bit_highbd_sse2(uint16_t *dst, int dstride,
   return sum;
 }
 
-uint64_t aom_mse_wxh_16bit_highbd_sse2(uint16_t *dst, int dstride,
+uint64_t avm_mse_wxh_16bit_highbd_sse2(uint16_t *dst, int dstride,
                                        uint16_t *src, int sstride, int w,
                                        int h) {
   assert((w == 8 || w == 4) && (h == 8 || h == 4) &&
          "w=8/4 and h=8/4 must satisfy");
   switch (w) {
-    case 4: return aom_mse_4xh_16bit_highbd_sse2(dst, dstride, src, sstride, h);
-    case 8: return aom_mse_8xh_16bit_highbd_sse2(dst, dstride, src, sstride, h);
+    case 4: return avm_mse_4xh_16bit_highbd_sse2(dst, dstride, src, sstride, h);
+    case 8: return avm_mse_8xh_16bit_highbd_sse2(dst, dstride, src, sstride, h);
     default: assert(0 && "unsupported width"); return -1;
   }
 }

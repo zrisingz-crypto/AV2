@@ -12,7 +12,7 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 static unsigned int sad32x32(const uint8_t *src_ptr, int src_stride,
                              const uint8_t *ref_ptr, int ref_stride) {
@@ -57,7 +57,7 @@ static unsigned int sad64x64(const uint8_t *src_ptr, int src_stride,
   return sum;
 }
 
-unsigned int aom_sad128x64_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad128x64_avx2(const uint8_t *src_ptr, int src_stride,
                                 const uint8_t *ref_ptr, int ref_stride) {
   unsigned int half_width = 64;
   uint32_t sum = sad64x64(src_ptr, src_stride, ref_ptr, ref_stride);
@@ -67,7 +67,7 @@ unsigned int aom_sad128x64_avx2(const uint8_t *src_ptr, int src_stride,
   return sum;
 }
 
-unsigned int aom_sad64x128_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad64x128_avx2(const uint8_t *src_ptr, int src_stride,
                                 const uint8_t *ref_ptr, int ref_stride) {
   uint32_t sum = sad64x64(src_ptr, src_stride, ref_ptr, ref_stride);
   src_ptr += src_stride << 6;
@@ -76,16 +76,16 @@ unsigned int aom_sad64x128_avx2(const uint8_t *src_ptr, int src_stride,
   return sum;
 }
 
-unsigned int aom_sad128x128_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad128x128_avx2(const uint8_t *src_ptr, int src_stride,
                                  const uint8_t *ref_ptr, int ref_stride) {
-  uint32_t sum = aom_sad128x64_avx2(src_ptr, src_stride, ref_ptr, ref_stride);
+  uint32_t sum = avm_sad128x64_avx2(src_ptr, src_stride, ref_ptr, ref_stride);
   src_ptr += src_stride << 6;
   ref_ptr += ref_stride << 6;
-  sum += aom_sad128x64_avx2(src_ptr, src_stride, ref_ptr, ref_stride);
+  sum += avm_sad128x64_avx2(src_ptr, src_stride, ref_ptr, ref_stride);
   return sum;
 }
 
-unsigned int aom_sad_skip_128x64_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad_skip_128x64_avx2(const uint8_t *src_ptr, int src_stride,
                                       const uint8_t *ref_ptr, int ref_stride) {
   const uint32_t half_width = 64;
   uint32_t sum = sad64x32(src_ptr, src_stride * 2, ref_ptr, ref_stride * 2);
@@ -95,17 +95,17 @@ unsigned int aom_sad_skip_128x64_avx2(const uint8_t *src_ptr, int src_stride,
   return 2 * sum;
 }
 
-unsigned int aom_sad_skip_64x128_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad_skip_64x128_avx2(const uint8_t *src_ptr, int src_stride,
                                       const uint8_t *ref_ptr, int ref_stride) {
   const uint32_t sum =
       sad64x64(src_ptr, 2 * src_stride, ref_ptr, 2 * ref_stride);
   return 2 * sum;
 }
 
-unsigned int aom_sad_skip_128x128_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad_skip_128x128_avx2(const uint8_t *src_ptr, int src_stride,
                                        const uint8_t *ref_ptr, int ref_stride) {
   const uint32_t sum =
-      aom_sad128x64_avx2(src_ptr, 2 * src_stride, ref_ptr, 2 * ref_stride);
+      avm_sad128x64_avx2(src_ptr, 2 * src_stride, ref_ptr, 2 * ref_stride);
   return 2 * sum;
 }
 
@@ -143,7 +143,7 @@ static unsigned int sad_w64_avg_avx2(const uint8_t *src_ptr, int src_stride,
   return res;
 }
 
-unsigned int aom_sad64x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad64x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
                                     const uint8_t *ref_ptr, int ref_stride,
                                     const uint8_t *second_pred) {
   uint32_t sum = sad_w64_avg_avx2(src_ptr, src_stride, ref_ptr, ref_stride, 64,
@@ -156,7 +156,7 @@ unsigned int aom_sad64x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
   return sum;
 }
 
-unsigned int aom_sad128x64_avg_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad128x64_avg_avx2(const uint8_t *src_ptr, int src_stride,
                                     const uint8_t *ref_ptr, int ref_stride,
                                     const uint8_t *second_pred) {
   unsigned int half_width = 64;
@@ -170,15 +170,15 @@ unsigned int aom_sad128x64_avg_avx2(const uint8_t *src_ptr, int src_stride,
   return sum;
 }
 
-unsigned int aom_sad128x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_sad128x128_avg_avx2(const uint8_t *src_ptr, int src_stride,
                                      const uint8_t *ref_ptr, int ref_stride,
                                      const uint8_t *second_pred) {
-  uint32_t sum = aom_sad128x64_avg_avx2(src_ptr, src_stride, ref_ptr,
+  uint32_t sum = avm_sad128x64_avg_avx2(src_ptr, src_stride, ref_ptr,
                                         ref_stride, second_pred);
   src_ptr += src_stride << 6;
   ref_ptr += ref_stride << 6;
   second_pred += 128 << 6;
-  sum += aom_sad128x64_avg_avx2(src_ptr, src_stride, ref_ptr, ref_stride,
+  sum += avm_sad128x64_avg_avx2(src_ptr, src_stride, ref_ptr, ref_stride,
                                 second_pred);
   return sum;
 }

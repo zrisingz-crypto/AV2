@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_
-#define AOM_AOM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_
+#ifndef AVM_AVM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_
+#define AVM_AVM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_
 
 #include <stdlib.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_mem/aom_mem.h"
+#include "avm/avm_integer.h"
+#include "avm_mem/avm_mem.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -435,4 +435,4 @@ extern "C" {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_
+#endif  // AVM_AVM_DSP_MIPS_LOOPFILTER_MACROS_DSPR2_H_

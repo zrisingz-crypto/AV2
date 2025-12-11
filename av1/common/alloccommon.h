@@ -10,56 +10,56 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_ALLOCCOMMON_H_
-#define AOM_AV1_COMMON_ALLOCCOMMON_H_
+#ifndef AVM_AV2_COMMON_ALLOCCOMMON_H_
+#define AVM_AV2_COMMON_ALLOCCOMMON_H_
 
 #define INVALID_IDX -1  // Invalid buffer index.
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1Common;
+struct AV2Common;
 struct BufferPool;
 struct CommonContexts;
 struct CommonModeInfoParams;
-struct AV1CdefWorker;
-struct AV1CdefSyncData;
+struct AV2CdefWorker;
+struct AV2CdefSyncData;
 
-void av1_remove_common(struct AV1Common *cm);
+void av2_remove_common(struct AV2Common *cm);
 
-int av1_alloc_above_context_buffers(struct CommonContexts *above_contexts,
+int av2_alloc_above_context_buffers(struct CommonContexts *above_contexts,
                                     int num_tile_rows, int num_mi_cols,
                                     int num_planes);
-void av1_free_above_context_buffers(struct CommonContexts *above_contexts);
-int av1_alloc_superblock_info_buffers(struct AV1Common *cm);
-int av1_alloc_context_buffers(struct AV1Common *cm, int width, int height);
-void av1_init_mi_buffers(struct CommonModeInfoParams *mi_params);
-void av1_free_context_buffers(struct AV1Common *cm);
+void av2_free_above_context_buffers(struct CommonContexts *above_contexts);
+int av2_alloc_superblock_info_buffers(struct AV2Common *cm);
+int av2_alloc_context_buffers(struct AV2Common *cm, int width, int height);
+void av2_init_mi_buffers(struct CommonModeInfoParams *mi_params);
+void av2_free_context_buffers(struct AV2Common *cm);
 
-void av1_free_ref_frame_buffers(struct BufferPool *pool);
+void av2_free_ref_frame_buffers(struct BufferPool *pool);
 
 // Allocates the line buffers of CDEF for all planes and reallocates the buffer
 // if frame size, subsampling, flags, or plane count changed.
-void av1_alloc_cdef_buffers(struct AV1Common *const cm,
-                            struct AV1CdefWorker **cdef_worker,
-                            struct AV1CdefSyncData *cdef_sync, int num_workers);
+void av2_alloc_cdef_buffers(struct AV2Common *const cm,
+                            struct AV2CdefWorker **cdef_worker,
+                            struct AV2CdefSyncData *cdef_sync, int num_workers);
 // Free all CDEF-related buffers, worker data, and sync objects.
-void av1_free_cdef_buffers(struct AV1Common *const cm,
-                           struct AV1CdefWorker **cdef_worker,
-                           struct AV1CdefSyncData *cdef_sync, int num_workers);
+void av2_free_cdef_buffers(struct AV2Common *const cm,
+                           struct AV2CdefWorker **cdef_worker,
+                           struct AV2CdefSyncData *cdef_sync, int num_workers);
 
-void av1_alloc_restoration_buffers(struct AV1Common *cm);
-void av1_alloc_restoration_boundary_buffers(struct AV1Common *cm,
+void av2_alloc_restoration_buffers(struct AV2Common *cm);
+void av2_alloc_restoration_boundary_buffers(struct AV2Common *cm,
                                             int num_planes);
-void av1_free_restoration_buffers(struct AV1Common *cm);
+void av2_free_restoration_buffers(struct AV2Common *cm);
 
-int av1_get_MBs(int width, int height);
+int av2_get_MBs(int width, int height);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_ALLOCCOMMON_H_
+#endif  // AVM_AV2_COMMON_ALLOCCOMMON_H_

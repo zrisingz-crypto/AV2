@@ -16,15 +16,15 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #if ARCH_X86 || ARCH_X86_64
-#include "aom_ports/x86.h"
+#include "avm_ports/x86.h"
 #endif
 extern "C" {
-extern void av1_rtcd();
-extern void aom_dsp_rtcd();
-extern void aom_scale_rtcd();
+extern void av2_rtcd();
+extern void avm_dsp_rtcd();
+extern void avm_scale_rtcd();
 }
 
 #if ARCH_X86 || ARCH_X86_64
@@ -66,9 +66,9 @@ int main(int argc, char **argv) {
 // Shared library builds don't support whitebox tests that exercise internal
 // symbols.
 #if !CONFIG_SHARED
-  av1_rtcd();
-  aom_dsp_rtcd();
-  aom_scale_rtcd();
+  av2_rtcd();
+  avm_dsp_rtcd();
+  avm_scale_rtcd();
 #endif  // !CONFIG_SHARED
 
   return RUN_ALL_TESTS();

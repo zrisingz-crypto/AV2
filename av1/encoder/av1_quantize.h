@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_AV1_QUANTIZE_H_
-#define AOM_AV1_ENCODER_AV1_QUANTIZE_H_
+#ifndef AVM_AV2_ENCODER_AV2_QUANTIZE_H_
+#define AVM_AV2_ENCODER_AV2_QUANTIZE_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/quant_common.h"
-#include "av1/common/scan.h"
-#include "av1/encoder/block.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/scan.h"
+#include "av2/encoder/block.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,7 @@ typedef struct QUANT_PARAM {
   int xform_quant_idx;
 } QUANT_PARAM;
 
-typedef void (*AV1_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
+typedef void (*AV2_QUANT_FACADE)(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                                  const MACROBLOCK_PLANE *p,
                                  tran_low_t *qcoeff_ptr,
                                  tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr,
@@ -53,7 +53,7 @@ static const int qindex_12b_offset[] = {
 };
 
 // The QUANTS structure is used only for internal quantizer setup in
-// av1_quantize.c.
+// av2_quantize.c.
 // All of its fields use the same coefficient shift/scaling at TX.
 typedef struct {
   // 0: dc 1: ac 2-8: ac repeated to SIMD width
@@ -82,7 +82,7 @@ typedef struct {
 } QUANTS;
 
 // The Dequants structure is used only for internal quantizer setup in
-// av1_quantize.c.
+// av2_quantize.c.
 // Fields are suffixed according to whether or not they're expressed in
 // the same coefficient shift/precision as TX or a fixed Q3 format.
 typedef struct {
@@ -101,49 +101,49 @@ typedef struct {
   Dequants dequants;
 } EncQuantDequantParams;
 
-struct AV1_COMP;
-struct AV1Common;
+struct AV2_COMP;
+struct AV2Common;
 
-void av1_frame_init_quantizer(struct AV1_COMP *cpi);
+void av2_frame_init_quantizer(struct AV2_COMP *cpi);
 
-void av1_init_plane_quantizers(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av2_init_plane_quantizers(const struct AV2_COMP *cpi, MACROBLOCK *x,
                                int segment_id);
 
-void av1_build_quantizer(aom_bit_depth_t bit_depth, int y_dc_delta_q,
+void av2_build_quantizer(avm_bit_depth_t bit_depth, int y_dc_delta_q,
                          int u_dc_delta_q, int u_ac_delta_q, int v_dc_delta_q,
                          int v_ac_delta_q, int base_y_dc_delta_q,
                          int base_uv_dc_delta_q, int base_uv_ac_delta_q,
                          QUANTS *const quants, Dequants *const deq);
 
-void av1_init_quantizer(SequenceHeader *seq_params,
+void av2_init_quantizer(SequenceHeader *seq_params,
                         EncQuantDequantParams *const enc_quant_dequant_params,
-                        const AV1_COMMON *const cm);
+                        const AV2_COMMON *const cm);
 
-void av1_set_quantizer(struct AV1_COMP *const cpi, int min_qmlevel,
+void av2_set_quantizer(struct AV2_COMP *const cpi, int min_qmlevel,
                        int max_qmlevel, int q, int enable_chroma_deltaq);
 
-int av1_quantizer_to_qindex(int quantizer, aom_bit_depth_t bit_depth);
+int av2_quantizer_to_qindex(int quantizer, avm_bit_depth_t bit_depth);
 
-int av1_qindex_to_quantizer(int qindex, aom_bit_depth_t bit_depth);
+int av2_qindex_to_quantizer(int qindex, avm_bit_depth_t bit_depth);
 
-void av1_quantize_skip(intptr_t n_coeffs, tran_low_t *qcoeff_ptr,
+void av2_quantize_skip(intptr_t n_coeffs, tran_low_t *qcoeff_ptr,
                        tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr);
 
-void av1_highbd_quantize_fp_facade(const tran_low_t *coeff_ptr,
+void av2_highbd_quantize_fp_facade(const tran_low_t *coeff_ptr,
                                    intptr_t n_coeffs, const MACROBLOCK_PLANE *p,
                                    tran_low_t *qcoeff_ptr,
                                    tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr,
                                    const SCAN_ORDER *sc,
                                    const QUANT_PARAM *qparam);
 
-void av1_highbd_quantize_b_facade(const tran_low_t *coeff_ptr,
+void av2_highbd_quantize_b_facade(const tran_low_t *coeff_ptr,
                                   intptr_t n_coeffs, const MACROBLOCK_PLANE *p,
                                   tran_low_t *qcoeff_ptr,
                                   tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr,
                                   const SCAN_ORDER *sc,
                                   const QUANT_PARAM *qparam);
 
-void av1_highbd_quantize_dc_facade(const tran_low_t *coeff_ptr,
+void av2_highbd_quantize_dc_facade(const tran_low_t *coeff_ptr,
                                    intptr_t n_coeffs, const MACROBLOCK_PLANE *p,
                                    tran_low_t *qcoeff_ptr,
                                    tran_low_t *dqcoeff_ptr, uint16_t *eob_ptr,
@@ -154,4 +154,4 @@ void av1_highbd_quantize_dc_facade(const tran_low_t *coeff_ptr,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_AV1_QUANTIZE_H_
+#endif  // AVM_AV2_ENCODER_AV2_QUANTIZE_H_

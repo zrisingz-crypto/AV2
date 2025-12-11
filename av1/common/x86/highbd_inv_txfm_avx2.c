@@ -12,15 +12,15 @@
 #include <assert.h>
 #include <immintrin.h>
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "av1/common/idct.h"
-#include "av1/common/txb_common.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "av2/common/idct.h"
+#include "av2/common/txb_common.h"
 
-void av1_highbd_inv_txfm_add_avx2(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_inv_txfm_add_avx2(const tran_low_t *input, uint16_t *dest,
                                   int stride, const TxfmParam *txfm_param) {
-  assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+  assert(av2_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
   inv_txfm(input, dest, stride, txfm_param);
 }
 
@@ -2855,12 +2855,12 @@ void inv_txfm_avx2(const tran_low_t *input, uint16_t *dest, int stride,
   const TX_SIZE tx_size = txfm_param->tx_size;
   TX_TYPE tx_type = txfm_param->tx_type;
 
-  int width = AOMMIN(MAX_TX_SIZE >> 1, tx_size_wide[tx_size]);
-  int height = AOMMIN(MAX_TX_SIZE >> 1, tx_size_high[tx_size]);
+  int width = AVMMIN(MAX_TX_SIZE >> 1, tx_size_wide[tx_size]);
+  int height = AVMMIN(MAX_TX_SIZE >> 1, tx_size_high[tx_size]);
   const uint32_t tx_wide_index =
-      AOMMIN(MAX_TX_SIZE_LOG2 - 1, tx_size_wide_log2[tx_size]) - 2;
+      AVMMIN(MAX_TX_SIZE_LOG2 - 1, tx_size_wide_log2[tx_size]) - 2;
   const uint32_t tx_high_index =
-      AOMMIN(MAX_TX_SIZE_LOG2 - 1, tx_size_high_log2[tx_size]) - 2;
+      AVMMIN(MAX_TX_SIZE_LOG2 - 1, tx_size_high_log2[tx_size]) - 2;
 
   // This condition is required to silence the compiler warning about potential
   // use of uninitialized array block[].
@@ -2875,7 +2875,7 @@ void inv_txfm_avx2(const tran_low_t *input, uint16_t *dest, int stride,
 
   if (txfm_param->lossless) {
     assert(tx_type == DCT_DCT);
-    av1_highbd_iwht4x4_add(input, dest, stride, txfm_param->eob,
+    av2_highbd_iwht4x4_add(input, dest, stride, txfm_param->eob,
                            txfm_param->bd);
     return;
   }
@@ -2957,7 +2957,7 @@ void inv_txfm_avx2(const tran_low_t *input, uint16_t *dest, int stride,
       __m128i shift_bits = _mm_set1_epi64x(NewSqrt2Bits);
       __m256i round_offset = _mm256_set1_epi64x(1LL << (NewSqrt2Bits - 1));
       __m256i idx = _mm256_set_epi32(6, 4, 2, 0, 6, 4, 2, 0);
-      for (int i = 0; i < AOMMIN(1024, width * height); i += 8) {
+      for (int i = 0; i < AVMMIN(1024, width * height); i += 8) {
         __m256i data = _mm256_loadu_si256((__m256i *)(input + i));
 
         __m256i data0 =
@@ -2980,7 +2980,7 @@ void inv_txfm_avx2(const tran_low_t *input, uint16_t *dest, int stride,
         _mm256_storeu_si256((__m256i *)(block + i), data);
       }
     } else {
-      for (int i = 0; i < AOMMIN(1024, width * height); i += 8) {
+      for (int i = 0; i < AVMMIN(1024, width * height); i += 8) {
         __m256i data = _mm256_loadu_si256((__m256i *)(input + i));
         data = _mm256_min_epi32(_mm256_max_epi32(data, vcoefmin), vcoefmax);
         _mm256_storeu_si256((__m256i *)(block + i), data);
@@ -3189,11 +3189,11 @@ void process_inv_idtx_add_4x4_avx2(const tran_low_t *input, int in_stride,
                    res_row3);
 }
 
-void av1_lossless_inv_idtx_add_avx2(const tran_low_t *input, uint16_t *dest,
+void av2_lossless_inv_idtx_add_avx2(const tran_low_t *input, uint16_t *dest,
                                     int stride, const TxfmParam *txfm_param) {
   const int txw = tx_size_wide[txfm_param->tx_size];
   const int txh = tx_size_high[txfm_param->tx_size];
-  int scale_bits = 3 - av1_get_tx_scale(txfm_param->tx_size);
+  int scale_bits = 3 - av2_get_tx_scale(txfm_param->tx_size);
   const int bd = txfm_param->bd;
 
   for (int i = 0; i < txh; i += MI_SIZE) {

@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/timing.h"
+#include "av2/common/timing.h"
 
-/* Tables for AV1 max bitrates for different levels of main and high tier.
+/* Tables for AV2 max bitrates for different levels of main and high tier.
  * The tables are in Kbps instead of Mbps in the specification.
  * Note that depending on the profile, a multiplier is needed.
  */
@@ -52,7 +52,7 @@ static int bitrate_profile_factor[1 << PROFILE_BITS] = {
   1, 2, 3, 0, 0, 0, 0, 0
 };
 
-int64_t av1_max_level_bitrate(BITSTREAM_PROFILE seq_profile, int seq_level_idx,
+int64_t av2_max_level_bitrate(BITSTREAM_PROFILE seq_profile, int seq_level_idx,
                               int seq_tier) {
   int64_t bitrate;
 
@@ -65,7 +65,7 @@ int64_t av1_max_level_bitrate(BITSTREAM_PROFILE seq_profile, int seq_level_idx,
   return bitrate * 1000;
 }
 
-void av1_set_aom_dec_model_info(aom_dec_model_info_t *decoder_model) {
+void av2_set_avm_dec_model_info(avm_dec_model_info_t *decoder_model) {
   decoder_model->encoder_decoder_buffer_delay_length = 16;
   decoder_model->buffer_removal_time_length = 10;
 #if !CONFIG_CWG_F430
@@ -73,7 +73,7 @@ void av1_set_aom_dec_model_info(aom_dec_model_info_t *decoder_model) {
 #endif  // !CONFIG_CWG_F430
 }
 
-void av1_set_dec_model_op_parameters(aom_dec_model_op_parameters_t *op_params) {
+void av2_set_dec_model_op_parameters(avm_dec_model_op_parameters_t *op_params) {
   op_params->decoder_model_param_present_flag = 1;
   op_params->decoder_buffer_delay = 90000 >> 1;  //  0.5 s
   op_params->encoder_buffer_delay = 90000 >> 1;  //  0.5 s
@@ -82,8 +82,8 @@ void av1_set_dec_model_op_parameters(aom_dec_model_op_parameters_t *op_params) {
   op_params->initial_display_delay = 8;  // 8 frames delay
 }
 
-void av1_set_resource_availability_parameters(
-    aom_dec_model_op_parameters_t *op_params) {
+void av2_set_resource_availability_parameters(
+    avm_dec_model_op_parameters_t *op_params) {
   op_params->decoder_model_param_present_flag = 0;
   op_params->decoder_buffer_delay =
       70000;  // Resource availability mode default

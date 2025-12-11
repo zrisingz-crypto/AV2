@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/decoder/decodetxb.h"
+#include "av2/decoder/decodetxb.h"
 
-#include "aom_ports/mem.h"
-#include "av1/common/hr_coding.h"
-#include "av1/common/idct.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/reconintra.h"
-#include "av1/common/scan.h"
-#include "av1/common/txb_common.h"
-#include "av1/decoder/decodemv.h"
+#include "avm_ports/mem.h"
+#include "av2/common/hr_coding.h"
+#include "av2/common/idct.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/reconintra.h"
+#include "av2/common/scan.h"
+#include "av2/common/txb_common.h"
+#include "av2/decoder/decodemv.h"
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-#include "av1/common/cost.h"
+#include "av2/common/cost.h"
 #endif
 
 #if CONFIG_PARAKIT_COLLECT_DATA
@@ -48,15 +48,15 @@ static int get_q_ctx(int q) {
  * \param[in]    k         Order of Exp-Golomb coding
  *
  */
-static int read_exp_golomb(MACROBLOCKD *xd, aom_reader *r, int k) {
-  int length = aom_read_unary(r, 21, ACCT_INFO("hr"));
+static int read_exp_golomb(MACROBLOCKD *xd, avm_reader *r, int k) {
+  int length = avm_read_unary(r, 21, ACCT_INFO("hr"));
   if (length > 20) {
-    aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+    avm_internal_error(xd->error_info, AVM_CODEC_CORRUPT_FRAME,
                        "Invalid length in read_exp_golomb");
   }
   length += k;
   int x = 1 << length;
-  x += aom_read_literal(r, length, ACCT_INFO("hr"));
+  x += avm_read_literal(r, length, ACCT_INFO("hr"));
 
   return x - (1 << k);
 }
@@ -82,12 +82,12 @@ static int read_exp_golomb(MACROBLOCKD *xd, aom_reader *r, int k) {
  *                         is used instead of Golomb-Rice coding
  *
  */
-static int read_truncated_rice(MACROBLOCKD *xd, aom_reader *r, int m, int k,
+static int read_truncated_rice(MACROBLOCKD *xd, avm_reader *r, int m, int k,
                                int cmax) {
-  int q = aom_read_unary(r, cmax, ACCT_INFO("hr"));
+  int q = avm_read_unary(r, cmax, ACCT_INFO("hr"));
 
   int rem = (q == cmax) ? read_exp_golomb(xd, r, k)
-                        : aom_read_literal(r, m, ACCT_INFO("hr"));
+                        : avm_read_literal(r, m, ACCT_INFO("hr"));
   return rem + (q << m);
 }
 
@@ -101,7 +101,7 @@ static int read_truncated_rice(MACROBLOCKD *xd, aom_reader *r, int m, int k,
  * It first derives the Rice parameter m from the input context value ctx.
  * It then invokes the read_truncated_rice function to decode the HR
  * coefficient value using Rice parameter m, Exp-Golomb order k = m + 1,
- * and maximum unary prefix lenght cmax = AOMMIN(m + 4, 6).
+ * and maximum unary prefix lenght cmax = AVMMIN(m + 4, 6).
  *
  * \param[in]    xd        Pointer to structure holding the data for the
  *                         current macroblockd
@@ -109,13 +109,13 @@ static int read_truncated_rice(MACROBLOCKD *xd, aom_reader *r, int m, int k,
  * \param[in]    ctx       Context value
  *
  */
-static int read_adaptive_hr(MACROBLOCKD *xd, aom_reader *r, int ctx) {
+static int read_adaptive_hr(MACROBLOCKD *xd, avm_reader *r, int ctx) {
   int m = get_adaptive_param(ctx);
-  return read_truncated_rice(xd, r, m, m + 1, AOMMIN(m + 4, 6));
+  return read_truncated_rice(xd, r, m, m + 1, AVMMIN(m + 4, 6));
 }
 
 // Read high range part of coeff
-static INLINE int read_high_range(MACROBLOCKD *xd, aom_reader *r, int tcq_mode,
+static INLINE int read_high_range(MACROBLOCKD *xd, avm_reader *r, int tcq_mode,
                                   int level, int lf, int *hr_avg, int plane) {
   int max_br = lf ? (plane == 0 ? LF_MAX_BASE_BR_RANGE  // 8
                                 : LF_NUM_BASE_LEVELS + 1)
@@ -132,7 +132,7 @@ static INLINE int read_high_range(MACROBLOCKD *xd, aom_reader *r, int tcq_mode,
 }
 
 static INLINE int rec_eob_pos(const int eob_token, const int extra) {
-  int eob = av1_eob_group_start[eob_token];
+  int eob = av2_eob_group_start[eob_token];
   if (eob > 2) {
     eob += extra;
   }
@@ -144,14 +144,14 @@ static INLINE int get_dqv(const int32_t *dequant, int coeff_idx,
   int dqv = dequant[!!coeff_idx];
   if (iqmatrix != NULL)
     dqv =
-        ((iqmatrix[coeff_idx] * dqv) + (1 << (AOM_QM_BITS - 1))) >> AOM_QM_BITS;
+        ((iqmatrix[coeff_idx] * dqv) + (1 << (AVM_QM_BITS - 1))) >> AVM_QM_BITS;
   return dqv;
 }
 
-static int read_low_range(aom_reader *r, aom_cdf_prob *cdf) {
+static int read_low_range(avm_reader *r, avm_cdf_prob *cdf) {
   int br_level = 0;
   for (int idx = 0; idx < COEFF_BASE_RANGE; idx += BR_CDF_SIZE - 1) {
-    const int k = aom_read_symbol(r, cdf, BR_CDF_SIZE,
+    const int k = avm_read_symbol(r, cdf, BR_CDF_SIZE,
                                   ACCT_INFO("k", "read_low_range cdf"));
     br_level += k;
     if (k < BR_CDF_SIZE - 1) break;
@@ -160,7 +160,7 @@ static int read_low_range(aom_reader *r, aom_cdf_prob *cdf) {
 }
 
 static INLINE void read_coeffs_reverse_2d(
-    aom_reader *r, int start_si, int end_si, const int16_t *scan, int bwl,
+    avm_reader *r, int start_si, int end_si, const int16_t *scan, int bwl,
     uint8_t *levels, base_lf_cdf_arr base_lf_cdf, br_cdf_arr br_lf_cdf,
     int plane, base_cdf_arr base_cdf, br_cdf_arr br_cdf,
     base_lf_cdf_arr base_lf_uv_cdf, base_cdf_arr base_uv_cdf,
@@ -177,16 +177,16 @@ static INLINE void read_coeffs_reverse_2d(
         const int coeff_ctx =
             get_lower_levels_ctx_lf_2d_chroma(levels, pos, bwl, plane);
         level +=
-            aom_read_symbol(r, base_lf_uv_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
+            avm_read_symbol(r, base_lf_uv_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
                             ACCT_INFO("level", "base_lf_uv_cdf"));
       } else {
         const int coeff_ctx =
             get_lower_levels_ctx_2d_chroma(levels, pos, bwl, plane);
-        level += aom_read_symbol(r, base_uv_cdf[coeff_ctx][q_i], 4,
+        level += avm_read_symbol(r, base_uv_cdf[coeff_ctx][q_i], 4,
                                  ACCT_INFO("level", "base_uv_cdf"));
         if (level > NUM_BASE_LEVELS) {
           const int br_ctx = get_br_ctx_2d_chroma(levels, pos, bwl);
-          aom_cdf_prob *cdf = br_uv_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_uv_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       }
@@ -194,20 +194,20 @@ static INLINE void read_coeffs_reverse_2d(
       if (limits) {
         const int coeff_ctx = get_lower_levels_ctx_lf_2d(levels, pos, bwl);
         level +=
-            aom_read_symbol(r, base_lf_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
+            avm_read_symbol(r, base_lf_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
                             ACCT_INFO("level", "base_lf_cdf"));
         if (level > LF_NUM_BASE_LEVELS) {
           const int br_ctx = get_br_lf_ctx_2d(levels, pos, bwl);
-          aom_cdf_prob *cdf = br_lf_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_lf_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       } else {
         const int coeff_ctx = get_lower_levels_ctx_2d(levels, pos, bwl, plane);
-        level += aom_read_symbol(r, base_cdf[coeff_ctx][q_i], 4,
+        level += avm_read_symbol(r, base_cdf[coeff_ctx][q_i], 4,
                                  ACCT_INFO("level", "base_cdf"));
         if (level > NUM_BASE_LEVELS) {
           const int br_ctx = get_br_ctx_2d(levels, pos, bwl);
-          aom_cdf_prob *cdf = br_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       }
@@ -218,7 +218,7 @@ static INLINE void read_coeffs_reverse_2d(
 }
 
 static INLINE void read_coeffs_reverse(
-    aom_reader *r, TX_CLASS tx_class, int start_si, int end_si,
+    avm_reader *r, TX_CLASS tx_class, int start_si, int end_si,
     const int16_t *scan, int bwl, uint8_t *levels, base_lf_cdf_arr base_lf_cdf,
     br_cdf_arr br_lf_cdf, int plane, base_cdf_arr base_cdf, br_cdf_arr br_cdf,
     base_lf_cdf_arr base_lf_uv_cdf, base_cdf_arr base_uv_cdf,
@@ -235,16 +235,16 @@ static INLINE void read_coeffs_reverse(
         const int coeff_ctx =
             get_lower_levels_lf_ctx_chroma(levels, pos, bwl, tx_class, plane);
         level +=
-            aom_read_symbol(r, base_lf_uv_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
+            avm_read_symbol(r, base_lf_uv_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
                             ACCT_INFO("level", "base_lf_uv_cdf"));
       } else {
         const int coeff_ctx =
             get_lower_levels_ctx_chroma(levels, pos, bwl, tx_class, plane);
-        level += aom_read_symbol(r, base_uv_cdf[coeff_ctx][q_i], 4,
+        level += avm_read_symbol(r, base_uv_cdf[coeff_ctx][q_i], 4,
                                  ACCT_INFO("level", "base_uv_cdf"));
         if (level > NUM_BASE_LEVELS) {
           const int br_ctx = get_br_ctx_chroma(levels, pos, bwl, tx_class);
-          aom_cdf_prob *cdf = br_uv_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_uv_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       }
@@ -253,22 +253,22 @@ static INLINE void read_coeffs_reverse(
         const int coeff_ctx =
             get_lower_levels_lf_ctx(levels, pos, bwl, tx_class);
         level +=
-            aom_read_symbol(r, base_lf_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
+            avm_read_symbol(r, base_lf_cdf[coeff_ctx][q_i], LF_BASE_SYMBOLS,
                             ACCT_INFO("level", "base_lf_cdf"));
 
         if (level > LF_NUM_BASE_LEVELS) {
           const int br_ctx = get_br_lf_ctx(levels, pos, bwl, tx_class);
-          aom_cdf_prob *cdf = br_lf_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_lf_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       } else {
         const int coeff_ctx =
             get_lower_levels_ctx(levels, pos, bwl, tx_class, plane);
-        level += aom_read_symbol(r, base_cdf[coeff_ctx][q_i], 4,
+        level += avm_read_symbol(r, base_cdf[coeff_ctx][q_i], 4,
                                  ACCT_INFO("level", "base_cdf"));
         if (level > NUM_BASE_LEVELS) {
           const int br_ctx = get_br_ctx(levels, pos, bwl, tx_class);
-          aom_cdf_prob *cdf = br_cdf[br_ctx];
+          avm_cdf_prob *cdf = br_cdf[br_ctx];
           level += read_low_range(r, cdf);
         }
       }
@@ -278,7 +278,7 @@ static INLINE void read_coeffs_reverse(
   }
 }
 
-static INLINE void read_coeffs_forward_2d(aom_reader *r, int start_si,
+static INLINE void read_coeffs_forward_2d(avm_reader *r, int start_si,
                                           int end_si, const int16_t *scan,
                                           int bwl, uint8_t *levels,
                                           base_fsc_cdf_arr base_cdf,
@@ -287,11 +287,11 @@ static INLINE void read_coeffs_forward_2d(aom_reader *r, int start_si,
     const int pos = scan[c];
     const int coeff_ctx = get_upper_levels_ctx_2d(levels, pos, bwl);
     const int nsymbs = 4;
-    int level = aom_read_symbol(r, base_cdf[coeff_ctx], nsymbs,
+    int level = avm_read_symbol(r, base_cdf[coeff_ctx], nsymbs,
                                 ACCT_INFO("level", "base_cdf"));
     if (level > NUM_BASE_LEVELS) {
       const int br_ctx = get_br_ctx_skip(levels, pos, bwl);
-      aom_cdf_prob *cdf = br_cdf[br_ctx];
+      avm_cdf_prob *cdf = br_cdf[br_ctx];
       level += read_low_range(r, cdf);
     }
     levels[get_padded_idx_left(pos, bwl)] = level;
@@ -299,11 +299,11 @@ static INLINE void read_coeffs_forward_2d(aom_reader *r, int start_si,
 }
 
 // Decode the end-of-block syntax.
-static INLINE void decode_eob(DecoderCodingBlock *dcb, aom_reader *const r,
+static INLINE void decode_eob(DecoderCodingBlock *dcb, avm_reader *const r,
                               const int plane, const TX_SIZE tx_size
 #if CONFIG_PARAKIT_COLLECT_DATA
                               ,
-                              const AV1_COMMON *const cm
+                              const AV2_COMMON *const cm
 #endif
 ) {
   MACROBLOCKD *const xd = &dcb->xd;
@@ -331,14 +331,14 @@ static INLINE void decode_eob(DecoderCodingBlock *dcb, aom_reader *const r,
 #if CONFIG_PARAKIT_COLLECT_DATA
     {
       eob_pt =
-          aom_read_symbol_probdata(r, ec_ctx->eob_flag_cdf16[pl_ctx], idxlist,
+          avm_read_symbol_probdata(r, ec_ctx->eob_flag_cdf16[pl_ctx], idxlist,
                                    cm->prob_models[EOB_FLAG_CDF16]) +
           1;
       break;
     }
 #else
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf16[pl_ctx], EOB_MAX_SYMS - 6,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf16[pl_ctx], EOB_MAX_SYMS - 6,
                           ACCT_INFO("eob_pt", "eob_multi_size:0")) +
           1;
       break;
@@ -347,48 +347,48 @@ static INLINE void decode_eob(DecoderCodingBlock *dcb, aom_reader *const r,
 #if CONFIG_PARAKIT_COLLECT_DATA
     {
       eob_pt =
-          aom_read_symbol_probdata(r, ec_ctx->eob_flag_cdf32[pl_ctx], idxlist,
+          avm_read_symbol_probdata(r, ec_ctx->eob_flag_cdf32[pl_ctx], idxlist,
                                    cm->prob_models[EOB_FLAG_CDF32]) +
           1;
       break;
     }
 #else
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf32[pl_ctx], EOB_MAX_SYMS - 5,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf32[pl_ctx], EOB_MAX_SYMS - 5,
                           ACCT_INFO("eob_pt", "eob_multi_size:1")) +
           1;
       break;
 #endif
     case 2:
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf64[pl_ctx], EOB_MAX_SYMS - 4,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf64[pl_ctx], EOB_MAX_SYMS - 4,
                           ACCT_INFO("eob_pt", "eob_multi_size:2")) +
           1;
       break;
     case 3:
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf128[pl_ctx], EOB_MAX_SYMS - 3,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf128[pl_ctx], EOB_MAX_SYMS - 3,
                           ACCT_INFO("eob_pt", "eob_multi_size:3")) +
           1;
       break;
     case 4:
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf256[pl_ctx], EOB_MAX_SYMS - 3,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf256[pl_ctx], EOB_MAX_SYMS - 3,
                           ACCT_INFO("eob_pt", "eob_multi_size:4"));
       if (eob_pt == EOB_PT_INDEX_COUNT - 1)
         eob_pt +=
-            aom_read_literal(r, 1, ACCT_INFO("eob_pt", "eob_multi_size:4"));
+            avm_read_literal(r, 1, ACCT_INFO("eob_pt", "eob_multi_size:4"));
       eob_pt += 1;
       break;
     case 5:
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf512[pl_ctx], EOB_MAX_SYMS - 3,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf512[pl_ctx], EOB_MAX_SYMS - 3,
                           ACCT_INFO("eob_pt", "eob_multi_size:5"));
       if (eob_pt == EOB_PT_INDEX_COUNT - 1)
         eob_pt +=
-            aom_read_literal(r, 2, ACCT_INFO("eob_pt", "eob_multi_size:5"));
+            avm_read_literal(r, 2, ACCT_INFO("eob_pt", "eob_multi_size:5"));
       if (eob_pt >= EOB_MAX_SYMS - 1) {
-        aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+        avm_internal_error(xd->error_info, AVM_CODEC_CORRUPT_FRAME,
                            "Invalid value for EOB position token");
       }
       eob_pt += 1;
@@ -396,31 +396,31 @@ static INLINE void decode_eob(DecoderCodingBlock *dcb, aom_reader *const r,
     case 6:
     default:
       eob_pt =
-          aom_read_symbol(r, ec_ctx->eob_flag_cdf1024[pl_ctx], EOB_MAX_SYMS - 3,
+          avm_read_symbol(r, ec_ctx->eob_flag_cdf1024[pl_ctx], EOB_MAX_SYMS - 3,
                           ACCT_INFO("eob_pt", "eob_multi_size:6"));
       if (eob_pt == EOB_PT_INDEX_COUNT - 1)
         eob_pt +=
-            aom_read_literal(r, 2, ACCT_INFO("eob_pt", "eob_multi_size:6"));
+            avm_read_literal(r, 2, ACCT_INFO("eob_pt", "eob_multi_size:6"));
       eob_pt += 1;
       break;
   }
 
-  const int eob_offset_bits = av1_eob_offset_bits[eob_pt];
+  const int eob_offset_bits = av2_eob_offset_bits[eob_pt];
   if (eob_offset_bits > 0) {
-    int bit = aom_read_symbol(r, ec_ctx->eob_extra_cdf, 2,
+    int bit = avm_read_symbol(r, ec_ctx->eob_extra_cdf, 2,
                               ACCT_INFO("eob_extra_cdf"));
     if (bit) {
       eob_extra += (1 << (eob_offset_bits - 1));
     }
     eob_extra +=
-        aom_read_literal(r, eob_offset_bits - 1, ACCT_INFO("eob_extra"));
+        avm_read_literal(r, eob_offset_bits - 1, ACCT_INFO("eob_extra"));
   }
   *eob = rec_eob_pos(eob_pt, eob_extra);
   *bob = *eob;  // escape character
 }
 
-uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
-                            aom_reader *const r, const int blk_row,
+uint8_t av2_read_sig_txtype(const AV2_COMMON *const cm, DecoderCodingBlock *dcb,
+                            avm_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const TXB_CTX *const txb_ctx,
                             const TX_SIZE tx_size) {
@@ -438,16 +438,16 @@ uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
 
   int txb_skip_ctx = txb_ctx->txb_skip_ctx;
   int all_zero;
-  if (plane == AOM_PLANE_Y || plane == AOM_PLANE_U) {
+  if (plane == AVM_PLANE_Y || plane == AVM_PLANE_U) {
     MB_MODE_INFO *const mbmi = xd->mi[0];
     const int pred_mode_ctx =
         (is_inter || mbmi->fsc_mode[xd->tree_type == CHROMA_PART]) ? 1 : 0;
-    all_zero = aom_read_symbol(
+    all_zero = avm_read_symbol(
         r, ec_ctx->txb_skip_cdf[pred_mode_ctx][txs_ctx][txb_skip_ctx], 2,
         ACCT_INFO("all_zero", "plane_y_or_u"));
   } else {
     txb_skip_ctx += (xd->eob_u_flag ? V_TXB_SKIP_CONTEXT_OFFSET : 0);
-    all_zero = aom_read_symbol(r, ec_ctx->v_txb_skip_cdf[txb_skip_ctx], 2,
+    all_zero = avm_read_symbol(r, ec_ctx->v_txb_skip_cdf[txb_skip_ctx], 2,
                                ACCT_INFO("all_zero", "plane_v"));
   }
 
@@ -455,12 +455,12 @@ uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   if (plane == 0) {
     const int txk_type_idx =
-        av1_get_txk_type_index(mbmi->sb_type[0], blk_row, blk_col);
+        av2_get_txk_type_index(mbmi->sb_type[0], blk_row, blk_col);
     mbmi->tx_skip[txk_type_idx] = all_zero;
   }
 #endif  // CONFIG_INSPECTION
 
-  if (plane == AOM_PLANE_U) {
+  if (plane == AVM_PLANE_U) {
     xd->eob_u_flag = all_zero ? 0 : 1;
   }
 
@@ -475,7 +475,7 @@ uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   } else {
     PREDICTION_MODE mode = (plane == PLANE_TYPE_Y ? mbmi->mode : mbmi->uv_mode);
     const int angle_delta =
-        mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
+        mbmi->angle_delta[plane != AVM_PLANE_Y] * ANGLE_STEP;
     wide_angle_mapping(mbmi, angle_delta, tx_size, mode, plane);
   }
 
@@ -493,13 +493,13 @@ uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
              cm
 #endif
   );
-  av1_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r, plane, *eob,
+  av2_read_tx_type(cm, xd, blk_row, blk_col, tx_size, r, plane, *eob,
                    is_inter ? 0 : *eob);
 
-  if (plane == AOM_PLANE_U && is_cctx_allowed(cm, xd)) {
+  if (plane == AVM_PLANE_U && is_cctx_allowed(cm, xd)) {
     const int skip_cctx = is_inter ? 0 : (*eob == 1);
     if (!all_zero && !skip_cctx) {
-      av1_read_cctx_type(cm, xd, blk_row, blk_col, tx_size, r);
+      av2_read_cctx_type(cm, xd, blk_row, blk_col, tx_size, r);
     } else {
       int row_offset, col_offset;
       get_chroma_mi_offsets(xd, &row_offset, &col_offset);
@@ -510,8 +510,8 @@ uint8_t av1_read_sig_txtype(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   return 1;
 }
 
-uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
-                                 DecoderCodingBlock *dcb, aom_reader *const r,
+uint8_t av2_read_coeffs_txb_skip(const AV2_COMMON *const cm,
+                                 DecoderCodingBlock *dcb, avm_reader *const r,
                                  const int blk_row, const int blk_col,
                                  const int plane, const TX_SIZE tx_size) {
   MACROBLOCKD *const xd = &dcb->xd;
@@ -525,7 +525,7 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
 
   const int32_t *const dequant = pd->seg_dequant_QTX[mbmi->segment_id];
   tran_low_t *const tcoeffs = dcb->dqcoeff_block[plane] + dcb->cb_offset[plane];
-  const int shift = av1_get_tx_scale(tx_size);
+  const int shift = av2_get_tx_scale(tx_size);
   const int bwl = get_txb_bwl(tx_size);
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
@@ -537,8 +537,8 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
   tran_low_t *const dequant_values =
       dcb->dequant_values[plane] + dcb->cb_offset[plane];
   // For TX sizes > 32x32, all coeffs are zero except for top-left 32x32.
-  const int coeff_width = AOMMIN(width, 32);
-  const int coeff_height = AOMMIN(height, 32);
+  const int coeff_width = AVMMIN(width, 32);
+  const int coeff_height = AVMMIN(height, 32);
   memset(tcoeffs_copy, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
   memset(quant_coeffs, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
   memset(dequant_values, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
@@ -551,15 +551,15 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
   int8_t *const signs = set_signs(signs_buf, width);
   eob_info *eob_data = dcb->eob_data[plane] + dcb->txb_offset[plane];
   eob_data->max_scan_line = 0;
-  eob_data->eob = av1_get_max_eob(tx_size);
+  eob_data->eob = av2_get_max_eob(tx_size);
   eob_info *bob_data = dcb->bob_data[plane] + dcb->txb_offset[plane];
   bob_data->max_scan_line = 0;
 
   const TX_TYPE tx_type =
-      av1_get_tx_type(xd, plane_type, blk_row, blk_col, tx_size,
+      av2_get_tx_type(xd, plane_type, blk_row, blk_col, tx_size,
                       is_reduced_tx_set_used(cm, plane_type));
   const qm_val_t *iqmatrix =
-      av1_get_iqmatrix(&cm->quant_params, xd, plane, tx_size, tx_type);
+      av2_get_iqmatrix(&cm->quant_params, xd, plane, tx_size, tx_type);
 #if CONFIG_INSPECTION
   for (int c = 0; c < width * height; c++) {
     dequant_values[c] = get_dqv(dequant, c, iqmatrix);
@@ -568,25 +568,25 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
-  const int size_ctx = AOMMIN(txs_ctx, TX_16X16);
+  const int size_ctx = AVMMIN(txs_ctx, TX_16X16);
   if (eob_data->eob > 1) {
     memset(levels_buf, 0, sizeof(*levels_buf) * TX_PAD_2D);
     memset(signs_buf, 0, sizeof(*signs_buf) * TX_PAD_2D);
     base_fsc_cdf_arr base_cdf = ec_ctx->coeff_base_cdf_idtx[size_ctx];
     br_cdf_arr br_cdf = ec_ctx->coeff_br_cdf_idtx[size_ctx];
-    const int bob = av1_get_max_eob(tx_size) - bob_data->eob;
+    const int bob = av2_get_max_eob(tx_size) - bob_data->eob;
     {
       const int pos = scan[bob];
       const int coeff_ctx_bob = get_lower_levels_ctx_bob(bwl, height, bob);
       const int nsymbs_bob = 3;
-      aom_cdf_prob *cdf_bob =
+      avm_cdf_prob *cdf_bob =
           ec_ctx->coeff_base_bob_cdf[size_ctx][coeff_ctx_bob];
-      int level = aom_read_symbol(r, cdf_bob, nsymbs_bob,
+      int level = avm_read_symbol(r, cdf_bob, nsymbs_bob,
                                   ACCT_INFO("level", "cdf_bob")) +
                   1;
       if (level > NUM_BASE_LEVELS) {
         const int br_ctx = get_br_ctx_skip(levels, pos, bwl);
-        aom_cdf_prob *cdf = br_cdf[br_ctx];
+        avm_cdf_prob *cdf = br_cdf[br_ctx];
         level += read_low_range(r, cdf);
       }
       levels[get_padded_idx_left(pos, bwl)] = level;
@@ -595,7 +595,7 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
                            base_cdf, br_cdf);
   }
 
-  const int bob = av1_get_max_eob(tx_size) - bob_data->eob;
+  const int bob = av2_get_max_eob(tx_size) - bob_data->eob;
   int hr_level_avg = 0;
   for (int c = bob; c < eob_data->eob; c++) {
     const int pos = scan[c];
@@ -603,9 +603,9 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
     uint8_t sign;
     tran_low_t level = levels[get_padded_idx_left(pos, bwl)];
     if (level) {
-      eob_data->max_scan_line = AOMMAX(eob_data->max_scan_line, pos);
+      eob_data->max_scan_line = AVMMAX(eob_data->max_scan_line, pos);
       int idtx_sign_ctx = get_sign_ctx_skip(signs, levels, pos, bwl);
-      sign = aom_read_symbol(r, ec_ctx->idtx_sign_cdf[size_ctx][idtx_sign_ctx],
+      sign = avm_read_symbol(r, ec_ctx->idtx_sign_cdf[size_ctx][idtx_sign_ctx],
                              2, ACCT_INFO("sign"));
       signs[sign_idx] = sign > 0 ? -1 : 1;
       level = read_high_range(xd, r, 0, level, 0, &hr_level_avg, plane);
@@ -613,7 +613,7 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
       // Bitmasking to clamp level to valid range:
       // The valid range for 8/10/12 bit video is at most 14/16/18 bit
       if ((level >> 20) != 0) {
-        aom_internal_error(xd->error_info, AOM_CODEC_ERROR,
+        avm_internal_error(xd->error_info, AVM_CODEC_ERROR,
                            "Invalid FSC coeff level beyond 20 bits");
       }
       cul_level += level;
@@ -635,21 +635,21 @@ uint8_t av1_read_coeffs_txb_skip(const AV1_COMMON *const cm,
 #endif  // CONFIG_INSPECTION
     }
   }
-  cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
+  cul_level = AVMMIN(COEFF_CONTEXT_MASK, cul_level);
   set_dc_sign(&cul_level, dc_val);
   return cul_level;
 }
 
 // This function returns the partial absolute level of the coefficient
 // with hidden parity.
-static INLINE tran_low_t read_coeff_hidden(aom_reader *r, TX_CLASS tx_class,
+static INLINE tran_low_t read_coeff_hidden(avm_reader *r, TX_CLASS tx_class,
                                            const int16_t *scan, int bwl,
                                            uint8_t *levels, int parity,
                                            base_ph_cdf_arr base_cdf_ph) {
   int q_index;
   const int pos = scan[0];
   int ctx_idx = get_base_ctx_ph(levels, pos, bwl, tx_class);
-  q_index = aom_read_symbol(r, base_cdf_ph[ctx_idx], 4, ACCT_INFO("q_index"));
+  q_index = avm_read_symbol(r, base_cdf_ph[ctx_idx], 4, ACCT_INFO("q_index"));
 
   assert(q_index <= MAX_BASE_BR_RANGE);
   uint8_t level = (q_index << 1) + parity;
@@ -657,8 +657,8 @@ static INLINE tran_low_t read_coeff_hidden(aom_reader *r, TX_CLASS tx_class,
   return level;
 }
 
-uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
-                            aom_reader *const r, const int blk_row,
+uint8_t av2_read_coeffs_txb(const AV2_COMMON *const cm, DecoderCodingBlock *dcb,
+                            avm_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const TXB_CTX *const txb_ctx,
                             const TX_SIZE tx_size) {
@@ -672,7 +672,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int32_t *const dequant = pd->seg_dequant_QTX[mbmi->segment_id];
   tran_low_t *const tcoeffs = dcb->dqcoeff_block[plane] + dcb->cb_offset[plane];
-  const int shift = av1_get_tx_scale(tx_size);
+  const int shift = av2_get_tx_scale(tx_size);
   const int bwl = get_txb_bwl(tx_size);
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
@@ -684,8 +684,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   tran_low_t *const dequant_values =
       dcb->dequant_values[plane] + dcb->cb_offset[plane];
   // For TX sizes > 32x32, all coeffs are zero except for top-left 32x32.
-  const int coeff_width = AOMMIN(width, 32);
-  const int coeff_height = AOMMIN(height, 32);
+  const int coeff_width = AVMMIN(width, 32);
+  const int coeff_height = AVMMIN(height, 32);
   memset(tcoeffs_copy, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
   memset(quant_coeffs, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
   memset(dequant_values, 0, sizeof(tran_low_t) * coeff_width * coeff_height);
@@ -706,11 +706,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
 #endif
 
   const TX_TYPE tx_type =
-      av1_get_tx_type(xd, plane_type, blk_row, blk_col, tx_size,
+      av2_get_tx_type(xd, plane_type, blk_row, blk_col, tx_size,
                       is_reduced_tx_set_used(cm, plane_type));
   const TX_CLASS tx_class = tx_type_to_class[get_primary_tx_type(tx_type)];
   const qm_val_t *iqmatrix =
-      av1_get_iqmatrix(&cm->quant_params, xd, plane, tx_size, tx_type);
+      av2_get_iqmatrix(&cm->quant_params, xd, plane, tx_size, tx_type);
 #if CONFIG_INSPECTION
   for (int c = 0; c < width * height; c++) {
     dequant_values[c] = get_dqv(dequant, c, iqmatrix);
@@ -721,12 +721,12 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
 
   // read  sec_tx_type here
   // Only y plane's sec_tx_type is transmitted
-  if ((plane == AOM_PLANE_Y) &&
+  if ((plane == AVM_PLANE_Y) &&
       (is_inter_block(mbmi, xd->tree_type)
            ? (*eob > 3 && cm->seq_params.enable_inter_ist)
            : (*eob != 1 && cm->seq_params.enable_ist &&
               !xd->mi[0]->fsc_mode[xd->tree_type == CHROMA_PART]))) {
-    av1_read_sec_tx_type(cm, xd, blk_row, blk_col, tx_size, eob, r);
+    av2_read_sec_tx_type(cm, xd, blk_row, blk_col, tx_size, eob, r);
   }
 
   if (*eob > 1) {
@@ -754,14 +754,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
     int limits = get_lf_limits(row, col, tx_class, plane);
     if (plane > 0) {
       if (limits) {
-        aom_cdf_prob *cdf = ec_ctx->coeff_base_lf_eob_uv_cdf[coeff_ctx];
+        avm_cdf_prob *cdf = ec_ctx->coeff_base_lf_eob_uv_cdf[coeff_ctx];
         level +=
-            aom_read_symbol(r, cdf, LF_BASE_SYMBOLS - 1,
+            avm_read_symbol(r, cdf, LF_BASE_SYMBOLS - 1,
                             ACCT_INFO("level", "coeff_base_lf_eob_uv_cdf")) +
             1;
       } else {
-        aom_cdf_prob *cdf = ec_ctx->coeff_base_eob_uv_cdf[coeff_ctx];
-        level += aom_read_symbol(r, cdf, 3,
+        avm_cdf_prob *cdf = ec_ctx->coeff_base_eob_uv_cdf[coeff_ctx];
+        level += avm_read_symbol(r, cdf, 3,
                                  ACCT_INFO("level", "coeff_base_eob_uv_cdf")) +
                  1;
 
@@ -773,8 +773,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
       }
     } else {
       if (limits) {
-        aom_cdf_prob *cdf = ec_ctx->coeff_base_lf_eob_cdf[txs_ctx][coeff_ctx];
-        level += aom_read_symbol(r, cdf, LF_BASE_SYMBOLS - 1,
+        avm_cdf_prob *cdf = ec_ctx->coeff_base_lf_eob_cdf[txs_ctx][coeff_ctx];
+        level += avm_read_symbol(r, cdf, LF_BASE_SYMBOLS - 1,
                                  ACCT_INFO("level", "coeff_base_lf_eob_cdf")) +
                  1;
 
@@ -784,8 +784,8 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
           level += read_low_range(r, cdf);
         }
       } else {
-        aom_cdf_prob *cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][coeff_ctx];
-        level += aom_read_symbol(r, cdf, 3,
+        avm_cdf_prob *cdf = ec_ctx->coeff_base_eob_cdf[txs_ctx][coeff_ctx];
+        level += avm_read_symbol(r, cdf, 3,
                                  ACCT_INFO("level", "coeff_base_eob_cdf")) +
                  1;
 
@@ -823,7 +823,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
         for (int si = *eob - 1; si > 0; --si) {
           int pos = scan[si];
           int level =
-              AOMMIN(levels[get_padded_idx(pos, bwl)], MAX_BASE_BR_RANGE);
+              AVMMIN(levels[get_padded_idx(pos, bwl)], MAX_BASE_BR_RANGE);
           if (level) {
             ++num_nz;
             sum_abs1 += level;
@@ -847,7 +847,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
         for (int si = *eob - 1; si > 0; --si) {
           int pos = scan[si];
           int level =
-              AOMMIN(levels[get_padded_idx(pos, bwl)], MAX_BASE_BR_RANGE);
+              AVMMIN(levels[get_padded_idx(pos, bwl)], MAX_BASE_BR_RANGE);
           if (level) {
             ++num_nz;
             sum_abs1 += level;
@@ -872,11 +872,11 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
     uint8_t sign;
     tran_low_t level = levels[get_padded_idx(pos, bwl)];
     const int tmp_sign_idx = pos;
-    if (plane == AOM_PLANE_U) {
+    if (plane == AVM_PLANE_U) {
       xd->tmp_sign[pos] = 0;
     }
     if (level) {
-      *max_scan_line = AOMMAX(*max_scan_line, pos);
+      *max_scan_line = AVMMAX(*max_scan_line, pos);
       const int row = pos >> bwl;
       const int col = pos - (row << bwl);
       const bool dc_2dtx = (c == 0);
@@ -884,23 +884,23 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
       const bool dc_ver = (row == 0) && tx_class == TX_CLASS_VERT;
       if (dc_2dtx || dc_hor || dc_ver) {
         const int dc_sign_ctx = dc_2dtx ? txb_ctx->dc_sign_ctx : 0;
-        if (plane == AOM_PLANE_Y || plane == AOM_PLANE_U) {
-          if (plane == AOM_PLANE_Y) {
-            sign = aom_read_symbol(
+        if (plane == AVM_PLANE_Y || plane == AVM_PLANE_U) {
+          if (plane == AVM_PLANE_Y) {
+            sign = avm_read_symbol(
                 r,
                 ec_ctx->dc_sign_cdf[plane_type][is_hidden ? 1 : 0][dc_sign_ctx],
                 2, ACCT_INFO("sign", "dc_sign_cdf", "plane_y_or_u"));
           } else {
-            sign = aom_read_literal(
+            sign = avm_read_literal(
                 r, 1, ACCT_INFO("sign", "dc_sign_cdf", "plane_y_or_u"));
           }
         } else {
-          sign = aom_read_literal(
+          sign = avm_read_literal(
               r, 1, ACCT_INFO("sign", "v_dc_sign_cdf", "plane_v"));
         }
-        if (plane == AOM_PLANE_U) xd->tmp_sign[tmp_sign_idx] = (sign ? 2 : 1);
+        if (plane == AVM_PLANE_U) xd->tmp_sign[tmp_sign_idx] = (sign ? 2 : 1);
       } else {
-        sign = aom_read_bit(r, ACCT_INFO("sign"));
+        sign = avm_read_bit(r, ACCT_INFO("sign"));
       }
       if (is_hidden && c == 0) {
         if (level >= ((NUM_BASE_LEVELS + 1) << 1)) {
@@ -918,7 +918,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
       // Bitmasking to clamp level to valid range:
       //   The valid range for 8/10/12 bit vdieo is at most 14/16/18 bit
       if ((level >> 20) != 0) {
-        aom_internal_error(xd->error_info, AOM_CODEC_ERROR,
+        avm_internal_error(xd->error_info, AVM_CODEC_ERROR,
                            "Invalid coeff level beyond 20 bits");
       }
       cul_level += level;
@@ -954,9 +954,9 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
 
       if (abs(tcoeffs[pos])) {
         tran_low_t dq_coeff;
-        tran_low_t qIdx = AOMMAX(0, (abs(tcoeffs[pos]) << 1) - Qx);
+        tran_low_t qIdx = AVMMAX(0, (abs(tcoeffs[pos]) << 1) - Qx);
         if ((qIdx >> 20) != 0) {
-          aom_internal_error(xd->error_info, AOM_CODEC_ERROR,
+          avm_internal_error(xd->error_info, AVM_CODEC_ERROR,
                              "Invalid TCQ coeff level beyond 20 bits");
         }
         // Bitmasking to clamp dq_coeff to valid range:
@@ -988,7 +988,7 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   fprintf(cm->fDecCoeffLog, "\n\n");
 #endif
 
-  cul_level = AOMMIN(COEFF_CONTEXT_MASK, cul_level);
+  cul_level = AVMMIN(COEFF_CONTEXT_MASK, cul_level);
 
   // DC value
   set_dc_sign(&cul_level, dc_val);
@@ -996,13 +996,13 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   return cul_level;
 }
 
-void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
-                                DecoderCodingBlock *dcb, aom_reader *const r,
+void av2_read_coeffs_txb_facade(const AV2_COMMON *const cm,
+                                DecoderCodingBlock *dcb, avm_reader *const r,
                                 const int plane, const int row, const int col,
                                 const TX_SIZE tx_size) {
 #if TXCOEFF_TIMER
-  struct aom_usec_timer timer;
-  aom_usec_timer_start(&timer);
+  struct avm_usec_timer timer;
+  avm_usec_timer_start(&timer);
 #endif
   MACROBLOCKD *const xd = &dcb->xd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -1017,11 +1017,11 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
                   cm->seq_params.enable_fsc);
 
   const uint8_t decode_rest =
-      av1_read_sig_txtype(cm, dcb, r, row, col, plane, &txb_ctx, tx_size);
+      av2_read_sig_txtype(cm, dcb, r, row, col, plane, &txb_ctx, tx_size);
 
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const TX_TYPE tx_type =
-      av1_get_tx_type(xd, plane_type, row, col, tx_size,
+      av2_get_tx_type(xd, plane_type, row, col, tx_size,
                       is_reduced_tx_set_used(cm, plane_type));
   const int is_inter = is_inter_block(mbmi, xd->tree_type);
   uint8_t cul_level = 0;
@@ -1031,27 +1031,27 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
           get_primary_tx_type(tx_type) == IDTX && plane == PLANE_TYPE_Y) ||
          use_inter_fsc(cm, plane, tx_type, is_inter))) {
       cul_level =
-          av1_read_coeffs_txb_skip(cm, dcb, r, row, col, plane, tx_size);
+          av2_read_coeffs_txb_skip(cm, dcb, r, row, col, plane, tx_size);
     } else {
       cul_level =
-          av1_read_coeffs_txb(cm, dcb, r, row, col, plane, &txb_ctx, tx_size);
+          av2_read_coeffs_txb(cm, dcb, r, row, col, plane, &txb_ctx, tx_size);
     }
   } else {
-    av1_update_txk_skip_array(cm, xd->mi_row, xd->mi_col, xd->tree_type,
+    av2_update_txk_skip_array(cm, xd->mi_row, xd->mi_col, xd->tree_type,
                               &mbmi->chroma_ref_info, plane, row, col, tx_size);
   }
-  av1_set_entropy_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col,
+  av2_set_entropy_contexts(xd, pd, plane, plane_bsize, tx_size, cul_level, col,
                            row);
   if (is_inter_block(mbmi, xd->tree_type) && (plane == 0)) {
     const TX_TYPE tx_type_inter =
-        av1_get_tx_type(xd, plane_type, row, col, tx_size,
+        av2_get_tx_type(xd, plane_type, row, col, tx_size,
                         is_reduced_tx_set_used(cm, plane_type));
     update_txk_array(xd, row, col, tx_size, tx_type_inter);
   }
 
 #if TXCOEFF_TIMER
-  aom_usec_timer_mark(&timer);
-  const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
+  avm_usec_timer_mark(&timer);
+  const int64_t elapsed_time = avm_usec_timer_elapsed(&timer);
   cm->txcoeff_timer += elapsed_time;
   ++cm->txb_count;
 #endif

@@ -13,15 +13,15 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/mips/convolve_common_dspr2.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/mips/convolve_common_dspr2.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_ports/mem.h"
 
 #if HAVE_DSPR2
-void aom_convolve_copy_dspr2(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve_copy_dspr2(const uint8_t *src, ptrdiff_t src_stride,
                              uint8_t *dst, ptrdiff_t dst_stride, int w, int h) {
   int x, y;
 

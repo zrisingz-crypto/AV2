@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_AOM_ONCE_H_
-#define AOM_AOM_PORTS_AOM_ONCE_H_
+#ifndef AVM_AVM_PORTS_AVM_ONCE_H_
+#define AVM_AVM_PORTS_AVM_ONCE_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 /* Implement a function wrapper to guarantee initialization
  * thread-safety for library singletons.
@@ -22,18 +22,18 @@
  * used with one common argument per compilation unit. So
  *
  * file1.c:
- *   aom_once(foo);
+ *   avm_once(foo);
  *   ...
- *   aom_once(foo);
+ *   avm_once(foo);
  *
  * file2.c:
- *   aom_once(bar);
+ *   avm_once(bar);
  *
  * will ensure foo() and bar() are each called only once, but in
  *
  * file1.c:
- *   aom_once(foo);
- *   aom_once(bar):
+ *   avm_once(foo);
+ *   avm_once(bar):
  *
  * bar() will never be called because the lock is used up
  * by the call to foo().
@@ -46,23 +46,23 @@
  * local initializers are not thread-safe in MSVC prior to Visual
  * Studio 2015.
  */
-static INIT_ONCE aom_init_once = INIT_ONCE_STATIC_INIT;
+static INIT_ONCE avm_init_once = INIT_ONCE_STATIC_INIT;
 
-static void aom_once(void (*func)(void)) {
+static void avm_once(void (*func)(void)) {
   BOOL pending;
-  InitOnceBeginInitialize(&aom_init_once, 0, &pending, NULL);
+  InitOnceBeginInitialize(&avm_init_once, 0, &pending, NULL);
   if (!pending) {
     // Initialization has already completed.
     return;
   }
   func();
-  InitOnceComplete(&aom_init_once, 0, NULL);
+  InitOnceComplete(&avm_init_once, 0, NULL);
 }
 
 #elif CONFIG_MULTITHREAD && defined(__OS2__)
 #define INCL_DOS
 #include <os2.h>
-static void aom_once(void (*func)(void)) {
+static void avm_once(void (*func)(void)) {
   static int done;
 
   /* If the initialization is complete, return early. */
@@ -84,7 +84,7 @@ static void aom_once(void (*func)(void)) {
 
 #elif CONFIG_MULTITHREAD && HAVE_PTHREAD_H
 #include <pthread.h>
-static void aom_once(void (*func)(void)) {
+static void avm_once(void (*func)(void)) {
   static pthread_once_t lock = PTHREAD_ONCE_INIT;
   pthread_once(&lock, func);
 }
@@ -92,7 +92,7 @@ static void aom_once(void (*func)(void)) {
 #else
 /* Default version that performs no synchronization. */
 
-static void aom_once(void (*func)(void)) {
+static void avm_once(void (*func)(void)) {
   static int done;
 
   if (!done) {
@@ -102,4 +102,4 @@ static void aom_once(void (*func)(void)) {
 }
 #endif
 
-#endif  // AOM_AOM_PORTS_AOM_ONCE_H_
+#endif  // AVM_AVM_PORTS_AVM_ONCE_H_

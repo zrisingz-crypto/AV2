@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/encoder/hash.h"
+#include "av2/encoder/hash.h"
 
 static void crc_calculator_process_data(CRC_CALCULATOR *p_crc_calculator,
                                         uint8_t *pData, uint32_t dataLength) {
@@ -53,7 +53,7 @@ static void crc_calculator_init_table(CRC_CALCULATOR *p_crc_calculator) {
   }
 }
 
-void av1_crc_calculator_init(CRC_CALCULATOR *p_crc_calculator, uint32_t bits,
+void av2_crc_calculator_init(CRC_CALCULATOR *p_crc_calculator, uint32_t bits,
                              uint32_t truncPoly) {
   p_crc_calculator->remainder = 0;
   p_crc_calculator->bits = bits;
@@ -62,7 +62,7 @@ void av1_crc_calculator_init(CRC_CALCULATOR *p_crc_calculator, uint32_t bits,
   crc_calculator_init_table(p_crc_calculator);
 }
 
-uint32_t av1_get_crc_value(CRC_CALCULATOR *p_crc_calculator, uint8_t *p,
+uint32_t av2_get_crc_value(CRC_CALCULATOR *p_crc_calculator, uint8_t *p,
                            int length) {
   crc_calculator_reset(p_crc_calculator);
   crc_calculator_process_data(p_crc_calculator, p, length);
@@ -73,7 +73,7 @@ uint32_t av1_get_crc_value(CRC_CALCULATOR *p_crc_calculator, uint8_t *p,
 #define POLY 0x82f63b78
 
 /* Construct table for software CRC-32C calculation. */
-void av1_crc32c_calculator_init(CRC32C *p_crc32c) {
+void av2_crc32c_calculator_init(CRC32C *p_crc32c) {
   uint32_t crc;
 
   for (int n = 0; n < 256; n++) {
@@ -100,7 +100,7 @@ void av1_crc32c_calculator_init(CRC32C *p_crc32c) {
 /* Table-driven software version as a fall-back.  This is about 15 times slower
  than using the hardware instructions.  This assumes little-endian integers,
  as is the case on Intel processors that the assembler code here is for. */
-uint32_t av1_get_crc32c_value_c(void *c, uint8_t *buf, size_t len) {
+uint32_t av2_get_crc32c_value_c(void *c, uint8_t *buf, size_t len) {
   const uint8_t *next = (const uint8_t *)(buf);
   uint64_t crc;
   CRC32C *p = (CRC32C *)c;

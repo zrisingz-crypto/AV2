@@ -15,16 +15,16 @@
  *
  * This includes rdcost estimations, histogram based pruning, etc.
  */
-#ifndef AOM_AV1_ENCODER_INTRA_MODE_SEARCH_UTILS_H_
-#define AOM_AV1_ENCODER_INTRA_MODE_SEARCH_UTILS_H_
+#ifndef AVM_AV2_ENCODER_INTRA_MODE_SEARCH_UTILS_H_
+#define AVM_AV2_ENCODER_INTRA_MODE_SEARCH_UTILS_H_
 
-#include "av1/common/pred_common.h"
-#include "av1/common/reconintra.h"
-#include "av1/common/intra_dip.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/reconintra.h"
+#include "av2/common/intra_dip.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/model_rd.h"
-#include "av1/encoder/palette.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/model_rd.h"
+#include "av2/encoder/palette.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,7 +84,7 @@ static const float intra_hog_model_weights[BINS * DIRECTIONAL_MODES] = {
 };
 
 #define FIX_PREC_BITS (16)
-static AOM_INLINE int get_hist_bin_idx(int dx, int dy) {
+static AVM_INLINE int get_hist_bin_idx(int dx, int dy) {
   const int32_t ratio = (dy * (1 << FIX_PREC_BITS)) / dx;
 
   // Find index by bisection
@@ -122,7 +122,7 @@ static AOM_INLINE int get_hist_bin_idx(int dx, int dy) {
 }
 #undef FIX_PREC_BITS
 
-static AOM_INLINE void generate_hog_hbd(const uint16_t *src, int stride,
+static AVM_INLINE void generate_hog_hbd(const uint16_t *src, int stride,
                                         int rows, int cols, float *hist) {
   float total = 0.1f;
   src += stride;
@@ -156,10 +156,10 @@ static AOM_INLINE void generate_hog_hbd(const uint16_t *src, int stride,
   for (int i = 0; i < BINS; ++i) hist[i] /= total;
 }
 
-static AOM_INLINE void prune_intra_mode_with_hog(
+static AVM_INLINE void prune_intra_mode_with_hog(
     const MACROBLOCK *x, BLOCK_SIZE bsize, float th,
     uint8_t *directional_mode_skip_mask) {
-  aom_clear_system_state();
+  avm_clear_system_state();
 
   const int bh = block_size_high[bsize];
   const int bw = block_size_wide[bsize];
@@ -182,19 +182,19 @@ static AOM_INLINE void prune_intra_mode_with_hog(
     if (this_score < th) directional_mode_skip_mask[i + 1] = 1;
   }
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 }
 #undef BINS
 
 // Returns the cost needed to send a uniformly distributed r.v.
-static AOM_INLINE int write_uniform_cost(int n, int v) {
+static AVM_INLINE int write_uniform_cost(int n, int v) {
   const int l = get_unsigned_bits(n);
   const int m = (1 << l) - n;
   if (l == 0) return 0;
   if (v < m)
-    return av1_cost_literal(l - 1);
+    return av2_cost_literal(l - 1);
   else
-    return av1_cost_literal(l);
+    return av2_cost_literal(l);
 }
 /*!\endcond */
 
@@ -202,7 +202,7 @@ static AOM_INLINE int write_uniform_cost(int n, int v) {
  *
  * \callergraph
  */
-static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
+static AVM_INLINE int intra_mode_info_cost_y(const AV2_COMP *cpi,
                                              const MACROBLOCK *x,
                                              const MB_MODE_INFO *mbmi,
                                              BLOCK_SIZE bsize, int mode_cost) {
@@ -213,7 +213,7 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
   const int use_intrabc = mbmi->use_intrabc[PLANE_TYPE_Y];
   // Can only activate one mode.
   assert(((mbmi->mode != DC_PRED) + use_palette + use_intrabc) <= 1);
-  const int try_palette = av1_allow_palette(
+  const int try_palette = av2_allow_palette(
       PLANE_TYPE_Y, cpi->common.features.allow_screen_content_tools,
       mbmi->sb_type[PLANE_TYPE_Y]);
   if (try_palette && mbmi->mode == DC_PRED) {
@@ -221,19 +221,19 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
     if (use_palette) {
       const uint8_t *const color_map = xd->plane[0].color_index_map;
       int block_width, block_height, rows, cols;
-      av1_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
+      av2_get_block_dimensions(bsize, 0, xd, &block_width, &block_height, &rows,
                                &cols);
       const int plt_size = mbmi->palette_mode_info.palette_size[0];
       int palette_mode_cost =
           mode_costs->palette_y_size_cost[plt_size - PALETTE_MIN_SIZE] +
           write_uniform_cost(plt_size, color_map[0]);
       uint16_t color_cache[2 * PALETTE_MAX_SIZE];
-      const int n_cache = av1_get_palette_cache(xd, 0, color_cache);
+      const int n_cache = av2_get_palette_cache(xd, 0, color_cache);
       palette_mode_cost +=
-          av1_palette_color_cost_y(&mbmi->palette_mode_info, color_cache,
+          av2_palette_color_cost_y(&mbmi->palette_mode_info, color_cache,
                                    n_cache, cpi->common.seq_params.bit_depth);
       palette_mode_cost +=
-          av1_cost_color_map(x, 0, bsize, mbmi->tx_size, PALETTE_MAP);
+          av2_cost_color_map(x, 0, bsize, mbmi->tx_size, PALETTE_MAP);
       total_rate += palette_mode_cost;
     }
   }
@@ -244,20 +244,20 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
         mode_costs->fsc_cost[fsc_ctx][fsc_bsize_groups[bsize]][use_fsc];
   }
   const int use_intra_dip = mbmi->use_intra_dip;
-  if (av1_intra_dip_allowed(&cpi->common, mbmi)) {
+  if (av2_intra_dip_allowed(&cpi->common, mbmi)) {
     int ctx = get_intra_dip_ctx(xd->neighbors[0], xd->neighbors[1], bsize);
     total_rate += mode_costs->intra_dip_cost[ctx][use_intra_dip];
     if (use_intra_dip) {
-      int n_modes = av1_intra_dip_modes(bsize);
-      int has_transpose = av1_intra_dip_has_transpose(bsize);
-      if (has_transpose) total_rate += av1_cost_literal(1);  // transpose bit
+      int n_modes = av2_intra_dip_modes(bsize);
+      int has_transpose = av2_intra_dip_has_transpose(bsize);
+      if (has_transpose) total_rate += av2_cost_literal(1);  // transpose bit
       if (n_modes > 1) {
         total_rate +=
             mode_costs->intra_dip_mode_cost[mbmi->intra_dip_mode & 15];
       }
     }
   }
-  if (av1_allow_intrabc(&cpi->common, xd,
+  if (av2_allow_intrabc(&cpi->common, xd,
                         mbmi->sb_type[xd->tree_type == CHROMA_PART]) &&
       xd->tree_type != CHROMA_PART) {
     const int intrabc_ctx = get_intrabc_ctx(xd);
@@ -269,9 +269,9 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
 /*!\cond */
 // Makes a quick luma prediction and estimate the rdcost with a model without
 // going through the whole txfm/quantize/itxfm process.
-static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
+static int64_t intra_model_yrd(const AV2_COMP *const cpi, MACROBLOCK *const x,
                                BLOCK_SIZE bsize, int mode_cost) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi, xd->tree_type));
@@ -307,11 +307,11 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   for (row128 = 0; row128 < max_blocks_high; row128 += mu128_high) {
     for (col128 = 0; col128 < max_blocks_wide; col128 += mu128_wide) {
       // Loop through each 64x64 block within the current 128x128 block
-      for (row = row128; row < AOMMIN(row128 + mu128_high, max_blocks_high);
+      for (row = row128; row < AVMMIN(row128 + mu128_high, max_blocks_high);
            row += stepr) {
-        for (col = col128; col < AOMMIN(col128 + mu128_wide, max_blocks_wide);
+        for (col = col128; col < AVMMIN(col128 + mu128_wide, max_blocks_wide);
              col += stepc) {
-          av1_predict_intra_block_facade(cm, xd, 0, col, row, tx_size);
+          av2_predict_intra_block_facade(cm, xd, 0, col, row, tx_size);
         }
       }
     }
@@ -321,14 +321,14 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate, &this_rd_stats.dist,
       &this_rd_stats.skip_txfm, &temp_sse, NULL, NULL, NULL);
   const int use_intra_dip = mbmi->use_intra_dip;
-  if (av1_intra_dip_allowed(&cpi->common, mbmi)) {
+  if (av2_intra_dip_allowed(&cpi->common, mbmi)) {
     int ctx = get_intra_dip_ctx(xd->neighbors[0], xd->neighbors[1], bsize);
     mode_cost += mode_costs->intra_dip_cost[ctx][use_intra_dip];
     if (use_intra_dip) {
-      int n_modes = av1_intra_dip_modes(bsize);
-      int has_transpose = av1_intra_dip_has_transpose(bsize);
+      int n_modes = av2_intra_dip_modes(bsize);
+      int has_transpose = av2_intra_dip_has_transpose(bsize);
       if (has_transpose) {
-        mode_cost += av1_cost_literal(1);
+        mode_cost += av2_cost_literal(1);
       }
       if (n_modes > 1) {
         mode_cost += mode_costs->intra_dip_mode_cost[mbmi->intra_dip_mode & 15];
@@ -351,7 +351,7 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
  *
  * \return Returns 1 if the given mode is prune; 0 otherwise.
  */
-static AOM_INLINE int model_intra_yrd_and_prune(const AV1_COMP *const cpi,
+static AVM_INLINE int model_intra_yrd_and_prune(const AV2_COMP *const cpi,
                                                 MACROBLOCK *x, BLOCK_SIZE bsize,
                                                 int mode_info_cost,
                                                 int64_t *best_model_rd) {
@@ -369,4 +369,4 @@ static AOM_INLINE int model_intra_yrd_and_prune(const AV1_COMP *const cpi,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_INTRA_MODE_SEARCH_UTILS_H_
+#endif  // AVM_AV2_ENCODER_INTRA_MODE_SEARCH_UTILS_H_

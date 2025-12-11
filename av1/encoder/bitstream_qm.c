@@ -15,53 +15,53 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aom/aom_encoder.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/binary_codes_writer.h"
-#include "aom_dsp/bitwriter_buffer.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/bitops.h"
-#include "aom_ports/mem_ops.h"
-#include "aom_ports/system_state.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/bru.h"
-#include "av1/common/enums.h"
+#include "avm/avm_encoder.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/binary_codes_writer.h"
+#include "avm_dsp/bitwriter_buffer.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/bitops.h"
+#include "avm_ports/mem_ops.h"
+#include "avm_ports/system_state.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/bru.h"
+#include "av2/common/enums.h"
 #if CONFIG_BITSTREAM_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
 #include "common/md5_utils.h"
 #include "common/rawenc.h"
 
-#include "av1/common/blockd.h"
-#include "av1/common/cdef.h"
-#include "av1/common/ccso.h"
-#include "av1/common/cfl.h"
-#include "av1/common/entropy.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/entropymv.h"
-#include "av1/common/intra_dip.h"
-#include "av1/common/mvref_common.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/reconintra.h"
-#include "av1/common/secondary_tx.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/tile_common.h"
+#include "av2/common/blockd.h"
+#include "av2/common/cdef.h"
+#include "av2/common/ccso.h"
+#include "av2/common/cfl.h"
+#include "av2/common/entropy.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/intra_dip.h"
+#include "av2/common/mvref_common.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/reconintra.h"
+#include "av2/common/secondary_tx.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/tile_common.h"
 
-#include "av1/encoder/bitstream.h"
-#include "av1/common/cost.h"
-#include "av1/encoder/encodemv.h"
-#include "av1/encoder/encodetxb.h"
-#include "av1/encoder/mcomp.h"
-#include "av1/encoder/palette.h"
-#include "av1/encoder/pickrst.h"
-#include "av1/encoder/segmentation.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/encoder/bitstream.h"
+#include "av2/common/cost.h"
+#include "av2/encoder/encodemv.h"
+#include "av2/encoder/encodetxb.h"
+#include "av2/encoder/mcomp.h"
+#include "av2/encoder/palette.h"
+#include "av2/encoder/pickrst.h"
+#include "av2/encoder/segmentation.h"
+#include "av2/encoder/tokenize.h"
 
-#include "av1/common/gdf.h"
+#include "av2/common/gdf.h"
 
 #if CONFIG_F255_QMOBU
 static bool qm_matrices_are_equal(const qm_val_t *mat_a, const qm_val_t *mat_b,
@@ -148,11 +148,11 @@ static int qm_num_zero_deltas(const qm_val_t *mat, int width, int height,
   return count;
 }
 
-int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
+int write_qm_data(AV2_COMP *cpi, struct quantization_matrix_set *qm_list,
                   int qm_pos, const int num_planes,
-                  struct aom_write_bit_buffer *wb) {
+                  struct avm_write_bit_buffer *wb) {
   uint32_t size = wb->bit_offset;
-  cpi->common.error.error_code = AOM_CODEC_OK;
+  cpi->common.error.error_code = AVM_CODEC_OK;
   const TX_SIZE fund_tsize[3] = { TX_8X8, TX_8X4, TX_4X8 };
 
 #if CONFIG_QM_REVERT
@@ -160,11 +160,11 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
 #else
   const bool qm_is_predefined_flag = qm_list[qm_pos].qm_default_index != -1;
 #endif
-  aom_wb_write_bit(wb, qm_is_predefined_flag);
+  avm_wb_write_bit(wb, qm_is_predefined_flag);
   if (qm_is_predefined_flag) {
 #if !CONFIG_QM_REVERT
     assert(qm_list[qm_pos].qm_default_index < NUM_CUSTOM_QMS);
-    aom_wb_write_literal(wb, qm_list[qm_pos].qm_default_index, 4);
+    avm_wb_write_literal(wb, qm_list[qm_pos].qm_default_index, 4);
 #endif  // !CONFIG_QM_REVERT
     return wb->bit_offset - size;
   }
@@ -183,7 +183,7 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
         const bool qm_copy_from_previous_plane =
             qm_matrices_are_equal(prev_mat, mat, width, height);
 
-        aom_wb_write_bit(wb, qm_copy_from_previous_plane);
+        avm_wb_write_bit(wb, qm_copy_from_previous_plane);
         if (qm_copy_from_previous_plane) {
           continue;
         }
@@ -192,7 +192,7 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
       bool qm_8x8_is_symmetric = false;
       if (tsize == TX_8X8) {
         qm_8x8_is_symmetric = qm_matrix_is_symmetric(mat, width, height);
-        aom_wb_write_bit(wb, qm_8x8_is_symmetric);
+        avm_wb_write_bit(wb, qm_8x8_is_symmetric);
       } else if (tsize == TX_4X8) {
         assert(fund_tsize[t - 1] == TX_8X4);
         // const qm_val_t *cand_mat = fund_mat[t - 1][level][c];
@@ -200,7 +200,7 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
         const bool qm_4x8_is_transpose_of_8x4 =
             qm_candidate_is_transpose_of_current_matrix(cand_mat, mat, width,
                                                         height);
-        aom_wb_write_bit(wb, qm_4x8_is_transpose_of_8x4);
+        avm_wb_write_bit(wb, qm_4x8_is_transpose_of_8x4);
         if (qm_4x8_is_transpose_of_8x4) {
           continue;
         }
@@ -255,7 +255,7 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
         } else if (delta > 127) {
           delta -= 256;
         }
-        aom_wb_write_svlc(wb, delta);
+        avm_wb_write_svlc(wb, delta);
         if (symbol_idx == stop_symbol_idx) {
           break;
         }
@@ -269,14 +269,14 @@ int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
   return size;
 }
 
-uint32_t write_qm_obu(AV1_COMP *cpi, int signalled_obu_pos,
+uint32_t write_qm_obu(AV2_COMP *cpi, int signalled_obu_pos,
                       uint8_t *const dst) {
-  struct aom_write_bit_buffer wb = { dst, 0 };
+  struct avm_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
   assert(signalled_obu_pos >= 0);
   int qm_bit_map = cpi->qmobu_list[signalled_obu_pos].qm_bit_map;
-  aom_wb_write_literal(&wb, qm_bit_map, NUM_CUSTOM_QMS);
-  aom_wb_write_bit(
+  avm_wb_write_literal(&wb, qm_bit_map, NUM_CUSTOM_QMS);
+  avm_wb_write_bit(
       &wb, cpi->qmobu_list[signalled_obu_pos].qm_chroma_info_present_flag);
   for (int j = 0; j < NUM_CUSTOM_QMS; j++) {
     if (qm_bit_map & (1 << j)) {
@@ -291,23 +291,23 @@ uint32_t write_qm_obu(AV1_COMP *cpi, int signalled_obu_pos,
           (cpi->qmobu_list[signalled_obu_pos].qm_chroma_info_present_flag ? 3
                                                                           : 1),
           &wb);
-      if (cpi->common.error.error_code != AOM_CODEC_OK) {
-        aom_internal_error(&cpi->common.error, AOM_CODEC_UNSUP_BITSTREAM,
+      if (cpi->common.error.error_code != AVM_CODEC_OK) {
+        avm_internal_error(&cpi->common.error, AVM_CODEC_UNSUP_BITSTREAM,
                            "quantization matrix error code [%d].",
                            cpi->common.error.error_code);
       }
     }
   }
 
-  av1_add_trailing_bits(&wb);
-  size = aom_wb_bytes_written(&wb);
+  av2_add_trailing_bits(&wb);
+  size = avm_wb_bytes_written(&wb);
   return size;
 }
 
 //-------//
-bool add_userqm_in_qmobulist(AV1_COMP *cpi) {
+bool add_userqm_in_qmobulist(AV2_COMP *cpi) {
   bool obu_added = false;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   int num_planes = cm->seq_params.monochrome ? 1 : 3;
   int qmobu_pos = cpi->total_signalled_qmobu_count;
   int qm_bit_map = 0;
@@ -320,7 +320,7 @@ bool add_userqm_in_qmobulist(AV1_COMP *cpi) {
       qm_inobu->is_user_defined_qm = true;
 #endif  // CONFIG_QM_REVERT
       if (qm_inobu->quantizer_matrix == NULL) {
-        qm_inobu->quantizer_matrix = av1_alloc_qmset();
+        qm_inobu->quantizer_matrix = av2_alloc_qmset();
       }
       for (int tx_size = 0; tx_size < 3; tx_size++) {
         int num_coeff = (tx_size == 0 ? 64 : 32);
@@ -341,7 +341,7 @@ bool add_userqm_in_qmobulist(AV1_COMP *cpi) {
 }
 
 #if !CONFIG_QM_REVERT
-void check_qm_is_predefined(AV1_COMP *cpi, int qmobu_pos, int num_planes) {
+void check_qm_is_predefined(AV2_COMP *cpi, int qmobu_pos, int num_planes) {
   int qm_bit_map = cpi->qmobu_list[qmobu_pos].qm_bit_map;
   for (int qm_id = 0; qm_id < NUM_CUSTOM_QMS; qm_id++) {
     if (qm_bit_map & (1 << qm_id)) {

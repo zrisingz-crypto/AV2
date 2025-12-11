@@ -1,4 +1,4 @@
-#include "av1/encoder/intra_dip_mode_prune_tflite.h"
+#include "av2/encoder/intra_dip_mode_prune_tflite.h"
 
 #include <cstdio>
 #include <memory>

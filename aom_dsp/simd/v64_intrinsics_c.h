@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V64_INTRINSICS_C_H_
-#define AOM_AOM_DSP_SIMD_V64_INTRINSICS_C_H_
+#ifndef AVM_AVM_DSP_SIMD_V64_INTRINSICS_C_H_
+#define AVM_AVM_DSP_SIMD_V64_INTRINSICS_C_H_
 
 /* Note: This implements the intrinsics in plain, unoptimised C.
    Intended for reference, porting or debugging. */
@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 typedef union {
   uint8_t u8[8];
@@ -976,4 +976,4 @@ SIMD_INLINE c_v64 c_v64_shr_n_s32(c_v64 a, unsigned int c) {
   return c_v64_shr_s32(a, c);
 }
 
-#endif  // AOM_AOM_DSP_SIMD_V64_INTRINSICS_C_H_
+#endif  // AVM_AVM_DSP_SIMD_V64_INTRINSICS_C_H_

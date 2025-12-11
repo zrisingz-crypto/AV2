@@ -12,9 +12,9 @@
 
 #include <immintrin.h>  // AVX2
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
 /* clang-format off */
 DECLARE_ALIGNED(32, static const uint8_t, bilinear_filters_avx2[512]) = {
@@ -164,7 +164,7 @@ DECLARE_ALIGNED(32, static const uint8_t, bilinear_filters_avx2[512]) = {
   src_lo = _mm_srai_epi16(src_lo, 4);         \
   src_hi = _mm_srai_epi16(src_hi, 4);
 
-unsigned int aom_sub_pixel_variance32xh_avx2(const uint8_t *src, int src_stride,
+unsigned int avm_sub_pixel_variance32xh_avx2(const uint8_t *src, int src_stride,
                                              int x_offset, int y_offset,
                                              const uint8_t *dst, int dst_stride,
                                              int height, unsigned int *sse) {
@@ -352,7 +352,7 @@ unsigned int aom_sub_pixel_variance32xh_avx2(const uint8_t *src, int src_stride,
   return sum;
 }
 
-unsigned int aom_sub_pixel_variance16xh_avx2(const uint8_t *src, int src_stride,
+unsigned int avm_sub_pixel_variance16xh_avx2(const uint8_t *src, int src_stride,
                                              int x_offset, int y_offset,
                                              const uint8_t *dst, int dst_stride,
                                              int height, unsigned int *sse) {
@@ -590,7 +590,7 @@ unsigned int aom_sub_pixel_variance16xh_avx2(const uint8_t *src, int src_stride,
   return sum;
 }
 
-unsigned int aom_sub_pixel_avg_variance32xh_avx2(
+unsigned int avm_sub_pixel_avg_variance32xh_avx2(
     const uint8_t *src, int src_stride, int x_offset, int y_offset,
     const uint8_t *dst, int dst_stride, const uint8_t *sec, int sec_stride,
     int height, unsigned int *sse) {

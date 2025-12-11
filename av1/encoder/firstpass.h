@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_FIRSTPASS_H_
-#define AOM_AV1_ENCODER_FIRSTPASS_H_
+#ifndef AVM_AV2_ENCODER_FIRSTPASS_H_
+#define AVM_AV2_ENCODER_FIRSTPASS_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/enums.h"
-#include "av1/encoder/lookahead.h"
-#include "av1/encoder/ratectrl.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/enums.h"
+#include "av2/encoder/lookahead.h"
+#include "av2/encoder/ratectrl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -287,30 +287,30 @@ typedef struct {
   int *raw_motion_err_list;
 } FirstPassData;
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct EncodeFrameParams;
-struct AV1EncoderConfig;
+struct AV2EncoderConfig;
 struct TileDataEnc;
 
-int av1_get_mb_rows_in_tile(TileInfo tile);
-int av1_get_mb_cols_in_tile(TileInfo tile);
+int av2_get_mb_rows_in_tile(TileInfo tile);
+int av2_get_mb_cols_in_tile(TileInfo tile);
 
-void av1_first_pass_row(struct AV1_COMP *cpi, struct ThreadData *td,
+void av2_first_pass_row(struct AV2_COMP *cpi, struct ThreadData *td,
                         struct TileDataEnc *tile_data, int mb_row);
-void av1_end_first_pass(struct AV1_COMP *cpi);
+void av2_end_first_pass(struct AV2_COMP *cpi);
 
-void av1_twopass_zero_stats(FIRSTPASS_STATS *section);
-void av1_accumulate_stats(FIRSTPASS_STATS *section,
+void av2_twopass_zero_stats(FIRSTPASS_STATS *section);
+void av2_accumulate_stats(FIRSTPASS_STATS *section,
                           const FIRSTPASS_STATS *frame);
 /*!\endcond */
 
-/*!\brief AV1 first pass encoding.
+/*!\brief AV2 first pass encoding.
  *
  * \ingroup rate_control
  * This function is the first encoding pass for the two pass encoding mode.
  * It encodes the whole video and collect essential information.
- * Two pass encoding is an encoding mode in the reference software (libaom)
- * of AV1 for high performance encoding. The first pass is a fast encoding
+ * Two pass encoding is an encoding mode in the reference software (libavm)
+ * of AV2 for high performance encoding. The first pass is a fast encoding
  * process to collect essential information to help the second pass make
  * encoding decisions and improve coding quality. The collected stats is used
  * in rate control, for example, to determine frame cut, the position of
@@ -322,10 +322,10 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
  * Nothing is returned. Instead, the "TWO_PASS" structure inside "cpi"
  * is modified to store information computed in this function.
  */
-void av1_first_pass(struct AV1_COMP *cpi, const int64_t ts_duration);
+void av2_first_pass(struct AV2_COMP *cpi, const int64_t ts_duration);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_FIRSTPASS_H_
+#endif  // AVM_AV2_ENCODER_FIRSTPASS_H_

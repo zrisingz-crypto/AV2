@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_RECONINTRA_H_
-#define AOM_AV1_COMMON_RECONINTRA_H_
+#ifndef AVM_AV2_COMMON_RECONINTRA_H_
+#define AVM_AV2_COMMON_RECONINTRA_H_
 
 #include <stdlib.h>
 #include <math.h>
 
-#include "aom/aom_integer.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/encoder/block.h"
+#include "avm/avm_integer.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/encoder/block.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,11 +56,11 @@ static const int default_mode_list_uv[DIR_MODE_END - DIR_MODE_START] = {
   UV_D67_PRED, UV_D113_PRED, UV_D157_PRED, UV_D203_PRED
 };
 
-void av1_init_intra_predictors(void);
-void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_init_intra_predictors(void);
+void av2_predict_intra_block_facade(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                     int plane, int blk_col, int blk_row,
                                     TX_SIZE tx_size);
-void av1_predict_intra_block(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+void av2_predict_intra_block(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                              int wpx, int hpx, TX_SIZE tx_size,
                              PREDICTION_MODE mode, int angle_delta,
                              int use_palette, const uint16_t *ref,
@@ -78,16 +78,16 @@ static const INTERINTRA_MODE intra_to_interintra_mode[INTRA_MODES] = {
   II_H_PRED,  II_H_PRED, II_V_PRED, II_SMOOTH_PRED, II_SMOOTH_PRED
 };
 
-static INLINE int av1_is_directional_mode(PREDICTION_MODE mode) {
+static INLINE int av2_is_directional_mode(PREDICTION_MODE mode) {
   return mode >= V_PRED && mode <= D67_PRED;
 }
 
 // Function to check morph prediction is allowed or not
-static INLINE int av1_allow_intrabc_morph_pred(const AV1_COMMON *const cm) {
+static INLINE int av2_allow_intrabc_morph_pred(const AV2_COMMON *const cm) {
   return cm->features.enable_intra_bawp &&
          cm->features.allow_screen_content_tools && frame_is_intra_only(cm);
 }
-static INLINE int av1_allow_intrabc(const AV1_COMMON *const cm,
+static INLINE int av2_allow_intrabc(const AV2_COMMON *const cm,
                                     const MACROBLOCKD *const xd,
                                     BLOCK_SIZE bsize) {
   const int w = block_size_wide[bsize];
@@ -104,7 +104,7 @@ static INLINE int av1_allow_intrabc(const AV1_COMMON *const cm,
          cm->features.allow_intrabc;
 }
 
-static INLINE int allow_fsc_intra(const AV1_COMMON *const cm, BLOCK_SIZE bs,
+static INLINE int allow_fsc_intra(const AV2_COMMON *const cm, BLOCK_SIZE bs,
                                   const MB_MODE_INFO *const mbmi) {
   bool allow_fsc = cm->seq_params.enable_idtx_intra &&
                    !is_inter_block(mbmi, PLANE_TYPE_Y) &&
@@ -115,7 +115,7 @@ static INLINE int allow_fsc_intra(const AV1_COMMON *const cm, BLOCK_SIZE bs,
   return allow_fsc;
 }
 
-static INLINE int use_inter_fsc(const AV1_COMMON *const cm,
+static INLINE int use_inter_fsc(const AV2_COMMON *const cm,
                                 PLANE_TYPE plane_type, TX_TYPE tx_type,
                                 int is_inter) {
   bool allow_fsc = cm->seq_params.enable_fsc && plane_type == PLANE_TYPE_Y &&
@@ -123,7 +123,7 @@ static INLINE int use_inter_fsc(const AV1_COMMON *const cm,
   return allow_fsc;
 }
 
-static INLINE int av1_intra_dip_allowed_bsize(const AV1_COMMON *const cm,
+static INLINE int av2_intra_dip_allowed_bsize(const AV2_COMMON *const cm,
                                               BLOCK_SIZE bs) {
   if (!cm->seq_params.enable_intra_dip || bs == BLOCK_INVALID) return 0;
   int width = block_size_wide[bs];
@@ -134,11 +134,11 @@ static INLINE int av1_intra_dip_allowed_bsize(const AV1_COMMON *const cm,
   return allow;
 }
 
-static INLINE int av1_intra_dip_allowed(const AV1_COMMON *const cm,
+static INLINE int av2_intra_dip_allowed(const AV2_COMMON *const cm,
                                         const MB_MODE_INFO *mbmi) {
   return mbmi->mode == DC_PRED && mbmi->mrl_index == 0 &&
          mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_intra_dip_allowed_bsize(cm, mbmi->sb_type[PLANE_TYPE_Y]);
+         av2_intra_dip_allowed_bsize(cm, mbmi->sb_type[PLANE_TYPE_Y]);
 }
 
 static INLINE int get_intra_dip_ctx(const MB_MODE_INFO *nbr0,
@@ -182,7 +182,7 @@ static INLINE void highbd_dc_predictor_subsampled(
   }
 
   for (int r = 0; r < bh; r++) {
-    aom_memset16(dst, sum, bw);
+    avm_memset16(dst, sum, bw);
     dst += stride;
   }
 }
@@ -191,7 +191,7 @@ static INLINE void highbd_dc_predictor_subsampled(
 // If angle > 0 && angle < 90, dx = -((int)(256 / t));
 // If angle > 90 && angle < 180, dx = (int)(256 / t);
 // If angle > 180 && angle < 270, dx = 1;
-static INLINE int av1_get_dx(int angle) {
+static INLINE int av2_get_dx(int angle) {
   if (angle > 0 && angle < 90) {
     return dr_intra_derivative[angle];
   } else if (angle > 90 && angle < 180) {
@@ -206,7 +206,7 @@ static INLINE int av1_get_dx(int angle) {
 // If angle > 0 && angle < 90, dy = 1;
 // If angle > 90 && angle < 180, dy = (int)(256 * t);
 // If angle > 180 && angle < 270, dy = -((int)(256 * t));
-static INLINE int av1_get_dy(int angle) {
+static INLINE int av2_get_dy(int angle) {
   if (angle > 90 && angle < 180) {
     return dr_intra_derivative[angle - 90];
   } else if (angle > 180 && angle < 270) {
@@ -219,7 +219,7 @@ static INLINE int av1_get_dy(int angle) {
 
 static INLINE int get_tx_partition_idx(const MB_MODE_INFO *mbmi, int plane) {
   // Transform partitioning is not allowed for chroma, so index 0 is returned.
-  return (plane == AOM_PLANE_Y) ? mbmi->txb_idx : 0;
+  return (plane == AVM_PLANE_Y) ? mbmi->txb_idx : 0;
 }
 
 // Check whether one angular intra prediction needs to be mapped to wide angles.
@@ -230,8 +230,8 @@ static INLINE int wide_angle_mapping(MB_MODE_INFO *mbmi, int angle_delta,
                                      const int plane) {
   const int txwpx = tx_size_wide[tx_size];
   const int txhpx = tx_size_high[tx_size];
-  int mrl_index = (plane == AOM_PLANE_Y ? mbmi->mrl_index : 0);
-  const int is_dr_mode = av1_is_directional_mode(mode);
+  int mrl_index = (plane == AVM_PLANE_Y ? mbmi->mrl_index : 0);
+  const int is_dr_mode = av2_is_directional_mode(mode);
   const int txb_idx = get_tx_partition_idx(mbmi, plane);
   mbmi->is_wide_angle[plane > 0][txb_idx] = 0;
   mbmi->mapped_intra_mode[plane > 0][txb_idx] = DC_PRED;
@@ -263,7 +263,7 @@ static INLINE int wide_angle_mapping(MB_MODE_INFO *mbmi, int angle_delta,
 
 // fetch neighboring luma samples for multi hypothesis cross component
 // prediction
-void mhccp_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
+void mhccp_implicit_fetch_neighbor_luma(const AV2_COMMON *cm,
                                         MACROBLOCKD *const xd, int row, int col,
                                         TX_SIZE tx_size, int *above_lines,
                                         int *left_lines, int is_top_sb_boundary,
@@ -276,7 +276,7 @@ void mhccp_implicit_fetch_neighbor_chroma(MACROBLOCKD *const xd, int plane,
                                           int is_top_sb_boundary, int ref_width,
                                           int ref_height);
 
-static AOM_INLINE void set_have_top_and_left(int *have_top, int *have_left,
+static AVM_INLINE void set_have_top_and_left(int *have_top, int *have_left,
                                              const MACROBLOCKD *xd, int row_off,
                                              int col_off, int plane) {
   *have_top = row_off || (plane ? xd->chroma_up_available : xd->up_available);
@@ -286,7 +286,7 @@ static AOM_INLINE void set_have_top_and_left(int *have_top, int *have_left,
 
 #define POWER_DR_INTERP_FILTER 7
 
-DECLARE_ALIGNED(16, static const int16_t, av1_dr_interp_filter[32][4]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_dr_interp_filter[32][4]) = {
   { 0, 128, 0, 0 },     { -2, 127, 4, -1 },   { -3, 125, 8, -2 },
   { -5, 123, 13, -3 },  { -6, 121, 17, -4 },  { -7, 118, 22, -5 },
   { -9, 116, 27, -6 },  { -9, 112, 32, -7 },  { -10, 109, 37, -8 },
@@ -303,4 +303,4 @@ DECLARE_ALIGNED(16, static const int16_t, av1_dr_interp_filter[32][4]) = {
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_COMMON_RECONINTRA_H_
+#endif  // AVM_AV2_COMMON_RECONINTRA_H_

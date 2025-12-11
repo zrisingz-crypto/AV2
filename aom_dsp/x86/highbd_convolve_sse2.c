@@ -11,12 +11,12 @@
  */
 #include <emmintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom_dsp/x86/convolve.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm_dsp/x86/convolve.h"
 
 // -----------------------------------------------------------------------------
 
-void aom_highbd_filter_block1d4_v4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d4_v4_sse2(const uint16_t *src_ptr,
                                         ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                         ptrdiff_t dst_pitch, uint32_t height,
                                         const int16_t *filter, int bd) {
@@ -102,7 +102,7 @@ void aom_highbd_filter_block1d4_v4_sse2(const uint16_t *src_ptr,
   }
 }
 
-void aom_highbd_filter_block1d4_h4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d4_h4_sse2(const uint16_t *src_ptr,
                                         ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                         ptrdiff_t dst_pitch, uint32_t height,
                                         const int16_t *filter, int bd) {
@@ -154,7 +154,7 @@ void aom_highbd_filter_block1d4_h4_sse2(const uint16_t *src_ptr,
   }
 }
 
-void aom_highbd_filter_block1d8_v4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d8_v4_sse2(const uint16_t *src_ptr,
                                         ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                         ptrdiff_t dst_pitch, uint32_t height,
                                         const int16_t *filter, int bd) {
@@ -263,7 +263,7 @@ void aom_highbd_filter_block1d8_v4_sse2(const uint16_t *src_ptr,
   }
 }
 
-void aom_highbd_filter_block1d8_h4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d8_h4_sse2(const uint16_t *src_ptr,
                                         ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                         ptrdiff_t dst_pitch, uint32_t height,
                                         const int16_t *filter, int bd) {
@@ -331,22 +331,22 @@ void aom_highbd_filter_block1d8_h4_sse2(const uint16_t *src_ptr,
   }
 }
 
-void aom_highbd_filter_block1d16_v4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d16_v4_sse2(const uint16_t *src_ptr,
                                          ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                          ptrdiff_t dst_pitch, uint32_t height,
                                          const int16_t *filter, int bd) {
-  aom_highbd_filter_block1d8_v4_sse2(src_ptr, src_pitch, dst_ptr, dst_pitch,
+  avm_highbd_filter_block1d8_v4_sse2(src_ptr, src_pitch, dst_ptr, dst_pitch,
                                      height, filter, bd);
-  aom_highbd_filter_block1d8_v4_sse2((src_ptr + 8), src_pitch, (dst_ptr + 8),
+  avm_highbd_filter_block1d8_v4_sse2((src_ptr + 8), src_pitch, (dst_ptr + 8),
                                      dst_pitch, height, filter, bd);
 }
 
-void aom_highbd_filter_block1d16_h4_sse2(const uint16_t *src_ptr,
+void avm_highbd_filter_block1d16_h4_sse2(const uint16_t *src_ptr,
                                          ptrdiff_t src_pitch, uint16_t *dst_ptr,
                                          ptrdiff_t dst_pitch, uint32_t height,
                                          const int16_t *filter, int bd) {
-  aom_highbd_filter_block1d8_h4_sse2(src_ptr, src_pitch, dst_ptr, dst_pitch,
+  avm_highbd_filter_block1d8_h4_sse2(src_ptr, src_pitch, dst_ptr, dst_pitch,
                                      height, filter, bd);
-  aom_highbd_filter_block1d8_h4_sse2((src_ptr + 8), src_pitch, (dst_ptr + 8),
+  avm_highbd_filter_block1d8_h4_sse2((src_ptr + 8), src_pitch, (dst_ptr + 8),
                                      dst_pitch, height, filter, bd);
 }

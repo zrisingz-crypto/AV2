@@ -10,29 +10,29 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_PARTITION_SEARCH_H_
-#define AOM_AV1_ENCODER_PARTITION_SEARCH_H_
+#ifndef AVM_AV2_ENCODER_PARTITION_SEARCH_H_
+#define AVM_AV2_ENCODER_PARTITION_SEARCH_H_
 
-#include "av1/encoder/block.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/encodeframe.h"
-#include "av1/encoder/encodeframe_utils.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/encodeframe.h"
+#include "av2/encoder/encodeframe_utils.h"
+#include "av2/encoder/tokenize.h"
 
-void av1_set_offsets_without_segment_id(const AV1_COMP *const cpi,
+void av2_set_offsets_without_segment_id(const AV2_COMP *const cpi,
                                         const TileInfo *const tile,
                                         MACROBLOCK *const x, int mi_row,
                                         int mi_col, BLOCK_SIZE bsize,
                                         const CHROMA_REF_INFO *chroma_ref_info);
-void av1_set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
+void av2_set_offsets(const AV2_COMP *const cpi, const TileInfo *const tile,
                      MACROBLOCK *const x, int mi_row, int mi_col,
                      BLOCK_SIZE bsize, const CHROMA_REF_INFO *chroma_ref_info);
-void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
+void av2_rd_use_partition(AV2_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                           MB_MODE_INFO **mib, TokenExtra **tp, int mi_row,
                           int mi_col, BLOCK_SIZE bsize, int *rate,
                           int64_t *dist, int do_recon, PARTITION_TREE *ptree,
                           PC_TREE *pc_tree, PARTITION_TREE *ptree_luma);
-bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
+bool av2_rd_pick_partition(AV2_COMP *const cpi, ThreadData *td,
                            TileDataEnc *tile_data, TokenExtra **tp, int mi_row,
                            int mi_col, BLOCK_SIZE bsize,
                            PARTITION_TYPE parent_partition, RD_STATS *rd_cost,
@@ -48,11 +48,11 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                            int prune_rect_flags[3]
 #endif  // CONFIG_ML_PART_SPLIT
 );
-void av1_build_partition_tree_fixed_partitioning(
-    AV1_COMMON *const cm, TREE_TYPE tree_type, int mi_row, int mi_col,
+void av2_build_partition_tree_fixed_partitioning(
+    AV2_COMMON *const cm, TREE_TYPE tree_type, int mi_row, int mi_col,
     BLOCK_SIZE bsize, PARTITION_TREE *ptree, const PARTITION_TREE *ptree_luma);
-void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+void setup_block_rdmult(const AV2_COMP *const cpi, MACROBLOCK *const x,
                         int mi_row, int mi_col, BLOCK_SIZE bsize,
                         AQ_MODE aq_mode, MB_MODE_INFO *mbmi);
 
-#endif  // AOM_AV1_ENCODER_PARTITION_SEARCH_H_
+#endif  // AVM_AV2_ENCODER_PARTITION_SEARCH_H_

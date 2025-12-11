@@ -13,19 +13,19 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/mips/convolve_common_dspr2.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/mips/convolve_common_dspr2.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_ports/mem.h"
 
 #if HAVE_DSPR2
 static void convolve_horiz_4_dspr2(const uint8_t *src, int32_t src_stride,
                                    uint8_t *dst, int32_t dst_stride,
                                    const int16_t *filter_x0, int32_t h) {
   int32_t y;
-  uint8_t *cm = aom_ff_cropTbl;
+  uint8_t *cm = avm_ff_cropTbl;
   int32_t vector1b, vector2b, vector3b, vector4b;
   int32_t Temp1, Temp2, Temp3, Temp4;
   uint32_t vector4a = 64;
@@ -131,7 +131,7 @@ static void convolve_horiz_8_dspr2(const uint8_t *src, int32_t src_stride,
                                    uint8_t *dst, int32_t dst_stride,
                                    const int16_t *filter_x0, int32_t h) {
   int32_t y;
-  uint8_t *cm = aom_ff_cropTbl;
+  uint8_t *cm = avm_ff_cropTbl;
   uint32_t vector4a = 64;
   int32_t vector1b, vector2b, vector3b, vector4b;
   int32_t Temp1, Temp2, Temp3;
@@ -293,7 +293,7 @@ static void convolve_horiz_16_dspr2(const uint8_t *src_ptr, int32_t src_stride,
   int32_t y, c;
   const uint8_t *src;
   uint8_t *dst;
-  uint8_t *cm = aom_ff_cropTbl;
+  uint8_t *cm = avm_ff_cropTbl;
   uint32_t vector_64 = 64;
   int32_t filter12, filter34, filter56, filter78;
   int32_t Temp1, Temp2, Temp3;
@@ -558,7 +558,7 @@ static void convolve_horiz_64_dspr2(const uint8_t *src_ptr, int32_t src_stride,
   int32_t y, c;
   const uint8_t *src;
   uint8_t *dst;
-  uint8_t *cm = aom_ff_cropTbl;
+  uint8_t *cm = avm_ff_cropTbl;
   uint32_t vector_64 = 64;
   int32_t filter12, filter34, filter56, filter78;
   int32_t Temp1, Temp2, Temp3;
@@ -819,7 +819,7 @@ static void convolve_horiz_64_dspr2(const uint8_t *src_ptr, int32_t src_stride,
   }
 }
 
-void aom_convolve8_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve8_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
                                uint8_t *dst, ptrdiff_t dst_stride,
                                const int16_t *filter_x, int x_step_q4,
                                const int16_t *filter_y, int y_step_q4, int w,
@@ -828,7 +828,7 @@ void aom_convolve8_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
   assert(((const int32_t *)filter_x)[1] != 0x800000);
 
   if (((const int32_t *)filter_x)[0] == 0) {
-    aom_convolve2_horiz_dspr2(src, src_stride, dst, dst_stride, filter_x,
+    avm_convolve2_horiz_dspr2(src, src_stride, dst, dst_stride, filter_x,
                               x_step_q4, filter_y, y_step_q4, w, h);
   } else {
     uint32_t pos = 38;
@@ -871,7 +871,7 @@ void aom_convolve8_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
                                 (int32_t)dst_stride, filter_x, (int32_t)h);
         break;
       default:
-        aom_convolve8_horiz_c(src + 3, src_stride, dst, dst_stride, filter_x,
+        avm_convolve8_horiz_c(src + 3, src_stride, dst, dst_stride, filter_x,
                               x_step_q4, filter_y, y_step_q4, w, h);
         break;
     }

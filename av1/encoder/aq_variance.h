@@ -10,30 +10,30 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_AQ_VARIANCE_H_
-#define AOM_AV1_ENCODER_AQ_VARIANCE_H_
+#ifndef AVM_AV2_ENCODER_AQ_VARIANCE_H_
+#define AVM_AV2_ENCODER_AQ_VARIANCE_H_
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_vaq_frame_setup(AV1_COMP *cpi);
+void av2_vaq_frame_setup(AV2_COMP *cpi);
 
-int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
+int av2_log_block_var(const AV2_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
 #if CONFIG_MIXED_LOSSLESS_ENCODE
                       ,
                       int mi_row, int mi_col
 #endif  // CONFIG_MIXED_LOSSLESS_ENCODE
 );
-int av1_compute_q_from_energy_level_deltaq_mode(const AV1_COMP *const cpi,
+int av2_compute_q_from_energy_level_deltaq_mode(const AV2_COMP *const cpi,
                                                 int block_var_level);
-int av1_block_wavelet_energy_level(const AV1_COMP *cpi, MACROBLOCK *x,
+int av2_block_wavelet_energy_level(const AV2_COMP *cpi, MACROBLOCK *x,
                                    BLOCK_SIZE bs);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_AQ_VARIANCE_H_
+#endif  // AVM_AV2_ENCODER_AQ_VARIANCE_H_

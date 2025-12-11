@@ -12,10 +12,10 @@
 
 #include <assert.h>
 
-#include "av1/common/av1_loopfilter.h"
-#include "av1/common/blockd.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/quant_common.h"
+#include "av2/common/av2_loopfilter.h"
+#include "av2/common/blockd.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/quant_common.h"
 
 static const int seg_feature_data_signed[SEG_LVL_MAX] = { 1, 0, 0 };
 
@@ -26,14 +26,14 @@ static const int seg_feature_data_max[SEG_LVL_MAX] = { MAXQ, 0, 0 };
 // the coding mechanism is still subject to change so these provide a
 // convenient single point of change.
 
-void av1_clearall_segfeatures(struct segmentation *seg) {
-  av1_zero(seg->feature_data);
-  av1_zero(seg->feature_mask);
+void av2_clearall_segfeatures(struct segmentation *seg) {
+  av2_zero(seg->feature_data);
+  av2_zero(seg->feature_mask);
   seg->segid_preskip = 0;
   seg->last_active_segid = 0;
 }
 
-void av1_calculate_segdata(struct segmentation *seg) {
+void av2_calculate_segdata(struct segmentation *seg) {
   seg->segid_preskip = 0;
   seg->last_active_segid = 0;
 
@@ -49,7 +49,7 @@ void av1_calculate_segdata(struct segmentation *seg) {
 }
 
 #if CONFIG_MULTI_LEVEL_SEGMENTATION
-void av1_calculate_segdata_from_syntax(SegmentationInfoSyntax *seg_params) {
+void av2_calculate_segdata_from_syntax(SegmentationInfoSyntax *seg_params) {
   seg_params->segid_preskip = 0;
   seg_params->last_active_segid = 0;
 
@@ -65,7 +65,7 @@ void av1_calculate_segdata_from_syntax(SegmentationInfoSyntax *seg_params) {
   }
 }
 
-int av1_check_seg_equivalence(const struct SegmentationInfoSyntax *seg_params,
+int av2_check_seg_equivalence(const struct SegmentationInfoSyntax *seg_params,
                               const struct segmentation *seg) {
   if (seg_params->enable_ext_seg != seg->enable_ext_seg) return 0;
   const int max_seg_num = seg->enable_ext_seg ? MAX_SEGMENTS : MAX_SEGMENTS_8;
@@ -84,7 +84,7 @@ int av1_check_seg_equivalence(const struct SegmentationInfoSyntax *seg_params,
   return 1;
 }
 
-void av1_reconstruct_seg_params(const struct SegmentationInfoSyntax *seg_params,
+void av2_reconstruct_seg_params(const struct SegmentationInfoSyntax *seg_params,
                                 struct segmentation *seg) {
   const int max_seg_num =
       seg_params->enable_ext_seg ? MAX_SEGMENTS : MAX_SEGMENTS_8;
@@ -102,16 +102,16 @@ void av1_reconstruct_seg_params(const struct SegmentationInfoSyntax *seg_params,
 }
 #endif  // CONFIG_MULTI_LEVEL_SEGMENTATION
 
-void av1_enable_segfeature(struct segmentation *seg, int segment_id,
+void av2_enable_segfeature(struct segmentation *seg, int segment_id,
                            SEG_LVL_FEATURES feature_id) {
   seg->feature_mask[segment_id] |= 1 << feature_id;
 }
 
-int av1_seg_feature_data_max(SEG_LVL_FEATURES feature_id) {
+int av2_seg_feature_data_max(SEG_LVL_FEATURES feature_id) {
   return seg_feature_data_max[feature_id];
 }
 
-int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id) {
+int av2_is_segfeature_signed(SEG_LVL_FEATURES feature_id) {
   return seg_feature_data_signed[feature_id];
 }
 
@@ -126,7 +126,7 @@ int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id) {
 // abs_delta = SEGMENT_DELTADATA (deltas) abs_delta = SEGMENT_ABSDATA (use
 // the absolute values given).
 
-void av1_set_segdata(struct segmentation *seg, int segment_id,
+void av2_set_segdata(struct segmentation *seg, int segment_id,
                      SEG_LVL_FEATURES feature_id, int seg_data) {
   if (seg_data < 0) {
     assert(seg_feature_data_signed[feature_id]);

@@ -9,8 +9,8 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AOM_AOM_DECODER_H_
-#define AOM_AOM_AOM_DECODER_H_
+#ifndef AVM_AVM_AVM_DECODER_H_
+#define AVM_AVM_AVM_DECODER_H_
 
 /*!\defgroup decoder Decoder Algorithm Interface
  * \ingroup codec
@@ -31,8 +31,8 @@
 extern "C" {
 #endif
 
-#include "aom/aom_codec.h"
-#include "aom/aom_frame_buffer.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_frame_buffer.h"
 
 /*!\brief Current ABI version number
  *
@@ -42,26 +42,26 @@ extern "C" {
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
  */
-#define AOM_DECODER_ABI_VERSION \
-  (6 + AOM_CODEC_ABI_VERSION) /**<\hideinitializer*/
+#define AVM_DECODER_ABI_VERSION \
+  (6 + AVM_CODEC_ABI_VERSION) /**<\hideinitializer*/
 
 /*! \brief Decoder capabilities bitfield
  *
  *  Each decoder advertises the capabilities it supports as part of its
- *  ::aom_codec_iface_t interface structure. Capabilities are extra interfaces
+ *  ::avm_codec_iface_t interface structure. Capabilities are extra interfaces
  *  or functionality, and are not required to be supported by a decoder.
  *
- *  The available flags are specified by AOM_CODEC_CAP_* defines.
+ *  The available flags are specified by AVM_CODEC_CAP_* defines.
  */
 /*!brief Can support external frame buffers */
-#define AOM_CODEC_CAP_EXTERNAL_FRAME_BUFFER 0x200000
+#define AVM_CODEC_CAP_EXTERNAL_FRAME_BUFFER 0x200000
 
 /*! \brief Initialization-time Feature Enabling
  *
  *  Certain codec features must be known at initialization time, to allow for
  *  proper memory allocation.
  *
- *  The available flags are specified by AOM_CODEC_USE_* defines.
+ *  The available flags are specified by AVM_CODEC_USE_* defines.
  */
 
 /*!\brief Stream properties
@@ -69,7 +69,7 @@ extern "C" {
  * This structure is used to query or set properties of the decoded
  * stream.
  */
-typedef struct aom_codec_stream_info {
+typedef struct avm_codec_stream_info {
   unsigned int w;              /**< Width (or 0 for unknown/default) */
   unsigned int h;              /**< Height (or 0 for unknown/default) */
   unsigned int is_kf;          /**< Current frame is a keyframe */
@@ -82,7 +82,7 @@ typedef struct aom_codec_stream_info {
   int conf_win_top_offset;    /**< conformance window top offset */
   int conf_win_bottom_offset; /**< conformance window bottom offset */
 #endif                        // CONFIG_CROP_WIN_CWG_F220
-} aom_codec_stream_info_t;
+} avm_codec_stream_info_t;
 
 /* REQUIRED FUNCTIONS
  *
@@ -95,18 +95,18 @@ typedef struct aom_codec_stream_info {
  * This structure is used to pass init time configuration options to the
  * decoder.
  */
-typedef struct aom_codec_dec_cfg {
+typedef struct avm_codec_dec_cfg {
   unsigned int threads; /**< Maximum number of threads to use, default 1 */
   unsigned int w;       /**< Width */
   unsigned int h;       /**< Height */
   char *path_parakit;   /**< ParaKit data path */
   char *suffix_parakit; /**< ParaKit data suffix */
-} aom_codec_dec_cfg_t;  /**< alias for struct aom_codec_dec_cfg */
+} avm_codec_dec_cfg_t;  /**< alias for struct avm_codec_dec_cfg */
 
 /*!\brief Initialize a decoder instance
  *
  * Initializes a decoder context using the given interface. Applications
- * should call the aom_codec_dec_init convenience macro instead of this
+ * should call the avm_codec_dec_init convenience macro instead of this
  * function directly, to ensure that the ABI version number parameter
  * is properly initialized.
  *
@@ -117,25 +117,25 @@ typedef struct aom_codec_dec_cfg {
  * \param[in]    ctx     Pointer to this instance's context.
  * \param[in]    iface   Pointer to the algorithm interface to use.
  * \param[in]    cfg     Configuration to use, if known. May be NULL.
- * \param[in]    flags   Bitfield of AOM_CODEC_USE_* flags
+ * \param[in]    flags   Bitfield of AVM_CODEC_USE_* flags
  * \param[in]    ver     ABI version number. Must be set to
- *                       AOM_DECODER_ABI_VERSION
- * \retval #AOM_CODEC_OK
+ *                       AVM_DECODER_ABI_VERSION
+ * \retval #AVM_CODEC_OK
  *     The decoder algorithm initialized.
- * \retval #AOM_CODEC_MEM_ERROR
+ * \retval #AVM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
-                                       aom_codec_iface_t *iface,
-                                       const aom_codec_dec_cfg_t *cfg,
-                                       aom_codec_flags_t flags, int ver);
+avm_codec_err_t avm_codec_dec_init_ver(avm_codec_ctx_t *ctx,
+                                       avm_codec_iface_t *iface,
+                                       const avm_codec_dec_cfg_t *cfg,
+                                       avm_codec_flags_t flags, int ver);
 
-/*!\brief Convenience macro for aom_codec_dec_init_ver()
+/*!\brief Convenience macro for avm_codec_dec_init_ver()
  *
  * Ensures the ABI version parameter is properly set.
  */
-#define aom_codec_dec_init(ctx, iface, cfg, flags) \
-  aom_codec_dec_init_ver(ctx, iface, cfg, flags, AOM_DECODER_ABI_VERSION)
+#define avm_codec_dec_init(ctx, iface, cfg, flags) \
+  avm_codec_dec_init_ver(ctx, iface, cfg, flags, AVM_DECODER_ABI_VERSION)
 
 /*!\brief Parse stream info from a buffer
  *
@@ -148,17 +148,17 @@ aom_codec_err_t aom_codec_dec_init_ver(aom_codec_ctx_t *ctx,
  * \param[in]      data_sz Size of the data buffer
  * \param[out]     si      Pointer to stream info to update.
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     Bitstream is parsable and stream information updated.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     One of the arguments is invalid, for example a NULL pointer.
- * \retval #AOM_CODEC_UNSUP_BITSTREAM
+ * \retval #AVM_CODEC_UNSUP_BITSTREAM
  *     The decoder didn't recognize the coded data, or the
  *     buffer was too short.
  */
-aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
+avm_codec_err_t avm_codec_peek_stream_info(avm_codec_iface_t *iface,
                                            const uint8_t *data, size_t data_sz,
-                                           aom_codec_stream_info_t *si);
+                                           avm_codec_stream_info_t *si);
 
 /*!\brief Return information about the current stream.
  *
@@ -167,15 +167,15 @@ aom_codec_err_t aom_codec_peek_stream_info(aom_codec_iface_t *iface,
  * \param[in]      ctx     Pointer to this instance's context
  * \param[in,out]  si      Pointer to stream info to update.
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     Bitstream is parsable and stream information updated.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     One of the arguments is invalid, for example a NULL pointer.
- * \retval #AOM_CODEC_UNSUP_BITSTREAM
+ * \retval #AVM_CODEC_UNSUP_BITSTREAM
  *     The decoder couldn't parse the submitted data.
  */
-aom_codec_err_t aom_codec_get_stream_info(aom_codec_ctx_t *ctx,
-                                          aom_codec_stream_info_t *si);
+avm_codec_err_t avm_codec_get_stream_info(avm_codec_ctx_t *ctx,
+                                          avm_codec_stream_info_t *si);
 
 /*!\brief Decode data
  *
@@ -189,12 +189,12 @@ aom_codec_err_t aom_codec_get_stream_info(aom_codec_ctx_t *ctx,
  * \param[in] user_priv    Application specific data to associate with
  *                         this frame.
  *
- * \return Returns #AOM_CODEC_OK if the coded data was processed completely
+ * \return Returns #AVM_CODEC_OK if the coded data was processed completely
  *         and future pictures can be decoded without error. Otherwise,
- *         see the descriptions of the other error codes in ::aom_codec_err_t
+ *         see the descriptions of the other error codes in ::avm_codec_err_t
  *         for recoverability capabilities.
  */
-aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
+avm_codec_err_t avm_codec_decode(avm_codec_ctx_t *ctx, const uint8_t *data,
                                  size_t data_sz, void *user_priv);
 
 /*!\brief Decoded frames iterator
@@ -204,8 +204,8 @@ aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
  * complete when this function returns NULL.
  *
  * The list of available frames becomes valid upon completion of the
- * aom_codec_decode call, and remains valid until the next call to
- * aom_codec_decode.
+ * avm_codec_decode call, and remains valid until the next call to
+ * avm_codec_decode.
  *
  * \param[in]     ctx      Pointer to this instance's context
  * \param[in,out] iter     Iterator storage, initialized to NULL
@@ -213,7 +213,7 @@ aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
  * \return Returns a pointer to an image, if one is ready for display. Frames
  *         produced will always be in PTS (presentation time stamp) order.
  */
-aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter);
+avm_image_t *avm_codec_get_frame(avm_codec_ctx_t *ctx, avm_codec_iter_t *iter);
 
 /*!\brief Decoded frames peek
  *
@@ -222,8 +222,8 @@ aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter);
  * increment it.
  *
  * The list of available frames becomes valid upon completion of the
- * aom_codec_decode call, and remains valid until the next call to
- * aom_codec_decode.
+ * avm_codec_decode call, and remains valid until the next call to
+ * avm_codec_decode.
  *
  * \param[in]     ctx      Pointer to this instance's context
  * \param[in,out] iter     Iterator storage, initialized to NULL
@@ -231,23 +231,23 @@ aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter);
  * \return Returns a pointer to an image, if one is ready for display. Frames
  *         produced will always be in PTS (presentation time stamp) order.
  */
-aom_image_t *aom_codec_peek_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter);
+avm_image_t *avm_codec_peek_frame(avm_codec_ctx_t *ctx, avm_codec_iter_t *iter);
 
 /*!\defgroup cap_external_frame_buffer External Frame Buffer Functions
  *
  * The following function is required to be implemented for all decoders
- * that advertise the AOM_CODEC_CAP_EXTERNAL_FRAME_BUFFER capability.
+ * that advertise the AVM_CODEC_CAP_EXTERNAL_FRAME_BUFFER capability.
  * Calling this function for codecs that don't advertise this capability
- * will result in an error code being returned, usually AOM_CODEC_INCAPABLE.
+ * will result in an error code being returned, usually AVM_CODEC_INCAPABLE.
  * @{
  */
 
 /*!\brief Pass in external frame buffers for the decoder to use.
  *
- * Registers functions to be called when libaom needs a frame buffer
- * to decode the current frame and a function to be called when libaom does
+ * Registers functions to be called when libavm needs a frame buffer
+ * to decode the current frame and a function to be called when libavm does
  * not internally reference the frame buffer. This set function must
- * be called before the first call to decode or libaom will assume the
+ * be called before the first call to decode or libavm will assume the
  * default behavior of allocating frame buffers internally.
  *
  * \param[in] ctx          Pointer to this instance's context
@@ -255,22 +255,22 @@ aom_image_t *aom_codec_peek_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter);
  * \param[in] cb_release   Pointer to the release callback function
  * \param[in] cb_priv      Callback's private data
  *
- * \retval #AOM_CODEC_OK
- *     External frame buffers will be used by libaom.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_OK
+ *     External frame buffers will be used by libavm.
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     One or more of the callbacks were NULL.
- * \retval #AOM_CODEC_ERROR
+ * \retval #AVM_CODEC_ERROR
  *     Decoder context not initialized.
- * \retval #AOM_CODEC_INCAPABLE
+ * \retval #AVM_CODEC_INCAPABLE
  *     Algorithm not capable of using external frame buffers.
  *
  * \note
- * When decoding AV1, the application may be required to pass in at least
- * #AOM_MAXIMUM_WORK_BUFFERS external frame buffers.
+ * When decoding AV2, the application may be required to pass in at least
+ * #AVM_MAXIMUM_WORK_BUFFERS external frame buffers.
  */
-aom_codec_err_t aom_codec_set_frame_buffer_functions(
-    aom_codec_ctx_t *ctx, aom_get_frame_buffer_cb_fn_t cb_get,
-    aom_release_frame_buffer_cb_fn_t cb_release, void *cb_priv);
+avm_codec_err_t avm_codec_set_frame_buffer_functions(
+    avm_codec_ctx_t *ctx, avm_get_frame_buffer_cb_fn_t cb_get,
+    avm_release_frame_buffer_cb_fn_t cb_release, void *cb_priv);
 
 /*!@} - end defgroup cap_external_frame_buffer */
 
@@ -278,4 +278,4 @@ aom_codec_err_t aom_codec_set_frame_buffer_functions(
 #ifdef __cplusplus
 }
 #endif
-#endif  // AOM_AOM_AOM_DECODER_H_
+#endif  // AVM_AVM_AVM_DECODER_H_

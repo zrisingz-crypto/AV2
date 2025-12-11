@@ -16,20 +16,20 @@
 #include <tuple>
 #include <vector>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
 #include "test/acm_random.h"
 #include "test/util.h"
-#include "test/av1_txfm_test.h"
+#include "test/av2_txfm_test.h"
 #include "test/function_equivalence_test.h"
-#include "av1/common/av1_txfm.h"
-#include "av1/encoder/hybrid_fwd_txfm.h"
+#include "av2/common/av2_txfm.h"
+#include "av2/encoder/hybrid_fwd_txfm.h"
 
-using libaom_test::ACMRandom;
-using libaom_test::bd;
-using libaom_test::compute_avg_abs_error;
-using libaom_test::input_base;
-using libaom_test::TYPE_TXFM;
+using libavm_test::ACMRandom;
+using libavm_test::bd;
+using libavm_test::compute_avg_abs_error;
+using libavm_test::input_base;
+using libavm_test::TYPE_TXFM;
 
 using std::vector;
 
@@ -41,11 +41,11 @@ namespace {
 typedef void (*FwdSTxfmFunc)(tran_low_t *src, tran_low_t *dst,
                              const PREDICTION_MODE mode, const uint8_t stx_idx,
                              const int size, const int bd);
-class AV1FwdSecTxfmTest : public ::testing::TestWithParam<FwdSTxfmFunc> {
+class AV2FwdSecTxfmTest : public ::testing::TestWithParam<FwdSTxfmFunc> {
  public:
-  AV1FwdSecTxfmTest() : fwd_stxfm_func_(GetParam()) {}
-  void AV1FwdSecTxfmMatchTest() {
-    av1_init_stxfm_kernels();
+  AV2FwdSecTxfmTest() : fwd_stxfm_func_(GetParam()) {}
+  void AV2FwdSecTxfmMatchTest() {
+    av2_init_stxfm_kernels();
     for (int set_id = 0; set_id < IST_SET_SIZE; ++set_id) {
       for (uint8_t stx = 0; stx < STX_TYPES - 1; ++stx) {
         for (int sb_size = 0; sb_size < 3; ++sb_size) {
@@ -85,8 +85,8 @@ class AV1FwdSecTxfmTest : public ::testing::TestWithParam<FwdSTxfmFunc> {
     }
   }
 
-  void AV1FwdSecTxfmSpeedTest() {
-    av1_init_stxfm_kernels();
+  void AV2FwdSecTxfmSpeedTest() {
+    av2_init_stxfm_kernels();
     for (int sb_size = 0; sb_size < 3; ++sb_size) {
       DECLARE_ALIGNED(32, tran_low_t, input[IST_8x8_WIDTH]) = { 0 };
       DECLARE_ALIGNED(32, tran_low_t, output[IST_8x8_HEIGHT]) = { 0 };
@@ -95,23 +95,23 @@ class AV1FwdSecTxfmTest : public ::testing::TestWithParam<FwdSTxfmFunc> {
       for (int r = 0; r < IST_8x8_WIDTH; ++r) {
         input[r] = rnd(2) ? rnd(coeff_range) : -rnd(coeff_range);
       }
-      aom_usec_timer ref_timer, test_timer;
+      avm_usec_timer ref_timer, test_timer;
       const int knum_loops = 100000000;
-      aom_usec_timer_start(&ref_timer);
+      avm_usec_timer_start(&ref_timer);
       for (int i = 0; i < knum_loops; ++i) {
         fwd_stxfm_c(input, output, 0, 0, sb_size, bd);
       }
-      aom_usec_timer_mark(&ref_timer);
+      avm_usec_timer_mark(&ref_timer);
       const int elapsed_time_c =
-          static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
+          static_cast<int>(avm_usec_timer_elapsed(&ref_timer));
 
-      aom_usec_timer_start(&test_timer);
+      avm_usec_timer_start(&test_timer);
       for (int i = 0; i < knum_loops; ++i) {
         fwd_stxfm_func_(input, output, 0, 0, sb_size, bd);
       }
-      aom_usec_timer_mark(&test_timer);
+      avm_usec_timer_mark(&test_timer);
       const int elapsed_time_simd =
-          static_cast<int>(aom_usec_timer_elapsed(&test_timer));
+          static_cast<int>(avm_usec_timer_elapsed(&test_timer));
 
       printf(
           "sb_size[%d] \t c_time=%d \t simd_time=%d \t "
@@ -122,18 +122,18 @@ class AV1FwdSecTxfmTest : public ::testing::TestWithParam<FwdSTxfmFunc> {
   }
   FwdSTxfmFunc fwd_stxfm_func_;
 };
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1FwdSecTxfmTest);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV2FwdSecTxfmTest);
 
-TEST_P(AV1FwdSecTxfmTest, match) { AV1FwdSecTxfmMatchTest(); }
-TEST_P(AV1FwdSecTxfmTest, DISABLED_Speed) { AV1FwdSecTxfmSpeedTest(); }
+TEST_P(AV2FwdSecTxfmTest, match) { AV2FwdSecTxfmMatchTest(); }
+TEST_P(AV2FwdSecTxfmTest, DISABLED_Speed) { AV2FwdSecTxfmSpeedTest(); }
 
 #if HAVE_SSE4_1
-INSTANTIATE_TEST_SUITE_P(SSE4_1, AV1FwdSecTxfmTest,
+INSTANTIATE_TEST_SUITE_P(SSE4_1, AV2FwdSecTxfmTest,
                          ::testing::Values(fwd_stxfm_sse4_1));
 #endif  // HAVE_SSE4_1
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1FwdSecTxfmTest,
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2FwdSecTxfmTest,
                          ::testing::Values(fwd_stxfm_avx2));
 #endif  // HAVE_AVX2
 
@@ -144,11 +144,11 @@ INSTANTIATE_TEST_SUITE_P(AVX2, AV1FwdSecTxfmTest,
 typedef void (*InvSTxfmFunc)(tran_low_t *src, tran_low_t *dst,
                              const PREDICTION_MODE mode, const uint8_t stx_idx,
                              const int size, const int bd);
-class AV1InvSecTxfmTest : public ::testing::TestWithParam<InvSTxfmFunc> {
+class AV2InvSecTxfmTest : public ::testing::TestWithParam<InvSTxfmFunc> {
  public:
-  AV1InvSecTxfmTest() : inv_stxfm_func_(GetParam()) {}
-  void AV1InvSecTxfmMatchTest() {
-    av1_init_stxfm_kernels();
+  AV2InvSecTxfmTest() : inv_stxfm_func_(GetParam()) {}
+  void AV2InvSecTxfmMatchTest() {
+    av2_init_stxfm_kernels();
     for (int set_id = 0; set_id < IST_SET_SIZE; ++set_id) {
       for (uint8_t stx = 0; stx < STX_TYPES - 1; ++stx) {
         for (int sb_size = 0; sb_size < 3; ++sb_size) {
@@ -173,8 +173,8 @@ class AV1InvSecTxfmTest : public ::testing::TestWithParam<InvSTxfmFunc> {
     }
   }
 
-  void AV1InvSecTxfmSpeedTest() {
-    av1_init_stxfm_kernels();
+  void AV2InvSecTxfmSpeedTest() {
+    av2_init_stxfm_kernels();
     for (int sb_size = 0; sb_size < 3; ++sb_size) {
       DECLARE_ALIGNED(32, tran_low_t, input[IST_8x8_HEIGHT]) = { 0 };
       DECLARE_ALIGNED(32, tran_low_t, output[IST_8x8_WIDTH]) = { 0 };
@@ -183,23 +183,23 @@ class AV1InvSecTxfmTest : public ::testing::TestWithParam<InvSTxfmFunc> {
       for (int r = 0; r < IST_8x8_HEIGHT; ++r) {
         input[r] = rnd(2) ? rnd(coeff_range) : -rnd(coeff_range);
       }
-      aom_usec_timer ref_timer, test_timer;
+      avm_usec_timer ref_timer, test_timer;
       const int knum_loops = 100000000;
-      aom_usec_timer_start(&ref_timer);
+      avm_usec_timer_start(&ref_timer);
       for (int i = 0; i < knum_loops; ++i) {
         fwd_stxfm_c(input, output, 0, 0, sb_size, bd);
       }
-      aom_usec_timer_mark(&ref_timer);
+      avm_usec_timer_mark(&ref_timer);
       const int elapsed_time_c =
-          static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
+          static_cast<int>(avm_usec_timer_elapsed(&ref_timer));
 
-      aom_usec_timer_start(&test_timer);
+      avm_usec_timer_start(&test_timer);
       for (int i = 0; i < knum_loops; ++i) {
         inv_stxfm_func_(input, output, 0, 0, sb_size, bd);
       }
-      aom_usec_timer_mark(&test_timer);
+      avm_usec_timer_mark(&test_timer);
       const int elapsed_time_simd =
-          static_cast<int>(aom_usec_timer_elapsed(&test_timer));
+          static_cast<int>(avm_usec_timer_elapsed(&test_timer));
 
       printf(
           "sb_size[%d] \t c_time=%d \t simd_time=%d \t "
@@ -211,18 +211,18 @@ class AV1InvSecTxfmTest : public ::testing::TestWithParam<InvSTxfmFunc> {
   InvSTxfmFunc inv_stxfm_func_;
 };
 
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1InvSecTxfmTest);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV2InvSecTxfmTest);
 
-TEST_P(AV1InvSecTxfmTest, match) { AV1InvSecTxfmMatchTest(); }
-TEST_P(AV1InvSecTxfmTest, DISABLED_Speed) { AV1InvSecTxfmSpeedTest(); }
+TEST_P(AV2InvSecTxfmTest, match) { AV2InvSecTxfmMatchTest(); }
+TEST_P(AV2InvSecTxfmTest, DISABLED_Speed) { AV2InvSecTxfmSpeedTest(); }
 
 #if HAVE_SSE4_1
-INSTANTIATE_TEST_SUITE_P(SSE4_1, AV1InvSecTxfmTest,
+INSTANTIATE_TEST_SUITE_P(SSE4_1, AV2InvSecTxfmTest,
                          ::testing::Values(inv_stxfm_sse4_1));
 #endif  // HAVE_SSE4_1
 
 #if HAVE_AVX2
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1InvSecTxfmTest,
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2InvSecTxfmTest,
                          ::testing::Values(inv_stxfm_avx2));
 #endif  // HAVE_AVX2
 }  // namespace

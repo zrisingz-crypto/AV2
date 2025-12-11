@@ -10,49 +10,49 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_AV1_COMMON_INT_H_
-#define AOM_AV1_COMMON_AV1_COMMON_INT_H_
+#ifndef AVM_AV2_COMMON_AV2_COMMON_INT_H_
+#define AVM_AV2_COMMON_AV2_COMMON_INT_H_
 
 #include <stdbool.h>
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
-#include "aom/internal/aom_codec_internal.h"
-#include "aom_util/aom_thread.h"
-#include "av1/common/alloccommon.h"
-#include "av1/common/av1_loopfilter.h"
-#include "av1/common/blockd.h"
-#include "av1/common/entropy.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/entropymv.h"
-#include "av1/common/enums.h"
-#include "av1/common/frame_buffers.h"
-#include "av1/common/mv.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/restoration.h"
-#include "av1/common/tile_common.h"
-#include "av1/common/timing.h"
-#include "av1/common/odintrin.h"
-#include "av1/common/warped_motion.h"
-#include "av1/encoder/hash_motion.h"
-#include "aom_dsp/grain_synthesis.h"
-#include "aom_dsp/grain_table.h"
-#include "aom/aom_frame_buffer.h"
+#include "avm/internal/avm_codec_internal.h"
+#include "avm_util/avm_thread.h"
+#include "av2/common/alloccommon.h"
+#include "av2/common/av2_loopfilter.h"
+#include "av2/common/blockd.h"
+#include "av2/common/entropy.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/enums.h"
+#include "av2/common/frame_buffers.h"
+#include "av2/common/mv.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/restoration.h"
+#include "av2/common/tile_common.h"
+#include "av2/common/timing.h"
+#include "av2/common/odintrin.h"
+#include "av2/common/warped_motion.h"
+#include "av2/encoder/hash_motion.h"
+#include "avm_dsp/grain_synthesis.h"
+#include "avm_dsp/grain_table.h"
+#include "avm/avm_frame_buffer.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined(__clang__) && defined(__has_warning)
 #if __has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough")
-#define AOM_FALLTHROUGH_INTENDED [[clang::fallthrough]]  // NOLINT
+#define AVM_FALLTHROUGH_INTENDED [[clang::fallthrough]]  // NOLINT
 #endif
 #elif defined(__GNUC__) && __GNUC__ >= 7
-#define AOM_FALLTHROUGH_INTENDED __attribute__((fallthrough))  // NOLINT
+#define AVM_FALLTHROUGH_INTENDED __attribute__((fallthrough))  // NOLINT
 #endif
 
-#ifndef AOM_FALLTHROUGH_INTENDED
-#define AOM_FALLTHROUGH_INTENDED \
+#ifndef AVM_FALLTHROUGH_INTENDED
+#define AVM_FALLTHROUGH_INTENDED \
   do {                           \
   } while (0)
 #endif
@@ -111,7 +111,7 @@ extern "C" {
 #define MAX_CTX_DIM 4
 typedef struct ProbModelInfo {
   char *ctx_group_name;
-  aom_cdf_prob *prob;
+  avm_cdf_prob *prob;
   int cdf_stride;
   int num_symb;
   int num_dim;
@@ -338,9 +338,9 @@ typedef struct RefCntBuffer {
 #if !CONFIG_F153_FGM_OBU
   uint8_t film_grain_params_present;
 #endif  // !CONFIG_F153_FGM_OBU
-  aom_film_grain_t film_grain_params;
+  avm_film_grain_t film_grain_params;
   // #endif
-  aom_codec_frame_buffer_t raw_frame_buffer;
+  avm_codec_frame_buffer_t raw_frame_buffer;
   YV12_BUFFER_CONFIG buf;
   FRAME_TYPE frame_type;
 
@@ -401,8 +401,8 @@ typedef struct BufferPool {
   // Private data associated with the frame buffer callbacks.
   void *cb_priv;
 
-  aom_get_frame_buffer_cb_fn_t get_fb_cb;
-  aom_release_frame_buffer_cb_fn_t release_fb_cb;
+  avm_get_frame_buffer_cb_fn_t get_fb_cb;
+  avm_release_frame_buffer_cb_fn_t release_fb_cb;
 
   RefCntBuffer frame_bufs[FRAME_BUFFERS];
 
@@ -926,9 +926,9 @@ typedef struct OperatingPointSet {
 // This structure specifies the color info params
 typedef struct color_info {
   int color_description_idc;
-  aom_color_primaries_t color_primaries;
-  aom_transfer_characteristics_t transfer_characteristics;
-  aom_matrix_coefficients_t matrix_coefficients;
+  avm_color_primaries_t color_primaries;
+  avm_transfer_characteristics_t transfer_characteristics;
+  avm_matrix_coefficients_t matrix_coefficients;
   int full_range_flag;
 } ColorInfo;
 
@@ -941,7 +941,7 @@ typedef struct sar_info {
 
 // Specifies the params related to the content in the sequence
 typedef struct ContentInterpretation {
-  aom_pic_scan_type_t ci_scan_type_idc;
+  avm_pic_scan_type_t ci_scan_type_idc;
   int ci_color_description_present_flag;
   int ci_chroma_sample_position_present_flag;
   int ci_aspect_ratio_info_present_flag;
@@ -951,7 +951,7 @@ typedef struct ContentInterpretation {
 
   ColorInfo color_info;
   SarInfo sar_info;
-  aom_timing_info_t timing_info;
+  avm_timing_info_t timing_info;
 } ContentInterpretation;
 #endif  // CONFIG_CWG_F270_CI_OBU
 // Sequence header structure.
@@ -1049,7 +1049,7 @@ typedef struct SequenceHeader {
   int enable_six_param_warp_delta;  // enables/disables six parameter warp delta
 
   uint8_t enable_masked_compound;           // enables/disables masked compound
-  aom_opfl_refine_type enable_opfl_refine;  // optical flow refinement type for
+  avm_opfl_refine_type enable_opfl_refine;  // optical flow refinement type for
                                             // this frame
   uint8_t disable_loopfilters_across_tiles;
   uint8_t enable_cdef;         // To turn on/off CDEF
@@ -1098,7 +1098,7 @@ typedef struct SequenceHeader {
 #endif  // !CONFIG_F255_QMOBU
 
 #if CONFIG_CWG_F270_OPS
-  AV1_LEVEL seq_max_level_idx;
+  AV2_LEVEL seq_max_level_idx;
   uint8_t seq_tier;
   int seq_max_display_model_info_present_flag;
   int seq_max_initial_display_delay_minus_1;
@@ -1110,19 +1110,19 @@ typedef struct SequenceHeader {
   BITSTREAM_PROFILE profile;
 
   // Color config.
-  aom_bit_depth_t bit_depth;  // AOM_BITS_8 in profile 0 or 1,
-                              // AOM_BITS_10 or AOM_BITS_12 in profile 2 or 3.
+  avm_bit_depth_t bit_depth;  // AVM_BITS_8 in profile 0 or 1,
+                              // AVM_BITS_10 or AVM_BITS_12 in profile 2 or 3.
   uint8_t monochrome;         // Monochorme video
 #if !CONFIG_CWG_F270_CI_OBU
-  aom_color_primaries_t color_primaries;
-  aom_transfer_characteristics_t transfer_characteristics;
-  aom_matrix_coefficients_t matrix_coefficients;
+  avm_color_primaries_t color_primaries;
+  avm_transfer_characteristics_t transfer_characteristics;
+  avm_matrix_coefficients_t matrix_coefficients;
   int color_range;
 #endif                // !CONFIG_CWG_F270_CI_OBU
   int subsampling_x;  // Chroma subsampling for x
   int subsampling_y;  // Chroma subsampling for y
 #if !CONFIG_CWG_F270_CI_OBU
-  aom_chroma_sample_position_t chroma_sample_position;
+  avm_chroma_sample_position_t chroma_sample_position;
 #endif                    // !CONFIG_CWG_F270_CI_OBU
   uint8_t equal_ac_dc_q;  // force ac, dc quantizers in each plane to be equal
   uint8_t separate_uv_delta_q;
@@ -1144,13 +1144,13 @@ typedef struct SequenceHeader {
   int operating_point_idc[MAX_NUM_OPERATING_POINTS];
 #if !CONFIG_CWG_F270_CI_OBU
   int timing_info_present;
-  aom_timing_info_t timing_info;
+  avm_timing_info_t timing_info;
 #endif  // !CONFIG_CWG_F270_CI_OBU
   uint8_t decoder_model_info_present_flag;
-  aom_dec_model_info_t decoder_model_info;
+  avm_dec_model_info_t decoder_model_info;
   uint8_t display_model_info_present_flag;
 #if !CONFIG_CWG_F270_OPS
-  AV1_LEVEL seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  AV2_LEVEL seq_level_idx[MAX_NUM_OPERATING_POINTS];
   uint8_t tier[MAX_NUM_OPERATING_POINTS];  // seq_tier in spec. One bit: 0 or 1.
 #endif                                     // !CONFIG_CWG_F270_OPS
 
@@ -1169,7 +1169,7 @@ typedef struct SequenceHeader {
   // IMPORTANT: the op_params member must be at the end of the struct so that
   // are_seq_headers_consistent() can be implemented with a memcmp() call.
   // TODO(urvang): We probably don't need the +1 here.
-  aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
+  avm_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
 #if CONFIG_CROP_WIN_CWG_F220
   CropWindow conf;
 #endif  // CONFIG_CROP_WIN_CWG_F220
@@ -1177,7 +1177,7 @@ typedef struct SequenceHeader {
 #if !CONFIG_CWG_F270_CI_OBU
   // NOTE these syntax elements will move to the CI Obu
   int scan_type_info_present_flag;
-  aom_pic_scan_type_t scan_type_idc;
+  avm_pic_scan_type_t scan_type_idc;
   int fixed_cvs_pic_rate_flag;
   int elemental_ct_duration_minus_1;
 #endif  // !CONFIG_CWG_F270_CI_OBU
@@ -1858,7 +1858,7 @@ struct CommonContexts {
    * Dimensions that were used to allocate the arrays above.
    * If these dimensions change, the arrays may have to be re-allocated.
    */
-  int num_planes;    /*!< Corresponds to av1_num_planes(cm) */
+  int num_planes;    /*!< Corresponds to av2_num_planes(cm) */
   int num_tile_rows; /*!< Corresponds to cm->tiles.row */
   int num_mi_cols;   /*!< Corresponds to cm->mi_params.mi_cols */
 };
@@ -2031,7 +2031,7 @@ typedef struct BRU_Info {
   /*!
    * Regions of active SBs
    */
-  AV1PixelRect *active_region;
+  AV2PixelRect *active_region;
   /*!
    * Active SB count in each region
    */
@@ -2085,11 +2085,11 @@ typedef struct BRU_Info {
    */
   FRAME_CONTEXT update_ref_fc;  // to store reference fc befor swap
   /*!
-   * Store frame score computed in av1_get_ref_frames
+   * Store frame score computed in av2_get_ref_frames
    */
   void *ref_scores;
   /*!
-   * Store num of ranked refs in av1_get_ref_frames
+   * Store num of ranked refs in av2_get_ref_frames
    */
   int ref_n_ranked;
 } BruInfo;
@@ -2342,7 +2342,7 @@ component
 /*!
  * \brief Top level common structure used by both encoder and decoder.
  */
-typedef struct AV1Common {
+typedef struct AV2Common {
 #if CONFIG_THROUGHPUT_ANALYSIS
   /*!
    * Symbol stats.
@@ -2361,10 +2361,10 @@ typedef struct AV1Common {
   /*!
    * Code and details about current error status.
    */
-  struct aom_internal_error_info error;
+  struct avm_internal_error_info error;
 
   /*!
-   * AV1 allows two types of frame scaling operations:
+   * AV2 allows two types of frame scaling operations:
    * 1. Frame super-resolution: that allows coding a frame at lower resolution
    * and after decoding the frame, normatively uscales and restores the frame --
    * inside the coding loop.
@@ -2598,7 +2598,7 @@ typedef struct AV1Common {
   /*!
    * Parameters for film grain synthesis.
    */
-  aom_film_grain_t film_grain_params;
+  avm_film_grain_t film_grain_params;
 
   /*!
    * Parameters for delta quantization and delta loop filter level.
@@ -2921,7 +2921,7 @@ typedef struct AV1Common {
   /*!
    * Sub-stream IDs
    */
-  int stream_ids[AOM_MAX_NUM_STREAMS];
+  int stream_ids[AVM_MAX_NUM_STREAMS];
   /*!
    * True if we are in a decoding process.
    */
@@ -2969,14 +2969,14 @@ typedef struct AV1Common {
   /*!
    * Pic struct parameters.
    */
-  aom_metadata_pic_struct_t pic_struct_metadata_params;
+  avm_metadata_pic_struct_t pic_struct_metadata_params;
 #endif  // CONFIG_SCAN_TYPE_METADATA
 
 #if CONFIG_CWG_F430
   /*!
    * Temporal point info
    */
-  aom_metadata_temporal_point_info_t temporal_point_info_metadata;
+  avm_metadata_temporal_point_info_t temporal_point_info_metadata;
 #endif  // CONFIG_CWG_F430
 
 #if CONFIG_F024_KEYOBU
@@ -3014,12 +3014,12 @@ typedef struct AV1Common {
   bool restricted_prediction_switch;
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
 
-} AV1_COMMON;
+} AV2_COMMON;
 
 /*!\cond */
-void translate_pcwiener_filters_to_wienerns(AV1_COMMON *cm);
-void allocate_frame_filter_dictionary(AV1_COMMON *cm);
-void free_frame_filter_dictionary(AV1_COMMON *cm);
+void translate_pcwiener_filters_to_wienerns(AV2_COMMON *cm);
+void allocate_frame_filter_dictionary(AV2_COMMON *cm);
+void free_frame_filter_dictionary(AV2_COMMON *cm);
 
 // Useful in allowing previous class filters to be used in predicting the
 // filters of the next class.
@@ -3027,42 +3027,42 @@ void add_filter_to_dictionary(const WienerNonsepInfo *filter, int class_id,
                               const WienernsFilterParameters *nsfilter_params,
                               int16_t *frame_filter_dictionary, int dict_stride,
                               int nopcw);
-int set_frame_filter_dictionary(int plane, const AV1_COMMON *cm,
+int set_frame_filter_dictionary(int plane, const AV2_COMMON *cm,
                                 int num_classes,
                                 int16_t *frame_filter_dictionary,
                                 int dict_stride);
 
 #define ILLEGAL_TXK_SKIP_VALUE 255
-void av1_alloc_txk_skip_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm);
-void av1_set_txk_skip_array_stride(CommonModeInfoParams *mi_params,
-                                   AV1_COMMON *cm);
-void av1_dealloc_txk_skip_array(CommonModeInfoParams *mi_params);
-void av1_reset_txk_skip_array(AV1_COMMON *cm);
-void av1_reset_txk_skip_array_using_mi_params(CommonModeInfoParams *mi_params);
-void av1_init_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
+void av2_alloc_txk_skip_array(CommonModeInfoParams *mi_params, AV2_COMMON *cm);
+void av2_set_txk_skip_array_stride(CommonModeInfoParams *mi_params,
+                                   AV2_COMMON *cm);
+void av2_dealloc_txk_skip_array(CommonModeInfoParams *mi_params);
+void av2_reset_txk_skip_array(AV2_COMMON *cm);
+void av2_reset_txk_skip_array_using_mi_params(CommonModeInfoParams *mi_params);
+void av2_init_txk_skip_array(const AV2_COMMON *cm, int mi_row, int mi_col,
                              BLOCK_SIZE bsize, uint8_t value,
                              TREE_TYPE tree_type,
                              const CHROMA_REF_INFO *chroma_ref_info,
                              int plane_start, int plane_end);
-void av1_update_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
+void av2_update_txk_skip_array(const AV2_COMMON *cm, int mi_row, int mi_col,
                                TREE_TYPE tree_type,
                                const CHROMA_REF_INFO *chroma_ref_info,
                                int plane, int blk_row, int blk_col,
                                TX_SIZE tx_size);
-uint8_t av1_get_txk_skip(const AV1_COMMON *cm, int mi_row, int mi_col,
+uint8_t av2_get_txk_skip(const AV2_COMMON *cm, int mi_row, int mi_col,
                          TREE_TYPE tree_type,
                          const CHROMA_REF_INFO *chroma_ref_info, int plane,
                          int blk_row, int blk_col);
-void av1_alloc_class_id_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm,
+void av2_alloc_class_id_array(CommonModeInfoParams *mi_params, AV2_COMMON *cm,
                               int height);
-void av1_set_class_id_array_stride(CommonModeInfoParams *mi_params,
-                                   AV1_COMMON *cm, int height);
-void av1_dealloc_class_id_array(CommonModeInfoParams *mi_params);
+void av2_set_class_id_array_stride(CommonModeInfoParams *mi_params,
+                                   AV2_COMMON *cm, int height);
+void av2_dealloc_class_id_array(CommonModeInfoParams *mi_params);
 
 #if CONFIG_CWG_E242_CHROMA_FORMAT_IDC
 // Given subsampling x/y and monochrome values in `seq_params`, outputs the
 // chroma format idc. Returns error in case of invalid subsampling format.
-static INLINE aom_codec_err_t av1_get_chroma_format_idc(
+static INLINE avm_codec_err_t av2_get_chroma_format_idc(
     const SequenceHeader *const seq_params, uint32_t *seq_chroma_format_idc) {
   if (seq_params->monochrome) {
     *seq_chroma_format_idc = CHROMA_FORMAT_400;
@@ -3073,13 +3073,13 @@ static INLINE aom_codec_err_t av1_get_chroma_format_idc(
   } else if (seq_params->subsampling_x == 0 && seq_params->subsampling_y == 0) {
     *seq_chroma_format_idc = CHROMA_FORMAT_444;
   } else {
-    return AOM_CODEC_UNSUP_BITSTREAM;
+    return AVM_CODEC_UNSUP_BITSTREAM;
   }
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 #endif  // CONFIG_CWG_E242_CHROMA_FORMAT_IDC
 
-int get_ccso_unit_size_log2_adaptive_tile(const AV1_COMMON *cm,
+int get_ccso_unit_size_log2_adaptive_tile(const AV2_COMMON *cm,
                                           int sb_size_log2, int unit_size_log2);
 
 // TODO(hkuang): Don't need to lock the whole pool after implementing atomic
@@ -3100,14 +3100,14 @@ static void unlock_buffer_pool(BufferPool *const pool) {
 #endif
 }
 
-static INLINE YV12_BUFFER_CONFIG *get_ref_frame(AV1_COMMON *cm, int index) {
+static INLINE YV12_BUFFER_CONFIG *get_ref_frame(AV2_COMMON *cm, int index) {
   if (is_tip_ref_frame(index)) return &cm->tip_ref.tip_frame->buf;
   if (index < 0 || index >= cm->seq_params.ref_frames) return NULL;
   if (cm->ref_frame_map[index] == NULL) return NULL;
   return &cm->ref_frame_map[index]->buf;
 }
 
-static INLINE int get_free_fb(AV1_COMMON *cm) {
+static INLINE int get_free_fb(AV2_COMMON *cm) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   int i;
 
@@ -3132,7 +3132,7 @@ static INLINE int get_free_fb(AV1_COMMON *cm) {
     // We should never run out of free buffers. If this assertion fails, there
     // is a reference leak.
 #if CONFIG_F024_KEYOBU
-    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+    avm_internal_error(&cm->error, AVM_CODEC_MEM_ERROR,
                        "Unable to find free frame buffer");
 #else
     assert(0 && "Ran out of free frame buffers. Likely a reference leak.");
@@ -3145,7 +3145,7 @@ static INLINE int get_free_fb(AV1_COMMON *cm) {
   return i;
 }
 
-static INLINE RefCntBuffer *assign_cur_frame_new_fb(AV1_COMMON *const cm) {
+static INLINE RefCntBuffer *assign_cur_frame_new_fb(AV2_COMMON *const cm) {
   // Release the previously-used frame-buffer
   if (cm->cur_frame != NULL) {
     --cm->cur_frame->ref_count;
@@ -3158,13 +3158,13 @@ static INLINE RefCntBuffer *assign_cur_frame_new_fb(AV1_COMMON *const cm) {
 
   cm->cur_frame = &cm->buffer_pool->frame_bufs[new_fb_idx];
 
-#if CONFIG_AV1_ENCODER
-  aom_invalidate_pyramid(cm->cur_frame->buf.y_pyramid);
-  av1_invalidate_corner_list(cm->cur_frame->buf.corners);
-#endif  // CONFIG_AV1_ENCODER
-  av1_zero(cm->cur_frame->interp_filter_selected);
-  av1_zero(cm->cur_frame->raw_frame_hash);
-  av1_zero(cm->cur_frame->grain_frame_hash);
+#if CONFIG_AV2_ENCODER
+  avm_invalidate_pyramid(cm->cur_frame->buf.y_pyramid);
+  av2_invalidate_corner_list(cm->cur_frame->buf.corners);
+#endif  // CONFIG_AV2_ENCODER
+  av2_zero(cm->cur_frame->interp_filter_selected);
+  av2_zero(cm->cur_frame->raw_frame_hash);
+  av2_zero(cm->cur_frame->grain_frame_hash);
   return cm->cur_frame;
 }
 
@@ -3193,24 +3193,24 @@ static INLINE void assign_output_frame_buffer_p(RefCntBuffer **lhs_ptr,
   ++rhs_ptr->ref_count;
 }
 
-static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
+static INLINE int frame_is_intra_only(const AV2_COMMON *const cm) {
   return cm->current_frame.frame_type == KEY_FRAME ||
          cm->current_frame.frame_type == INTRA_ONLY_FRAME;
 }
 
 // Check whether this is chroma component of an intra region in inter frame
-static INLINE int is_inter_sdp_chroma(const AV1_COMMON *const cm,
+static INLINE int is_inter_sdp_chroma(const AV2_COMMON *const cm,
                                       REGION_TYPE cur_region_type,
                                       TREE_TYPE cur_tree_type) {
   return !frame_is_intra_only(cm) && cur_region_type == INTRA_REGION &&
          cur_tree_type == CHROMA_PART;
 }
 
-static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
+static INLINE int frame_is_sframe(const AV2_COMMON *cm) {
   return cm->current_frame.frame_type == S_FRAME;
 }
 
-static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
+static INLINE int get_ref_frame_map_idx(const AV2_COMMON *const cm,
                                         const int ref_frame) {
   return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME)
              ? cm->remapped_ref_idx[ref_frame]
@@ -3294,7 +3294,7 @@ static INLINE int is_mlayer_scalable_and_dependent(
   }
 }
 
-static INLINE void get_secondary_reference_frame_idx(const AV1_COMMON *const cm,
+static INLINE void get_secondary_reference_frame_idx(const AV2_COMMON *const cm,
                                                      int *ref_frame_used,
                                                      int *secondary_map_idx) {
   if (cm->features.primary_ref_frame == PRIMARY_REF_NONE) {
@@ -3332,7 +3332,7 @@ static INLINE void get_secondary_reference_frame_idx(const AV1_COMMON *const cm,
   }
 }
 
-static INLINE void avg_primary_secondary_references(const AV1_COMMON *const cm,
+static INLINE void avg_primary_secondary_references(const AV2_COMMON *const cm,
                                                     int ref_frame_used,
                                                     int map_idx) {
   if ((map_idx != INVALID_IDX) &&
@@ -3341,12 +3341,12 @@ static INLINE void avg_primary_secondary_references(const AV1_COMMON *const cm,
       (!cm->bridge_frame_info.is_bridge_frame) &&
       (cm->seq_params.enable_avg_cdf && !cm->seq_params.avg_cdf_type) &&
       !frame_is_sframe(cm) && (ref_frame_used != PRIMARY_REF_NONE)) {
-    av1_avg_cdf_symbols(cm->fc, &cm->ref_frame_map[map_idx]->frame_context,
+    av2_avg_cdf_symbols(cm->fc, &cm->ref_frame_map[map_idx]->frame_context,
                         AVG_CDF_WEIGHT_PRIMARY, AVG_CDF_WEIGHT_NON_PRIMARY);
   }
 }
 
-static INLINE int get_ref_frame_map_idx_res_indep(const AV1_COMMON *const cm,
+static INLINE int get_ref_frame_map_idx_res_indep(const AV2_COMMON *const cm,
                                                   const int ref_frame) {
   return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME)
              ? cm->remapped_ref_idx_res_indep[ref_frame]
@@ -3354,14 +3354,14 @@ static INLINE int get_ref_frame_map_idx_res_indep(const AV1_COMMON *const cm,
 }
 
 static INLINE RefCntBuffer *get_ref_frame_buf_res_indep(
-    const AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
+    const AV2_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
   assert(ref_frame < cm->ref_frames_info.num_total_refs_res_indep);
   const int map_idx = get_ref_frame_map_idx_res_indep(cm, ref_frame);
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
 static INLINE RefCntBuffer *get_ref_frame_buf(
-    const AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
+    const AV2_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
   if (is_tip_ref_frame(ref_frame)) {
     return cm->tip_ref.tip_frame;
   }
@@ -3370,9 +3370,9 @@ static INLINE RefCntBuffer *get_ref_frame_buf(
 }
 
 // Both const and non-const versions of this function are provided so that it
-// can be used with a const AV1_COMMON if needed.
+// can be used with a const AV2_COMMON if needed.
 static INLINE const struct scale_factors *get_ref_scale_factors_const(
-    const AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
+    const AV2_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
   if (is_tip_ref_frame(ref_frame)) {
     return &cm->tip_ref.scale_factor;
   }
@@ -3381,7 +3381,7 @@ static INLINE const struct scale_factors *get_ref_scale_factors_const(
 }
 
 static INLINE struct scale_factors *get_ref_scale_factors(
-    AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
+    AV2_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
   if (is_tip_ref_frame(ref_frame)) {
     return &cm->tip_ref.scale_factor;
   }
@@ -3390,7 +3390,7 @@ static INLINE struct scale_factors *get_ref_scale_factors(
 }
 
 static INLINE RefCntBuffer *get_primary_ref_frame_buf(
-    const AV1_COMMON *const cm, int primary_ref_frame) {
+    const AV2_COMMON *const cm, int primary_ref_frame) {
   if (primary_ref_frame == PRIMARY_REF_NONE) return NULL;
   if (is_tip_ref_frame(primary_ref_frame)) {
     return cm->tip_ref.tip_frame;
@@ -3407,13 +3407,13 @@ static INLINE RefCntBuffer *get_primary_ref_frame_buf(
 }
 
 // Returns 1 if this frame might allow mvs from some reference frame.
-static INLINE int frame_might_allow_ref_frame_mvs(const AV1_COMMON *cm) {
+static INLINE int frame_might_allow_ref_frame_mvs(const AV2_COMMON *cm) {
   return !frame_is_sframe(cm) &&
          cm->seq_params.order_hint_info.enable_ref_frame_mvs &&
          !cm->bridge_frame_info.is_bridge_frame && !frame_is_intra_only(cm);
 }
 
-static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
+static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV2_COMMON *cm) {
   const int buf_rows = buf->mi_rows;
   const int buf_cols = buf->mi_cols;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -3424,15 +3424,15 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 
   if (buf->mvs == NULL || buf_rows != mi_params->mi_rows ||
       buf_cols != mi_params->mi_cols) {
-    aom_free(buf->mvs);
+    avm_free(buf->mvs);
     buf->mi_rows = mi_params->mi_rows;
     buf->mi_cols = mi_params->mi_cols;
     CHECK_MEM_ERROR(cm, buf->mvs,
-                    (MV_REF *)aom_calloc(mem_size, sizeof(*buf->mvs)));
-    aom_free(buf->seg_map);
+                    (MV_REF *)avm_calloc(mem_size, sizeof(*buf->mvs)));
+    avm_free(buf->seg_map);
     CHECK_MEM_ERROR(
         cm, buf->seg_map,
-        (uint8_t *)aom_calloc(mi_params->mi_rows * mi_params->mi_cols,
+        (uint8_t *)avm_calloc(mi_params->mi_rows * mi_params->mi_cols,
                               sizeof(*buf->seg_map)));
     buf->avg_row[0] = -1;
     buf->avg_row[1] = -1;
@@ -3444,7 +3444,7 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
       buf->buf.subsampling_y != cm->seq_params.subsampling_y) {
     for (int pli = 0; pli < 3; pli++) {
       if (buf->ccso_info.sb_filter_control[pli]) {
-        aom_free(buf->ccso_info.sb_filter_control[pli]);
+        avm_free(buf->ccso_info.sb_filter_control[pli]);
       }
       // this function is called before tile information is signalled, therefore
       // the temporal ccso block size is set as the minimum possible value to
@@ -3468,7 +3468,7 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
       const int sb_count = ccso_nvfb * ccso_nhfb;
       CHECK_MEM_ERROR(
           cm, buf->ccso_info.sb_filter_control[pli],
-          (bool *)aom_memalign(
+          (bool *)avm_memalign(
               32, sizeof(*buf->ccso_info.sb_filter_control[pli]) * sb_count));
       memset(buf->ccso_info.sb_filter_control[pli], 0,
              sizeof(*buf->ccso_info.sb_filter_control[pli]) * sb_count);
@@ -3480,13 +3480,13 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
        cm->tpl_mvs_mem_size_col != tpl_cols);
   int realloc = cm->tpl_mvs == NULL || is_tpl_mvs_mem_size_changed;
   if (realloc) {
-    aom_free(cm->tpl_mvs);
-    aom_free(cm->tpl_mvs_rows);
+    avm_free(cm->tpl_mvs);
+    avm_free(cm->tpl_mvs_rows);
 
     cm->tpl_mvs_rows =
-        (TPL_MV_REF **)aom_malloc(tpl_rows * sizeof(*cm->tpl_mvs_rows));
+        (TPL_MV_REF **)avm_malloc(tpl_rows * sizeof(*cm->tpl_mvs_rows));
     CHECK_MEM_ERROR(cm, cm->tpl_mvs,
-                    (TPL_MV_REF *)aom_calloc(mem_size, sizeof(*cm->tpl_mvs)));
+                    (TPL_MV_REF *)avm_calloc(mem_size, sizeof(*cm->tpl_mvs)));
     for (int r = 0; r < tpl_rows; r++) {
       cm->tpl_mvs_rows[r] = cm->tpl_mvs + r * tpl_cols;
     }
@@ -3494,23 +3494,23 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
     cm->tpl_mvs_mem_size_row = tpl_rows;
     cm->tpl_mvs_mem_size_col = tpl_cols;
     for (int rf = 0; rf < INTER_REFS_PER_FRAME; rf++) {
-      aom_free(cm->id_offset_map[rf]);
-      aom_free(cm->id_offset_map_rows[rf]);
+      avm_free(cm->id_offset_map[rf]);
+      avm_free(cm->id_offset_map_rows[rf]);
       cm->id_offset_map[rf] =
-          (int_mv *)aom_malloc(mem_size * sizeof(*cm->id_offset_map[rf]));
+          (int_mv *)avm_malloc(mem_size * sizeof(*cm->id_offset_map[rf]));
       cm->id_offset_map_rows[rf] =
-          (int_mv **)aom_malloc(tpl_rows * sizeof(*cm->id_offset_map_rows[rf]));
+          (int_mv **)avm_malloc(tpl_rows * sizeof(*cm->id_offset_map_rows[rf]));
       for (int r = 0; r < tpl_rows; r++) {
         cm->id_offset_map_rows[rf][r] = cm->id_offset_map[rf] + r * tpl_cols;
       }
       for (int k = 0; k < 3; k++) {
-        aom_free(cm->blk_id_map[k][rf]);
-        aom_free(cm->blk_id_map_rows[k][rf]);
+        avm_free(cm->blk_id_map[k][rf]);
+        avm_free(cm->blk_id_map_rows[k][rf]);
       }
       for (int k = 0; k < 3; k++) {
         cm->blk_id_map[k][rf] =
-            (int_mv *)aom_malloc(mem_size * sizeof(*cm->blk_id_map[k][rf]));
-        cm->blk_id_map_rows[k][rf] = (int_mv **)aom_malloc(
+            (int_mv *)avm_malloc(mem_size * sizeof(*cm->blk_id_map[k][rf]));
+        cm->blk_id_map_rows[k][rf] = (int_mv **)avm_malloc(
             tpl_rows * sizeof(*cm->blk_id_map_rows[k][rf]));
         for (int r = 0; r < tpl_rows; r++) {
           cm->blk_id_map_rows[k][rf][r] = cm->blk_id_map[k][rf] + r * tpl_cols;
@@ -3522,11 +3522,11 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 
 void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params);
 
-static INLINE int av1_num_planes(const AV1_COMMON *cm) {
+static INLINE int av2_num_planes(const AV2_COMMON *cm) {
   return cm->seq_params.monochrome ? 1 : MAX_MB_PLANE;
 }
 
-static INLINE void av1_init_above_context(CommonContexts *above_contexts,
+static INLINE void av2_init_above_context(CommonContexts *above_contexts,
                                           int num_planes, int tile_row,
                                           MACROBLOCKD *xd) {
   for (int i = 0; i < num_planes; ++i) {
@@ -3535,8 +3535,8 @@ static INLINE void av1_init_above_context(CommonContexts *above_contexts,
   }
 }
 
-static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd) {
-  const int num_planes = av1_num_planes(cm);
+static INLINE void av2_init_macroblockd(AV2_COMMON *cm, MACROBLOCKD *xd) {
+  const int num_planes = av2_num_planes(cm);
   const CommonQuantParams *const quant_params = &cm->quant_params;
 
   for (int i = 0; i < num_planes; ++i) {
@@ -3547,7 +3547,7 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd) {
              sizeof(quant_params->y_iqmatrix));
 
     } else {
-      if (i == AOM_PLANE_U) {
+      if (i == AVM_PLANE_U) {
         memcpy(xd->plane[i].seg_dequant_QTX, quant_params->u_dequant_QTX,
                sizeof(quant_params->u_dequant_QTX));
         memcpy(xd->plane[i].seg_iqmatrix, quant_params->u_iqmatrix,
@@ -3609,13 +3609,13 @@ static INLINE void set_plane_n4(MACROBLOCKD *const xd, int bw, int bh,
       xd->plane[i].height = (bh * MI_SIZE) >> xd->plane[i].subsampling_y;
     }
 
-    xd->plane[i].width = AOMMAX(xd->plane[i].width, 4);
-    xd->plane[i].height = AOMMAX(xd->plane[i].height, 4);
+    xd->plane[i].width = AVMMAX(xd->plane[i].width, 4);
+    xd->plane[i].height = AVMMAX(xd->plane[i].height, 4);
   }
 }
 
 // Check whether the coding block is at the superblock top boundary
-static AOM_INLINE bool is_at_sb_top_boundary(int mi_row, int mib_size) {
+static AVM_INLINE bool is_at_sb_top_boundary(int mi_row, int mib_size) {
   return (mi_row % mib_size == 0);
 }
 
@@ -3677,7 +3677,7 @@ static INLINE void fetch_spatial_neighbors_with_line_buffer(MACROBLOCKD *xd) {
   }
 }
 
-static INLINE void set_mi_row_col(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+static INLINE void set_mi_row_col(const AV2_COMMON *const cm, MACROBLOCKD *xd,
                                   const TileInfo *const tile, int mi_row,
                                   int bh, int mi_col, int bw, int mi_rows,
                                   int mi_cols,
@@ -3760,7 +3760,7 @@ static INLINE void set_mi_row_col(const AV1_COMMON *const cm, MACROBLOCKD *xd,
           xd->chroma_above_mbmi = chroma_above_base_mi;
         } else {
           const int first_col = above_base_chroma_ref_info->mi_col_chroma_base;
-          const int last_col = AOMMIN(
+          const int last_col = AVMMIN(
               first_col + mi_size_wide[above_base_chroma_ref_info->bsize_base] -
                   1,
               mi_cols - 1);
@@ -3781,7 +3781,7 @@ static INLINE void set_mi_row_col(const AV1_COMMON *const cm, MACROBLOCKD *xd,
           xd->chroma_left_mbmi = chroma_left_base_mi;
         } else {
           const int first_row = left_base_chroma_ref_info->mi_row_chroma_base;
-          const int last_row = AOMMIN(
+          const int last_row = AVMMIN(
               first_row + mi_size_high[left_base_chroma_ref_info->bsize_base] -
                   1,
               mi_rows - 1);
@@ -3807,7 +3807,7 @@ static INLINE int get_lp2tx_ctx(TX_SIZE tx_size, int bwl, int eob) {
   const int eoby = (eob - 1) >> bwl;
   const int eobx = (eob - 1) - (eoby << bwl);
   const int diag = eobx + eoby;
-  const int adj_size = av1_get_adjusted_tx_size(tx_size);
+  const int adj_size = av2_get_adjusted_tx_size(tx_size);
   const int max_diag = tx_size_wide[adj_size] + tx_size_high[adj_size] - 2;
   int ctx_idx = 0;
   if (diag < lim) {
@@ -3835,7 +3835,7 @@ static INLINE int get_fsc_mode_ctx(const MACROBLOCKD *xd, const int is_key) {
 }
 
 // Get multi hypothesis cross component prediction context
-static INLINE aom_cdf_prob *get_mhccp_dir_cdf(const MACROBLOCKD *xd,
+static INLINE avm_cdf_prob *get_mhccp_dir_cdf(const MACROBLOCKD *xd,
                                               const BLOCK_SIZE bsize) {
   FRAME_CONTEXT *tile_ctx = xd->tile_ctx;
   assert(bsize != BLOCK_INVALID);
@@ -3844,7 +3844,7 @@ static INLINE aom_cdf_prob *get_mhccp_dir_cdf(const MACROBLOCKD *xd,
   return tile_ctx->filter_dir_cdf[mhccp_size_group];
 }
 
-static INLINE aom_cdf_prob *get_fsc_mode_cdf(const MACROBLOCKD *xd,
+static INLINE avm_cdf_prob *get_fsc_mode_cdf(const MACROBLOCKD *xd,
                                              const BLOCK_SIZE bsize,
                                              const int is_key) {
   FRAME_CONTEXT *tile_ctx = xd->tile_ctx;
@@ -4013,30 +4013,30 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
   if (ctx_mode == EXT_PART_CTX_MODE || ctx_mode == FOUR_WAY_CTX_MODE) {
     if (rect_type == HORZ) {
       const PARTITION_CONTEXT *left_mid_ctx = left_ctx + bh_mi / 2;
-      ctx1 = (*left_ctx >> AOMMAX(bsl_h - 2, 0)) & 1;
-      ctx2 = (*left_mid_ctx >> AOMMAX(bsl_h - 2, 0)) & 1;
+      ctx1 = (*left_ctx >> AVMMAX(bsl_h - 2, 0)) & 1;
+      ctx2 = (*left_mid_ctx >> AVMMAX(bsl_h - 2, 0)) & 1;
     } else {
       const PARTITION_CONTEXT *above_mid_ctx = above_ctx + bw_mi / 2;
-      ctx1 = (*above_ctx >> AOMMAX(bsl_w - 2, 0)) & 1;
-      ctx2 = (*above_mid_ctx >> AOMMAX(bsl_w - 2, 0)) & 1;
+      ctx1 = (*above_ctx >> AVMMAX(bsl_w - 2, 0)) & 1;
+      ctx2 = (*above_mid_ctx >> AVMMAX(bsl_w - 2, 0)) & 1;
     }
     ctx = ctx1 * 2 + ctx2;
   } else {
     assert(ctx_mode == SPLIT_CTX_MODE || ctx_mode == SQUARE_SPLIT_CTX_MODE ||
            ctx_mode == RECT_TYPE_CTX_MODE);
-    const int above = (*above_ctx >> AOMMAX(bsl_w - 1, 0)) & 1;
-    const int left = (*left_ctx >> AOMMAX(bsl_h - 1, 0)) & 1;
+    const int above = (*above_ctx >> AVMMAX(bsl_w - 1, 0)) & 1;
+    const int left = (*left_ctx >> AVMMAX(bsl_h - 1, 0)) & 1;
     ctx = left * 2 + above;
   }
   return partition_plane_context_helper(ctx, bsize, ctx_mode);
 }
 
-static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
+static INLINE void av2_zero_above_context(AV2_COMMON *const cm,
                                           const MACROBLOCKD *xd,
                                           int mi_col_start, int mi_col_end,
                                           const int tile_row) {
   const SequenceHeader *const seq_params = &cm->seq_params;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const int width = mi_col_end - mi_col_start;
   const int aligned_width = ALIGN_POWER_OF_TWO(width, cm->mib_size_log2);
   const int offset_y = mi_col_start;
@@ -4045,39 +4045,39 @@ static INLINE void av1_zero_above_context(AV1_COMMON *const cm,
   const int width_uv = width_y >> seq_params->subsampling_x;
   CommonContexts *const above_contexts = &cm->above_contexts;
 
-  av1_zero_array(above_contexts->entropy[0][tile_row] + offset_y, width_y);
+  av2_zero_array(above_contexts->entropy[0][tile_row] + offset_y, width_y);
   if (num_planes > 1) {
     if (above_contexts->entropy[1][tile_row] &&
         above_contexts->entropy[2][tile_row]) {
-      av1_zero_array(above_contexts->entropy[1][tile_row] + offset_uv,
+      av2_zero_array(above_contexts->entropy[1][tile_row] + offset_uv,
                      width_uv);
-      av1_zero_array(above_contexts->entropy[2][tile_row] + offset_uv,
+      av2_zero_array(above_contexts->entropy[2][tile_row] + offset_uv,
                      width_uv);
     } else {
-      aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+      avm_internal_error(xd->error_info, AVM_CODEC_CORRUPT_FRAME,
                          "Invalid value of planes");
     }
   }
-  av1_zero_array(above_contexts->partition[0][tile_row] + mi_col_start,
+  av2_zero_array(above_contexts->partition[0][tile_row] + mi_col_start,
                  aligned_width);
 
   if (num_planes > 1) {
     if (above_contexts->partition[1][tile_row] &&
         above_contexts->partition[2][tile_row]) {
-      av1_zero_array(above_contexts->partition[1][tile_row] + mi_col_start,
+      av2_zero_array(above_contexts->partition[1][tile_row] + mi_col_start,
                      aligned_width);
-      av1_zero_array(above_contexts->partition[2][tile_row] + mi_col_start,
+      av2_zero_array(above_contexts->partition[2][tile_row] + mi_col_start,
                      aligned_width);
     } else {
-      aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
+      avm_internal_error(xd->error_info, AVM_CODEC_CORRUPT_FRAME,
                          "Invalid value of planes");
     }
   }
 }
 
-static INLINE void av1_zero_left_context(MACROBLOCKD *const xd) {
-  av1_zero(xd->left_entropy_context);
-  av1_zero(xd->left_partition_context);
+static INLINE void av2_zero_left_context(MACROBLOCKD *const xd) {
+  av2_zero(xd->left_entropy_context);
+  av2_zero(xd->left_partition_context);
 }
 
 // Disable array-bounds checks as the TX_SIZE enum contains values larger than
@@ -4161,20 +4161,20 @@ static INLINE void set_blk_offsets(const CommonModeInfoParams *const mi_params,
 
 #define MAX_RMB_SB_HITS 64
 #define BANK_SB_ABOVE_ROW_MAX_HITS 4
-void av1_update_ref_mv_bank(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void av2_update_ref_mv_bank(const AV2_COMMON *const cm, MACROBLOCKD *const xd,
                             int from_within_sb, const MB_MODE_INFO *const mbmi);
-void decide_rmb_unit_update_count(const AV1_COMMON *const cm,
+void decide_rmb_unit_update_count(const AV2_COMMON *const cm,
                                   MACROBLOCKD *const xd,
                                   const MB_MODE_INFO *const mbmi);
 
-void av1_update_warp_param_bank(const AV1_COMMON *const cm,
+void av2_update_warp_param_bank(const AV2_COMMON *const cm,
                                 MACROBLOCKD *const xd,
 #if COMPOUND_WARP_LINE_BUFFER_REDUCTION
                                 int cand_from_sb_above,
 #endif  // COMPOUND_WARP_LINE_BUFFER_REDUCTION
                                 const MB_MODE_INFO *const mbmi);
 
-static INLINE void av1_reset_refmv_bank(const AV1_COMMON *const cm,
+static INLINE void av2_reset_refmv_bank(const AV2_COMMON *const cm,
                                         MACROBLOCKD *const xd,
                                         const TileInfo *tile_info,
                                         int sb_mi_row, int sb_mi_col) {
@@ -4189,7 +4189,7 @@ static INLINE void av1_reset_refmv_bank(const AV1_COMMON *const cm,
   const int reset_unit_mi_size = cm->seq_params.mib_size;
 
   const int block_mi_wide =
-      AOMMIN(reset_unit_mi_size, cm->mi_params.mi_cols - sb_mi_col);
+      AVMMIN(reset_unit_mi_size, cm->mi_params.mi_cols - sb_mi_col);
 
   if (sb_mi_row > tile_info->mi_row_start) {
     int row_hits = 0;
@@ -4211,8 +4211,8 @@ static INLINE void av1_reset_refmv_bank(const AV1_COMMON *const cm,
       const int cand_mi_wide = mi_size_wide[candidate_bsize];
       if (is_inter_ref_frame(candidate->ref_frame[0]) ||
           candidate->use_intrabc[0]) {
-        av1_update_ref_mv_bank(cm, xd, 0, candidate);
-        av1_update_warp_param_bank(cm, xd,
+        av2_update_ref_mv_bank(cm, xd, 0, candidate);
+        av2_update_warp_param_bank(cm, xd,
 #if COMPOUND_WARP_LINE_BUFFER_REDUCTION
                                    1,
 #endif  // COMPOUND_WARP_LINE_BUFFER_REDUCTION
@@ -4224,7 +4224,7 @@ static INLINE void av1_reset_refmv_bank(const AV1_COMMON *const cm,
   }
 }
 
-static AOM_INLINE int is_sdp_enabled_in_keyframe(const AV1_COMMON *const cm) {
+static AVM_INLINE int is_sdp_enabled_in_keyframe(const AV2_COMMON *const cm) {
   return (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
           cm->seq_params.enable_sdp);
 }
@@ -4232,13 +4232,13 @@ static AOM_INLINE int is_sdp_enabled_in_keyframe(const AV1_COMMON *const cm) {
 // The blocksize above which chroma and luma partitions will stayed coupled.
 // Currently this is set to BLOCK_128X128 (e.g. chroma always follows luma at
 // BLOCK_128X128, but can be de-coupled later).
-static AOM_INLINE bool is_bsize_above_decoupled_thresh(BLOCK_SIZE bsize) {
+static AVM_INLINE bool is_bsize_above_decoupled_thresh(BLOCK_SIZE bsize) {
   return bsize >= BLOCK_64X64 && bsize <= BLOCK_LARGEST;
 }
 
 // Whether the partition tree contains a block size that is strictly smaller
 // than width x height.
-static AOM_INLINE bool tree_has_bsize_smaller_than(const PARTITION_TREE *ptree,
+static AVM_INLINE bool tree_has_bsize_smaller_than(const PARTITION_TREE *ptree,
                                                    int width, int height) {
   if (!ptree || ptree->partition == PARTITION_INVALID) {
     return false;
@@ -4255,7 +4255,7 @@ static AOM_INLINE bool tree_has_bsize_smaller_than(const PARTITION_TREE *ptree,
   return false;
 }
 
-static AOM_INLINE bool is_sdp_share_partition(PARTITION_TYPE luma_partition,
+static AVM_INLINE bool is_sdp_share_partition(PARTITION_TYPE luma_partition,
                                               PARTITION_TYPE child_partition) {
   if (child_partition == PARTITION_NONE) return false;
   switch (luma_partition) {
@@ -4287,7 +4287,7 @@ static AOM_INLINE bool is_sdp_share_partition(PARTITION_TYPE luma_partition,
   }
 }
 
-static AOM_INLINE bool is_luma_chroma_share_same_partition(
+static AVM_INLINE bool is_luma_chroma_share_same_partition(
     TREE_TYPE tree_type, const PARTITION_TREE *ptree_luma, BLOCK_SIZE bsize) {
   if (tree_type != CHROMA_PART || !ptree_luma ||
       !is_bsize_above_decoupled_thresh(bsize) ||
@@ -4325,7 +4325,7 @@ static AOM_INLINE bool is_luma_chroma_share_same_partition(
 // partitions are in the same direction CFL is allowed If they are in the
 // oppositte direction CFL is disallowed
 
-static AOM_INLINE CFL_ALLOWED_FOR_SDP_TYPE
+static AVM_INLINE CFL_ALLOWED_FOR_SDP_TYPE
 
 is_cfl_allowed_for_this_luma_partition(bool seq_enable_cfl_intra,
                                        PARTITION_TYPE luma_partition,
@@ -4365,8 +4365,8 @@ is_cfl_allowed_for_this_luma_partition(bool seq_enable_cfl_intra,
   return CFL_DISALLOWED_FOR_CHROMA;
 }
 
-static AOM_INLINE CFL_ALLOWED_FOR_SDP_TYPE is_cfl_allowed_for_sdp(
-    AV1_COMMON const *cm, const MACROBLOCKD *const xd,
+static AVM_INLINE CFL_ALLOWED_FOR_SDP_TYPE is_cfl_allowed_for_sdp(
+    AV2_COMMON const *cm, const MACROBLOCKD *const xd,
     const PARTITION_TREE *ptree_luma, PARTITION_TYPE current_partition,
     BLOCK_SIZE bsize_luma) {
   if (!cm->seq_params.enable_cfl_intra && !cm->seq_params.enable_mhccp)
@@ -4396,7 +4396,7 @@ static AOM_INLINE CFL_ALLOWED_FOR_SDP_TYPE is_cfl_allowed_for_sdp(
 }
 
 static INLINE int check_is_chroma_size_valid(
-    const AV1_COMMON *const cm, TREE_TYPE tree_type, PARTITION_TYPE partition,
+    const AV2_COMMON *const cm, TREE_TYPE tree_type, PARTITION_TYPE partition,
     BLOCK_SIZE bsize, int mi_row, int mi_col, int ss_x, int ss_y,
     const CHROMA_REF_INFO *parent_chroma_ref_info) {
   const int intra_sdp_enabled = is_sdp_enabled_in_keyframe(cm);
@@ -4438,7 +4438,7 @@ static INLINE int check_is_chroma_size_valid(
 // border, and not signaled in the bitstream. And when it returns true, it also
 // sets `implied_partition` appropriately.
 // Note: `implied_partition` can be passed NULL.
-static AOM_INLINE bool is_partition_implied_at_boundary(
+static AVM_INLINE bool is_partition_implied_at_boundary(
     const CommonModeInfoParams *const mi_params, int mi_row, int mi_col,
     BLOCK_SIZE bsize, PARTITION_TYPE *implied_partition) {
   if (bsize >= BLOCK_SIZES_ALL) return false;
@@ -4511,7 +4511,7 @@ static AOM_INLINE bool is_partition_implied_at_boundary(
  * \return A \ref PARTITION_TYPE that corresponds to the one forced by the
  * bitstream. If no partition type is forced, returns \ref PARTITION_INVALID.
  */
-static AOM_INLINE PARTITION_TYPE av1_get_normative_forced_partition_type(
+static AVM_INLINE PARTITION_TYPE av2_get_normative_forced_partition_type(
     const CommonModeInfoParams *const mi_params, TREE_TYPE tree_type, int ss_x,
     int ss_y, int mi_row, int mi_col, BLOCK_SIZE bsize,
     const PARTITION_TREE *ptree_luma) {
@@ -4543,7 +4543,7 @@ static AOM_INLINE PARTITION_TYPE av1_get_normative_forced_partition_type(
   return PARTITION_INVALID;
 }
 
-static AOM_INLINE void get_chroma_ref_offsets(BLOCK_SIZE bsize,
+static AVM_INLINE void get_chroma_ref_offsets(BLOCK_SIZE bsize,
                                               PARTITION_TYPE partition,
                                               int *chroma_ref_row_offset,
                                               int *chroma_ref_col_offset) {
@@ -4591,8 +4591,8 @@ static AOM_INLINE void get_chroma_ref_offsets(BLOCK_SIZE bsize,
   }
 }
 
-static AOM_INLINE bool is_chroma_ref_within_boundary(
-    const AV1_COMMON *const cm, TREE_TYPE tree_type, bool is_chroma_ref,
+static AVM_INLINE bool is_chroma_ref_within_boundary(
+    const AV2_COMMON *const cm, TREE_TYPE tree_type, bool is_chroma_ref,
     int mi_row, int mi_col, BLOCK_SIZE bsize, PARTITION_TYPE partition,
     int subsampling_x, int subsampling_y) {
   if ((tree_type != SHARED_PART) || cm->seq_params.monochrome ||
@@ -4637,8 +4637,8 @@ static bool check_partition_aspect_ratio(BLOCK_SIZE bsize,
 }
 
 // Initialize allowed partition types for the coding block.
-static AOM_INLINE void init_allowed_partitions_for_signaling(
-    bool *partition_allowed, const AV1_COMMON *const cm, TREE_TYPE tree_type,
+static AVM_INLINE void init_allowed_partitions_for_signaling(
+    bool *partition_allowed, const AV2_COMMON *const cm, TREE_TYPE tree_type,
     REGION_TYPE parent_region_type, int mi_row, int mi_col, int ss_x, int ss_y,
     BLOCK_SIZE bsize, const CHROMA_REF_INFO *chroma_ref_info) {
   const int hbs_w = mi_size_wide[bsize] / 2;
@@ -4794,7 +4794,7 @@ static AOM_INLINE void init_allowed_partitions_for_signaling(
 
 // Returns true if only one partition type is allowed and sets
 // `implied_partition` accordingly. Otherwise returns false.
-static AOM_INLINE PARTITION_TYPE
+static AVM_INLINE PARTITION_TYPE
 only_allowed_partition(const bool *partition_allowed) {
   int num_allowed_partition_types = 0;
   PARTITION_TYPE last_allowed_partition = PARTITION_INVALID;
@@ -4811,7 +4811,7 @@ only_allowed_partition(const bool *partition_allowed) {
   return last_allowed_partition;
 }
 
-static AOM_INLINE bool is_do_split_implied(const bool *partition_allowed,
+static AVM_INLINE bool is_do_split_implied(const bool *partition_allowed,
                                            bool *implied_do_split) {
   const bool none_allowed = partition_allowed[PARTITION_NONE];
   if (!none_allowed) {
@@ -4837,7 +4837,7 @@ static AOM_INLINE bool is_do_split_implied(const bool *partition_allowed,
   return false;
 }
 
-static AOM_INLINE RECT_PART_TYPE
+static AVM_INLINE RECT_PART_TYPE
 only_allowed_rect_type(const bool *partition_allowed) {
   const bool horz_allowed = partition_allowed[PARTITION_HORZ] ||
                             partition_allowed[PARTITION_HORZ_3] ||
@@ -4858,7 +4858,7 @@ only_allowed_rect_type(const bool *partition_allowed) {
   return VERT;
 }
 
-static AOM_INLINE bool is_do_ext_partition_implied(
+static AVM_INLINE bool is_do_ext_partition_implied(
     const bool *partition_allowed, const RECT_PART_TYPE rect_type,
     bool *implied_do_ext) {
   bool non_ext_allowed;
@@ -4887,7 +4887,7 @@ static AOM_INLINE bool is_do_ext_partition_implied(
   return true;
 }
 
-static AOM_INLINE bool is_do_uneven_4way_partition_implied(
+static AVM_INLINE bool is_do_uneven_4way_partition_implied(
     const bool *partition_allowed, const RECT_PART_TYPE rect_type,
     bool *implied_do_uneven_4way) {
   bool part_3_allowed;
@@ -5039,7 +5039,7 @@ static const TX_PARTITION_BIT_SHIFT partition_shift_bits[TX_PARTITION_TYPES] = {
 static INLINE int get_tx_partition_sizes(
     TX_PARTITION_TYPE partition, TX_SIZE max_tx_size, TXB_POS_INFO *txb_pos,
     TX_SIZE sub_txs[MAX_TX_PARTITIONS],
-    struct aom_internal_error_info *error_info) {
+    struct avm_internal_error_info *error_info) {
   const int txw = tx_size_wide[max_tx_size];
   const int txh = tx_size_high[max_tx_size];
   int sub_txw = 0, sub_txh = 0;
@@ -5068,7 +5068,7 @@ static INLINE int get_tx_partition_sizes(
     txb_pos->row_offset[i] = subtx_shift->row_offsets[i] * txh_step;
     txb_pos->col_offset[i] = subtx_shift->col_offsets[i] * txw_step;
     if (sub_txs[i] == TX_INVALID) {
-      aom_internal_error(error_info, AOM_CODEC_ERROR, "Invalid sub_txs.");
+      avm_internal_error(error_info, AVM_CODEC_ERROR, "Invalid sub_txs.");
     }
   }
   return n_partitions;
@@ -5222,7 +5222,7 @@ static INLINE int use_tx_partition(TX_PARTITION_TYPE partition,
 
 // Compute the next partition in the direction of the sb_type stored in the mi
 // array, starting with bsize.
-static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
+static INLINE PARTITION_TYPE get_partition(const AV2_COMMON *const cm,
                                            const int plane_type, int mi_row,
                                            int mi_col, BLOCK_SIZE bsize) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -5294,7 +5294,7 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
   return base_partitions[split_idx];
 }
 
-static AOM_INLINE void av1_set_frame_sb_size(AV1_COMMON *cm,
+static AVM_INLINE void av2_set_frame_sb_size(AV2_COMMON *cm,
                                              BLOCK_SIZE sb_size) {
   // BLOCK_256X256 gives no benefits in all intra encoding, so downsize the
   // superblock size to 128x128 on key frames.
@@ -5306,18 +5306,18 @@ static AOM_INLINE void av1_set_frame_sb_size(AV1_COMMON *cm,
   cm->mib_size_log2 = mi_size_wide_log2[sb_size];
 }
 
-static INLINE void set_sb_size(AV1_COMMON *cm, BLOCK_SIZE sb_size) {
+static INLINE void set_sb_size(AV2_COMMON *cm, BLOCK_SIZE sb_size) {
   SequenceHeader *const seq_params = &cm->seq_params;
   seq_params->sb_size = sb_size;
   seq_params->mib_size = mi_size_wide[sb_size];
   seq_params->mib_size_log2 = mi_size_wide_log2[sb_size];
 
-  av1_set_frame_sb_size(cm, sb_size);
+  av2_set_frame_sb_size(cm, sb_size);
 }
 
 // Sets the frame's lr specific fields in feature params depending on
 // which tools are enabled for the frame for the given plane.
-static INLINE void av1_set_lr_tools(uint8_t lr_tools_disable_mask, int plane,
+static INLINE void av2_set_lr_tools(uint8_t lr_tools_disable_mask, int plane,
                                     FeatureFlags *const fea_params) {
   fea_params->lr_tools_disable_mask[plane] = lr_tools_disable_mask;
   int tools_count = 0;
@@ -5334,7 +5334,7 @@ static INLINE void av1_set_lr_tools(uint8_t lr_tools_disable_mask, int plane,
   fea_params->lr_frame_tools_count[plane] = tools_count + 1;
 }
 
-static INLINE SB_INFO *av1_get_sb_info(const AV1_COMMON *cm, int mi_row,
+static INLINE SB_INFO *av2_get_sb_info(const AV2_COMMON *cm, int mi_row,
                                        int mi_col) {
   const int sb_row = mi_row >> cm->mib_size_log2;
   const int sb_col = mi_col >> cm->mib_size_log2;
@@ -5344,9 +5344,9 @@ static INLINE SB_INFO *av1_get_sb_info(const AV1_COMMON *cm, int mi_row,
          sb_col;
 }
 
-static INLINE void av1_set_sb_info(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
+static INLINE void av2_set_sb_info(AV2_COMMON *cm, MACROBLOCKD *xd, int mi_row,
                                    int mi_col, BruActiveMode sb_active_mode) {
-  SB_INFO *sbi = xd->sbi = av1_get_sb_info(cm, mi_row, mi_col);
+  SB_INFO *sbi = xd->sbi = av2_get_sb_info(cm, mi_row, mi_col);
 
   sbi->mi_row = mi_row;
   sbi->mi_col = mi_col;
@@ -5357,7 +5357,7 @@ static INLINE void av1_set_sb_info(AV1_COMMON *cm, MACROBLOCKD *xd, int mi_row,
 // Returns true if the frame is fully lossless at the coded resolution.
 // Note: If super-resolution is used, such a frame will still NOT be lossless at
 // the upscaled resolution.
-static INLINE int is_coded_lossless(const AV1_COMMON *cm,
+static INLINE int is_coded_lossless(const AV2_COMMON *cm,
                                     const MACROBLOCKD *xd) {
   int coded_lossless = 1;
   if (cm->seg.enabled) {
@@ -5375,7 +5375,7 @@ static INLINE int is_coded_lossless(const AV1_COMMON *cm,
   return coded_lossless;
 }
 
-static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
+static INLINE int is_valid_seq_level_idx(AV2_LEVEL seq_level_idx) {
   return seq_level_idx == SEQ_LEVEL_MAX ||
          (seq_level_idx < SEQ_LEVELS &&
           // The following levels are currently undefined.
@@ -5422,7 +5422,7 @@ static const int16_t dr_intra_derivative[90] = {
 };
 
 // Generate the weights per pixel position for IBP
-static void av1_dr_prediction_z1_info(
+static void av2_dr_prediction_z1_info(
     IbpWeightsType weights[][IBP_WEIGHT_SIZE][DIR_MODES_0_90], int dy,
     int mode_idx) {
   int32_t r, c, y;
@@ -5457,7 +5457,7 @@ static INLINE void init_ibp_info_per_mode(
   const int angle = mode_to_angle_map[mode] + delta * 3;
   const int mode_idx = angle_to_mode_index[angle];
   const int dy = dr_intra_derivative[90 - angle];
-  av1_dr_prediction_z1_info(weights, dy, mode_idx);
+  av2_dr_prediction_z1_info(weights, dy, mode_idx);
   return;
 }
 
@@ -5511,10 +5511,10 @@ static INLINE int get_relative_dist(const OrderHintInfo *oh, int a, int b) {
 
 // Check whether optical flow refinement is applicable based on the sequence
 // level flag and the signaled reference frames & block size
-static INLINE int opfl_allowed_cur_refs_bsize(const AV1_COMMON *cm,
+static INLINE int opfl_allowed_cur_refs_bsize(const AV2_COMMON *cm,
                                               const MACROBLOCKD *xd,
                                               const MB_MODE_INFO *mbmi) {
-  if (cm->seq_params.enable_opfl_refine == AOM_OPFL_REFINE_NONE ||
+  if (cm->seq_params.enable_opfl_refine == AVM_OPFL_REFINE_NONE ||
       cm->features.opfl_refine_type == REFINE_NONE)
     return 0;
 
@@ -5523,7 +5523,7 @@ static INLINE int opfl_allowed_cur_refs_bsize(const AV1_COMMON *cm,
     return 0;
 
   // Optical flow is not allowed for 4xN , Nx4 blocks
-  if (AOMMIN(block_size_wide[mbmi->sb_type[xd->tree_type == CHROMA_PART]],
+  if (AVMMIN(block_size_wide[mbmi->sb_type[xd->tree_type == CHROMA_PART]],
              block_size_high[mbmi->sb_type[xd->tree_type == CHROMA_PART]]) < 8)
     return 0;
 
@@ -5546,12 +5546,12 @@ static INLINE int opfl_allowed_cur_refs_bsize(const AV1_COMMON *cm,
   }
 
   if (is_tip_ref_frame(mbmi->ref_frame[0])) {
-    if (av1_is_scaled(cm->tip_ref.ref_scale_factor[0]) ||
-        av1_is_scaled(cm->tip_ref.ref_scale_factor[1]))
+    if (av2_is_scaled(cm->tip_ref.ref_scale_factor[0]) ||
+        av2_is_scaled(cm->tip_ref.ref_scale_factor[1]))
       return 0;
   } else {
-    if (av1_is_scaled(get_ref_scale_factors_const(cm, mbmi->ref_frame[0])) ||
-        av1_is_scaled(get_ref_scale_factors_const(cm, mbmi->ref_frame[1])))
+    if (av2_is_scaled(get_ref_scale_factors_const(cm, mbmi->ref_frame[0])) ||
+        av2_is_scaled(get_ref_scale_factors_const(cm, mbmi->ref_frame[1])))
       return 0;
   }
 
@@ -5564,7 +5564,7 @@ static INLINE int opfl_allowed_cur_refs_bsize(const AV1_COMMON *cm,
 // REFINE_SWITCHABLE case, optical flow is always used in *MV_OPTFLOW modes,
 // but for the REFINE_ALL (--enable-opfl-refine=2) case, the on/off switch for
 // optical flow is completely determined by these block level mode info.
-static INLINE int opfl_allowed_cur_pred_mode(const AV1_COMMON *cm,
+static INLINE int opfl_allowed_cur_pred_mode(const AV2_COMMON *cm,
                                              const MACROBLOCKD *xd,
                                              const MB_MODE_INFO *mbmi) {
   if (mbmi->skip_mode) return 0;
@@ -5587,7 +5587,7 @@ static INLINE int opfl_allowed_cur_pred_mode(const AV1_COMMON *cm,
 
 // Check if the optical flow MV refinement is disabled and 16x16 TIP block can
 // be used in the TIP-ref block case.
-static AOM_INLINE bool disable_opfl_for_16x16_tip_ref(
+static AVM_INLINE bool disable_opfl_for_16x16_tip_ref(
     TIP_FRAME_MODE tip_frame_mode, int bw, int bh, int enable_tip_refinemv) {
   if (!enable_tip_refinemv && tip_frame_mode == TIP_FRAME_AS_REF && bw >= 16 &&
       bh >= 16)
@@ -5597,7 +5597,7 @@ static AOM_INLINE bool disable_opfl_for_16x16_tip_ref(
 
 // Check if the optical flow MV refinement is disabled in the TIP-direct block
 // case.
-static AOM_INLINE bool disable_opfl_for_tip_direct(
+static AVM_INLINE bool disable_opfl_for_tip_direct(
     TIP_FRAME_MODE tip_frame_mode, InterpFilter tip_interp_filter,
     int enable_tip_refinemv) {
   if (!enable_tip_refinemv && tip_frame_mode == TIP_FRAME_AS_OUTPUT)
@@ -5607,7 +5607,7 @@ static AOM_INLINE bool disable_opfl_for_tip_direct(
 }
 
 // Obtain the tip block size based on block width and height.
-static AOM_INLINE BLOCK_SIZE get_tip_bsize_from_bw_bh(int bw, int bh) {
+static AVM_INLINE BLOCK_SIZE get_tip_bsize_from_bw_bh(int bw, int bh) {
   assert(bh == 16 || bh == 8);
   if (bh == 16) {
     assert(bw == 64 || bw == 32 || bw == 16);
@@ -5623,7 +5623,7 @@ static AOM_INLINE BLOCK_SIZE get_tip_bsize_from_bw_bh(int bw, int bh) {
 }
 
 // Obtain the tip block size of a TIP-ref block.
-static AOM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_ref(
+static AVM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_ref(
     TIP_FRAME_MODE tip_frame_mode, int bw, int bh, int enable_tip_refinemv) {
   if (disable_opfl_for_16x16_tip_ref(tip_frame_mode, bw, bh,
                                      enable_tip_refinemv)) {
@@ -5634,7 +5634,7 @@ static AOM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_ref(
 }
 
 // Obtain the tip block size of a TIP-direct block.
-static AOM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_frame(
+static AVM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_frame(
     TIP_FRAME_MODE tip_frame_mode, InterpFilter tip_interp_filter,
     int enable_tip_refinemv) {
   if (disable_opfl_for_tip_direct(tip_frame_mode, tip_interp_filter,
@@ -5646,12 +5646,12 @@ static AOM_INLINE BLOCK_SIZE get_unit_bsize_for_tip_frame(
 }
 
 // Check if the optical flow MV refinement is enabled for a given block.
-static AOM_INLINE int is_optflow_refinement_enabled(const AV1_COMMON *cm,
+static AVM_INLINE int is_optflow_refinement_enabled(const AV2_COMMON *cm,
                                                     const MACROBLOCKD *xd,
                                                     const MB_MODE_INFO *mi,
                                                     int plane,
                                                     int tip_ref_frame) {
-  if (cm->seq_params.enable_opfl_refine == AOM_OPFL_REFINE_NONE ||
+  if (cm->seq_params.enable_opfl_refine == AVM_OPFL_REFINE_NONE ||
       cm->features.opfl_refine_type == REFINE_NONE)
     return 0;
 
@@ -5694,7 +5694,7 @@ static INLINE bool is_warp_mode(MOTION_MODE motion_mode) {
 // by checking only four neighboring blocks.
 // It does not check all the neighboring blocks used
 // in the derivation of warp model in warp causal mode
-uint8_t av1_is_warp_causal_allowed(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+uint8_t av2_is_warp_causal_allowed(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                                    const MV_REFERENCE_FRAME ref_frame);
 
 /* Evaluate which motion modes are allowed for the current block
@@ -5712,23 +5712,23 @@ uint8_t av1_is_warp_causal_allowed(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 // blocks.
 // this function is used for two cases (a) to decide if WARP_EXTEND mode is
 // allowed or not (b) to derive the CDFs for WARPMV mode
-int allow_extend_nb(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int allow_extend_nb(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                     const MB_MODE_INFO *mbmi, int *p_num_of_warp_neighbors);
 
-static INLINE int is_compound_warp_causal_allowed(const AV1_COMMON *cm,
+static INLINE int is_compound_warp_causal_allowed(const AV2_COMMON *cm,
                                                   const MACROBLOCKD *xd,
                                                   const MB_MODE_INFO *mbmi) {
-  return (AOMMIN(
+  return (AVMMIN(
               block_size_wide[mbmi->sb_type[xd->tree_type == CHROMA_PART]],
               block_size_high[mbmi->sb_type[xd->tree_type == CHROMA_PART]]) >=
           8) &&
          (mbmi->mode == NEW_NEWMV) &&
          (cm->features.opfl_refine_type != REFINE_ALL) &&
-         av1_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[0]) &&
-         av1_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[1]);
+         av2_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[0]) &&
+         av2_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[1]);
 }
 
-static INLINE int is_warp_newmv_allowed(const AV1_COMMON *cm,
+static INLINE int is_warp_newmv_allowed(const AV2_COMMON *cm,
                                         const MACROBLOCKD *xd,
                                         const MB_MODE_INFO *mbmi,
                                         const BLOCK_SIZE bsize) {
@@ -5742,7 +5742,7 @@ static INLINE int is_warp_newmv_allowed(const AV1_COMMON *cm,
   return allow_warped_motion;
 }
 
-static INLINE int motion_mode_allowed(const AV1_COMMON *cm,
+static INLINE int motion_mode_allowed(const AV2_COMMON *cm,
                                       const MACROBLOCKD *xd,
                                       const CANDIDATE_MV *ref_mv_stack,
                                       const MB_MODE_INFO *mbmi) {
@@ -5759,7 +5759,7 @@ static INLINE int motion_mode_allowed(const AV1_COMMON *cm,
   if (is_warp_newmv_allowed(cm, xd, mbmi, bsize) && mbmi->mode == WARP_NEWMV) {
     int allowed_motion_modes = 0;
 
-    if (av1_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[0])) {
+    if (av2_is_warp_causal_allowed(cm, xd, mbmi->ref_frame[0])) {
       allowed_motion_modes |= (1 << WARP_CAUSAL);
     }
 
@@ -5768,7 +5768,7 @@ static INLINE int motion_mode_allowed(const AV1_COMMON *cm,
     }
 
     bool warp_delta_allowed =
-        AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >=
+        AVMMIN(block_size_wide[bsize], block_size_high[bsize]) >=
         MIN_BSIZE_WARP_DELTA;
 
     if (warp_delta_allowed) {
@@ -5831,7 +5831,7 @@ static INLINE int motion_mode_allowed(const AV1_COMMON *cm,
 static INLINE int disable_pcwiener_filters_in_framefilters(
     const SequenceHeader *seq) {
   (void)seq;
-  return ((seq->lr_tools_disable_mask[AOM_PLANE_Y] >> RESTORE_PC_WIENER) & 1);
+  return ((seq->lr_tools_disable_mask[AVM_PLANE_Y] >> RESTORE_PC_WIENER) & 1);
 }
 
 static INLINE int is_new_nearmv_pred_mode_disallowed(const MB_MODE_INFO *mbmi) {
@@ -5856,15 +5856,15 @@ static INLINE int compute_log2(int value) {
 }
 
 // Compute the log2 value of the allowed number of tiles for CDF average
-static INLINE unsigned int av1_compute_allowed_tiles_log2(
-    const AV1_COMMON *const cm) {
+static INLINE unsigned int av2_compute_allowed_tiles_log2(
+    const AV2_COMMON *const cm) {
   const CommonTileParams *const tiles = &cm->tiles;
   const unsigned int num_tiles = tiles->rows * tiles->cols;
   const unsigned int total_tiles_log2 = compute_log2(num_tiles);
-  return AOMMIN(total_tiles_log2, MAX_NUM_TILES_FOR_CDFS_AVG_LOG2);
+  return AVMMIN(total_tiles_log2, MAX_NUM_TILES_FOR_CDFS_AVG_LOG2);
 }
 
-static INLINE int is_reduced_tx_set_used(const AV1_COMMON *const cm,
+static INLINE int is_reduced_tx_set_used(const AV2_COMMON *const cm,
                                          const PLANE_TYPE plane_type) {
   const uint8_t reduced_tx_set_used =
       plane_type == PLANE_TYPE_Y ? cm->features.reduced_tx_set_used
@@ -5875,7 +5875,7 @@ static INLINE int is_reduced_tx_set_used(const AV1_COMMON *const cm,
 // This function is required because, for chroma plane in particular,
 // the actual 'mi' location maybe at an offset from the mi_row/mi_col.
 static INLINE MB_MODE_INFO **get_mi_location_from_collocated_mi(
-    const AV1_COMMON *const cm, MB_MODE_INFO **this_mi, int plane) {
+    const AV2_COMMON *const cm, MB_MODE_INFO **this_mi, int plane) {
   if (plane > 0) {  // Chroma plane.
     // Two possible cases:
     // 1. Decoupled luma/chroma tree OR
@@ -5905,11 +5905,11 @@ static INLINE MB_MODE_INFO **get_mi_location_from_collocated_mi(
         // though chroma block can extend over the edge. So, make sure we stay
         // within mi_grid_base array's bottom and right limits.
         const int bottom_mi_row =
-            AOMMIN(chroma_ref_info->mi_row_chroma_base +
+            AVMMIN(chroma_ref_info->mi_row_chroma_base +
                        mi_size_high[chroma_ref_info->bsize_base] - 1,
                    cm->mi_params.mi_rows - 1);
         const int right_mi_col =
-            AOMMIN(chroma_ref_info->mi_col_chroma_base +
+            AVMMIN(chroma_ref_info->mi_col_chroma_base +
                        mi_size_wide[chroma_ref_info->bsize_base] - 1,
                    cm->mi_params.mi_cols - 1);
         MB_MODE_INFO **bottom_right_mi =
@@ -5926,7 +5926,7 @@ static INLINE MB_MODE_INFO **get_mi_location_from_collocated_mi(
 #if CONFIG_CWG_E242_CHROMA_FORMAT_IDC
 // Given chroma_format_idc, outputs the subsampling_x/y.
 // Returns error in case of invalid chroma_format_idc.
-static INLINE aom_codec_err_t av1_get_chroma_subsampling(
+static INLINE avm_codec_err_t av2_get_chroma_subsampling(
     uint32_t chroma_format_idc, int *subsampling_x, int *subsampling_y) {
   if (chroma_format_idc == CHROMA_FORMAT_420) {
     *subsampling_x = 1;
@@ -5941,9 +5941,9 @@ static INLINE aom_codec_err_t av1_get_chroma_subsampling(
     *subsampling_x = 1;
     *subsampling_y = 1;
   } else {
-    return AOM_CODEC_UNSUP_BITSTREAM;
+    return AVM_CODEC_UNSUP_BITSTREAM;
   }
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 #endif  // CONFIG_CWG_E242_CHROMA_FORMAT_IDC
 
@@ -5951,7 +5951,7 @@ static INLINE aom_codec_err_t av1_get_chroma_subsampling(
 // Returns pointer to effective sequence level or multi-frame header level tile
 // info. Returns null if none exist
 static INLINE const TileInfoSyntax *find_effective_tile_params(
-    const AV1_COMMON *const cm) {
+    const AV2_COMMON *const cm) {
 #if CONFIG_MFH_SIGNAL_TILE_INFO
   // Check MFH tile params first (if MFH is valid and has tile info)
   if (cm->mfh_valid[cm->cur_mfh_id] &&
@@ -5992,7 +5992,7 @@ static INLINE int is_frame_seg_config_reuse_eligible(
 }
 
 static INLINE const SegmentationInfoSyntax *find_effective_seg_params(
-    const AV1_COMMON *const cm) {
+    const AV2_COMMON *const cm) {
   // Returns pointer to effective sequence level or multi-frame header level seg
   // info. Returns null if none exist
   if (cm->mfh_valid[cm->cur_mfh_id] &&
@@ -6008,7 +6008,7 @@ static INLINE const SegmentationInfoSyntax *find_effective_seg_params(
 
 #if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 // This function derives the order of frame output with layer IDs
-static INLINE uint64_t derive_output_order_idx(AV1_COMMON *cm,
+static INLINE uint64_t derive_output_order_idx(AV2_COMMON *cm,
                                                RefCntBuffer *output_candidate) {
   uint64_t max_mlayer_id = cm->seq_params.max_mlayer_id;
   uint64_t mlayer_id = output_candidate->mlayer_id;
@@ -6021,4 +6021,4 @@ static INLINE uint64_t derive_output_order_idx(AV1_COMMON *cm,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_AV1_COMMON_INT_H_
+#endif  // AVM_AV2_COMMON_AV2_COMMON_INT_H_

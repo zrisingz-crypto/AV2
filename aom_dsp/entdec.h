@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_ENTDEC_H_
-#define AOM_AOM_DSP_ENTDEC_H_
+#ifndef AVM_AVM_DSP_ENTDEC_H_
+#define AVM_AVM_DSP_ENTDEC_H_
 #include <limits.h>
-#include "aom_dsp/entcode.h"
+#include "avm_dsp/entcode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -170,4 +170,4 @@ static INLINE int od_ec_dec_bypass_normalize(od_ec_dec *dec, od_ec_window dif,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_ENTDEC_H_
+#endif  // AVM_AVM_DSP_ENTDEC_H_

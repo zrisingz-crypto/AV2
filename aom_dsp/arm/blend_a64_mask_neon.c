@@ -13,31 +13,31 @@
 #include <arm_neon.h>
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/blend.h"
-#include "aom_dsp/arm/blend_neon.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_ports/mem.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/arm/blend_neon.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_ports/mem.h"
+#include "config/avm_dsp_rtcd.h"
 
 uint8x8_t alpha_blend_a64_d16_u16x8(uint16x8_t m, uint16x8_t a, uint16x8_t b,
                                     uint16x8_t round_offset) {
-  const uint16x8_t m_inv = vsubq_u16(vdupq_n_u16(AOM_BLEND_A64_MAX_ALPHA), m);
+  const uint16x8_t m_inv = vsubq_u16(vdupq_n_u16(AVM_BLEND_A64_MAX_ALPHA), m);
   uint32x4_t blend_u32_lo = vmull_u16(vget_low_u16(m), vget_low_u16(a));
   uint32x4_t blend_u32_hi = vmull_u16(vget_high_u16(m), vget_high_u16(a));
   blend_u32_lo = vmlal_u16(blend_u32_lo, vget_low_u16(m_inv), vget_low_u16(b));
   blend_u32_hi =
       vmlal_u16(blend_u32_hi, vget_high_u16(m_inv), vget_high_u16(b));
-  uint16x4_t blend_u16_lo = vshrn_n_u32(blend_u32_lo, AOM_BLEND_A64_ROUND_BITS);
-  uint16x4_t blend_u16_hi = vshrn_n_u32(blend_u32_hi, AOM_BLEND_A64_ROUND_BITS);
+  uint16x4_t blend_u16_lo = vshrn_n_u32(blend_u32_lo, AVM_BLEND_A64_ROUND_BITS);
+  uint16x4_t blend_u16_hi = vshrn_n_u32(blend_u32_hi, AVM_BLEND_A64_ROUND_BITS);
   uint16x8_t res = vcombine_u16(blend_u16_lo, blend_u16_hi);
   res = vqsubq_u16(res, round_offset);
   return vqrshrn_n_u16(res,
                        2 * FILTER_BITS - ROUND0_BITS - COMPOUND_ROUND1_BITS);
 }
 
-void aom_lowbd_blend_a64_d16_mask_neon(
+void avm_lowbd_blend_a64_d16_mask_neon(
     uint8_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0,
     uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride,
     const uint8_t *mask, uint32_t mask_stride, int w, int h, int subw, int subh,
@@ -203,7 +203,7 @@ void aom_lowbd_blend_a64_d16_mask_neon(
   }
 }
 
-void aom_blend_a64_mask_neon(uint8_t *dst, uint32_t dst_stride,
+void avm_blend_a64_mask_neon(uint8_t *dst, uint32_t dst_stride,
                              const uint8_t *src0, uint32_t src0_stride,
                              const uint8_t *src1, uint32_t src1_stride,
                              const uint8_t *mask, uint32_t mask_stride, int w,

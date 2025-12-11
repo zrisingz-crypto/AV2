@@ -12,9 +12,9 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 static INLINE void update_qp(__m256i *qp) {
   int i;
@@ -62,7 +62,7 @@ static INLINE __m256i mm256_mul_shift_epi32(const __m256i *x, const __m256i *y,
   return _mm256_blend_epi32(prod_lo, prod_hi, 0xAA);
 }
 
-static AOM_FORCE_INLINE __m256i get_max_lane_eob(const int16_t *iscan_ptr,
+static AVM_FORCE_INLINE __m256i get_max_lane_eob(const int16_t *iscan_ptr,
                                                  __m256i eobmax,
                                                  __m256i nz_mask) {
   const __m256i packed_nz_mask = _mm256_packs_epi32(nz_mask, nz_mask);
@@ -76,7 +76,7 @@ static AOM_FORCE_INLINE __m256i get_max_lane_eob(const int16_t *iscan_ptr,
 }
 
 // Get the max eob from the lower 128 bits.
-static AOM_FORCE_INLINE uint16_t get_max_eob(__m256i eob) {
+static AVM_FORCE_INLINE uint16_t get_max_eob(__m256i eob) {
   __m256i eob_s;
   eob_s = _mm256_shuffle_epi32(eob, 0xe);
   eob = _mm256_max_epi16(eob, eob_s);
@@ -119,7 +119,7 @@ static INLINE void quantize(const __m256i *qp, const tran_low_t *coeff_ptr,
   *eob = get_max_lane_eob(iscan_ptr, *eob, nz_mask);
 }
 
-void aom_highbd_quantize_b_avx2(
+void avm_highbd_quantize_b_avx2(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,

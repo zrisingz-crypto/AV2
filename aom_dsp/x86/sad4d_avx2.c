@@ -11,11 +11,11 @@
  */
 #include <immintrin.h>  // AVX2
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
-void aom_sadMxNx4d_avx2(int M, int N, const uint8_t *src, int src_stride,
+void avm_sadMxNx4d_avx2(int M, int N, const uint8_t *src, int src_stride,
                         const uint8_t *const ref[4], int ref_stride,
                         uint32_t res[4]) {
   __m256i src_reg, ref0_reg, ref1_reg, ref2_reg, ref3_reg;
@@ -87,10 +87,10 @@ void aom_sadMxNx4d_avx2(int M, int N, const uint8_t *src, int src_stride,
 }
 
 #define sadMxN_avx2(m, n)                                                      \
-  void aom_sad##m##x##n##x4d_avx2(const uint8_t *src, int src_stride,          \
+  void avm_sad##m##x##n##x4d_avx2(const uint8_t *src, int src_stride,          \
                                   const uint8_t *const ref[4], int ref_stride, \
                                   uint32_t res[4]) {                           \
-    aom_sadMxNx4d_avx2(m, n, src, src_stride, ref, ref_stride, res);           \
+    avm_sadMxNx4d_avx2(m, n, src, src_stride, ref, ref_stride, res);           \
   }
 
 sadMxN_avx2(32, 8);
@@ -107,10 +107,10 @@ sadMxN_avx2(128, 64);
 sadMxN_avx2(128, 128);
 
 #define sad_skip_MxN_avx2(m, n)                                             \
-  void aom_sad_skip_##m##x##n##x4d_avx2(const uint8_t *src, int src_stride, \
+  void avm_sad_skip_##m##x##n##x4d_avx2(const uint8_t *src, int src_stride, \
                                         const uint8_t *const ref[4],        \
                                         int ref_stride, uint32_t res[4]) {  \
-    aom_sadMxNx4d_avx2(m, ((n) >> 1), src, 2 * src_stride, ref,             \
+    avm_sadMxNx4d_avx2(m, ((n) >> 1), src, 2 * src_stride, ref,             \
                        2 * ref_stride, res);                                \
     res[0] <<= 1;                                                           \
     res[1] <<= 1;                                                           \

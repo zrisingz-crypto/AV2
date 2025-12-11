@@ -12,9 +12,9 @@
 
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/mips/aom_convolve_msa.h"
+#include "avm_dsp/mips/avm_convolve_msa.h"
 
 static void common_hz_8t_4x4_msa(const uint8_t *src, int32_t src_stride,
                                  uint8_t *dst, int32_t dst_stride,
@@ -622,7 +622,7 @@ static void common_hz_2t_64w_msa(const uint8_t *src, int32_t src_stride,
   }
 }
 
-void aom_convolve8_horiz_msa(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve8_horiz_msa(const uint8_t *src, ptrdiff_t src_stride,
                              uint8_t *dst, ptrdiff_t dst_stride,
                              const int16_t *filter_x, int x_step_q4,
                              const int16_t *filter_y, int y_step_q4, int w,
@@ -659,7 +659,7 @@ void aom_convolve8_horiz_msa(const uint8_t *src, ptrdiff_t src_stride,
                              &filt_hor[3], h);
         break;
       default:
-        aom_convolve8_horiz_c(src, src_stride, dst, dst_stride, filter_x,
+        avm_convolve8_horiz_c(src, src_stride, dst, dst_stride, filter_x,
                               x_step_q4, filter_y, y_step_q4, w, h);
         break;
     }
@@ -686,7 +686,7 @@ void aom_convolve8_horiz_msa(const uint8_t *src, ptrdiff_t src_stride,
                              filt_hor, h);
         break;
       default:
-        aom_convolve8_horiz_c(src, src_stride, dst, dst_stride, filter_x,
+        avm_convolve8_horiz_c(src, src_stride, dst, dst_stride, filter_x,
                               x_step_q4, filter_y, y_step_q4, w, h);
         break;
     }

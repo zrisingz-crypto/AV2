@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENCODER_UTILS_H_
-#define AOM_AV1_ENCODER_ENCODER_UTILS_H_
+#ifndef AVM_AV2_ENCODER_ENCODER_UTILS_H_
+#define AVM_AV2_ENCODER_ENCODER_UTILS_H_
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/encodetxb.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/encodetxb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +37,7 @@ extern const int default_switchable_interp_probs[FRAME_UPDATE_TYPES]
 
 // Mark all inactive blocks as active. Other segmentation features may be set
 // so memset cannot be used, instead only inactive blocks should be reset.
-static AOM_INLINE void suppress_active_map(AV1_COMP *cpi) {
+static AVM_INLINE void suppress_active_map(AV2_COMP *cpi) {
   unsigned char *const seg_map = cpi->enc_seg.map;
   int i;
   if (cpi->active_map.enabled || cpi->active_map.update)
@@ -47,7 +47,7 @@ static AOM_INLINE void suppress_active_map(AV1_COMP *cpi) {
         seg_map[i] = AM_SEGMENT_ID_ACTIVE;
 }
 
-static AOM_INLINE void set_mb_mi(CommonModeInfoParams *mi_params, int width,
+static AVM_INLINE void set_mb_mi(CommonModeInfoParams *mi_params, int width,
                                  int height) {
   // Ensure that the decoded width and height are both multiples of
   // 8 luma pixels (note: this may only be a multiple of 4 chroma pixels if
@@ -73,40 +73,40 @@ static AOM_INLINE void set_mb_mi(CommonModeInfoParams *mi_params, int width,
          mi_size_high[mi_params->mi_alloc_bsize]);
 }
 
-static AOM_INLINE void enc_free_mi(CommonModeInfoParams *mi_params) {
-  aom_free(mi_params->mi_alloc);
+static AVM_INLINE void enc_free_mi(CommonModeInfoParams *mi_params) {
+  avm_free(mi_params->mi_alloc);
   mi_params->mi_alloc = NULL;
-  aom_free(mi_params->mi_grid_base);
+  avm_free(mi_params->mi_grid_base);
   mi_params->mi_grid_base = NULL;
-  aom_free(mi_params->mi_alloc_sub);
+  avm_free(mi_params->mi_alloc_sub);
   mi_params->mi_alloc_sub = NULL;
-  aom_free(mi_params->submi_grid_base);
+  avm_free(mi_params->submi_grid_base);
   mi_params->submi_grid_base = NULL;
   mi_params->mi_alloc_size = 0;
-  aom_free(mi_params->tx_type_map);
+  avm_free(mi_params->tx_type_map);
   mi_params->tx_type_map = NULL;
-  aom_free(mi_params->cctx_type_map);
+  avm_free(mi_params->cctx_type_map);
   mi_params->cctx_type_map = NULL;
-  av1_dealloc_txk_skip_array(mi_params);
-  av1_dealloc_class_id_array(mi_params);
+  av2_dealloc_txk_skip_array(mi_params);
+  av2_dealloc_class_id_array(mi_params);
 }
 
-static AOM_INLINE void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
+static AVM_INLINE void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
                                      int height) {
-  const int is_4k_or_larger = AOMMIN(width, height) >= 2160;
+  const int is_4k_or_larger = AVMMIN(width, height) >= 2160;
   mi_params->mi_alloc_bsize = is_4k_or_larger ? BLOCK_8X8 : BLOCK_4X4;
 
   set_mb_mi(mi_params, width, height);
 }
 
-static AOM_INLINE void stat_stage_set_mb_mi(CommonModeInfoParams *mi_params,
+static AVM_INLINE void stat_stage_set_mb_mi(CommonModeInfoParams *mi_params,
                                             int width, int height) {
   mi_params->mi_alloc_bsize = BLOCK_16X16;
 
   set_mb_mi(mi_params, width, height);
 }
 
-static AOM_INLINE void enc_setup_mi(CommonModeInfoParams *mi_params) {
+static AVM_INLINE void enc_setup_mi(CommonModeInfoParams *mi_params) {
   const int mi_grid_size =
       mi_params->mi_stride * calc_mi_size(mi_params->mi_rows);
   memset(mi_params->mi_alloc, 0,
@@ -117,10 +117,10 @@ static AOM_INLINE void enc_setup_mi(CommonModeInfoParams *mi_params) {
          mi_grid_size * sizeof(*mi_params->tx_type_map));
   memset(mi_params->cctx_type_map, 0,
          mi_grid_size * sizeof(*mi_params->cctx_type_map));
-  av1_reset_txk_skip_array_using_mi_params(mi_params);
+  av2_reset_txk_skip_array_using_mi_params(mi_params);
 }
 
-static AOM_INLINE void init_buffer_indices(
+static AVM_INLINE void init_buffer_indices(
     ForceIntegerMVInfo *const force_intpel_info, int *const remapped_ref_idx) {
   for (int fb_idx = 0; fb_idx < INTER_REFS_PER_FRAME; ++fb_idx)
     remapped_ref_idx[fb_idx] = INVALID_IDX;
@@ -140,14 +140,14 @@ static AOM_INLINE void init_buffer_indices(
 
 #define HIGHBD_BFP_WRAPPER(WIDTH, HEIGHT, BD)                                \
   HIGHBD_BFP(                                                                \
-      BLOCK_##WIDTH##X##HEIGHT, aom_highbd_sad##WIDTH##x##HEIGHT##_bits##BD, \
-      aom_highbd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,                       \
-      aom_highbd_##BD##_variance##WIDTH##x##HEIGHT,                          \
-      aom_highbd_##BD##_sub_pixel_variance##WIDTH##x##HEIGHT,                \
-      aom_highbd_##BD##_sub_pixel_avg_variance##WIDTH##x##HEIGHT,            \
-      aom_highbd_sad##WIDTH##x##HEIGHT##x4d_bits##BD,                        \
-      aom_highbd_dist_wtd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,              \
-      aom_highbd_##BD##_dist_wtd_sub_pixel_avg_variance##WIDTH##x##HEIGHT)
+      BLOCK_##WIDTH##X##HEIGHT, avm_highbd_sad##WIDTH##x##HEIGHT##_bits##BD, \
+      avm_highbd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,                       \
+      avm_highbd_##BD##_variance##WIDTH##x##HEIGHT,                          \
+      avm_highbd_##BD##_sub_pixel_variance##WIDTH##x##HEIGHT,                \
+      avm_highbd_##BD##_sub_pixel_avg_variance##WIDTH##x##HEIGHT,            \
+      avm_highbd_sad##WIDTH##x##HEIGHT##x4d_bits##BD,                        \
+      avm_highbd_dist_wtd_sad##WIDTH##x##HEIGHT##_avg_bits##BD,              \
+      avm_highbd_##BD##_dist_wtd_sub_pixel_avg_variance##WIDTH##x##HEIGHT)
 
 #define MAKE_BFP_SAD_WRAPPER(fnname)                                       \
   static unsigned int fnname##_bits8(                                      \
@@ -231,138 +231,138 @@ static AOM_INLINE void init_buffer_indices(
            4;                                                               \
   }
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad256x256)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad256x256_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad256x256x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad256x256)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad256x256_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad256x256x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad256x128)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad256x128_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad256x128x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad256x128)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad256x128_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad256x128x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad128x256)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad128x256_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad128x256x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad128x128)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad128x128_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad128x128x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad128x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad128x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad128x64x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x128)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x128_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x128x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad32x16)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad32x16_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad32x16x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad16x32)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad16x32_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad16x32x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x32)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x32_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x32x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad32x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad32x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad32x64x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad32x32)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad32x32_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad32x32x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x64x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad16x16)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad16x16_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad16x16x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad16x8)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad16x8_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad16x8x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad8x16)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad8x16_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad8x16x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad8x8)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad8x8_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad8x8x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad8x4)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad8x4_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad8x4x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad4x8)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad4x8_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x8x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad4x4)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad4x4_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x4x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad128x256)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad128x256_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad128x256x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad128x128)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad128x128_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad128x128x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad128x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad128x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad128x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x128)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x128_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x128x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad32x16)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad32x16_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad32x16x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad16x32)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad16x32_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad16x32x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x32)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x32_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x32x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad32x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad32x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad32x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad32x32)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad32x32_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad32x32x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad16x16)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad16x16_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad16x16x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad16x8)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad16x8_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad16x8x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad8x16)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad8x16_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad8x16x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad8x8)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad8x8_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad8x8x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad8x4)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad8x4_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad8x4x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad4x8)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad4x8_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad4x8x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad4x4)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad4x4_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad4x4x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad4x16)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad4x16_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x16x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad16x4)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad16x4_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad16x4x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad8x32)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad8x32_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad8x32x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad32x8)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad32x8_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad32x8x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad16x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad16x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad16x64x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x16)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x16_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x16x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad4x16)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad4x16_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad4x16x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad16x4)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad16x4_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad16x4x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad8x32)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad8x32_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad8x32x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad32x8)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad32x8_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad32x8x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad16x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad16x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad16x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x16)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x16_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x16x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x8)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x8_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x8x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad8x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad8x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad8x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x8)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x8_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x8x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad8x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad8x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad8x64x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad64x4)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad64x4_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad64x4x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad4x64)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad4x64_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x64x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad64x4)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad64x4_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad64x4x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad4x64)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad4x64_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad4x64x4d)
 
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad32x4)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad32x4_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad32x4x4d)
-MAKE_BFP_SAD_WRAPPER(aom_highbd_sad4x32)
-MAKE_BFP_SADAVG_WRAPPER(aom_highbd_sad4x32_avg)
-MAKE_BFP_SAD4D_WRAPPER(aom_highbd_sad4x32x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad32x4)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad32x4_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad32x4x4d)
+MAKE_BFP_SAD_WRAPPER(avm_highbd_sad4x32)
+MAKE_BFP_SADAVG_WRAPPER(avm_highbd_sad4x32_avg)
+MAKE_BFP_SAD4D_WRAPPER(avm_highbd_sad4x32x4d)
 
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad256x256_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad256x128_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad128x256_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad256x256_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad256x128_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad128x256_avg)
 
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad128x128_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad128x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x128_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x16_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x32_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x32_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x32_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x16_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x8_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x16_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x8_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x4_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad4x8_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad4x4_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad4x16_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x4_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x32_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x8_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad16x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x16_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad8x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x8_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad4x64_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad64x4_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad4x32_avg)
-MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x4_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad128x128_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad128x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x128_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad32x16_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad16x32_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x32_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad32x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad32x32_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad16x16_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad16x8_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad8x16_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad8x8_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad8x4_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad4x8_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad4x4_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad4x16_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad16x4_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad8x32_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad32x8_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad16x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x16_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad8x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x8_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad4x64_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad64x4_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad4x32_avg)
+MAKE_BFP_JSADAVG_WRAPPER(avm_highbd_dist_wtd_sad32x4_avg)
 
 #define HIGHBD_MBFP(BT, MCSDF, MCSVF) \
   cpi->fn_ptr[BT].msdf = MCSDF;       \
@@ -370,8 +370,8 @@ MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x4_avg)
 
 #define HIGHBD_MBFP_WRAPPER(WIDTH, HEIGHT, BD)                    \
   HIGHBD_MBFP(BLOCK_##WIDTH##X##HEIGHT,                           \
-              aom_highbd_masked_sad##WIDTH##x##HEIGHT##_bits##BD, \
-              aom_highbd_##BD##_masked_sub_pixel_variance##WIDTH##x##HEIGHT)
+              avm_highbd_masked_sad##WIDTH##x##HEIGHT##_bits##BD, \
+              avm_highbd_##BD##_masked_sub_pixel_variance##WIDTH##x##HEIGHT)
 
 #define MAKE_MBFP_COMPOUND_SAD_WRAPPER(fnname)                             \
   static unsigned int fnname##_bits8(                                      \
@@ -398,37 +398,37 @@ MAKE_BFP_JSADAVG_WRAPPER(aom_highbd_dist_wtd_sad32x4_avg)
            4;                                                              \
   }
 
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad256x256)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad256x128)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad128x256)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad128x128)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad128x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x128)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x32)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x32)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x16)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x32)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x16)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x8)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x16)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x8)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x4)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad4x8)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad4x4)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad4x16)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x4)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x32)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x8)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad16x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x16)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad8x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x8)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad4x64)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad64x4)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad4x32)
-MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x4)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad256x256)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad256x128)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad128x256)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad128x128)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad128x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x128)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x32)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad32x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad32x32)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad32x16)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad16x32)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad16x16)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad16x8)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad8x16)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad8x8)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad8x4)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad4x8)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad4x4)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad4x16)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad16x4)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad8x32)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad32x8)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad16x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x16)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad8x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x8)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad4x64)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad64x4)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad4x32)
+MAKE_MBFP_COMPOUND_SAD_WRAPPER(avm_highbd_masked_sad32x4)
 
 #define HIGHBD_SDSFP(BT, SDSF, SDSX4DF) \
   cpi->fn_ptr[BT].sdsf = SDSF;          \
@@ -436,8 +436,8 @@ MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x4)
 
 #define HIGHBD_SDSFP_WRAPPER(WIDTH, HEIGHT, BD)                   \
   HIGHBD_SDSFP(BLOCK_##WIDTH##X##HEIGHT,                          \
-               aom_highbd_sad_skip_##WIDTH##x##HEIGHT##_bits##BD, \
-               aom_highbd_sad_skip_##WIDTH##x##HEIGHT##x4d##_bits##BD)
+               avm_highbd_sad_skip_##WIDTH##x##HEIGHT##_bits##BD, \
+               avm_highbd_sad_skip_##WIDTH##x##HEIGHT##x4d##_bits##BD)
 
 #define MAKE_SDSF_SKIP_SAD_WRAPPER(fnname)                                   \
   static unsigned int fnname##_bits8(const uint16_t *src, int src_stride,    \
@@ -474,68 +474,68 @@ MAKE_MBFP_COMPOUND_SAD_WRAPPER(aom_highbd_masked_sad32x4)
     for (i = 0; i < 4; i++) sad_array[i] >>= 4;                                \
   }
 
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_256x256)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_256x128)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_128x256)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_128x128)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_128x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x128)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x32)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x16)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_32x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_32x32)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_32x16)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_32x8)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_16x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_16x32)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_16x16)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_16x8)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_8x16)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_8x8)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_4x16)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_4x8)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_8x32)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_8x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x8)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_4x64)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_64x4)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_4x32)
-MAKE_SDSF_SKIP_SAD_WRAPPER(aom_highbd_sad_skip_32x4)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_256x256)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_256x128)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_128x256)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_128x128)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_128x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x128)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x32)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x16)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_32x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_32x32)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_32x16)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_32x8)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_16x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_16x32)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_16x16)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_16x8)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_8x16)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_8x8)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_4x16)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_4x8)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_8x32)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_8x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x8)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_4x64)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_64x4)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_4x32)
+MAKE_SDSF_SKIP_SAD_WRAPPER(avm_highbd_sad_skip_32x4)
 
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_256x256x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_256x128x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_128x256x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_128x128x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_128x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x128x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x32x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x16x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_32x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_32x32x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_32x16x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_32x8x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_16x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_16x32x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_16x16x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_16x8x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_8x16x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_8x8x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_4x16x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_4x8x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_8x32x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_8x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x8x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_4x64x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_64x4x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_4x32x4d)
-MAKE_SDSF_SKIP_SAD_4D_WRAPPER(aom_highbd_sad_skip_32x4x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_256x256x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_256x128x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_128x256x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_128x128x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_128x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x128x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x32x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x16x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_32x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_32x32x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_32x16x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_32x8x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_16x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_16x32x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_16x16x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_16x8x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_8x16x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_8x8x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_4x16x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_4x8x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_8x32x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_8x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x8x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_4x64x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_64x4x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_4x32x4d)
+MAKE_SDSF_SKIP_SAD_4D_WRAPPER(avm_highbd_sad_skip_32x4x4d)
 
-static AOM_INLINE void highbd_set_var_fns(AV1_COMP *const cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static AVM_INLINE void highbd_set_var_fns(AV2_COMP *const cpi) {
+  AV2_COMMON *const cm = &cpi->common;
   switch (cm->seq_params.bit_depth) {
-    case AOM_BITS_8:
+    case AVM_BITS_8:
       HIGHBD_BFP_WRAPPER(64, 16, 8)
       HIGHBD_BFP_WRAPPER(16, 64, 8)
       HIGHBD_BFP_WRAPPER(32, 8, 8)
@@ -629,7 +629,7 @@ static AOM_INLINE void highbd_set_var_fns(AV1_COMP *const cpi) {
       HIGHBD_SDSFP_WRAPPER(4, 64, 8)
       break;
 
-    case AOM_BITS_10:
+    case AVM_BITS_10:
       HIGHBD_BFP_WRAPPER(64, 16, 10)
       HIGHBD_BFP_WRAPPER(16, 64, 10)
       HIGHBD_BFP_WRAPPER(32, 8, 10)
@@ -723,7 +723,7 @@ static AOM_INLINE void highbd_set_var_fns(AV1_COMP *const cpi) {
       HIGHBD_SDSFP_WRAPPER(4, 64, 10)
       break;
 
-    case AOM_BITS_12:
+    case AVM_BITS_12:
       HIGHBD_BFP_WRAPPER(64, 16, 12)
       HIGHBD_BFP_WRAPPER(16, 64, 12)
       HIGHBD_BFP_WRAPPER(32, 8, 12)
@@ -819,33 +819,33 @@ static AOM_INLINE void highbd_set_var_fns(AV1_COMP *const cpi) {
 
     default:
       assert(0 &&
-             "cm->seq_params.bit_depth should be AOM_BITS_8, "
-             "AOM_BITS_10 or AOM_BITS_12");
+             "cm->seq_params.bit_depth should be AVM_BITS_8, "
+             "AVM_BITS_10 or AVM_BITS_12");
   }
 }
 
-static AOM_INLINE void copy_frame_prob_info(AV1_COMP *cpi) {
+static AVM_INLINE void copy_frame_prob_info(AV2_COMP *cpi) {
   FrameProbInfo *const frame_probs = &cpi->frame_probs;
   if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
-    av1_copy(frame_probs->tx_type_probs, default_tx_type_probs);
+    av2_copy(frame_probs->tx_type_probs, default_tx_type_probs);
   }
   if (cpi->sf.inter_sf.prune_warped_prob_thresh > 0 ||
       cpi->sf.inter_sf.prune_warpmv_prob_thresh > 0) {
-    av1_copy(frame_probs->warped_probs, default_warped_probs);
+    av2_copy(frame_probs->warped_probs, default_warped_probs);
   }
 }
 
 // Restores CDEF coding context.
-static AOM_INLINE void restore_cdef_coding_context(CdefInfo *const dst,
+static AVM_INLINE void restore_cdef_coding_context(CdefInfo *const dst,
                                                    const CdefInfo *const src) {
   dst->cdef_bits = src->cdef_bits;
   dst->cdef_damping = src->cdef_damping;
-  av1_copy(dst->cdef_strengths, src->cdef_strengths);
-  av1_copy(dst->cdef_uv_strengths, src->cdef_uv_strengths);
+  av2_copy(dst->cdef_strengths, src->cdef_strengths);
+  av2_copy(dst->cdef_uv_strengths, src->cdef_uv_strengths);
   dst->nb_cdef_strengths = src->nb_cdef_strengths;
 }
 
-static AOM_INLINE int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
+static AVM_INLINE int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
                                                   const YV12_BUFFER_CONFIG *b) {
   return a->y_height == b->y_height && a->y_width == b->y_width &&
          a->uv_height == b->uv_height && a->uv_width == b->uv_width &&
@@ -853,7 +853,7 @@ static AOM_INLINE int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
          a->border == b->border;
 }
 
-static AOM_INLINE int update_entropy(bool *ext_refresh_frame_context,
+static AVM_INLINE int update_entropy(bool *ext_refresh_frame_context,
                                      bool *ext_refresh_frame_context_pending,
                                      bool update) {
   *ext_refresh_frame_context = update;
@@ -861,36 +861,36 @@ static AOM_INLINE int update_entropy(bool *ext_refresh_frame_context,
   return 0;
 }
 
-static AOM_INLINE int combine_prior_with_tpl_boost(double min_factor,
+static AVM_INLINE int combine_prior_with_tpl_boost(double min_factor,
                                                    double max_factor,
                                                    int prior_boost,
                                                    int tpl_boost,
                                                    int frames_to_key) {
   double factor = sqrt((double)frames_to_key);
   double range = max_factor - min_factor;
-  factor = AOMMIN(factor, max_factor);
-  factor = AOMMAX(factor, min_factor);
+  factor = AVMMIN(factor, max_factor);
+  factor = AVMMAX(factor, min_factor);
   factor -= min_factor;
   int boost =
       (int)((factor * prior_boost + (range - factor) * tpl_boost) / range);
   return boost;
 }
 
-static AOM_INLINE void set_size_independent_vars(AV1_COMP *cpi) {
+static AVM_INLINE void set_size_independent_vars(AV2_COMP *cpi) {
   int i;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   for (i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     cm->global_motion[i] = default_warp_params;
   }
   cpi->gm_info.search_done = 0;
 
-  av1_set_speed_features_framesize_independent(cpi, cpi->speed);
-  av1_set_rd_speed_thresholds(cpi);
+  av2_set_speed_features_framesize_independent(cpi, cpi->speed);
+  av2_set_rd_speed_thresholds(cpi);
   cm->features.interp_filter = SWITCHABLE;
   cm->features.opfl_refine_type = REFINE_SWITCHABLE;
 }
 
-static AOM_INLINE void release_scaled_references(AV1_COMP *cpi) {
+static AVM_INLINE void release_scaled_references(AV2_COMP *cpi) {
   // TODO(isbs): only refresh the necessary frames, rather than all of them
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     RefCntBuffer *const buf = cpi->scaled_ref_buf[i];
@@ -902,8 +902,8 @@ static AOM_INLINE void release_scaled_references(AV1_COMP *cpi) {
 }
 
 // Refresh reference frame buffers according to refresh_frame_flags.
-static AOM_INLINE void refresh_reference_frames(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static AVM_INLINE void refresh_reference_frames(AV2_COMP *cpi) {
+  AV2_COMMON *const cm = &cpi->common;
 #if !CONFIG_F024_KEYOBU
   // Reset display order hint for forward keyframe
   // TODO(sarahparker): Find a way to also reset order_hint without causing
@@ -943,7 +943,7 @@ static AOM_INLINE void refresh_reference_frames(AV1_COMP *cpi) {
   }  // if (!cm->bru.enabled)
 }
 
-static AOM_INLINE void update_subgop_stats(
+static AVM_INLINE void update_subgop_stats(
     const GF_GROUP *const gf_group, SubGOPStatsEnc *const subgop_stats,
     const OrderHintInfo *const order_hint_info, int key_freq_max,
     unsigned int enable_subgop_stats) {
@@ -960,7 +960,7 @@ static AOM_INLINE void update_subgop_stats(
   subgop_stats->stat_count++;
 }
 
-static AOM_INLINE void update_subgop_ref_stats(
+static AVM_INLINE void update_subgop_ref_stats(
     SubGOPStatsEnc *const subgop_stats, unsigned int enable_subgop_stats,
     int ref_frame, int is_valid_ref_frame, int pyramid_level, int disp_order,
     int num_references) {
@@ -973,39 +973,39 @@ static AOM_INLINE void update_subgop_ref_stats(
   subgop_stats->num_references[stat_idx] = num_references;
 }
 
-void av1_update_film_grain_parameters(struct AV1_COMP *cpi,
-                                      const AV1EncoderConfig *oxcf);
+void av2_update_film_grain_parameters(struct AV2_COMP *cpi,
+                                      const AV2EncoderConfig *oxcf);
 
-void av1_scale_references(AV1_COMP *cpi, const InterpFilter filter,
+void av2_scale_references(AV2_COMP *cpi, const InterpFilter filter,
                           const int phase, const int use_optimized_scaler);
 
-void av1_setup_frame(AV1_COMP *cpi);
+void av2_setup_frame(AV2_COMP *cpi);
 
-BLOCK_SIZE av1_select_sb_size(const AV1_COMP *const cpi);
-void set_ard_active_map(AV1_COMP *cpi);
+BLOCK_SIZE av2_select_sb_size(const AV2_COMP *const cpi);
+void set_ard_active_map(AV2_COMP *cpi);
 
-void av1_apply_active_map(AV1_COMP *cpi);
+void av2_apply_active_map(AV2_COMP *cpi);
 
-void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig);
+void av2_determine_sc_tools_with_encoding(AV2_COMP *cpi, const int q_orig);
 
-void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
+void av2_set_size_dependent_vars(AV2_COMP *cpi, int *q, int *bottom_index,
                                  int *top_index);
 
-void av1_finalize_encoded_frame(AV1_COMP *const cpi);
+void av2_finalize_encoded_frame(AV2_COMP *const cpi);
 
-int av1_is_integer_mv(const YV12_BUFFER_CONFIG *cur_picture,
+int av2_is_integer_mv(const YV12_BUFFER_CONFIG *cur_picture,
                       const YV12_BUFFER_CONFIG *last_picture,
                       ForceIntegerMVInfo *const force_intpel_info);
 
-void av1_set_mb_ssim_rdmult_scaling(AV1_COMP *cpi);
+void av2_set_mb_ssim_rdmult_scaling(AV2_COMP *cpi);
 
-void active_region_detection(AV1_COMP *cpi,
+void active_region_detection(AV2_COMP *cpi,
                              const YV12_BUFFER_CONFIG *cur_picture,
                              const YV12_BUFFER_CONFIG *last_picture);
 
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
-static AOM_INLINE void av1_set_seq_tile_info(SequenceHeader *const seq_params,
-                                             const AV1EncoderConfig *oxcf) {
+static AVM_INLINE void av2_set_seq_tile_info(SequenceHeader *const seq_params,
+                                             const AV2EncoderConfig *oxcf) {
   const TileConfig *const tile_cfg = &oxcf->tile_cfg;
   TileInfoSyntax *tile_params = &seq_params->tile_params;
   CommonTileParams *tiles = &seq_params->tile_params.tile_info;
@@ -1019,14 +1019,14 @@ static AOM_INLINE void av1_set_seq_tile_info(SequenceHeader *const seq_params,
         oxcf->tile_cfg.tile_height_count == 0);
 #endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   int i, start_sb;
-  av1_get_seqmfh_tile_limits(
+  av2_get_seqmfh_tile_limits(
       tile_params, seq_params->max_frame_height, seq_params->max_frame_width,
       seq_params->mib_size_log2, seq_params->mib_size_log2);
 
   if (tile_cfg->tile_width_count == 0 || tile_cfg->tile_height_count == 0) {
     tiles->uniform_spacing = 1;
-    tiles->log2_cols = AOMMAX(tile_cfg->tile_columns, tiles->min_log2_cols);
-    tiles->log2_cols = AOMMIN(tiles->log2_cols, tiles->max_log2_cols);
+    tiles->log2_cols = AVMMAX(tile_cfg->tile_columns, tiles->min_log2_cols);
+    tiles->log2_cols = AVMMIN(tiles->log2_cols, tiles->max_log2_cols);
   } else {
     int sb_cols = tiles->sb_cols;
     int size_sb, j = 0;
@@ -1035,17 +1035,17 @@ static AOM_INLINE void av1_set_seq_tile_info(SequenceHeader *const seq_params,
       tiles->col_start_sb[i] = start_sb;
       size_sb = tile_cfg->tile_widths[j++];
       if (j >= tile_cfg->tile_width_count) j = 0;
-      start_sb += AOMMIN(size_sb, tiles->max_width_sb);
+      start_sb += AVMMIN(size_sb, tiles->max_width_sb);
     }
     tiles->cols = i;
     tiles->col_start_sb[i] = sb_cols;
   }
-  av1_calculate_tile_cols(tiles);
+  av2_calculate_tile_cols(tiles);
 
   // configure tile rows
   if (tiles->uniform_spacing) {
-    tiles->log2_rows = AOMMAX(tile_cfg->tile_rows, tiles->min_log2_rows);
-    tiles->log2_rows = AOMMIN(tiles->log2_rows, tiles->max_log2_rows);
+    tiles->log2_rows = AVMMAX(tile_cfg->tile_rows, tiles->min_log2_rows);
+    tiles->log2_rows = AVMMIN(tiles->log2_rows, tiles->max_log2_rows);
   } else {
     int sb_rows = tiles->sb_rows;
     int size_sb, j = 0;
@@ -1053,22 +1053,22 @@ static AOM_INLINE void av1_set_seq_tile_info(SequenceHeader *const seq_params,
       tiles->row_start_sb[i] = start_sb;
       size_sb = tile_cfg->tile_heights[j++];
       if (j >= tile_cfg->tile_height_count) j = 0;
-      start_sb += AOMMIN(size_sb, tiles->max_height_sb);
+      start_sb += AVMMIN(size_sb, tiles->max_height_sb);
     }
     tiles->rows = i;
     tiles->row_start_sb[i] = sb_rows;
   }
-  av1_calculate_tile_rows(tiles);
+  av2_calculate_tile_rows(tiles);
 }
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 
-static AOM_INLINE void av1_set_tile_info(AV1_COMMON *const cm,
+static AVM_INLINE void av2_set_tile_info(AV2_COMMON *const cm,
                                          const TileConfig *const tile_cfg) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CommonTileParams *const tiles = &cm->tiles;
   int i, start_sb;
 
-  av1_get_tile_limits(&cm->tiles, mi_params->mi_rows, mi_params->mi_cols,
+  av2_get_tile_limits(&cm->tiles, mi_params->mi_rows, mi_params->mi_cols,
                       cm->mib_size_log2, cm->seq_params.mib_size_log2);
 
   int sb_size_scale = 1;
@@ -1090,8 +1090,8 @@ static AOM_INLINE void av1_set_tile_info(AV1_COMMON *const cm,
   } else if (tile_cfg->tile_width_count == 0 ||
              tile_cfg->tile_height_count == 0) {
     tiles->uniform_spacing = 1;
-    tiles->log2_cols = AOMMAX(tile_cfg->tile_columns, tiles->min_log2_cols);
-    tiles->log2_cols = AOMMIN(tiles->log2_cols, tiles->max_log2_cols);
+    tiles->log2_cols = AVMMAX(tile_cfg->tile_columns, tiles->min_log2_cols);
+    tiles->log2_cols = AVMMIN(tiles->log2_cols, tiles->max_log2_cols);
   } else {
     int mi_cols = ALIGN_POWER_OF_TWO(mi_params->mi_cols, cm->mib_size_log2);
     int sb_cols = mi_cols >> cm->mib_size_log2;
@@ -1101,19 +1101,19 @@ static AOM_INLINE void av1_set_tile_info(AV1_COMMON *const cm,
       tiles->col_start_sb[i] = start_sb;
       size_sb = tile_cfg->tile_widths[j++] * sb_size_scale;
       if (j >= tile_cfg->tile_width_count) j = 0;
-      start_sb += AOMMIN(size_sb, tiles->max_width_sb);
+      start_sb += AVMMIN(size_sb, tiles->max_width_sb);
     }
     tiles->cols = i;
     tiles->col_start_sb[i] = sb_cols;
   }
-  av1_calculate_tile_cols(tiles);
+  av2_calculate_tile_cols(tiles);
 
   // configure tile rows
   if (tiles->uniform_spacing) {
     // add BRU conditon here, not affect the result but make the code consistant
     if (!cm->bru.enabled || !cm->bru.frame_inactive_flag) {
-      tiles->log2_rows = AOMMAX(tile_cfg->tile_rows, tiles->min_log2_rows);
-      tiles->log2_rows = AOMMIN(tiles->log2_rows, tiles->max_log2_rows);
+      tiles->log2_rows = AVMMAX(tile_cfg->tile_rows, tiles->min_log2_rows);
+      tiles->log2_rows = AVMMIN(tiles->log2_rows, tiles->max_log2_rows);
     }
   } else {
     int mi_rows = ALIGN_POWER_OF_TWO(mi_params->mi_rows, cm->mib_size_log2);
@@ -1123,17 +1123,17 @@ static AOM_INLINE void av1_set_tile_info(AV1_COMMON *const cm,
       tiles->row_start_sb[i] = start_sb;
       size_sb = tile_cfg->tile_heights[j++] * sb_size_scale;
       if (j >= tile_cfg->tile_height_count) j = 0;
-      start_sb += AOMMIN(size_sb, tiles->max_height_sb);
+      start_sb += AVMMIN(size_sb, tiles->max_height_sb);
     }
     tiles->rows = i;
     tiles->row_start_sb[i] = sb_rows;
   }
-  av1_calculate_tile_rows(tiles);
+  av2_calculate_tile_rows(tiles);
 }
 
-void reallocate_sb_size_dependent_buffers(AV1_COMP *cpi);
+void reallocate_sb_size_dependent_buffers(AV2_COMP *cpi);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODER_UTILS_H_
+#endif  // AVM_AV2_ENCODER_ENCODER_UTILS_H_

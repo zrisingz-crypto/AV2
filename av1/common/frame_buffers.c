@@ -12,21 +12,21 @@
 
 #include <assert.h>
 
-#include "av1/common/frame_buffers.h"
-#include "aom_mem/aom_mem.h"
+#include "av2/common/frame_buffers.h"
+#include "avm_mem/avm_mem.h"
 
-int av1_alloc_internal_frame_buffers(InternalFrameBufferList *list) {
+int av2_alloc_internal_frame_buffers(InternalFrameBufferList *list) {
   assert(list != NULL);
-  av1_free_internal_frame_buffers(list);
+  av2_free_internal_frame_buffers(list);
 
   // When all reference frames at frame buffers are output at the same time
   // and these frames use film grain synthesis, the total number of required
   // frame buffers is (total references numbers + current frame) * 2 + working
   // buffers for multh-threads
   list->num_internal_frame_buffers =
-      (AOM_MAXIMUM_REF_BUFFERS + 1) * 2 * AOM_MAX_NUM_STREAMS +
-      AOM_MAXIMUM_WORK_BUFFERS;
-  list->int_fb = (InternalFrameBuffer *)aom_calloc(
+      (AVM_MAXIMUM_REF_BUFFERS + 1) * 2 * AVM_MAX_NUM_STREAMS +
+      AVM_MAXIMUM_WORK_BUFFERS;
+  list->int_fb = (InternalFrameBuffer *)avm_calloc(
       list->num_internal_frame_buffers, sizeof(*list->int_fb));
   if (list->int_fb == NULL) {
     list->num_internal_frame_buffers = 0;
@@ -35,21 +35,21 @@ int av1_alloc_internal_frame_buffers(InternalFrameBufferList *list) {
   return 0;
 }
 
-void av1_free_internal_frame_buffers(InternalFrameBufferList *list) {
+void av2_free_internal_frame_buffers(InternalFrameBufferList *list) {
   int i;
 
   assert(list != NULL);
 
   for (i = 0; i < list->num_internal_frame_buffers; ++i) {
-    aom_free(list->int_fb[i].data);
+    avm_free(list->int_fb[i].data);
     list->int_fb[i].data = NULL;
   }
-  aom_free(list->int_fb);
+  avm_free(list->int_fb);
   list->int_fb = NULL;
   list->num_internal_frame_buffers = 0;
 }
 
-void av1_zero_unused_internal_frame_buffers(InternalFrameBufferList *list) {
+void av2_zero_unused_internal_frame_buffers(InternalFrameBufferList *list) {
   int i;
 
   assert(list != NULL);
@@ -60,8 +60,8 @@ void av1_zero_unused_internal_frame_buffers(InternalFrameBufferList *list) {
   }
 }
 
-int av1_get_frame_buffer(void *cb_priv, size_t min_size,
-                         aom_codec_frame_buffer_t *fb) {
+int av2_get_frame_buffer(void *cb_priv, size_t min_size,
+                         avm_codec_frame_buffer_t *fb) {
   int i;
   InternalFrameBufferList *const int_fb_list =
       (InternalFrameBufferList *)cb_priv;
@@ -75,11 +75,11 @@ int av1_get_frame_buffer(void *cb_priv, size_t min_size,
   if (i == int_fb_list->num_internal_frame_buffers) return -1;
 
   if (int_fb_list->int_fb[i].size < min_size) {
-    aom_free(int_fb_list->int_fb[i].data);
+    avm_free(int_fb_list->int_fb[i].data);
     // The data must be zeroed to fix a valgrind error from the C loop filter
     // due to access uninitialized memory in frame border. It could be
     // skipped if border were totally removed.
-    int_fb_list->int_fb[i].data = (uint8_t *)aom_calloc(1, min_size);
+    int_fb_list->int_fb[i].data = (uint8_t *)avm_calloc(1, min_size);
     if (!int_fb_list->int_fb[i].data) {
       int_fb_list->int_fb[i].size = 0;
       return -1;
@@ -96,7 +96,7 @@ int av1_get_frame_buffer(void *cb_priv, size_t min_size,
   return 0;
 }
 
-int av1_release_frame_buffer(void *cb_priv, aom_codec_frame_buffer_t *fb) {
+int av2_release_frame_buffer(void *cb_priv, avm_codec_frame_buffer_t *fb) {
   InternalFrameBuffer *const int_fb = (InternalFrameBuffer *)fb->priv;
   (void)cb_priv;
   if (int_fb) int_fb->in_use = 0;

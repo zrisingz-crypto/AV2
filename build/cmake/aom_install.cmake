@@ -10,94 +10,94 @@
 #
 list(
   APPEND
-  AOM_INSTALL_INCS
-  "${AOM_ROOT}/aom/aom.h"
-  "${AOM_ROOT}/aom/aom_codec.h"
-  "${AOM_ROOT}/aom/aom_frame_buffer.h"
-  "${AOM_ROOT}/aom/aom_image.h"
-  "${AOM_ROOT}/aom/aom_integer.h"
-  "${AOM_ROOT}/aom/aom.h")
+  AVM_INSTALL_INCS
+  "${AVM_ROOT}/avm/avm.h"
+  "${AVM_ROOT}/avm/avm_codec.h"
+  "${AVM_ROOT}/avm/avm_frame_buffer.h"
+  "${AVM_ROOT}/avm/avm_image.h"
+  "${AVM_ROOT}/avm/avm_integer.h"
+  "${AVM_ROOT}/avm/avm.h")
 
-if(CONFIG_AV1_DECODER)
-  list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aom_decoder.h"
-       "${AOM_ROOT}/aom/aomdx.h")
+if(CONFIG_AV2_DECODER)
+  list(APPEND AVM_INSTALL_INCS "${AVM_ROOT}/avm/avm_decoder.h"
+       "${AVM_ROOT}/avm/avmdx.h")
 endif()
 
-if(CONFIG_AV1_ENCODER)
-  list(APPEND AOM_INSTALL_INCS "${AOM_ROOT}/aom/aomcx.h"
-       "${AOM_ROOT}/aom/aom_encoder.h")
+if(CONFIG_AV2_ENCODER)
+  list(APPEND AVM_INSTALL_INCS "${AVM_ROOT}/avm/avmcx.h"
+       "${AVM_ROOT}/avm/avm_encoder.h")
 endif()
 
-# Generate aom.pc and setup dependencies to ensure it is created when necessary.
-# Note: aom.pc generation uses GNUInstallDirs:
+# Generate avm.pc and setup dependencies to ensure it is created when necessary.
+# Note: avm.pc generation uses GNUInstallDirs:
 # https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
-macro(setup_aom_install_targets)
+macro(setup_avm_install_targets)
   if(NOT (MSVC OR XCODE))
     include("GNUInstallDirs")
-    set(AOM_PKG_CONFIG_FILE "${AOM_CONFIG_DIR}/aom.pc")
+    set(AVM_PKG_CONFIG_FILE "${AVM_CONFIG_DIR}/avm.pc")
 
-    # Create a dummy library target for creating aom.pc.
-    create_dummy_source_file(aom_pc c AOM_PKG_CONFIG_SOURCES)
-    add_library(aom_pc ${AOM_PKG_CONFIG_SOURCES})
+    # Create a dummy library target for creating avm.pc.
+    create_dummy_source_file(avm_pc c AVM_PKG_CONFIG_SOURCES)
+    add_library(avm_pc ${AVM_PKG_CONFIG_SOURCES})
 
-    # Setup a rule to generate aom.pc.
+    # Setup a rule to generate avm.pc.
     add_custom_command(
-      OUTPUT "${AOM_PKG_CONFIG_FILE}"
+      OUTPUT "${AVM_PKG_CONFIG_FILE}"
       COMMAND
-        ${CMAKE_COMMAND} ARGS -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
-        -DAOM_ROOT=${AOM_ROOT} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        ${CMAKE_COMMAND} ARGS -DAVM_CONFIG_DIR=${AVM_CONFIG_DIR}
+        -DAVM_ROOT=${AVM_ROOT} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}
         -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
         -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
         -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
         -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
         -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
-        "${AOM_ROOT}/build/cmake/pkg_config.cmake"
-      COMMENT "Writing aom.pc"
+        "${AVM_ROOT}/build/cmake/pkg_config.cmake"
+      COMMENT "Writing avm.pc"
       VERBATIM)
 
     # Explicitly add a dependency on the pkg-config file to ensure it's built.
     get_property(
-      aom_pc_sources
-      TARGET aom_pc
+      avm_pc_sources
+      TARGET avm_pc
       PROPERTY SOURCES)
-    set_source_files_properties(${aom_pc_sources} OBJECT_DEPENDS
-                                "${AOM_PKG_CONFIG_FILE}")
+    set_source_files_properties(${avm_pc_sources} OBJECT_DEPENDS
+                                "${AVM_PKG_CONFIG_FILE}")
 
     # Our pkg-config file carries version information: add a dependency on the
     # version rule.
-    add_dependencies(aom_pc aom_version)
+    add_dependencies(avm_pc avm_version)
 
-    if(CONFIG_AV1_DECODER)
+    if(CONFIG_AV2_DECODER)
       if(ENABLE_EXAMPLES)
-        list(APPEND AOM_INSTALL_BINS aomdec)
+        list(APPEND AVM_INSTALL_BINS avmdec)
       endif()
     endif()
 
-    if(CONFIG_AV1_ENCODER)
+    if(CONFIG_AV2_ENCODER)
       if(ENABLE_EXAMPLES)
-        list(APPEND AOM_INSTALL_BINS aomenc)
+        list(APPEND AVM_INSTALL_BINS avmenc)
       endif()
     endif()
 
     if(BUILD_SHARED_LIBS)
-      set(AOM_INSTALL_LIBS aom aom_static)
+      set(AVM_INSTALL_LIBS avm avm_static)
     else()
-      set(AOM_INSTALL_LIBS aom)
+      set(AVM_INSTALL_LIBS avm)
     endif()
 
     # Setup the install rules.
     install(
-      FILES ${AOM_INSTALL_INCS}
-      DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/aom")
+      FILES ${AVM_INSTALL_INCS}
+      DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/avm")
     install(
-      FILES "${AOM_PKG_CONFIG_FILE}"
+      FILES "${AVM_PKG_CONFIG_FILE}"
       DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-    install(TARGETS ${AOM_INSTALL_LIBS}
+    install(TARGETS ${AVM_INSTALL_LIBS}
             DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
     if(ENABLE_EXAMPLES)
-      install(TARGETS ${AOM_INSTALL_BINS}
+      install(TARGETS ${AVM_INSTALL_BINS}
               DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
     endif()
   endif()

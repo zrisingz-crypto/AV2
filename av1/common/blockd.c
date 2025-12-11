@@ -12,25 +12,25 @@
 
 #include <math.h>
 
-#include "aom_ports/system_state.h"
+#include "avm_ports/system_state.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 
-PREDICTION_MODE av1_get_joint_mode(const MB_MODE_INFO *mi) {
+PREDICTION_MODE av2_get_joint_mode(const MB_MODE_INFO *mi) {
   if (!mi) return DC_PRED;
   if (is_inter_block(mi, SHARED_PART) || is_intrabc_block(mi, SHARED_PART))
     return DC_PRED;
   return mi->joint_y_mode_delta_angle;
 }
 
-void av1_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride) {
-  av1_zero(xd->is_mi_coded);
+void av2_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride) {
+  av2_zero(xd->is_mi_coded);
   xd->is_mi_coded_stride = stride;
 }
 
-void av1_mark_block_as_coded(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+void av2_mark_block_as_coded(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                              BLOCK_SIZE sb_size) {
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
@@ -54,7 +54,7 @@ void av1_mark_block_as_coded(MACROBLOCKD *xd, BLOCK_SIZE bsize,
     }
 }
 
-void av1_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av2_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
                                  BLOCK_SIZE bsize, BLOCK_SIZE sb_size) {
   const int sb_mi_size = mi_size_wide[sb_size];
   const int mi_row_offset = mi_row & (sb_mi_size - 1);
@@ -67,19 +67,19 @@ void av1_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
     uint8_t *row_ptr_chroma = &xd->is_mi_coded[1][pos];
     switch (xd->tree_type) {
       case SHARED_PART:
-        av1_zero_array(row_ptr_luma, mi_size_wide[bsize]);
-        av1_zero_array(row_ptr_chroma, mi_size_wide[bsize]);
+        av2_zero_array(row_ptr_luma, mi_size_wide[bsize]);
+        av2_zero_array(row_ptr_chroma, mi_size_wide[bsize]);
         break;
-      case LUMA_PART: av1_zero_array(row_ptr_luma, mi_size_wide[bsize]); break;
+      case LUMA_PART: av2_zero_array(row_ptr_luma, mi_size_wide[bsize]); break;
       case CHROMA_PART:
-        av1_zero_array(row_ptr_chroma, mi_size_wide[bsize]);
+        av2_zero_array(row_ptr_chroma, mi_size_wide[bsize]);
         break;
       default: assert(0 && "Invalid tree type");
     }
   }
 }
 
-void av1_mark_block_as_pseudo_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av2_mark_block_as_pseudo_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
                                     BLOCK_SIZE bsize, BLOCK_SIZE sb_size) {
   const int sb_mi_size = mi_size_wide[sb_size];
   const int mi_row_offset = mi_row & (sb_mi_size - 1);
@@ -101,11 +101,11 @@ void av1_mark_block_as_pseudo_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
     }
 }
 
-PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index) {
+PARTITION_TREE *av2_alloc_ptree_node(PARTITION_TREE *parent, int index) {
   PARTITION_TREE *ptree = NULL;
-  struct aom_internal_error_info error;
+  struct avm_internal_error_info error;
 
-  AOM_CHECK_MEM_ERROR(&error, ptree, aom_calloc(1, sizeof(*ptree)));
+  AVM_CHECK_MEM_ERROR(&error, ptree, avm_calloc(1, sizeof(*ptree)));
 
   ptree->parent = parent;
   ptree->index = index;
@@ -116,25 +116,25 @@ PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index) {
   return ptree;
 }
 
-void av1_free_ptree_recursive(PARTITION_TREE *ptree) {
+void av2_free_ptree_recursive(PARTITION_TREE *ptree) {
   if (ptree == NULL) return;
 
   for (int i = 0; i < 4; ++i) {
-    av1_free_ptree_recursive(ptree->sub_tree[i]);
+    av2_free_ptree_recursive(ptree->sub_tree[i]);
     ptree->sub_tree[i] = NULL;
   }
 
-  aom_free(ptree);
+  avm_free(ptree);
 }
 
-void av1_reset_ptree_in_sbi(SB_INFO *sbi, TREE_TYPE tree_type) {
-  const int idx = av1_get_sdp_idx(tree_type);
-  if (sbi->ptree_root[idx]) av1_free_ptree_recursive(sbi->ptree_root[idx]);
+void av2_reset_ptree_in_sbi(SB_INFO *sbi, TREE_TYPE tree_type) {
+  const int idx = av2_get_sdp_idx(tree_type);
+  if (sbi->ptree_root[idx]) av2_free_ptree_recursive(sbi->ptree_root[idx]);
 
-  sbi->ptree_root[idx] = av1_alloc_ptree_node(NULL, 0);
+  sbi->ptree_root[idx] = av2_alloc_ptree_node(NULL, 0);
 }
 
-void av1_set_entropy_contexts(const MACROBLOCKD *xd,
+void av2_set_entropy_contexts(const MACROBLOCKD *xd,
                               struct macroblockd_plane *pd, int plane,
                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                               int has_eob, int aoff, int loff) {
@@ -146,7 +146,7 @@ void av1_set_entropy_contexts(const MACROBLOCKD *xd,
   // above
   if (has_eob && xd->mb_to_right_edge < 0) {
     const int blocks_wide = max_block_wide(xd, plane_bsize, plane);
-    const int above_contexts = AOMMIN(txs_wide, blocks_wide - aoff);
+    const int above_contexts = AVMMIN(txs_wide, blocks_wide - aoff);
     memset(a, has_eob, sizeof(*a) * above_contexts);
     memset(a + above_contexts, 0, sizeof(*a) * (txs_wide - above_contexts));
   } else {
@@ -156,7 +156,7 @@ void av1_set_entropy_contexts(const MACROBLOCKD *xd,
   // left
   if (has_eob && xd->mb_to_bottom_edge < 0) {
     const int blocks_high = max_block_high(xd, plane_bsize, plane);
-    const int left_contexts = AOMMIN(txs_high, blocks_high - loff);
+    const int left_contexts = AVMMIN(txs_high, blocks_high - loff);
     memset(l, has_eob, sizeof(*l) * left_contexts);
     memset(l + left_contexts, 0, sizeof(*l) * (txs_high - left_contexts));
   } else {
@@ -164,7 +164,7 @@ void av1_set_entropy_contexts(const MACROBLOCKD *xd,
   }
 }
 
-void av1_reset_entropy_context(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+void av2_reset_entropy_context(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                const int num_planes) {
   // TODO(chiyotsai): This part is needed to avoid encoder/decoder mismatch.
   // Investigate why this is the case. It seems like on the decoder side, the
@@ -194,16 +194,16 @@ void av1_reset_entropy_context(MACROBLOCKD *xd, BLOCK_SIZE bsize,
 
 // Resets the LR decoding state before decoding each coded tile and
 // associated LR coefficients
-void av1_reset_loop_restoration(MACROBLOCKD *xd, int plane_start, int plane_end,
+void av2_reset_loop_restoration(MACROBLOCKD *xd, int plane_start, int plane_end,
                                 const int *num_filter_classes) {
   for (int p = plane_start; p < plane_end; ++p) {
-    av1_reset_wienerns_bank(&xd->wienerns_info[p], xd->current_base_qindex,
-                            num_filter_classes[p], p != AOM_PLANE_Y);
+    av2_reset_wienerns_bank(&xd->wienerns_info[p], xd->current_base_qindex,
+                            num_filter_classes[p], p != AVM_PLANE_Y);
   }
 }
 
 // Initialize bank
-void av1_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
+void av2_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
                              int num_classes, int chroma) {
   for (int i = 0; i < LR_BANK_SIZE; ++i) {
     set_default_wienerns(&bank->filter[i], qindex, num_classes, chroma);
@@ -216,7 +216,7 @@ void av1_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
 }
 
 // Add a new filter to bank
-void av1_add_to_wienerns_bank(WienerNonsepInfoBank *bank,
+void av2_add_to_wienerns_bank(WienerNonsepInfoBank *bank,
                               const WienerNonsepInfo *info,
                               int wiener_class_id) {
   int c_id_begin = wiener_class_id;
@@ -241,7 +241,7 @@ void av1_add_to_wienerns_bank(WienerNonsepInfoBank *bank,
 // Returns the filter that is at slot ndx from last. When ndx is zero the last
 // filter added is returned. When ndx is one the filter added before the last
 // and so on.
-WienerNonsepInfo *av1_ref_from_wienerns_bank(WienerNonsepInfoBank *bank,
+WienerNonsepInfo *av2_ref_from_wienerns_bank(WienerNonsepInfoBank *bank,
                                              int ndx, int wiener_class_id) {
   assert(wiener_class_id != ALL_WIENERNS_CLASSES);
   if (bank->bank_size_for_class[wiener_class_id] == 0) {
@@ -257,7 +257,7 @@ WienerNonsepInfo *av1_ref_from_wienerns_bank(WienerNonsepInfoBank *bank,
 }
 
 // Get a const reference to a filter given the index
-const WienerNonsepInfo *av1_constref_from_wienerns_bank(
+const WienerNonsepInfo *av2_constref_from_wienerns_bank(
     const WienerNonsepInfoBank *bank, int ndx, int wiener_class_id) {
   assert(wiener_class_id != ALL_WIENERNS_CLASSES);
   if (bank->bank_size_for_class[wiener_class_id] == 0) {
@@ -272,11 +272,11 @@ const WienerNonsepInfo *av1_constref_from_wienerns_bank(
 }
 
 // Directly replace a filter in the bank at given index
-void av1_upd_to_wienerns_bank(WienerNonsepInfoBank *bank, int ndx,
+void av2_upd_to_wienerns_bank(WienerNonsepInfoBank *bank, int ndx,
                               const WienerNonsepInfo *info,
                               int wiener_class_id) {
   copy_nsfilter_taps_for_class(
-      av1_ref_from_wienerns_bank(bank, ndx, wiener_class_id), info,
+      av2_ref_from_wienerns_bank(bank, ndx, wiener_class_id), info,
       wiener_class_id);
 }
 
@@ -312,7 +312,7 @@ void copy_nsfilter_taps(WienerNonsepInfo *to_info,
          sizeof(to_info->bank_ref_for_class));
 }
 
-void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
+void av2_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
                             const int num_planes) {
   int i;
 
@@ -333,7 +333,7 @@ int max_dictionary_size(int nopcw) {
   return max_num_predictors * MAX_NUM_DICTIONARY_TAPS;
 }
 
-void allocate_frame_filter_dictionary(AV1_COMMON *cm) {
+void allocate_frame_filter_dictionary(AV2_COMMON *cm) {
   // Use max_dictionary_size(0) below instead of max_dictionary_size(nopcw)
   // to always allocate for the largest possible dictionary size.
   // If nopcw is solely based on sequence level parameters, this
@@ -344,19 +344,19 @@ void allocate_frame_filter_dictionary(AV1_COMMON *cm) {
   const int nopcw = disable_pcwiener_filters_in_framefilters(&cm->seq_params);
   (void)nopcw;
   cm->frame_filter_dictionary =
-      aom_calloc(max_dictionary_size(0), sizeof(*cm->frame_filter_dictionary));
+      avm_calloc(max_dictionary_size(0), sizeof(*cm->frame_filter_dictionary));
   cm->translated_pcwiener_filters =
-      aom_calloc(NUM_PC_WIENER_FILTERS * MAX_NUM_DICTIONARY_TAPS,
+      avm_calloc(NUM_PC_WIENER_FILTERS * MAX_NUM_DICTIONARY_TAPS,
                  sizeof(*cm->translated_pcwiener_filters));
   cm->translation_done = 0;
   cm->frame_filter_dictionary_stride = MAX_NUM_DICTIONARY_TAPS;
-  cm->num_ref_filters = aom_calloc(1, sizeof(*cm->num_ref_filters));
+  cm->num_ref_filters = avm_calloc(1, sizeof(*cm->num_ref_filters));
 }
 
-void free_frame_filter_dictionary(AV1_COMMON *cm) {
-  aom_free(cm->frame_filter_dictionary);
-  aom_free(cm->translated_pcwiener_filters);
-  aom_free(cm->num_ref_filters);
+void free_frame_filter_dictionary(AV2_COMMON *cm) {
+  avm_free(cm->frame_filter_dictionary);
+  avm_free(cm->translated_pcwiener_filters);
+  avm_free(cm->num_ref_filters);
   cm->frame_filter_dictionary = NULL;
   cm->translated_pcwiener_filters = NULL;
   cm->num_ref_filters = NULL;
@@ -367,7 +367,7 @@ void free_frame_filter_dictionary(AV1_COMMON *cm) {
 // TODO: Refactor so that this gets called only once during encoding/decoding.
 // Useful when using pre-trained filters (with different config and precision)
 // to predict transmitetd filters to reduce side-information.
-void translate_pcwiener_filters_to_wienerns(AV1_COMMON *cm) {
+void translate_pcwiener_filters_to_wienerns(AV2_COMMON *cm) {
   if (cm->translation_done) {
     return;
   }
@@ -395,7 +395,7 @@ void translate_pcwiener_filters_to_wienerns(AV1_COMMON *cm) {
     const int dict_index = pc_wiener_cnt;
 
     assert(cm->translated_pcwiener_filters != NULL);
-    for (int i = 0; i < AOMMIN(num_feat, NUM_PC_WIENER_TAPS_LUMA - 1); ++i) {
+    for (int i = 0; i < AVMMIN(num_feat, NUM_PC_WIENER_TAPS_LUMA - 1); ++i) {
       const int16_t scaled_tap = ROUND_POWER_OF_TWO_SIGNED(
           pcwiener_filter[i], precision_diff);  // Assuming no translation
       // pcwiener_filter[tap_translator[i]], precision_diff); // deprecated
@@ -411,10 +411,10 @@ void translate_pcwiener_filters_to_wienerns(AV1_COMMON *cm) {
 
 static inline int num_sampled_pc_wiener_filters(int plane, int num_ref_filters,
                                                 int num_classes, int nopcw) {
-  if (plane != AOM_PLANE_Y) return 0;
+  if (plane != AVM_PLANE_Y) return 0;
   if (nopcw) return 0;
-  return AOMMIN(
-      AOMMAX(max_num_base_filters(num_classes, 0) - num_ref_filters, 0),
+  return AVMMIN(
+      AVMMAX(max_num_base_filters(num_classes, 0) - num_ref_filters, 0),
       NUM_PC_WIENER_FILTERS);
 }
 
@@ -432,7 +432,7 @@ void set_group_counts(int plane, int num_classes, int num_ref_frames,
       num_sampled_pc_wiener_filters(plane, num_ref_frames, num_classes, nopcw);
 }
 
-int set_frame_filter_dictionary(int plane, const AV1_COMMON *cm,
+int set_frame_filter_dictionary(int plane, const AV2_COMMON *cm,
                                 int num_classes,
                                 int16_t *frame_filter_dictionary,
                                 int dict_stride) {
@@ -457,7 +457,7 @@ int set_frame_filter_dictionary(int plane, const AV1_COMMON *cm,
 
   // Copy available reference filters to the dictionary. -----------------------
   int num_ref_filters = 0;
-  const int min_pc_wiener = plane == AOM_PLANE_Y ? (nopcw ? 0 : 16) : 0;
+  const int min_pc_wiener = plane == AVM_PLANE_Y ? (nopcw ? 0 : 16) : 0;
   assert(min_pc_wiener <= NUM_PC_WIENER_FILTERS);
   const int allowed_num_base_filters =
       max_num_base_filters(num_classes, nopcw) - min_pc_wiener;
@@ -478,9 +478,9 @@ int set_frame_filter_dictionary(int plane, const AV1_COMMON *cm,
     int planes_to_check[2] = { plane, -1 };
     int num_planes_to_check = 1;
     const int mix_planes = 1;
-    if (plane != AOM_PLANE_Y && mix_planes) {
+    if (plane != AVM_PLANE_Y && mix_planes) {
       num_planes_to_check = 2;
-      planes_to_check[1] = (plane == AOM_PLANE_U) ? AOM_PLANE_V : AOM_PLANE_U;
+      planes_to_check[1] = (plane == AVM_PLANE_U) ? AVM_PLANE_V : AVM_PLANE_U;
     }
     for (int chk = 0; chk < num_planes_to_check; ++chk) {
       const int p = planes_to_check[chk];
@@ -565,7 +565,7 @@ void add_filter_to_dictionary(const WienerNonsepInfo *filter, int class_id,
   }
 }
 
-void av1_alloc_txk_skip_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm) {
+void av2_alloc_txk_skip_array(CommonModeInfoParams *mi_params, AV2_COMMON *cm) {
   // Allocate based on the MIN_TX_SIZE, which is a 4x4 block.
   (void)cm;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
@@ -575,17 +575,17 @@ void av1_alloc_txk_skip_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm) {
     h = ((h + MAX_SB_SIZE - 1) >> MAX_SB_SIZE_LOG2) << MAX_SB_SIZE_LOG2;
     int stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     int rows = (h + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
-    mi_params->tx_skip[plane] = aom_calloc(rows * stride, sizeof(uint8_t));
+    mi_params->tx_skip[plane] = avm_calloc(rows * stride, sizeof(uint8_t));
     mi_params->tx_skip_buf_size[plane] = rows * stride;
     mi_params->tx_skip_stride[plane] = stride;
   }
 #ifndef NDEBUG
-  av1_reset_txk_skip_array(cm);
+  av2_reset_txk_skip_array(cm);
 #endif  // NDEBUG
 }
 
-void av1_set_txk_skip_array_stride(CommonModeInfoParams *mi_params,
-                                   AV1_COMMON *cm) {
+void av2_set_txk_skip_array_stride(CommonModeInfoParams *mi_params,
+                                   AV2_COMMON *cm) {
   (void)cm;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     int w = mi_params->mi_cols << MI_SIZE_LOG2;
@@ -595,22 +595,22 @@ void av1_set_txk_skip_array_stride(CommonModeInfoParams *mi_params,
     int stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     int rows = (h + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     if (rows * stride > (int)mi_params->tx_skip_buf_size[plane]) {
-      aom_free(mi_params->tx_skip[plane]);
-      mi_params->tx_skip[plane] = aom_calloc(rows * stride, sizeof(uint8_t));
+      avm_free(mi_params->tx_skip[plane]);
+      mi_params->tx_skip[plane] = avm_calloc(rows * stride, sizeof(uint8_t));
       mi_params->tx_skip_buf_size[plane] = rows * stride;
     }
     mi_params->tx_skip_stride[plane] = stride;
   }
 }
 
-void av1_dealloc_txk_skip_array(CommonModeInfoParams *mi_params) {
+void av2_dealloc_txk_skip_array(CommonModeInfoParams *mi_params) {
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
-    aom_free(mi_params->tx_skip[plane]);
+    avm_free(mi_params->tx_skip[plane]);
     mi_params->tx_skip[plane] = NULL;
   }
 }
 
-void av1_reset_txk_skip_array(AV1_COMMON *cm) {
+void av2_reset_txk_skip_array(AV2_COMMON *cm) {
   // Allocate based on the MIN_TX_SIZE, which is a 4x4 block.
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     int h = cm->mi_params.mi_rows << MI_SIZE_LOG2;
@@ -622,14 +622,14 @@ void av1_reset_txk_skip_array(AV1_COMMON *cm) {
   }
 }
 
-void av1_reset_txk_skip_array_using_mi_params(CommonModeInfoParams *mi_params) {
+void av2_reset_txk_skip_array_using_mi_params(CommonModeInfoParams *mi_params) {
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     memset(mi_params->tx_skip[plane], ILLEGAL_TXK_SKIP_VALUE,
            mi_params->tx_skip_buf_size[plane]);
   }
 }
 
-void av1_init_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
+void av2_init_txk_skip_array(const AV2_COMMON *cm, int mi_row, int mi_col,
                              BLOCK_SIZE bsize, uint8_t value,
                              TREE_TYPE tree_type,
                              const CHROMA_REF_INFO *chroma_ref_info,
@@ -675,7 +675,7 @@ void av1_init_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
   }
 }
 
-void av1_update_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
+void av2_update_txk_skip_array(const AV2_COMMON *cm, int mi_row, int mi_col,
                                TREE_TYPE tree_type,
                                const CHROMA_REF_INFO *chroma_ref_info,
                                int plane, int blk_row, int blk_col,
@@ -708,7 +708,7 @@ void av1_update_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
   }
 }
 
-uint8_t av1_get_txk_skip(const AV1_COMMON *cm, int mi_row, int mi_col,
+uint8_t av2_get_txk_skip(const AV2_COMMON *cm, int mi_row, int mi_col,
                          TREE_TYPE tree_type,
                          const CHROMA_REF_INFO *chroma_ref_info, int plane,
                          int blk_row, int blk_col) {
@@ -733,7 +733,7 @@ uint8_t av1_get_txk_skip(const AV1_COMMON *cm, int mi_row, int mi_col,
   return cm->mi_params.tx_skip[plane][idx];
 }
 
-void av1_alloc_class_id_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm,
+void av2_alloc_class_id_array(CommonModeInfoParams *mi_params, AV2_COMMON *cm,
                               int height) {
   (void)cm;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
@@ -744,14 +744,14 @@ void av1_alloc_class_id_array(CommonModeInfoParams *mi_params, AV1_COMMON *cm,
     int stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     int rows = (h + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     mi_params->wiener_class_id[plane] =
-        aom_calloc(rows * stride, sizeof(uint8_t));
+        avm_calloc(rows * stride, sizeof(uint8_t));
     mi_params->wiener_class_id_buf_size[plane] = rows * stride;
     mi_params->wiener_class_id_stride[plane] = stride;
   }
 }
 
-void av1_set_class_id_array_stride(CommonModeInfoParams *mi_params,
-                                   AV1_COMMON *cm, int height) {
+void av2_set_class_id_array_stride(CommonModeInfoParams *mi_params,
+                                   AV2_COMMON *cm, int height) {
   (void)cm;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     int w = (mi_params->mi_cols << MI_SIZE_LOG2);
@@ -761,18 +761,18 @@ void av1_set_class_id_array_stride(CommonModeInfoParams *mi_params,
     int stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     int rows = (h + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
     if (rows * stride > (int)mi_params->wiener_class_id_buf_size[plane]) {
-      aom_free(mi_params->wiener_class_id[plane]);
+      avm_free(mi_params->wiener_class_id[plane]);
       mi_params->wiener_class_id[plane] =
-          aom_calloc(rows * stride, sizeof(uint8_t));
+          avm_calloc(rows * stride, sizeof(uint8_t));
       mi_params->wiener_class_id_buf_size[plane] = rows * stride;
     }
     mi_params->wiener_class_id_stride[plane] = stride;
   }
 }
 
-void av1_dealloc_class_id_array(CommonModeInfoParams *mi_params) {
+void av2_dealloc_class_id_array(CommonModeInfoParams *mi_params) {
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
-    aom_free(mi_params->wiener_class_id[plane]);
+    avm_free(mi_params->wiener_class_id[plane]);
     mi_params->wiener_class_id[plane] = NULL;
   }
 }

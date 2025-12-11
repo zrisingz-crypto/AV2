@@ -12,21 +12,21 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
-#include "av1/common/enums.h"
-#include "av1/common/ccso.h"
+#include "av2/common/enums.h"
+#include "av2/common/ccso.h"
 
 #include "test/acm_random.h"
 #include "test/function_equivalence_test.h"
 #include "test/register_state_check.h"
 
-using libaom_test::ACMRandom;
-using libaom_test::FunctionEquivalenceTest;
+using libavm_test::ACMRandom;
+using libavm_test::FunctionEquivalenceTest;
 
 namespace {
 
@@ -44,7 +44,7 @@ typedef void (*CCSO_WO_BUF)(
     const int neg_thr, const int *src_loc, const int max_val,
     const int blk_size_x, const int blk_size_y, const bool isSingleBand,
     const uint8_t shift_bits, const int edge_clf, const uint8_t ccso_bo_only);
-typedef libaom_test::FuncParam<CCSO_WO_BUF> TestFuncsCCSO_WO_BUF;
+typedef libavm_test::FuncParam<CCSO_WO_BUF> TestFuncsCCSO_WO_BUF;
 
 template <typename F>
 class CCSOFilterTest : public FunctionEquivalenceTest<F> {
@@ -168,8 +168,8 @@ class CCSOWOBUFTest : public CCSOFilterTest<CCSO_WO_BUF> {
         pic_height_ = (MAX_SB_SIZE) >> y_uv_vscale_;
         blk_size_ = pic_width_;
 
-        aom_usec_timer timer;
-        aom_usec_timer_start(&timer);
+        avm_usec_timer timer;
+        avm_usec_timer_start(&timer);
         for (int i = 0; i < kSpeedIterations; ++i) {
           params_.ref_func(src_y_, dst_ref_, 0, 0, pic_width_, pic_height_,
                            src_cls_, offset_buf_, src_y_stride_, dst_stride_,
@@ -177,10 +177,10 @@ class CCSOWOBUFTest : public CCSOFilterTest<CCSO_WO_BUF> {
                            max_val_, CCSO_BLK_SIZE_PARAMS(blk_size_, blk_size_),
                            isSingleBand, shift_bits_, edge_clf_, 0);
         }
-        aom_usec_timer_mark(&timer);
-        auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+        avm_usec_timer_mark(&timer);
+        auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
-        aom_usec_timer_start(&timer);
+        avm_usec_timer_start(&timer);
         for (int i = 0; i < kSpeedIterations; ++i) {
           params_.tst_func(src_y_, dst_tst_, 0, 0, pic_width_, pic_height_,
                            src_cls_, offset_buf_, src_y_stride_, dst_stride_,
@@ -188,8 +188,8 @@ class CCSOWOBUFTest : public CCSOFilterTest<CCSO_WO_BUF> {
                            max_val_, CCSO_BLK_SIZE_PARAMS(blk_size_, blk_size_),
                            isSingleBand, shift_bits_, edge_clf_, 0);
         }
-        aom_usec_timer_mark(&timer);
-        auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+        avm_usec_timer_mark(&timer);
+        auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
         float c_time_per_pixel = (float)1000.0 * elapsed_time_c /
                                  (kSpeedIterations * blk_size_ * blk_size_);
@@ -249,7 +249,7 @@ typedef void (*CCSO_WO_BUF_BO_ONLY)(
     const int src_y_stride, const int dst_stride, const int y_uv_hscale,
     const int y_uv_vscale, const int max_val, const int blk_size_x,
     const int blk_size_y, const bool isSingleBand, const uint8_t shift_bits);
-typedef libaom_test::FuncParam<CCSO_WO_BUF_BO_ONLY>
+typedef libavm_test::FuncParam<CCSO_WO_BUF_BO_ONLY>
     TestFuncsCCSO_WO_BUF_BO_ONLY;
 
 class CCSOWOBUFBOONLYTest : public CCSOFilterTest<CCSO_WO_BUF_BO_ONLY> {
@@ -295,8 +295,8 @@ class CCSOWOBUFBOONLYTest : public CCSOFilterTest<CCSO_WO_BUF_BO_ONLY> {
         pic_height_ = (MAX_SB_SIZE) >> y_uv_vscale_;
         blk_size_ = pic_width_;
 
-        aom_usec_timer timer;
-        aom_usec_timer_start(&timer);
+        avm_usec_timer timer;
+        avm_usec_timer_start(&timer);
         for (int i = 0; i < kSpeedIterations; ++i) {
           params_.ref_func(src_y_, dst_ref_, 0, 0, pic_width_, pic_height_,
                            offset_buf_, src_y_stride_, dst_stride_,
@@ -304,10 +304,10 @@ class CCSOWOBUFBOONLYTest : public CCSOFilterTest<CCSO_WO_BUF_BO_ONLY> {
                            CCSO_BLK_SIZE_PARAMS(blk_size_, blk_size_),
                            isSingleBand, shift_bits_);
         }
-        aom_usec_timer_mark(&timer);
-        auto elapsed_time_c = aom_usec_timer_elapsed(&timer);
+        avm_usec_timer_mark(&timer);
+        auto elapsed_time_c = avm_usec_timer_elapsed(&timer);
 
-        aom_usec_timer_start(&timer);
+        avm_usec_timer_start(&timer);
         for (int i = 0; i < kSpeedIterations; ++i) {
           params_.tst_func(src_y_, dst_tst_, 0, 0, pic_width_, pic_height_,
                            offset_buf_, src_y_stride_, dst_stride_,
@@ -315,8 +315,8 @@ class CCSOWOBUFBOONLYTest : public CCSOFilterTest<CCSO_WO_BUF_BO_ONLY> {
                            CCSO_BLK_SIZE_PARAMS(blk_size_, blk_size_),
                            isSingleBand, shift_bits_);
         }
-        aom_usec_timer_mark(&timer);
-        auto elapsed_time_opt = aom_usec_timer_elapsed(&timer);
+        avm_usec_timer_mark(&timer);
+        auto elapsed_time_opt = avm_usec_timer_elapsed(&timer);
 
         float c_time_per_pixel = (float)1000.0 * elapsed_time_c /
                                  (kSpeedIterations * blk_size_ * blk_size_);
@@ -377,7 +377,7 @@ typedef void (*CCSO_With_BUF)(
     const int pic_height, const int8_t *offset_buf, const int blk_size_x,
     const int blk_size_y, const int y_uv_hscale, const int y_uv_vscale,
     const int max_val, const uint8_t shift_bits, const uint8_t ccso_bo_only);
-typedef libaom_test::FuncParam<CCSO_With_BUF> TestFuncsCCSO_With_BUF;
+typedef libavm_test::FuncParam<CCSO_With_BUF> TestFuncsCCSO_With_BUF;
 
 class CCSOWITHBUFTest : public CCSOFilterTest<CCSO_With_BUF> {
  protected:
@@ -435,7 +435,7 @@ typedef void (*CCSO_Derive_Src)(const uint16_t *src_y, uint8_t *const src_cls0,
                                 const int thr, const int neg_thr,
                                 const int *src_loc, const int blk_size_x,
                                 const int blk_size_y, const int edge_clf);
-typedef libaom_test::FuncParam<CCSO_Derive_Src> TestFuncsCCSO_Derive_Src;
+typedef libavm_test::FuncParam<CCSO_Derive_Src> TestFuncsCCSO_Derive_Src;
 
 class CCSODeriveSrcTest : public CCSOFilterTest<CCSO_Derive_Src> {
  protected:
@@ -498,7 +498,7 @@ typedef uint64_t (*CCSO_Dist_Block)(const uint16_t *org, const int org_stride,
                                     const int log2_filter_unit_size_x,
                                     const int height, const int width);
 
-typedef libaom_test::FuncParam<CCSO_Dist_Block> TestFuncsCCSO_Dist_Block;
+typedef libavm_test::FuncParam<CCSO_Dist_Block> TestFuncsCCSO_Dist_Block;
 
 class CCSODistBlockTest : public CCSOFilterTest<CCSO_Dist_Block> {
  protected:

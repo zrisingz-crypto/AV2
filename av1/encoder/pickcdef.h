@@ -9,18 +9,18 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_ENCODER_PICKCDEF_H_
-#define AOM_AV1_ENCODER_PICKCDEF_H_
+#ifndef AVM_AV2_ENCODER_PICKCDEF_H_
+#define AVM_AV2_ENCODER_PICKCDEF_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/cdef.h"
-#include "av1/encoder/speed_features.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/cdef.h"
+#include "av2/encoder/speed_features.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*!\brief AV1 CDEF parameter search
+/*!\brief AV2 CDEF parameter search
  *
  * \ingroup in_loop_cdef
  *
@@ -44,8 +44,8 @@ extern "C" {
  * \arg \c damping_factor: CDEF damping factor.
  *
  */
-void av1_cdef_search(const YV12_BUFFER_CONFIG *frame,
-                     const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
+void av2_cdef_search(const YV12_BUFFER_CONFIG *frame,
+                     const YV12_BUFFER_CONFIG *ref, AV2_COMMON *cm,
                      MACROBLOCKD *xd,
 #if CONFIG_ENTROPY_STATS
                      ThreadData *td,
@@ -55,4 +55,4 @@ void av1_cdef_search(const YV12_BUFFER_CONFIG *frame,
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_ENCODER_PICKCDEF_H_
+#endif  // AVM_AV2_ENCODER_PICKCDEF_H_

@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_AQ_CYCLICREFRESH_H_
-#define AOM_AV1_ENCODER_AQ_CYCLICREFRESH_H_
+#ifndef AVM_AV2_ENCODER_AQ_CYCLICREFRESH_H_
+#define AVM_AV2_ENCODER_AQ_CYCLICREFRESH_H_
 
-#include "av1/common/blockd.h"
+#include "av2/common/blockd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -112,14 +112,14 @@ struct CYCLIC_REFRESH {
   /*!\endcond */
 };
 
-struct AV1_COMP;
+struct AV2_COMP;
 
 typedef struct CYCLIC_REFRESH CYCLIC_REFRESH;
 
-CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols,
-                                         aom_bit_depth_t bit_depth);
+CYCLIC_REFRESH *av2_cyclic_refresh_alloc(int mi_rows, int mi_cols,
+                                         avm_bit_depth_t bit_depth);
 
-void av1_cyclic_refresh_free(CYCLIC_REFRESH *cr);
+void av2_cyclic_refresh_free(CYCLIC_REFRESH *cr);
 
 /*!\brief Estimate the bits, incorporating the delta-q from the segments.
  *
@@ -136,7 +136,7 @@ void av1_cyclic_refresh_free(CYCLIC_REFRESH *cr);
  *
  * \return Return the estimated bits at given q.
  */
-int av1_cyclic_refresh_estimate_bits_at_q(const struct AV1_COMP *cpi,
+int av2_cyclic_refresh_estimate_bits_at_q(const struct AV2_COMP *cpi,
                                           double correction_factor);
 
 /*!\brief Estimate the bits per mb, for given q = i and delta-q.
@@ -157,7 +157,7 @@ int av1_cyclic_refresh_estimate_bits_at_q(const struct AV1_COMP *cpi,
  *
  * \return Return the estimated bits for q = i and delta-q (segment 1).
  */
-int av1_cyclic_refresh_rc_bits_per_mb(const struct AV1_COMP *cpi, int i,
+int av2_cyclic_refresh_rc_bits_per_mb(const struct AV2_COMP *cpi, int i,
                                       double correction_factor);
 
 /*!\brief Update segment_id for block based on mode selected.
@@ -182,7 +182,7 @@ int av1_cyclic_refresh_rc_bits_per_mb(const struct AV1_COMP *cpi, int i,
  * Updates the \c mbmi->segment_id, the \c cpi->cyclic_refresh and
  * the \c cm->cpi->enc_seg.map.
  */
-void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
+void av2_cyclic_refresh_update_segment(const struct AV2_COMP *cpi,
                                        MB_MODE_INFO *const mbmi, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize,
                                        int64_t rate, int64_t dist, int skip);
@@ -200,7 +200,7 @@ void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
  *
  * Updates the \c cpi->cyclic_refresh with the new stats.
  */
-void av1_cyclic_refresh_postencode(struct AV1_COMP *const cpi);
+void av2_cyclic_refresh_postencode(struct AV2_COMP *const cpi);
 
 /*!\brief Set golden frame update interval nased on cyclic refresh.
  *
@@ -212,7 +212,7 @@ void av1_cyclic_refresh_postencode(struct AV1_COMP *const cpi);
  *
  * Populates the interval in \c cpi->rc.baseline_gf_interval.
  */
-void av1_cyclic_refresh_set_golden_update(struct AV1_COMP *const cpi);
+void av2_cyclic_refresh_set_golden_update(struct AV2_COMP *const cpi);
 
 /*!\brief Set the global/frame level parameters for cyclic refresh.
  *
@@ -230,7 +230,7 @@ void av1_cyclic_refresh_set_golden_update(struct AV1_COMP *const cpi);
  *
  * Updates the \c cpi->cyclic_refresh with the settings.
  */
-void av1_cyclic_refresh_update_parameters(struct AV1_COMP *const cpi,
+void av2_cyclic_refresh_update_parameters(struct AV2_COMP *const cpi,
                                           FRAME_TYPE frame_type);
 
 /*!\brief Setup the cyclic background refresh.
@@ -246,11 +246,11 @@ void av1_cyclic_refresh_update_parameters(struct AV1_COMP *const cpi,
  * Updates the \c cpi->cyclic_refresh with the cyclic refresh
  * parameters and the \c cm->seg with the segmentation data.
  */
-void av1_cyclic_refresh_setup(struct AV1_COMP *const cpi);
+void av2_cyclic_refresh_setup(struct AV2_COMP *const cpi);
 
-int av1_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr);
+int av2_cyclic_refresh_get_rdmult(const CYCLIC_REFRESH *cr);
 
-void av1_cyclic_refresh_reset_resize(struct AV1_COMP *const cpi);
+void av2_cyclic_refresh_reset_resize(struct AV2_COMP *const cpi);
 
 static INLINE int cyclic_refresh_segment_id_boosted(int segment_id) {
   return segment_id == CR_SEGMENT_ID_BOOST1 ||
@@ -270,4 +270,4 @@ static INLINE int cyclic_refresh_segment_id(int segment_id) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_AQ_CYCLICREFRESH_H_
+#endif  // AVM_AV2_ENCODER_AQ_CYCLICREFRESH_H_

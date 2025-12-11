@@ -9,18 +9,18 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_ENCODER_PICKRST_H_
-#define AOM_AV1_ENCODER_PICKRST_H_
+#ifndef AVM_AV2_ENCODER_PICKRST_H_
+#define AVM_AV2_ENCODER_PICKRST_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/encoder/encoder.h"
-#include "aom_ports/system_state.h"
+#include "av2/encoder/encoder.h"
+#include "avm_ports/system_state.h"
 
 struct yv12_buffer_config;
-struct AV1_COMP;
+struct AV2_COMP;
 
 static INLINE int check_wienerns_eq(const WienerNonsepInfo *info,
                                     const WienerNonsepInfo *ref, int num_coeffs,
@@ -55,9 +55,9 @@ static INLINE int check_wienerns_bank_eq(const WienerNonsepInfoBank *bank,
   int num_equal = 0;
   for (int c_id = c_id_begin; c_id < c_id_end; ++c_id) {
     refs[c_id] = -1;
-    for (int k = 0; k < AOMMAX(1, bank->bank_size_for_class[c_id]); ++k) {
+    for (int k = 0; k < AVMMAX(1, bank->bank_size_for_class[c_id]); ++k) {
       if (check_wienerns_eq(info,
-                            av1_constref_from_wienerns_bank(bank, k, c_id),
+                            av2_constref_from_wienerns_bank(bank, k, c_id),
                             num_coeffs, c_id)) {
         refs[c_id] = k;
         num_equal++;
@@ -69,7 +69,7 @@ static INLINE int check_wienerns_bank_eq(const WienerNonsepInfoBank *bank,
   return num_equal == (c_id_end - c_id_begin) ? 0 : -1;
 }
 
-/*!\brief Algorithm for AV1 loop restoration search and estimation.
+/*!\brief Algorithm for AV2 loop restoration search and estimation.
  *
  * \ingroup in_loop_restoration
  * This function determines proper restoration filter types and
@@ -101,9 +101,9 @@ static INLINE int check_wienerns_bank_eq(const WienerNonsepInfoBank *bank,
  *      \c rst_info[ \c p ].\c unit_info[ \c u ].\c restoration_type
  *
  */
-void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi);
+void av2_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd, AV2_COMP *cpi);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_PICKRST_H_
+#endif  // AVM_AV2_ENCODER_PICKRST_H_

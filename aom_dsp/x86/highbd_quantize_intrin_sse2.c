@@ -12,9 +12,9 @@
 
 #include <emmintrin.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
 #include <assert.h>
 
 void highbd_quantize_b_sse2(const tran_low_t *coeff_ptr, intptr_t count,
@@ -138,7 +138,7 @@ void highbd_quantize_b_32x32_sse2(
   for (i = 0; i < idx; i++) {
     const int rc = idx_arr[i];
     const int coeff = coeff_ptr[rc];
-    const int coeff_sign = AOMSIGN(coeff);
+    const int coeff_sign = AVMSIGN(coeff);
     const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
     const int64_t tmp1 = abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], 1);
     const int64_t tmp2 = ((tmp1 * quant_ptr[rc != 0]) >> 16) + tmp1;
@@ -201,7 +201,7 @@ void highbd_quantize_b_64x64_sse2(
   for (i = 0; i < idx; i++) {
     const int rc = idx_arr[i];
     const int coeff = coeff_ptr[rc];
-    const int coeff_sign = AOMSIGN(coeff);
+    const int coeff_sign = AVMSIGN(coeff);
     const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
     const int64_t tmp1 = abs_coeff + ROUND_POWER_OF_TWO(round_ptr[rc != 0], 2);
     const int64_t tmp2 = ((tmp1 * quant_ptr[rc != 0]) >> 16) + tmp1;
@@ -218,7 +218,7 @@ void highbd_quantize_b_64x64_sse2(
   *eob_ptr = eob + 1;
 }
 
-void aom_highbd_quantize_b_sse2(
+void avm_highbd_quantize_b_sse2(
     const tran_low_t *coeff_ptr, intptr_t count, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,

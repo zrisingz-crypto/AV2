@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_ARM_H_
-#define AOM_AOM_PORTS_ARM_H_
+#ifndef AVM_AVM_PORTS_ARM_H_
+#define AVM_AVM_PORTS_ARM_H_
 #include <stdlib.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,16 +27,16 @@ extern "C" {
 /*ARMv7 optional NEON instructions.*/
 #define HAS_NEON 0x04
 
-int aom_arm_cpu_caps(void);
+int avm_arm_cpu_caps(void);
 
 // Earlier gcc compilers have issues with some neon intrinsics
 #if !defined(__clang__) && defined(__GNUC__) && __GNUC__ == 4 && \
     __GNUC_MINOR__ <= 6
-#define AOM_INCOMPATIBLE_GCC
+#define AVM_INCOMPATIBLE_GCC
 #endif
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_PORTS_ARM_H_
+#endif  // AVM_AVM_PORTS_ARM_H_

@@ -12,7 +12,7 @@
 
 #include <emmintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 static INLINE void sse_sum_wd4_sse2(const int16_t *data, int stride, int bh,
                                     int *x_sum, int64_t *x2_sum) {
@@ -95,7 +95,7 @@ static INLINE void sse_sum_wd8_sse2(const int16_t *data, int stride, int bh,
 }
 
 // This functions adds SSE2 Support for the functions 'get_blk_sse_sum_c'
-void aom_get_blk_sse_sum_sse2(const int16_t *data, int stride, int bw, int bh,
+void avm_get_blk_sse_sum_sse2(const int16_t *data, int stride, int bw, int bh,
                               int *x_sum, int64_t *x2_sum) {
   *x_sum = 0;
   *x2_sum = 0;
@@ -131,9 +131,9 @@ void aom_get_blk_sse_sum_sse2(const int16_t *data, int stride, int bw, int bh,
           break;
         }
 
-      default: aom_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
+      default: avm_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
     }
   } else {
-    aom_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
+    avm_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
   }
 }

@@ -12,8 +12,8 @@
 
 #include <assert.h>
 
-#include "av1/common/common_data.h"
-#include "av1/common/scan.h"
+#include "av2/common/common_data.h"
+#include "av2/common/scan.h"
 
 DECLARE_ALIGNED(16, static const int16_t, default_scan_4x4[16]) = {
   0, 4, 1, 8, 5, 2, 12, 9, 6, 3, 13, 10, 7, 14, 11, 15,
@@ -904,90 +904,90 @@ DECLARE_ALIGNED(16, static const int16_t, default_scan_32x32[1024]) = {
 };
 
 DECLARE_ALIGNED(16, static const int16_t,
-                av1_default_iscan_4x4[16]) = { 0, 2, 5,  9,  1, 4,  8,  12,
+                av2_default_iscan_4x4[16]) = { 0, 2, 5,  9,  1, 4,  8,  12,
                                                3, 7, 11, 14, 6, 10, 13, 15 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_4x4[16]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_4x4[16]) = {
   0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x4[16]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_4x4[16]) = {
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_4x8[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_4x8[32]) = {
   0,  2,  5,  9,  1,  4,  8,  13, 3,  7,  12, 17, 6,  11, 16, 21,
   10, 15, 20, 25, 14, 19, 24, 28, 18, 23, 27, 30, 22, 26, 29, 31
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_4x8[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_4x8[32]) = {
   0, 8,  16, 24, 1, 9,  17, 25, 2, 10, 18, 26, 3, 11, 19, 27,
   4, 12, 20, 28, 5, 13, 21, 29, 6, 14, 22, 30, 7, 15, 23, 31,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x8[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_4x8[32]) = {
   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x4[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_8x4[32]) = {
   0, 2, 5,  9,  13, 17, 21, 25, 1, 4,  8,  12, 16, 20, 24, 28,
   3, 7, 11, 15, 19, 23, 27, 30, 6, 10, 14, 18, 22, 26, 29, 31,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x4[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_8x4[32]) = {
   0, 4, 8,  12, 16, 20, 24, 28, 1, 5, 9,  13, 17, 21, 25, 29,
   2, 6, 10, 14, 18, 22, 26, 30, 3, 7, 11, 15, 19, 23, 27, 31,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x4[32]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_8x4[32]) = {
   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_4x16[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_4x16[64]) = {
   0,  2,  5,  9,  1,  4,  8,  13, 3,  7,  12, 17, 6,  11, 16, 21,
   10, 15, 20, 25, 14, 19, 24, 29, 18, 23, 28, 33, 22, 27, 32, 37,
   26, 31, 36, 41, 30, 35, 40, 45, 34, 39, 44, 49, 38, 43, 48, 53,
   42, 47, 52, 57, 46, 51, 56, 60, 50, 55, 59, 62, 54, 58, 61, 63
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x4[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_16x4[64]) = {
   0, 2,  5,  9,  13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57,
   1, 4,  8,  12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60,
   3, 7,  11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 62,
   6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 61, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x16[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_4x16[64]) = {
   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x4[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_16x4[64]) = {
   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_4x16[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_4x16[64]) = {
   0,  16, 32, 48, 1,  17, 33, 49, 2,  18, 34, 50, 3,  19, 35, 51,
   4,  20, 36, 52, 5,  21, 37, 53, 6,  22, 38, 54, 7,  23, 39, 55,
   8,  24, 40, 56, 9,  25, 41, 57, 10, 26, 42, 58, 11, 27, 43, 59,
   12, 28, 44, 60, 13, 29, 45, 61, 14, 30, 46, 62, 15, 31, 47, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x4[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_16x4[64]) = {
   0, 4, 8,  12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60,
   1, 5, 9,  13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61,
   2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62,
   3, 7, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51, 55, 59, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_4x32[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_4x32[128]) = {
   0,   2,   5,   9,   1,   4,   8,   13,  3,   7,   12,  17,  6,   11,  16,
   21,  10,  15,  20,  25,  14,  19,  24,  29,  18,  23,  28,  33,  22,  27,
   32,  37,  26,  31,  36,  41,  30,  35,  40,  45,  34,  39,  44,  49,  38,
@@ -999,7 +999,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_4x32[128]) = {
   114, 119, 123, 126, 118, 122, 125, 127
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x4[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_32x4[128]) = {
   0,  2,  5,  9,  13, 17, 21, 25, 29,  33,  37,  41,  45,  49,  53,  57,
   61, 65, 69, 73, 77, 81, 85, 89, 93,  97,  101, 105, 109, 113, 117, 121,
   1,  4,  8,  12, 16, 20, 24, 28, 32,  36,  40,  44,  48,  52,  56,  60,
@@ -1010,7 +1010,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x4[128]) = {
   70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 125, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x32[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_4x32[128]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1022,7 +1022,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_4x32[128]) = {
   120, 121, 122, 123, 124, 125, 126, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x4[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_32x4[128]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1034,7 +1034,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x4[128]) = {
   120, 121, 122, 123, 124, 125, 126, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_4x32[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_4x32[128]) = {
   0,  32, 64, 96,  1,  33, 65, 97,  2,  34, 66, 98,  3,  35, 67, 99,
   4,  36, 68, 100, 5,  37, 69, 101, 6,  38, 70, 102, 7,  39, 71, 103,
   8,  40, 72, 104, 9,  41, 73, 105, 10, 42, 74, 106, 11, 43, 75, 107,
@@ -1045,7 +1045,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_4x32[128]) = {
   28, 60, 92, 124, 29, 61, 93, 125, 30, 62, 94, 126, 31, 63, 95, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x4[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_32x4[128]) = {
   0,  4,  8,  12, 16, 20, 24, 28, 32, 36,  40,  44,  48,  52,  56,  60,
   64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124,
   1,  5,  9,  13, 17, 21, 25, 29, 33, 37,  41,  45,  49,  53,  57,  61,
@@ -1056,7 +1056,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x4[128]) = {
   67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111, 115, 119, 123, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x32[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_8x32[256]) = {
   0,   2,   5,   9,   14,  20,  27,  35,  1,   4,   8,   13,  19,  26,  34,
   43,  3,   7,   12,  18,  25,  33,  42,  51,  6,   11,  17,  24,  32,  41,
   50,  59,  10,  16,  23,  31,  40,  49,  58,  67,  15,  22,  30,  39,  48,
@@ -1077,7 +1077,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x32[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x8[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_32x8[256]) = {
   0,   2,   5,   9,   14,  20,  27,  35,  43,  51,  59,  67,  75,  83,  91,
   99,  107, 115, 123, 131, 139, 147, 155, 163, 171, 179, 187, 195, 203, 211,
   219, 227, 1,   4,   8,   13,  19,  26,  34,  42,  50,  58,  66,  74,  82,
@@ -1098,7 +1098,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x8[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x32[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_8x32[256]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1119,7 +1119,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x32[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x8[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_32x8[256]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1140,7 +1140,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x8[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x32[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_8x32[256]) = {
   0,  32, 64, 96,  128, 160, 192, 224, 1,  33, 65, 97,  129, 161, 193, 225,
   2,  34, 66, 98,  130, 162, 194, 226, 3,  35, 67, 99,  131, 163, 195, 227,
   4,  36, 68, 100, 132, 164, 196, 228, 5,  37, 69, 101, 133, 165, 197, 229,
@@ -1159,7 +1159,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x32[256]) = {
   30, 62, 94, 126, 158, 190, 222, 254, 31, 63, 95, 127, 159, 191, 223, 255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x8[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_32x8[256]) = {
   0,   8,   16,  24,  32,  40,  48,  56,  64,  72,  80,  88,  96,  104, 112,
   120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232,
   240, 248, 1,   9,   17,  25,  33,  41,  49,  57,  65,  73,  81,  89,  97,
@@ -1180,28 +1180,28 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x8[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x8[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_8x8[64]) = {
   0, 8,  16, 24, 32, 40, 48, 56, 1, 9,  17, 25, 33, 41, 49, 57,
   2, 10, 18, 26, 34, 42, 50, 58, 3, 11, 19, 27, 35, 43, 51, 59,
   4, 12, 20, 28, 36, 44, 52, 60, 5, 13, 21, 29, 37, 45, 53, 61,
   6, 14, 22, 30, 38, 46, 54, 62, 7, 15, 23, 31, 39, 47, 55, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x8[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_8x8[64]) = {
   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x8[64]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_8x8[64]) = {
   0,  2,  5,  9,  14, 20, 27, 35, 1,  4,  8,  13, 19, 26, 34, 42,
   3,  7,  12, 18, 25, 33, 41, 48, 6,  11, 17, 24, 32, 40, 47, 53,
   10, 16, 23, 31, 39, 46, 52, 57, 15, 22, 30, 38, 45, 51, 56, 60,
   21, 29, 37, 44, 50, 55, 59, 62, 28, 36, 43, 49, 54, 58, 61, 63
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x16[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_8x16[128]) = {
   0,  2,  5,   9,   14,  20,  27,  35,  1,  4,   8,   13,  19,  26,  34,  43,
   3,  7,  12,  18,  25,  33,  42,  51,  6,  11,  17,  24,  32,  41,  50,  59,
   10, 16, 23,  31,  40,  49,  58,  67,  15, 22,  30,  39,  48,  57,  66,  75,
@@ -1212,7 +1212,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_8x16[128]) = {
   84, 93, 101, 108, 114, 119, 123, 126, 92, 100, 107, 113, 118, 122, 125, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x8[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_16x8[128]) = {
   0,  2,  5,  9,  14, 20, 27, 35, 43, 51,  59,  67,  75,  83,  91,  99,
   1,  4,  8,  13, 19, 26, 34, 42, 50, 58,  66,  74,  82,  90,  98,  106,
   3,  7,  12, 18, 25, 33, 41, 49, 57, 65,  73,  81,  89,  97,  105, 112,
@@ -1223,7 +1223,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x8[128]) = {
   28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 107, 113, 118, 122, 125, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x16[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_8x16[128]) = {
   0,  16, 32, 48, 64, 80, 96,  112, 1,  17, 33, 49, 65, 81, 97,  113,
   2,  18, 34, 50, 66, 82, 98,  114, 3,  19, 35, 51, 67, 83, 99,  115,
   4,  20, 36, 52, 68, 84, 100, 116, 5,  21, 37, 53, 69, 85, 101, 117,
@@ -1234,7 +1234,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_8x16[128]) = {
   14, 30, 46, 62, 78, 94, 110, 126, 15, 31, 47, 63, 79, 95, 111, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x8[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_16x8[128]) = {
   0, 8,  16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96,  104, 112, 120,
   1, 9,  17, 25, 33, 41, 49, 57, 65, 73, 81, 89, 97,  105, 113, 121,
   2, 10, 18, 26, 34, 42, 50, 58, 66, 74, 82, 90, 98,  106, 114, 122,
@@ -1245,7 +1245,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x8[128]) = {
   7, 15, 23, 31, 39, 47, 55, 63, 71, 79, 87, 95, 103, 111, 119, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x16[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_8x16[128]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1257,7 +1257,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_8x16[128]) = {
   120, 121, 122, 123, 124, 125, 126, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x8[128]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_16x8[128]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1269,7 +1269,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x8[128]) = {
   120, 121, 122, 123, 124, 125, 126, 127,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x32[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_16x32[512]) = {
   0,   2,   5,   9,   14,  20,  27,  35,  44,  54,  65,  77,  90,  104, 119,
   135, 1,   4,   8,   13,  19,  26,  34,  43,  53,  64,  76,  89,  103, 118,
   134, 151, 3,   7,   12,  18,  25,  33,  42,  52,  63,  75,  88,  102, 117,
@@ -1307,7 +1307,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x32[512]) = {
   509, 511
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x16[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_32x16[512]) = {
   0,   2,   5,   9,   14,  20,  27,  35,  44,  54,  65,  77,  90,  104, 119,
   135, 151, 167, 183, 199, 215, 231, 247, 263, 279, 295, 311, 327, 343, 359,
   375, 391, 1,   4,   8,   13,  19,  26,  34,  43,  53,  64,  76,  89,  103,
@@ -1345,7 +1345,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x16[512]) = {
   509, 511,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x32[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_16x32[512]) = {
   0,  32, 64, 96,  128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480,
   1,  33, 65, 97,  129, 161, 193, 225, 257, 289, 321, 353, 385, 417, 449, 481,
   2,  34, 66, 98,  130, 162, 194, 226, 258, 290, 322, 354, 386, 418, 450, 482,
@@ -1380,7 +1380,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x32[512]) = {
   31, 63, 95, 127, 159, 191, 223, 255, 287, 319, 351, 383, 415, 447, 479, 511,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x16[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_32x16[512]) = {
   0,   16,  32,  48,  64,  80,  96,  112, 128, 144, 160, 176, 192, 208, 224,
   240, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464,
   480, 496, 1,   17,  33,  49,  65,  81,  97,  113, 129, 145, 161, 177, 193,
@@ -1418,7 +1418,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x16[512]) = {
   495, 511,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x32[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_16x32[512]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1456,7 +1456,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x32[512]) = {
   510, 511,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x16[512]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_32x16[512]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1494,7 +1494,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x16[512]) = {
   510, 511,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x16[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_16x16[256]) = {
   0,  16, 32, 48, 64, 80, 96,  112, 128, 144, 160, 176, 192, 208, 224, 240,
   1,  17, 33, 49, 65, 81, 97,  113, 129, 145, 161, 177, 193, 209, 225, 241,
   2,  18, 34, 50, 66, 82, 98,  114, 130, 146, 162, 178, 194, 210, 226, 242,
@@ -1513,7 +1513,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_16x16[256]) = {
   15, 31, 47, 63, 79, 95, 111, 127, 143, 159, 175, 191, 207, 223, 239, 255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x16[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_16x16[256]) = {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,
   15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
   30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,
@@ -1534,7 +1534,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_16x16[256]) = {
   255,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x16[256]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_16x16[256]) = {
   0,   2,   5,   9,   14,  20,  27,  35,  44,  54,  65,  77,  90,  104, 119,
   135, 1,   4,   8,   13,  19,  26,  34,  43,  53,  64,  76,  89,  103, 118,
   134, 150, 3,   7,   12,  18,  25,  33,  42,  52,  63,  75,  88,  102, 117,
@@ -1555,7 +1555,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_16x16[256]) = {
   255
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x32[1024]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mcol_iscan_32x32[1024]) = {
   0,   32,   64,  96,   128, 160,  192, 224,  256, 288,  320, 352,  384, 416,
   448, 480,  512, 544,  576, 608,  640, 672,  704, 736,  768, 800,  832, 864,
   896, 928,  960, 992,  1,   33,   65,  97,   129, 161,  193, 225,  257, 289,
@@ -1632,7 +1632,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mcol_iscan_32x32[1024]) = {
   991, 1023,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x32[1024]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_mrow_iscan_32x32[1024]) = {
   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,    10,   11,   12,
   13,   14,   15,   16,   17,   18,   19,   20,   21,   22,   23,   24,   25,
   26,   27,   28,   29,   30,   31,   32,   33,   34,   35,   36,   37,   38,
@@ -1714,7 +1714,7 @@ DECLARE_ALIGNED(16, static const int16_t, av1_mrow_iscan_32x32[1024]) = {
   1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023,
 };
 
-DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x32[1024]) = {
+DECLARE_ALIGNED(16, static const int16_t, av2_default_iscan_32x32[1024]) = {
   0,    2,    5,    9,    14,   20,   27,   35,   44,   54,   65,   77,   90,
   104,  119,  135,  152,  170,  189,  209,  230,  252,  275,  299,  324,  350,
   377,  405,  434,  464,  495,  527,  1,    4,    8,    13,   19,   26,   34,
@@ -1796,508 +1796,508 @@ DECLARE_ALIGNED(16, static const int16_t, av1_default_iscan_32x32[1024]) = {
   969,  979,  988,  996,  1003, 1009, 1014, 1018, 1021, 1023
 };
 
-const SCAN_ORDER av1_default_scan_orders[TX_SIZES] = {
-  { default_scan_4x4, av1_default_iscan_4x4 },
-  { default_scan_8x8, av1_default_iscan_8x8 },
-  { default_scan_16x16, av1_default_iscan_16x16 },
-  { default_scan_32x32, av1_default_iscan_32x32 },
+const SCAN_ORDER av2_default_scan_orders[TX_SIZES] = {
+  { default_scan_4x4, av2_default_iscan_4x4 },
+  { default_scan_8x8, av2_default_iscan_8x8 },
+  { default_scan_16x16, av2_default_iscan_16x16 },
+  { default_scan_32x32, av2_default_iscan_32x32 },
   // Half of the coefficients of tx64 at higher frequencies are set to
   // zeros. So tx32's scan order is used.
-  { default_scan_32x32, av1_default_iscan_32x32 },
+  { default_scan_32x32, av2_default_iscan_32x32 },
 };
 
-const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
+const SCAN_ORDER av2_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
   {
       // TX_4X4
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { default_scan_4x4, av1_default_iscan_4x4 },
-      { mrow_scan_4x4, av1_mrow_iscan_4x4 },
-      { mcol_scan_4x4, av1_mcol_iscan_4x4 },
-      { mrow_scan_4x4, av1_mrow_iscan_4x4 },
-      { mcol_scan_4x4, av1_mcol_iscan_4x4 },
-      { mrow_scan_4x4, av1_mrow_iscan_4x4 },
-      { mcol_scan_4x4, av1_mcol_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { default_scan_4x4, av2_default_iscan_4x4 },
+      { mrow_scan_4x4, av2_mrow_iscan_4x4 },
+      { mcol_scan_4x4, av2_mcol_iscan_4x4 },
+      { mrow_scan_4x4, av2_mrow_iscan_4x4 },
+      { mcol_scan_4x4, av2_mcol_iscan_4x4 },
+      { mrow_scan_4x4, av2_mrow_iscan_4x4 },
+      { mcol_scan_4x4, av2_mcol_iscan_4x4 },
   },
   {
       // TX_8X8
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { default_scan_8x8, av1_default_iscan_8x8 },
-      { mrow_scan_8x8, av1_mrow_iscan_8x8 },
-      { mcol_scan_8x8, av1_mcol_iscan_8x8 },
-      { mrow_scan_8x8, av1_mrow_iscan_8x8 },
-      { mcol_scan_8x8, av1_mcol_iscan_8x8 },
-      { mrow_scan_8x8, av1_mrow_iscan_8x8 },
-      { mcol_scan_8x8, av1_mcol_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { default_scan_8x8, av2_default_iscan_8x8 },
+      { mrow_scan_8x8, av2_mrow_iscan_8x8 },
+      { mcol_scan_8x8, av2_mcol_iscan_8x8 },
+      { mrow_scan_8x8, av2_mrow_iscan_8x8 },
+      { mcol_scan_8x8, av2_mcol_iscan_8x8 },
+      { mrow_scan_8x8, av2_mrow_iscan_8x8 },
+      { mcol_scan_8x8, av2_mcol_iscan_8x8 },
   },
   {
       // TX_16X16
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { default_scan_16x16, av1_default_iscan_16x16 },
-      { mrow_scan_16x16, av1_mrow_iscan_16x16 },
-      { mcol_scan_16x16, av1_mcol_iscan_16x16 },
-      { mrow_scan_16x16, av1_mrow_iscan_16x16 },
-      { mcol_scan_16x16, av1_mcol_iscan_16x16 },
-      { mrow_scan_16x16, av1_mrow_iscan_16x16 },
-      { mcol_scan_16x16, av1_mcol_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { default_scan_16x16, av2_default_iscan_16x16 },
+      { mrow_scan_16x16, av2_mrow_iscan_16x16 },
+      { mcol_scan_16x16, av2_mcol_iscan_16x16 },
+      { mrow_scan_16x16, av2_mrow_iscan_16x16 },
+      { mcol_scan_16x16, av2_mcol_iscan_16x16 },
+      { mrow_scan_16x16, av2_mrow_iscan_16x16 },
+      { mcol_scan_16x16, av2_mcol_iscan_16x16 },
   },
   {
       // TX_32X32
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
   },
   {
       // TX_64X64
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
   },
   {
       // TX_4X8
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { default_scan_4x8, av1_default_iscan_4x8 },
-      { mrow_scan_4x8, av1_mrow_iscan_4x8 },
-      { mcol_scan_4x8, av1_mcol_iscan_4x8 },
-      { mrow_scan_4x8, av1_mrow_iscan_4x8 },
-      { mcol_scan_4x8, av1_mcol_iscan_4x8 },
-      { mrow_scan_4x8, av1_mrow_iscan_4x8 },
-      { mcol_scan_4x8, av1_mcol_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { default_scan_4x8, av2_default_iscan_4x8 },
+      { mrow_scan_4x8, av2_mrow_iscan_4x8 },
+      { mcol_scan_4x8, av2_mcol_iscan_4x8 },
+      { mrow_scan_4x8, av2_mrow_iscan_4x8 },
+      { mcol_scan_4x8, av2_mcol_iscan_4x8 },
+      { mrow_scan_4x8, av2_mrow_iscan_4x8 },
+      { mcol_scan_4x8, av2_mcol_iscan_4x8 },
   },
   {
       // TX_8X4
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { default_scan_8x4, av1_default_iscan_8x4 },
-      { mrow_scan_8x4, av1_mrow_iscan_8x4 },
-      { mcol_scan_8x4, av1_mcol_iscan_8x4 },
-      { mrow_scan_8x4, av1_mrow_iscan_8x4 },
-      { mcol_scan_8x4, av1_mcol_iscan_8x4 },
-      { mrow_scan_8x4, av1_mrow_iscan_8x4 },
-      { mcol_scan_8x4, av1_mcol_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { default_scan_8x4, av2_default_iscan_8x4 },
+      { mrow_scan_8x4, av2_mrow_iscan_8x4 },
+      { mcol_scan_8x4, av2_mcol_iscan_8x4 },
+      { mrow_scan_8x4, av2_mrow_iscan_8x4 },
+      { mcol_scan_8x4, av2_mcol_iscan_8x4 },
+      { mrow_scan_8x4, av2_mrow_iscan_8x4 },
+      { mcol_scan_8x4, av2_mcol_iscan_8x4 },
   },
   {
       // TX_8X16
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { default_scan_8x16, av1_default_iscan_8x16 },
-      { mrow_scan_8x16, av1_mrow_iscan_8x16 },
-      { mcol_scan_8x16, av1_mcol_iscan_8x16 },
-      { mrow_scan_8x16, av1_mrow_iscan_8x16 },
-      { mcol_scan_8x16, av1_mcol_iscan_8x16 },
-      { mrow_scan_8x16, av1_mrow_iscan_8x16 },
-      { mcol_scan_8x16, av1_mcol_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { default_scan_8x16, av2_default_iscan_8x16 },
+      { mrow_scan_8x16, av2_mrow_iscan_8x16 },
+      { mcol_scan_8x16, av2_mcol_iscan_8x16 },
+      { mrow_scan_8x16, av2_mrow_iscan_8x16 },
+      { mcol_scan_8x16, av2_mcol_iscan_8x16 },
+      { mrow_scan_8x16, av2_mrow_iscan_8x16 },
+      { mcol_scan_8x16, av2_mcol_iscan_8x16 },
   },
   {
       // TX_16X8
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { default_scan_16x8, av1_default_iscan_16x8 },
-      { mrow_scan_16x8, av1_mrow_iscan_16x8 },
-      { mcol_scan_16x8, av1_mcol_iscan_16x8 },
-      { mrow_scan_16x8, av1_mrow_iscan_16x8 },
-      { mcol_scan_16x8, av1_mcol_iscan_16x8 },
-      { mrow_scan_16x8, av1_mrow_iscan_16x8 },
-      { mcol_scan_16x8, av1_mcol_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { default_scan_16x8, av2_default_iscan_16x8 },
+      { mrow_scan_16x8, av2_mrow_iscan_16x8 },
+      { mcol_scan_16x8, av2_mcol_iscan_16x8 },
+      { mrow_scan_16x8, av2_mrow_iscan_16x8 },
+      { mcol_scan_16x8, av2_mcol_iscan_16x8 },
+      { mrow_scan_16x8, av2_mrow_iscan_16x8 },
+      { mcol_scan_16x8, av2_mcol_iscan_16x8 },
   },
   {
       // TX_16X32
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
   },
   {
       // TX_32X16
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
   },
   {
       // TX_32X64
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
   },
   {
       // TX_64X32
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { default_scan_32x32, av1_default_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
-      { mrow_scan_32x32, av1_mrow_iscan_32x32 },
-      { mcol_scan_32x32, av1_mcol_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { default_scan_32x32, av2_default_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
+      { mrow_scan_32x32, av2_mrow_iscan_32x32 },
+      { mcol_scan_32x32, av2_mcol_iscan_32x32 },
   },
   {
       // TX_4X16
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { default_scan_4x16, av1_default_iscan_4x16 },
-      { mrow_scan_4x16, av1_mrow_iscan_4x16 },
-      { mcol_scan_4x16, av1_mcol_iscan_4x16 },
-      { mrow_scan_4x16, av1_mrow_iscan_4x16 },
-      { mcol_scan_4x16, av1_mcol_iscan_4x16 },
-      { mrow_scan_4x16, av1_mrow_iscan_4x16 },
-      { mcol_scan_4x16, av1_mcol_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { default_scan_4x16, av2_default_iscan_4x16 },
+      { mrow_scan_4x16, av2_mrow_iscan_4x16 },
+      { mcol_scan_4x16, av2_mcol_iscan_4x16 },
+      { mrow_scan_4x16, av2_mrow_iscan_4x16 },
+      { mcol_scan_4x16, av2_mcol_iscan_4x16 },
+      { mrow_scan_4x16, av2_mrow_iscan_4x16 },
+      { mcol_scan_4x16, av2_mcol_iscan_4x16 },
   },
   {
       // TX_16X4
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { default_scan_16x4, av1_default_iscan_16x4 },
-      { mrow_scan_16x4, av1_mrow_iscan_16x4 },
-      { mcol_scan_16x4, av1_mcol_iscan_16x4 },
-      { mrow_scan_16x4, av1_mrow_iscan_16x4 },
-      { mcol_scan_16x4, av1_mcol_iscan_16x4 },
-      { mrow_scan_16x4, av1_mrow_iscan_16x4 },
-      { mcol_scan_16x4, av1_mcol_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { default_scan_16x4, av2_default_iscan_16x4 },
+      { mrow_scan_16x4, av2_mrow_iscan_16x4 },
+      { mcol_scan_16x4, av2_mcol_iscan_16x4 },
+      { mrow_scan_16x4, av2_mrow_iscan_16x4 },
+      { mcol_scan_16x4, av2_mcol_iscan_16x4 },
+      { mrow_scan_16x4, av2_mrow_iscan_16x4 },
+      { mcol_scan_16x4, av2_mcol_iscan_16x4 },
   },
   {
       // TX_8X32
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
   },
   {
       // TX_32X8
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
   },
   {
       // TX_16X64
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { default_scan_16x32, av1_default_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
-      { mrow_scan_16x32, av1_mrow_iscan_16x32 },
-      { mcol_scan_16x32, av1_mcol_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { default_scan_16x32, av2_default_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
+      { mrow_scan_16x32, av2_mrow_iscan_16x32 },
+      { mcol_scan_16x32, av2_mcol_iscan_16x32 },
   },
   {
       // TX_64X16
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { default_scan_32x16, av1_default_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
-      { mrow_scan_32x16, av1_mrow_iscan_32x16 },
-      { mcol_scan_32x16, av1_mcol_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { default_scan_32x16, av2_default_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
+      { mrow_scan_32x16, av2_mrow_iscan_32x16 },
+      { mcol_scan_32x16, av2_mcol_iscan_32x16 },
   },
   {
       // TX_4X32
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
   },
   {
       // TX_32X4
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
   },
   {
       // TX_8X64
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { default_scan_8x32, av1_default_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
-      { mrow_scan_8x32, av1_mrow_iscan_8x32 },
-      { mcol_scan_8x32, av1_mcol_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { default_scan_8x32, av2_default_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
+      { mrow_scan_8x32, av2_mrow_iscan_8x32 },
+      { mcol_scan_8x32, av2_mcol_iscan_8x32 },
   },
   {
       // TX_64X8
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { default_scan_32x8, av1_default_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
-      { mrow_scan_32x8, av1_mrow_iscan_32x8 },
-      { mcol_scan_32x8, av1_mcol_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { default_scan_32x8, av2_default_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
+      { mrow_scan_32x8, av2_mrow_iscan_32x8 },
+      { mcol_scan_32x8, av2_mcol_iscan_32x8 },
   },
   {
       // TX_4X64
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { default_scan_4x32, av1_default_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
-      { mrow_scan_4x32, av1_mrow_iscan_4x32 },
-      { mcol_scan_4x32, av1_mcol_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { default_scan_4x32, av2_default_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
+      { mrow_scan_4x32, av2_mrow_iscan_4x32 },
+      { mcol_scan_4x32, av2_mcol_iscan_4x32 },
   },
   {
       // TX_64X4
       // Half of the coefficients of tx64 at higher frequencies are set to
       // zeros. So tx32's scan order is used.
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { default_scan_32x4, av1_default_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
-      { mrow_scan_32x4, av1_mrow_iscan_32x4 },
-      { mcol_scan_32x4, av1_mcol_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { default_scan_32x4, av2_default_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
+      { mrow_scan_32x4, av2_mrow_iscan_32x4 },
+      { mcol_scan_32x4, av2_mcol_iscan_32x4 },
   },
 };

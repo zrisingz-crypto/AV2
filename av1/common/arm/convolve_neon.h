@@ -8,8 +8,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#ifndef AOM_AV1_COMMON_ARM_CONVOLVE_NEON_H_
-#define AOM_AV1_COMMON_ARM_CONVOLVE_NEON_H_
+#ifndef AVM_AV2_COMMON_ARM_CONVOLVE_NEON_H_
+#define AVM_AV2_COMMON_ARM_CONVOLVE_NEON_H_
 
 #include <arm_neon.h>
 
@@ -225,4 +225,4 @@ static INLINE uint16x4_t convolve8_4x4_s32(
   return res;
 }
 
-#endif  // AOM_AV1_COMMON_ARM_CONVOLVE_NEON_H_
+#endif  // AVM_AV2_COMMON_ARM_CONVOLVE_NEON_H_

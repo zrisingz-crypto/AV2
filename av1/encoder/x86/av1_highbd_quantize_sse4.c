@@ -13,10 +13,10 @@
 #include <smmintrin.h>
 #include <stdint.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/x86/synonyms.h"
 
 // Coefficient quantization phase 1
 // param[0-2] : rounding/quan/dequan constants
@@ -121,7 +121,7 @@ static INLINE uint16_t get_accumulated_eob(__m128i *eob) {
   return eobValue;
 }
 
-void av1_highbd_quantize_fp_sse4_1(
+void av2_highbd_quantize_fp_sse4_1(
     const tran_low_t *coeff_ptr, intptr_t count, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,

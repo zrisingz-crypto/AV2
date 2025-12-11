@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MATHUTILS_H_
-#define AOM_AOM_DSP_MATHUTILS_H_
+#ifndef AVM_AVM_DSP_MATHUTILS_H_
+#define AVM_AVM_DSP_MATHUTILS_H_
 
 #include <memory.h>
 #include <math.h>
@@ -19,8 +19,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
 
 static const double TINY_NEAR_ZERO = 1.0E-16;
 
@@ -67,15 +67,15 @@ static INLINE int linsolve_const(int n, const double *A, int stride,
                                  const double *b, double *x) {
   assert(n > 0);
   assert(stride > 0);
-  double *A_ = (double *)aom_malloc(sizeof(*A_) * n * n);
-  double *b_ = (double *)aom_malloc(sizeof(*b_) * n);
+  double *A_ = (double *)avm_malloc(sizeof(*A_) * n * n);
+  double *b_ = (double *)avm_malloc(sizeof(*b_) * n);
   for (int i = 0; i < n; ++i) {
     memcpy(A_ + i * n, A + i * stride, sizeof(*A_) * n);
   }
   memcpy(b_, b, sizeof(*b_) * n);
   int ret = linsolve(n, A_, n, b_, x);
-  aom_free(A_);
-  aom_free(b_);
+  avm_free(A_);
+  avm_free(b_);
   return ret;
 }
 
@@ -256,7 +256,7 @@ static INLINE void least_squares_init(double *mat, double *y, int n) {
 }
 
 // Round the given positive value to nearest integer
-static AOM_FORCE_INLINE int iroundpf(float x) {
+static AVM_FORCE_INLINE int iroundpf(float x) {
   assert(x >= 0.0);
   return (int)(x + 0.5f);
 }
@@ -334,7 +334,7 @@ static INLINE int svdcmp(double **u, int m, int n, double w[], double **v) {
   const int max_its = 30;
   int flag, i, its, j, jj, k, l, nm;
   double anorm, c, f, g, h, s, scale, x, y, z;
-  double *rv1 = (double *)aom_malloc(sizeof(*rv1) * (n + 1));
+  double *rv1 = (double *)avm_malloc(sizeof(*rv1) * (n + 1));
   g = scale = anorm = 0.0;
   for (i = 0; i < n; i++) {
     l = i + 1;
@@ -398,7 +398,7 @@ static INLINE int svdcmp(double **u, int m, int n, double w[], double **v) {
     g = rv1[i];
     l = i;
   }
-  for (i = AOMMIN(m, n) - 1; i >= 0; i--) {
+  for (i = AVMMIN(m, n) - 1; i >= 0; i--) {
     l = i + 1;
     g = w[i];
     for (j = l; j < n; j++) u[i][j] = 0.0;
@@ -456,7 +456,7 @@ static INLINE int svdcmp(double **u, int m, int n, double w[], double **v) {
         break;
       }
       if (its == max_its - 1) {
-        aom_free(rv1);
+        avm_free(rv1);
         return 1;
       }
       assert(k > 0);
@@ -510,15 +510,15 @@ static INLINE int svdcmp(double **u, int m, int n, double w[], double **v) {
       w[k] = x;
     }
   }
-  aom_free(rv1);
+  avm_free(rv1);
   return 0;
 }
 
 static INLINE int SVD(double *U, double *W, double *V, double *matx, int M,
                       int N) {
   // Assumes allocation for U is MxN
-  double **nrU = (double **)aom_malloc((M) * sizeof(*nrU));
-  double **nrV = (double **)aom_malloc((N) * sizeof(*nrV));
+  double **nrU = (double **)avm_malloc((M) * sizeof(*nrU));
+  double **nrV = (double **)avm_malloc((N) * sizeof(*nrV));
   int problem, i;
 
   problem = !(nrU && nrV);
@@ -530,8 +530,8 @@ static INLINE int SVD(double *U, double *W, double *V, double *matx, int M,
       nrV[i] = &V[i * N];
     }
   } else {
-    if (nrU) aom_free(nrU);
-    if (nrV) aom_free(nrV);
+    if (nrU) avm_free(nrU);
+    if (nrV) avm_free(nrV);
     return 1;
   }
 
@@ -542,14 +542,14 @@ static INLINE int SVD(double *U, double *W, double *V, double *matx, int M,
 
   /* HERE IT IS: do SVD */
   if (svdcmp(nrU, M, N, W, nrV)) {
-    aom_free(nrU);
-    aom_free(nrV);
+    avm_free(nrU);
+    avm_free(nrV);
     return 1;
   }
 
-  /* aom_free Numerical Recipes arrays */
-  aom_free(nrU);
-  aom_free(nrV);
+  /* avm_free Numerical Recipes arrays */
+  avm_free(nrU);
+  avm_free(nrV);
 
   return 0;
 }
@@ -563,14 +563,14 @@ static INLINE int klt_components(int n, const int16_t **components, int width,
                                  int height, int stride, double *klt) {
   const int size = width * height;
   double one_by_size = 1.0 / size;
-  int64_t *sumsq = (int64_t *)aom_malloc(n * (n + 2) * sizeof(*sumsq));
+  int64_t *sumsq = (int64_t *)avm_malloc(n * (n + 2) * sizeof(*sumsq));
   if (!sumsq) return 1;
   int64_t *sum = sumsq + n * n;
   int64_t *vec = sum + n;
 
-  double *covar = (double *)aom_malloc(2 * n * (n + 1) * sizeof(*covar));
+  double *covar = (double *)avm_malloc(2 * n * (n + 1) * sizeof(*covar));
   if (!covar) {
-    aom_free(sumsq);
+    avm_free(sumsq);
     return 1;
   }
   double *means = covar + n * n;
@@ -598,7 +598,7 @@ static INLINE int klt_components(int n, const int16_t **components, int width,
   // Fill up with Symmetry
   for (int i = 0; i < n; ++i)
     for (int j = 0; j < i; ++j) covar[i * n + j] = covar[j * n + i];
-  aom_free(sumsq);
+  avm_free(sumsq);
 
   int res = SVD(klt, W, V, covar, n, n);
   if (!res) {
@@ -617,7 +617,7 @@ static INLINE int klt_components(int n, const int16_t **components, int width,
       }
     }
   }
-  aom_free(covar);
+  avm_free(covar);
   return res;
 }
 
@@ -635,14 +635,14 @@ static INLINE int klt_filtered_components(int n, const int16_t **components,
       (width - 2 * half_kernel_size) * (height - 2 * half_kernel_size);
 
   double one_by_size = 1.0 / size;
-  int64_t *sumsq = (int64_t *)aom_malloc(n * (n + 2) * sizeof(*sumsq));
+  int64_t *sumsq = (int64_t *)avm_malloc(n * (n + 2) * sizeof(*sumsq));
   if (!sumsq) return 1;
   int64_t *sum = sumsq + n * n;
   int64_t *vec = sum + n;
 
-  double *covar = (double *)aom_malloc(2 * n * (n + 1) * sizeof(*covar));
+  double *covar = (double *)avm_malloc(2 * n * (n + 1) * sizeof(*covar));
   if (!covar) {
-    aom_free(sumsq);
+    avm_free(sumsq);
     return 1;
   }
   double *means = covar + n * n;
@@ -676,7 +676,7 @@ static INLINE int klt_filtered_components(int n, const int16_t **components,
   // Fill up with Symmetry
   for (int i = 0; i < n; ++i)
     for (int j = 0; j < i; ++j) covar[i * n + j] = covar[j * n + i];
-  aom_free(sumsq);
+  avm_free(sumsq);
 
   int res = SVD(klt, W, V, covar, n, n);
   if (!res) {
@@ -695,7 +695,7 @@ static INLINE int klt_filtered_components(int n, const int16_t **components,
       }
     }
   }
-  aom_free(covar);
+  avm_free(covar);
   return res;
 }
-#endif  // AOM_AOM_DSP_MATHUTILS_H_
+#endif  // AVM_AVM_DSP_MATHUTILS_H_

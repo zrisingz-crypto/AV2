@@ -10,20 +10,20 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_ports/aom_timer.h"
-#include "av1/encoder/encodeframe_utils.h"
-#include "av1/encoder/partition_ml.h"
+#include "avm_ports/avm_timer.h"
+#include "av2/encoder/encodeframe_utils.h"
+#include "av2/encoder/partition_ml.h"
 
 // Computes residual stats on a transformed and quantized residual of the
 // block. This is used as ML features for prediction. The information computed
 // is NNZ (Number of Non-Zero coefficients of the transformed and quantized
 // residual), MAX_COEFF, PSNR.
-void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
+void compute_residual_stats(AV2_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
                             BLOCK_SIZE bsize, ResidualStats *out) {
-  AV1_COMMON *cm = &cpi->common;
+  AV2_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
-  const int plane = AOM_PLANE_Y;
+  const int plane = AVM_PLANE_Y;
   const int block = 0;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -33,7 +33,7 @@ void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
 
   memset(out, 0, sizeof(ResidualStats));
 
-  av1_subtract_plane(x, bsize, plane, cm->width, cm->height);
+  av2_subtract_plane(x, bsize, plane, cm->width, cm->height);
 
   const uint16_t *src = x->plane[0].src.buf;
   const uint16_t *dst = xd->plane[0].dst.buf;
@@ -42,43 +42,43 @@ void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
   out->var = cpi->fn_ptr[bsize].vf(src, src_stride, dst, dst_stride, &out->sse);
 
   const int num_blk = mi_size_wide[bsize] * mi_size_high[bsize];
-  struct aom_internal_error_info error;
-  AOM_CHECK_MEM_ERROR(&error, p->eobs,
-                      aom_memalign(32, num_blk * sizeof(p->eobs[0])));
+  struct avm_internal_error_info error;
+  AVM_CHECK_MEM_ERROR(&error, p->eobs,
+                      avm_memalign(32, num_blk * sizeof(p->eobs[0])));
   p->coeff = td->shared_coeff_buf.coeff_buf[plane];
   p->qcoeff = td->shared_coeff_buf.qcoeff_buf[plane];
   p->dqcoeff = td->shared_coeff_buf.dqcoeff_buf[plane];
   tran_low_t *const dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
   tran_low_t *const qcoeff = p->qcoeff + BLOCK_OFFSET(block);
   tran_low_t *const coeff = p->coeff + BLOCK_OFFSET(block);
-  AOM_CHECK_MEM_ERROR(&error, p->bobs,
-                      aom_memalign(32, num_blk * sizeof(p->bobs[0])));
-  AOM_CHECK_MEM_ERROR(
+  AVM_CHECK_MEM_ERROR(&error, p->bobs,
+                      avm_memalign(32, num_blk * sizeof(p->bobs[0])));
+  AVM_CHECK_MEM_ERROR(
       &error, p->txb_entropy_ctx,
-      aom_memalign(32, num_blk * sizeof(p->txb_entropy_ctx[0])));
+      avm_memalign(32, num_blk * sizeof(p->txb_entropy_ctx[0])));
 
   TxfmParam txfm_param;
   QUANT_PARAM quant_param;
 
-  av1_setup_xform(cm, x, plane, tx_size, DCT_DCT, CCTX_NONE, &txfm_param);
-  av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_B, cpi->oxcf.q_cfg.quant_b_adapt,
+  av2_setup_xform(cm, x, plane, tx_size, DCT_DCT, CCTX_NONE, &txfm_param);
+  av2_setup_quant(tx_size, 0, AV2_XFORM_QUANT_B, cpi->oxcf.q_cfg.quant_b_adapt,
                   &quant_param);
-  av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, DCT_DCT,
+  av2_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, DCT_DCT,
                     &quant_param);
-  av1_xform_quant(cm, x, plane, block, 0, 0, bsize, &txfm_param, &quant_param);
-  const int n_coeffs = av1_get_max_eob(txfm_param.tx_size);
+  av2_xform_quant(cm, x, plane, block, 0, 0, bsize, &txfm_param, &quant_param);
+  const int n_coeffs = av2_get_max_eob(txfm_param.tx_size);
   for (int i = 0; i < n_coeffs; i++) {
     int abs_qcoeff = abs(qcoeff[i]);
     out->satd += abs(coeff[i]);
     out->satdq += abs_qcoeff;
-    out->q_coeff_max = AOMMAX(out->q_coeff_max, abs_qcoeff);
+    out->q_coeff_max = AVMMAX(out->q_coeff_max, abs_qcoeff);
     out->q_coeff_nonz += qcoeff[i] != 0;
   }
 
   if (p->eobs[block]) {
     txfm_param.eob = p->eobs[block];
 
-    av1_highbd_inv_txfm_add(dqcoeff, pd->dst.buf, pd->dst.stride, &txfm_param);
+    av2_highbd_inv_txfm_add(dqcoeff, pd->dst.buf, pd->dst.stride, &txfm_param);
   }
   int sse = 0;
   for (int i = 0; i < block_size_high[bsize]; i++) {
@@ -90,17 +90,17 @@ void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
   }
   double mse =
       ((double)sse) / (block_size_high[bsize] * block_size_wide[bsize]);
-  out->psnr = (float)(sse == 0 ? 70 : AOMMIN(70, 20 * log10(255 / sqrt(mse))));
+  out->psnr = (float)(sse == 0 ? 70 : AVMMIN(70, 20 * log10(255 / sqrt(mse))));
 
   // TODO: figure out the way to do it w/o allocations
   p->coeff = NULL;
   p->qcoeff = NULL;
   p->dqcoeff = NULL;
-  aom_free(p->eobs);
+  avm_free(p->eobs);
   p->eobs = NULL;
-  aom_free(p->bobs);
+  avm_free(p->bobs);
   p->bobs = NULL;
-  aom_free(p->txb_entropy_ctx);
+  avm_free(p->txb_entropy_ctx);
   p->txb_entropy_ctx = NULL;
   xd->tree_type = old_tree_type;
 }
@@ -108,12 +108,12 @@ void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
 #define MAX_BLK_SIZE (MAX_TX_SIZE << 1)
 #define MAX_BLK_SQUARE (MAX_BLK_SIZE * MAX_BLK_SIZE)
 
-static AOM_INLINE void av1_ml_part_split_features_square(AV1_COMP *const cpi,
+static AVM_INLINE void av2_ml_part_split_features_square(AV2_COMP *const cpi,
                                                          MACROBLOCK *x,
                                                          int mi_row, int mi_col,
                                                          BLOCK_SIZE bsize,
                                                          float *out_features) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int w_mi = mi_size_wide[bsize];
@@ -169,7 +169,7 @@ static AOM_INLINE void av1_ml_part_split_features_square(AV1_COMP *const cpi,
           memset(intrapred, 0, sizeof(intrapred));
           xd->up_available = (mi_row + row_off) > 0;
           xd->left_available = (mi_col + col_off) > 0;
-          av1_predict_intra_block(
+          av2_predict_intra_block(
               cm, xd, w_sub_mi << MI_SIZE_LOG2, h_sub_mi << MI_SIZE_LOG2,
               tx_sub_size, intra_sub_mode, 0, 0, x->plane[0].src.buf + src_off,
               x->plane[0].src.stride, intrapred, MAX_TX_SIZE, 0, 0, 0);
@@ -211,12 +211,12 @@ static AOM_INLINE void av1_ml_part_split_features_square(AV1_COMP *const cpi,
   }
 }
 
-static AOM_INLINE void av1_ml_part_split_features_none(AV1_COMP *const cpi,
+static AVM_INLINE void av2_ml_part_split_features_none(AV2_COMP *const cpi,
                                                        MACROBLOCK *x,
                                                        int mi_row, int mi_col,
                                                        BLOCK_SIZE bsize,
                                                        float *out_features) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int w_mi = mi_size_wide[bsize];
@@ -244,7 +244,7 @@ static AOM_INLINE void av1_ml_part_split_features_none(AV1_COMP *const cpi,
         int intr_off = (row_off << 2) * MAX_BLK_SIZE + (col_off << 2);
         xd->up_available = (mi_row + row_off) > 0;
         xd->left_available = (mi_col + col_off) > 0;
-        av1_predict_intra_block(cm, xd, w_mi << MI_SIZE_LOG2,
+        av2_predict_intra_block(cm, xd, w_mi << MI_SIZE_LOG2,
                                 h_mi << MI_SIZE_LOG2, tx_size, intra_mode, 0, 0,
                                 x->plane[0].src.buf + src_off,
                                 x->plane[0].src.stride, intrapred + intr_off,
@@ -288,19 +288,19 @@ static AOM_INLINE void av1_ml_part_split_features_none(AV1_COMP *const cpi,
   }
 }
 
-static AOM_INLINE void av1_ml_part_split_features(AV1_COMP *const cpi,
+static AVM_INLINE void av2_ml_part_split_features(AV2_COMP *const cpi,
                                                   MACROBLOCK *x, int mi_row,
                                                   int mi_col, BLOCK_SIZE bsize,
                                                   float *out_features) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
 
-  av1_setup_src_planes(x, cpi->source, mi_row, mi_col, 1, NULL);
+  av2_setup_src_planes(x, cpi->source, mi_row, mi_col, 1, NULL);
 
   if (out_features) {
     // Q_INDEX
     const int dc_q =
-        av1_dc_quant_QTX(x->qindex, 0, cpi->common.seq_params.base_y_dc_delta_q,
+        av2_dc_quant_QTX(x->qindex, 0, cpi->common.seq_params.base_y_dc_delta_q,
                          xd->bd) >>
         (xd->bd - 8);
     out_features[FEATURE_INTRA_LOG_QP_SQUARED] =
@@ -336,16 +336,16 @@ static AOM_INLINE void av1_ml_part_split_features(AV1_COMP *const cpi,
   mbmi->multi_line_mrl = 0;
   mbmi->mrl_index = 0;
 
-  av1_ml_part_split_features_square(cpi, x, mi_row, mi_col, bsize,
+  av2_ml_part_split_features_square(cpi, x, mi_row, mi_col, bsize,
                                     out_features);
-  av1_ml_part_split_features_none(cpi, x, mi_row, mi_col, bsize, out_features);
+  av2_ml_part_split_features_none(cpi, x, mi_row, mi_col, bsize, out_features);
 
   xd->mb_to_top_edge = old1;
   xd->mb_to_left_edge = old2;
   mbmi->sb_type[0] = old3;
   mbmi->mrl_index = old4;
   mbmi->multi_line_mrl = old5;
-  aom_clear_system_state();
+  avm_clear_system_state();
 }
 
 bool model_in_list(MODEL_TYPE model_type, MODEL_TYPE *out, int num_models) {
@@ -514,15 +514,15 @@ static void blk_features(float *out_features, int o_psnr, int o_log_mag,
   out_features[o_satd] = logf(1.0f + sms->residual_stats.satd);
 }
 
-static void av1_ml_part_split_features_inter(
-    AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col,
+static void av2_ml_part_split_features_inter(
+    AV2_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col,
     BLOCK_SIZE bsize, const TileInfo *tile_info, ThreadData *td,
     bool search_none_after_rect, float *out_features) {
   if (cpi->common.current_frame.frame_type != INTER_FRAME) return;
   const MACROBLOCKD *xd = &x->e_mbd;
 
   SimpleMotionData *blk_none =
-      av1_get_sms_data(cpi, tile_info, x, mi_row, mi_col, bsize, td, true, 1);
+      av2_get_sms_data(cpi, tile_info, x, mi_row, mi_col, bsize, td, true, 1);
 
   BLOCK_SIZE subsize_sq = get_partition_subsize(
       get_partition_subsize(bsize, PARTITION_HORZ), PARTITION_VERT);
@@ -537,14 +537,14 @@ static void av1_ml_part_split_features_inter(
     int w_sub_mi = mi_size_wide[subsize_sq];
     int h_sub_mi = mi_size_high[subsize_sq];
 
-    SimpleMotionData *blk_sq_0 = av1_get_sms_data(
+    SimpleMotionData *blk_sq_0 = av2_get_sms_data(
         cpi, tile_info, x, mi_row, mi_col, subsize_sq, td, true, 1);
-    SimpleMotionData *blk_sq_1 = av1_get_sms_data(
+    SimpleMotionData *blk_sq_1 = av2_get_sms_data(
         cpi, tile_info, x, mi_row, mi_col + w_sub_mi, subsize_sq, td, true, 1);
-    SimpleMotionData *blk_sq_2 = av1_get_sms_data(
+    SimpleMotionData *blk_sq_2 = av2_get_sms_data(
         cpi, tile_info, x, mi_row + h_sub_mi, mi_col, subsize_sq, td, true, 1);
     SimpleMotionData *blk_sq_3 =
-        av1_get_sms_data(cpi, tile_info, x, mi_row + h_sub_mi,
+        av2_get_sms_data(cpi, tile_info, x, mi_row + h_sub_mi,
                          mi_col + w_sub_mi, subsize_sq, td, true, 1);
 
     if (out_features) {
@@ -579,9 +579,9 @@ static void av1_ml_part_split_features_inter(
   // when the NONE partitions are turned off.
   if (subsize_hor != BLOCK_INVALID && cpi->sf.part_sf.prune_none_with_ml) {
     int h_sub_mi = mi_size_high[subsize_hor];
-    SimpleMotionData *blk_hor_0 = av1_get_sms_data(
+    SimpleMotionData *blk_hor_0 = av2_get_sms_data(
         cpi, tile_info, x, mi_row, mi_col, subsize_hor, td, true, 1);
-    SimpleMotionData *blk_hor_1 = av1_get_sms_data(
+    SimpleMotionData *blk_hor_1 = av2_get_sms_data(
         cpi, tile_info, x, mi_row + h_sub_mi, mi_col, subsize_hor, td, true, 1);
 
     if (out_features) {
@@ -597,9 +597,9 @@ static void av1_ml_part_split_features_inter(
 
   if (subsize_ver != BLOCK_INVALID && cpi->sf.part_sf.prune_none_with_ml) {
     int w_sub_mi = mi_size_wide[subsize_ver];
-    SimpleMotionData *blk_ver_0 = av1_get_sms_data(
+    SimpleMotionData *blk_ver_0 = av2_get_sms_data(
         cpi, tile_info, x, mi_row, mi_col, subsize_ver, td, true, 1);
-    SimpleMotionData *blk_ver_1 = av1_get_sms_data(
+    SimpleMotionData *blk_ver_1 = av2_get_sms_data(
         cpi, tile_info, x, mi_row, mi_col + w_sub_mi, subsize_ver, td, true, 1);
 
     if (out_features) {
@@ -614,10 +614,10 @@ static void av1_ml_part_split_features_inter(
     }
   }
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 }
 
-int av1_ml_part_split_infer(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
+int av2_ml_part_split_infer(AV2_COMP *const cpi, MACROBLOCK *x, int mi_row,
                             int mi_col, BLOCK_SIZE bsize,
                             const TileInfo *tile_info, ThreadData *td,
                             bool search_none_after_rect, bool *prune_list) {
@@ -627,7 +627,7 @@ int av1_ml_part_split_infer(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 
   const int mi_high = mi_size_high[bsize];
   const int mi_wide = mi_size_wide[bsize];
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   if (mi_col + mi_wide > cm->mi_params.mi_cols ||
       mi_row + mi_high > cm->mi_params.mi_rows)
     return ML_PART_DONT_FORCE;
@@ -638,8 +638,8 @@ int av1_ml_part_split_infer(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 
   int qp_offset;
   switch (cm->seq_params.bit_depth) {
-    case AOM_BITS_10: qp_offset = qindex_10b_offset[1]; break;
-    case AOM_BITS_12: qp_offset = qindex_12b_offset[1]; break;
+    case AVM_BITS_10: qp_offset = qindex_10b_offset[1]; break;
+    case AVM_BITS_12: qp_offset = qindex_12b_offset[1]; break;
     default: qp_offset = 0; break;
   }
 
@@ -667,9 +667,9 @@ int av1_ml_part_split_infer(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
 
     if (!has_features) {
       if (key_frame) {
-        av1_ml_part_split_features(cpi, x, mi_row, mi_col, bsize, ml_input);
+        av2_ml_part_split_features(cpi, x, mi_row, mi_col, bsize, ml_input);
       } else {
-        av1_ml_part_split_features_inter(cpi, x, mi_row, mi_col, bsize,
+        av2_ml_part_split_features_inter(cpi, x, mi_row, mi_col, bsize,
                                          tile_info, td, search_none_after_rect,
                                          ml_input);
       }

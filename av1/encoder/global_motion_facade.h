@@ -10,25 +10,25 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_GLOBAL_MOTION_FACADE_H_
-#define AOM_AV1_ENCODER_GLOBAL_MOTION_FACADE_H_
+#ifndef AVM_AV2_ENCODER_GLOBAL_MOTION_FACADE_H_
+#define AVM_AV2_ENCODER_GLOBAL_MOTION_FACADE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 struct yv12_buffer_config;
-struct AV1_COMP;
+struct AV2_COMP;
 
-void av1_compute_gm_for_valid_ref_frames(
-    AV1_COMP *cpi, struct aom_internal_error_info *error_info,
+void av2_compute_gm_for_valid_ref_frames(
+    AV2_COMP *cpi, struct avm_internal_error_info *error_info,
     YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME], int frame,
     MotionModel *motion_models, uint8_t *segment_map, int segment_map_w,
     int segment_map_h);
 
-void av1_compute_global_motion_facade(struct AV1_COMP *cpi);
+void av2_compute_global_motion_facade(struct AV2_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_GLOBAL_MOTION_FACADE_H_
+#endif  // AVM_AV2_ENCODER_GLOBAL_MOTION_FACADE_H_

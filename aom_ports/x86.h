@@ -10,39 +10,39 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_X86_H_
-#define AOM_AOM_PORTS_X86_H_
+#ifndef AVM_AVM_PORTS_X86_H_
+#define AVM_AVM_PORTS_X86_H_
 #include <stdlib.h>
 
 #if defined(_MSC_VER)
 #include <intrin.h> /* For __cpuidex, __rdtsc */
 #endif
 
-#include "aom/aom_integer.h"
-#include "config/aom_config.h"
+#include "avm/avm_integer.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-  AOM_CPU_UNKNOWN = -1,
-  AOM_CPU_AMD,
-  AOM_CPU_AMD_OLD,
-  AOM_CPU_CENTAUR,
-  AOM_CPU_CYRIX,
-  AOM_CPU_INTEL,
-  AOM_CPU_NEXGEN,
-  AOM_CPU_NSC,
-  AOM_CPU_RISE,
-  AOM_CPU_SIS,
-  AOM_CPU_TRANSMETA,
-  AOM_CPU_TRANSMETA_OLD,
-  AOM_CPU_UMC,
-  AOM_CPU_VIA,
+  AVM_CPU_UNKNOWN = -1,
+  AVM_CPU_AMD,
+  AVM_CPU_AMD_OLD,
+  AVM_CPU_CENTAUR,
+  AVM_CPU_CYRIX,
+  AVM_CPU_INTEL,
+  AVM_CPU_NEXGEN,
+  AVM_CPU_NSC,
+  AVM_CPU_RISE,
+  AVM_CPU_SIS,
+  AVM_CPU_TRANSMETA,
+  AVM_CPU_TRANSMETA_OLD,
+  AVM_CPU_UMC,
+  AVM_CPU_VIA,
 
-  AOM_CPU_LAST
-} aom_cpu_t;
+  AVM_CPU_LAST
+} avm_cpu_t;
 
 #if defined(__GNUC__) && __GNUC__ || defined(__ANDROID__)
 #if ARCH_X86_64
@@ -175,11 +175,11 @@ static INLINE int x86_simd_caps(void) {
   char *env;
 
   /* See if the CPU capabilities are being overridden by the environment */
-  env = getenv("AOM_SIMD_CAPS");
+  env = getenv("AVM_SIMD_CAPS");
 
   if (env && *env) return (int)strtol(env, NULL, 0);
 
-  env = getenv("AOM_SIMD_CAPS_MASK");
+  env = getenv("AVM_SIMD_CAPS_MASK");
 
   if (env && *env) mask = (unsigned int)strtoul(env, NULL, 0);
 
@@ -357,10 +357,10 @@ static unsigned short x87_get_control_word(void) {
 }
 #elif ARCH_X86_64
 /* No fldcw intrinsics on Windows x64, punt to external asm */
-extern void aom_winx64_fldcw(unsigned short mode);
-extern unsigned short aom_winx64_fstcw(void);
-#define x87_set_control_word aom_winx64_fldcw
-#define x87_get_control_word aom_winx64_fstcw
+extern void avm_winx64_fldcw(unsigned short mode);
+extern unsigned short avm_winx64_fstcw(void);
+#define x87_set_control_word avm_winx64_fldcw
+#define x87_get_control_word avm_winx64_fstcw
 #else
 static void x87_set_control_word(unsigned short mode) {
   __asm { fldcw mode }
@@ -378,10 +378,10 @@ static INLINE unsigned int x87_set_double_precision(void) {
   return mode;
 }
 
-extern void aom_reset_mmx_state(void);
+extern void avm_reset_mmx_state(void);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_PORTS_X86_H_
+#endif  // AVM_AVM_PORTS_X86_H_

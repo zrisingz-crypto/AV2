@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/tip.h"
-#include "config/aom_scale_rtcd.h"
-#include "config/aom_dsp_rtcd.h"
-#include "av1/common/reconinter.h"
+#include "av2/common/tip.h"
+#include "config/avm_scale_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "av2/common/reconinter.h"
 
 // Percentage threshold of number of blocks with available motion
 // projection in a frame to allow TIP mode
 #define TIP_ENABLE_COUNT_THRESHOLD 60
 
-static void tip_temporal_scale_motion_field(AV1_COMMON *cm,
+static void tip_temporal_scale_motion_field(AV2_COMMON *cm,
                                             const int ref_frames_offset) {
   const int mvs_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
@@ -43,7 +43,7 @@ static void tip_temporal_scale_motion_field(AV1_COMMON *cm,
 }
 
 // Compute number of rows/columns/stride in TMVP unit (8x8)
-static void compute_tmvp_mi_info(const AV1_COMMON *cm, int *mvs_rows,
+static void compute_tmvp_mi_info(const AV2_COMMON *cm, int *mvs_rows,
                                  int *mvs_cols, int *mvs_stride,
                                  int *sb_tmvp_size) {
   *mvs_rows = ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
@@ -59,7 +59,7 @@ static void compute_tmvp_mi_info(const AV1_COMMON *cm, int *mvs_rows,
   *sb_tmvp_size = (mf_sb_size >> TMVP_MI_SZ_LOG2);
 }
 
-static void tip_fill_motion_field_holes(AV1_COMMON *cm) {
+static void tip_fill_motion_field_holes(AV2_COMMON *cm) {
   int mvs_rows = 0;
   int mvs_cols = 0;
   int mvs_stride = 0;
@@ -72,10 +72,10 @@ static void tip_fill_motion_field_holes(AV1_COMMON *cm) {
   const int dirs[4][2] = { { -1, 0 }, { 0, -1 }, { 1, 0 }, { 0, 1 } };
   for (int sb_row = 0; sb_row < mvs_rows; sb_row += sb_tmvp_size) {
     const int start_row = sb_row;
-    const int end_row = AOMMIN(sb_row + sb_tmvp_size, mvs_rows);
+    const int end_row = AVMMIN(sb_row + sb_tmvp_size, mvs_rows);
     for (int sb_col = 0; sb_col < mvs_cols; sb_col += sb_tmvp_size) {
       const int start_col = sb_col;
-      const int end_col = AOMMIN(sb_col + sb_tmvp_size, mvs_cols);
+      const int end_col = AVMMIN(sb_col + sb_tmvp_size, mvs_cols);
       for (int row = start_row; row < end_row; row += sample) {
         for (int col = start_col; col < end_col; col += sample) {
           const TPL_MV_REF *cur_tpl_mvs = cm->tpl_mvs_rows[row] + col;
@@ -100,7 +100,7 @@ static void tip_fill_motion_field_holes(AV1_COMMON *cm) {
   }
 }
 
-static void tip_blk_average_filter_mv(AV1_COMMON *cm) {
+static void tip_blk_average_filter_mv(AV2_COMMON *cm) {
   int mvs_rows = 0;
   int mvs_cols = 0;
   int mvs_stride = 0;
@@ -120,10 +120,10 @@ static void tip_blk_average_filter_mv(AV1_COMMON *cm) {
   int_mv tpl_mfs[MAX_SB_TMVP_SIZE * MAX_SB_TMVP_SIZE];
   for (int sb_row = 0; sb_row < mvs_rows; sb_row += sb_tmvp_size) {
     const int start_row = sb_row;
-    const int end_row = AOMMIN(sb_row + sb_tmvp_size, mvs_rows);
+    const int end_row = AVMMIN(sb_row + sb_tmvp_size, mvs_rows);
     for (int sb_col = 0; sb_col < mvs_cols; sb_col += sb_tmvp_size) {
       const int start_col = sb_col;
-      const int end_col = AOMMIN(sb_col + sb_tmvp_size, mvs_cols);
+      const int end_col = AVMMIN(sb_col + sb_tmvp_size, mvs_cols);
       for (int row = start_row; row < end_row; row += sample) {
         const int i0 = row - sample;
         const int i1 = row + sample;
@@ -199,7 +199,7 @@ static void tip_blk_average_filter_mv(AV1_COMMON *cm) {
   }
 }
 
-static void tip_config_tip_parameter(AV1_COMMON *cm) {
+static void tip_config_tip_parameter(AV2_COMMON *cm) {
   TIP *tip_ref = &cm->tip_ref;
   const OrderHintInfo *const order_hint_info = &cm->seq_params.order_hint_info;
   const int cur_order_hint = cm->cur_frame->display_order_hint;
@@ -233,14 +233,14 @@ static void tip_config_tip_parameter(AV1_COMMON *cm) {
       tip_derive_scale_factor(cur_to_ref0_offset, ref_frames_offset);
   tip_ref->ref_frames_offset_sf[1] =
       tip_derive_scale_factor(cur_to_ref1_offset, ref_frames_offset);
-  tip_ref->ref_frames_offset = AOMMIN(ref_frames_offset, MAX_FRAME_DISTANCE);
+  tip_ref->ref_frames_offset = AVMMIN(ref_frames_offset, MAX_FRAME_DISTANCE);
   tip_ref->ref_offset[0] = cur_to_ref0_offset;
   tip_ref->ref_offset[1] = cur_to_ref1_offset;
   tip_ref->ref_order_hint[0] = ref0_frame_order_hint;
   tip_ref->ref_order_hint[1] = ref1_frame_order_hint;
 }
 
-void av1_setup_tip_motion_field(AV1_COMMON *cm) {
+void av2_setup_tip_motion_field(AV2_COMMON *cm) {
   if (cm->features.tip_frame_mode) {
     tip_config_tip_parameter(cm);
     tip_temporal_scale_motion_field(cm, cm->tip_ref.ref_frames_offset);
@@ -248,14 +248,14 @@ void av1_setup_tip_motion_field(AV1_COMMON *cm) {
       tip_fill_motion_field_holes(cm);
       tip_blk_average_filter_mv(cm);
     }
-    av1_fill_tpl_mvs_sample_gap(cm);
+    av2_fill_tpl_mvs_sample_gap(cm);
 
     cm->features.use_optflow_tip =
         cm->features.tip_frame_mode && cm->has_both_sides_refs;
   }
 }
 
-static void enc_check_enable_tip_mode(AV1_COMMON *cm) {
+static void enc_check_enable_tip_mode(AV2_COMMON *cm) {
   const TPL_MV_REF *tpl_mvs_base = cm->tpl_mvs;
   const int mvs_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, TMVP_SHIFT_BITS);
@@ -288,7 +288,7 @@ static void enc_check_enable_tip_mode(AV1_COMMON *cm) {
   }
 }
 
-static void enc_decide_tip_mode(AV1_COMMON *cm) {
+static void enc_decide_tip_mode(AV2_COMMON *cm) {
   TIP *tip_ref = &cm->tip_ref;
   if (cm->current_frame.frame_type == KEY_FRAME ||
       cm->current_frame.frame_type == INTRA_ONLY_FRAME ||
@@ -326,49 +326,49 @@ static void enc_decide_tip_mode(AV1_COMMON *cm) {
   }
 }
 
-void av1_enc_setup_tip_motion_field(AV1_COMMON *cm) {
+void av2_enc_setup_tip_motion_field(AV2_COMMON *cm) {
   enc_decide_tip_mode(cm);
-  av1_setup_tip_motion_field(cm);
+  av2_setup_tip_motion_field(cm);
 }
 
-MAKE_BFP_SAD_WRAPPER_COMMON(aom_highbd_sad8x8)
-MAKE_BFP_SAD_WRAPPER_COMMON(aom_highbd_sad16x8)
-MAKE_BFP_SAD_WRAPPER_COMMON(aom_highbd_sad8x16)
-MAKE_BFP_SAD_WRAPPER_COMMON(aom_highbd_sad16x16)
+MAKE_BFP_SAD_WRAPPER_COMMON(avm_highbd_sad8x8)
+MAKE_BFP_SAD_WRAPPER_COMMON(avm_highbd_sad16x8)
+MAKE_BFP_SAD_WRAPPER_COMMON(avm_highbd_sad8x16)
+MAKE_BFP_SAD_WRAPPER_COMMON(avm_highbd_sad16x16)
 
 unsigned int get_highbd_sad(const uint16_t *src_ptr, int source_stride,
                             const uint16_t *ref_ptr, int ref_stride, int bd,
                             int bw, int bh) {
   if (bd == 8) {
     if (bw == 8 && bh == 8)
-      return aom_highbd_sad8x8_8(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x8_8(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 8)
-      return aom_highbd_sad16x8_8(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad16x8_8(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 8 && bh == 16)
-      return aom_highbd_sad8x16_8(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x16_8(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 16)
-      return aom_highbd_sad16x16_8(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad16x16_8(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 12 && bh == 12)
-      return aom_highbd_sad12x12(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad12x12(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 20 && bh == 12)
-      return aom_highbd_sad20x12(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad20x12(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 12 && bh == 20)
-      return aom_highbd_sad12x20(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad12x20(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 20 && bh == 20)
-      return aom_highbd_sad20x20(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad20x20(src_ptr, source_stride, ref_ptr, ref_stride);
     else {
       assert(0);
       return 0;
     }
   } else if (bd == 10) {
     if (bw == 8 && bh == 8)
-      return aom_highbd_sad8x8_10(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x8_10(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 8)
-      return aom_highbd_sad16x8_10(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad16x8_10(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 8 && bh == 16)
-      return aom_highbd_sad8x16_10(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x16_10(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 16)
-      return aom_highbd_sad16x16_10(src_ptr, source_stride, ref_ptr,
+      return avm_highbd_sad16x16_10(src_ptr, source_stride, ref_ptr,
                                     ref_stride);
     else {
       assert(0);
@@ -376,13 +376,13 @@ unsigned int get_highbd_sad(const uint16_t *src_ptr, int source_stride,
     }
   } else if (bd == 12) {
     if (bw == 8 && bh == 8)
-      return aom_highbd_sad8x8_12(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x8_12(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 8)
-      return aom_highbd_sad16x8_12(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad16x8_12(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 8 && bh == 16)
-      return aom_highbd_sad8x16_12(src_ptr, source_stride, ref_ptr, ref_stride);
+      return avm_highbd_sad8x16_12(src_ptr, source_stride, ref_ptr, ref_stride);
     else if (bw == 16 && bh == 16)
-      return aom_highbd_sad16x16_12(src_ptr, source_stride, ref_ptr,
+      return avm_highbd_sad16x16_12(src_ptr, source_stride, ref_ptr,
                                     ref_stride);
     else {
       assert(0);
@@ -394,8 +394,8 @@ unsigned int get_highbd_sad(const uint16_t *src_ptr, int source_stride,
   }
 }
 // Build an 8x8 block in the TIP frame
-static AOM_INLINE void tip_build_inter_predictors_8x8(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, BLOCK_SIZE unit_bsize,
+static AVM_INLINE void tip_build_inter_predictors_8x8(
+    const AV2_COMMON *cm, MACROBLOCKD *xd, int plane, BLOCK_SIZE unit_bsize,
     const MV mv[2], int mi_x, int mi_y, uint16_t **mc_buf,
     CONV_BUF_TYPE *tmp_conv_dst, CalcSubpelParamsFunc calc_subpel_params_func,
     uint16_t *dst, int dst_stride, uint16_t *dst0_16_refinemv,
@@ -416,7 +416,7 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
   const int comp_bh = bh >> ss_y;
 
   MB_MODE_INFO mbmi_buf;
-  av1_zero(mbmi_buf);
+  av2_zero(mbmi_buf);
   MB_MODE_INFO *mbmi = &mbmi_buf;
 
   int_mv mv_refined[2 * 4];
@@ -503,10 +503,10 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
     if (do_pred) {
       assert(opfl_dst_stride == bw);
       InterPredParams params0, params1;
-      av1_opfl_build_inter_predictor(cm, xd, plane, mbmi, bw, bh, mi_x, mi_y,
+      av2_opfl_build_inter_predictor(cm, xd, plane, mbmi, bw, bh, mi_x, mi_y,
                                      mc_buf, &params0, calc_subpel_params_func,
                                      0, dst0, &best_mv_ref[0], bw, bh);
-      av1_opfl_build_inter_predictor(cm, xd, plane, mbmi, bw, bh, mi_x, mi_y,
+      av2_opfl_build_inter_predictor(cm, xd, plane, mbmi, bw, bh, mi_x, mi_y,
                                      mc_buf, &params1, calc_subpel_params_func,
                                      1, dst1, &best_mv_ref[1], bw, bh);
     }
@@ -528,7 +528,7 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
     }
     // Refine MV using optical flow. The final output MV will be in 1/16
     // precision.
-    av1_get_optflow_based_mv(cm, xd, plane, mbmi, mv_refined, bw, bh, mi_x,
+    av2_get_optflow_based_mv(cm, xd, plane, mbmi, mv_refined, bw, bh, mi_x,
                              mi_y, 0 /* build_for_decode */, mc_buf,
                              calc_subpel_params_func, gx0, gy0, gx1, gy1, vx0,
                              vy0, vx1, vy1, dst0, dst1, opfl_dst_stride, 0,
@@ -547,15 +547,15 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
   BacpBlockData bacp_block_data[2 * N_OF_OFFSETS];
   const struct scale_factors *const sf0 = cm->tip_ref.ref_scale_factor[0];
   const struct scale_factors *const sf1 = cm->tip_ref.ref_scale_factor[1];
-  uint8_t use_bacp = cm->features.enable_imp_msk_bld && !av1_is_scaled(sf0) &&
-                     !av1_is_scaled(sf1);
+  uint8_t use_bacp = cm->features.enable_imp_msk_bld && !av2_is_scaled(sf0) &&
+                     !av2_is_scaled(sf1);
 
   for (int ref = 0; ref < 2; ++ref) {
     const struct scale_factors *const sf = cm->tip_ref.ref_scale_factor[ref];
     struct buf_2d *const pred_buf = &xd->plane[plane].pre[ref];
 
     InterPredParams inter_pred_params;
-    av1_init_inter_params(&inter_pred_params, comp_bw, comp_bh, comp_pixel_y,
+    av2_init_inter_params(&inter_pred_params, comp_bw, comp_bh, comp_pixel_y,
                           comp_pixel_x, ss_x, ss_y, bd, 0, sf, pred_buf,
                           cm->tip_interp_filter);
 
@@ -576,13 +576,13 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
         get_conv_params_no_round(ref, plane, tmp_conv_dst, MAX_SB_SIZE, 1, bd);
 
     if (do_opfl) {
-      av1_opfl_rebuild_inter_predictor(
+      av2_opfl_rebuild_inter_predictor(
           dst, dst_stride, plane, mv_refined, &inter_pred_params, xd, mi_x,
           mi_y, 0 /* build_for_decode */, cm, bw, ref, mc_buf,
           calc_subpel_params_func, use_4x4, mbmi, bh, mv, 0);
     } else {
       const MV mv_1_16th_pel = convert_mv_to_1_16th_pel(&best_mv_ref[ref]);
-      av1_build_one_inter_predictor(dst, dst_stride, &mv_1_16th_pel,
+      av2_build_one_inter_predictor(dst, dst_stride, &mv_1_16th_pel,
                                     &inter_pred_params, xd, mi_x, mi_y, ref,
                                     mc_buf, calc_subpel_params_func);
     }
@@ -591,8 +591,8 @@ static AOM_INLINE void tip_build_inter_predictors_8x8(
   xd->tmp_conv_dst = org_buf;
 }
 
-static AOM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, TIP_PLANE *tip_plane,
+static AVM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
+    const AV2_COMMON *cm, MACROBLOCKD *xd, int plane, TIP_PLANE *tip_plane,
     const MV mv[2], int bw, int bh, int mi_x, int mi_y, uint16_t **mc_buf,
     CONV_BUF_TYPE *tmp_conv_dst, CalcSubpelParamsFunc calc_subpel_params_func) {
   TIP_PLANE *const tip = &tip_plane[plane];
@@ -659,7 +659,7 @@ static AOM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
 #endif  // !CONFIG_FIX_BW_CHROMA_REFINED_MV
                               !is_tip_mv_refine_disabled_for_unit_size_16x16;
   if (do_ref_area_pad) {
-    MB_MODE_INFO *mbmi = aom_calloc(1, sizeof(*mbmi));
+    MB_MODE_INFO *mbmi = avm_calloc(1, sizeof(*mbmi));
     mbmi->mv[0].as_mv = mv[0];
     mbmi->mv[1].as_mv = mv[1];
     mbmi->ref_frame[0] = TIP_FRAME;
@@ -677,10 +677,10 @@ static AOM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
     const int mi_col = -xd->mb_to_left_edge >> MI_SUBPEL_SIZE_LOG2;
     mbmi->chroma_ref_info.mi_row_chroma_base = mi_row;
     mbmi->chroma_ref_info.mi_col_chroma_base = mi_col;
-    av1_get_reference_area_with_padding(cm, xd, plane, mbmi, mv, comp_bw,
+    av2_get_reference_area_with_padding(cm, xd, plane, mbmi, mv, comp_bw,
                                         comp_bh, mi_x, mi_y, ref_area, comp_bw,
                                         comp_bh);
-    aom_free(mbmi);
+    avm_free(mbmi);
   }
 
   int dst_stride = dst_buf->stride;
@@ -717,15 +717,15 @@ static AOM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
   const struct scale_factors *const sf0 = cm->tip_ref.ref_scale_factor[0];
   const struct scale_factors *const sf1 = cm->tip_ref.ref_scale_factor[1];
   uint8_t use_bacp = is_compound && tip_weight == TIP_EQUAL_WTD &&
-                     cm->features.enable_imp_msk_bld && !av1_is_scaled(sf0) &&
-                     !av1_is_scaled(sf1);
+                     cm->features.enable_imp_msk_bld && !av2_is_scaled(sf0) &&
+                     !av2_is_scaled(sf1);
 
   for (int ref = 0; ref < 1 + is_compound; ++ref) {
     const struct scale_factors *const sf = cm->tip_ref.ref_scale_factor[ref];
     struct buf_2d *const pred_buf = &xd->plane[plane].pre[ref];
 
     InterPredParams inter_pred_params;
-    av1_init_inter_params(&inter_pred_params, comp_bw, comp_bh, comp_pixel_y,
+    av2_init_inter_params(&inter_pred_params, comp_bw, comp_bh, comp_pixel_y,
                           comp_pixel_x, ss_x, ss_y, bd, 0, sf, pred_buf,
                           cm->tip_interp_filter);
 
@@ -754,14 +754,14 @@ static AOM_INLINE void tip_build_inter_predictors_8x8_and_bigger(
     const MV mv_1_16th_pel =
         plane ? xd->mv_refined[ref].as_mv : convert_mv_to_1_16th_pel(&mv[ref]);
 
-    av1_build_one_inter_predictor(dst, dst_buf->stride, &mv_1_16th_pel,
+    av2_build_one_inter_predictor(dst, dst_buf->stride, &mv_1_16th_pel,
                                   &inter_pred_params, xd, mi_x, mi_y, ref,
                                   mc_buf, calc_subpel_params_func);
   }
 }
 
-static AOM_INLINE void tip_component_build_inter_predictors(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, TIP_PLANE *tip_plane,
+static AVM_INLINE void tip_component_build_inter_predictors(
+    const AV2_COMMON *cm, MACROBLOCKD *xd, int plane, TIP_PLANE *tip_plane,
     const MV mv[2], int bw, int bh, int mi_x, int mi_y, uint16_t **mc_buf,
     CONV_BUF_TYPE *tmp_conv_dst, CalcSubpelParamsFunc calc_subpel_params_func) {
   tip_build_inter_predictors_8x8_and_bigger(
@@ -786,7 +786,7 @@ static INLINE void tip_setup_pred_plane(struct buf_2d *dst, uint16_t *src,
   dst->stride = stride;
 }
 
-static AOM_INLINE void tip_component_setup_dst_planes(AV1_COMMON *const cm,
+static AVM_INLINE void tip_component_setup_dst_planes(AV2_COMMON *const cm,
                                                       const int plane,
                                                       const int tpl_row,
                                                       const int tpl_col) {
@@ -807,7 +807,7 @@ static AOM_INLINE void tip_component_setup_dst_planes(AV1_COMMON *const cm,
 }
 
 static void tip_setup_tip_frame_plane(
-    AV1_COMMON *cm, MACROBLOCKD *xd, int blk_row_start, int blk_col_start,
+    AV2_COMMON *cm, MACROBLOCKD *xd, int blk_row_start, int blk_col_start,
     int blk_row_end, int blk_col_end, int mvs_stride, int unit_blk_size,
     int max_allow_blk_size, uint16_t **mc_buf, CONV_BUF_TYPE *tmp_conv_dst,
     CalcSubpelParamsFunc calc_subpel_params_func, int copy_refined_mvs) {
@@ -860,7 +860,7 @@ static void tip_setup_tip_frame_plane(
         mv[1] = cm->tip_global_motion.as_mv;
       }
 
-      for (int plane = 0; plane < av1_num_planes(cm); plane++) {
+      for (int plane = 0; plane < av2_num_planes(cm); plane++) {
         if (plane == 0 && copy_refined_mvs) {
           REFINEMV_SUBMB_INFO *refinemv_subinfo = &xd->refinemv_subinfo[0];
           fill_subblock_refine_mv(refinemv_subinfo, blk_width, blk_height,
@@ -882,7 +882,7 @@ static void tip_setup_tip_frame_plane(
 
         if (plane == 0 && copy_refined_mvs) {
           MB_MODE_INFO mbmi;
-          av1_zero(mbmi);
+          av2_zero(mbmi);
           mbmi.sb_type[PLANE_TYPE_Y] =
               get_tip_bsize_from_bw_bh(blk_width, blk_height);
           mbmi.ref_frame[0] = TIP_FRAME;
@@ -899,19 +899,19 @@ static void tip_setup_tip_frame_plane(
           mbmi.mv[1].as_mv = cm->tip_global_motion.as_mv;
 
           const int x_inside_boundary =
-              AOMMIN(blk_width >> MI_SIZE_LOG2, (blk_col_end - blk_col)
+              AVMMIN(blk_width >> MI_SIZE_LOG2, (blk_col_end - blk_col)
                                                     << TMVP_SHIFT_BITS);
           const int y_inside_boundary =
-              AOMMIN(step << TMVP_SHIFT_BITS, (blk_row_end - blk_row)
+              AVMMIN(step << TMVP_SHIFT_BITS, (blk_row_end - blk_row)
                                                   << TMVP_SHIFT_BITS);
           if (cm->seq_params.order_hint_info.enable_ref_frame_mvs) {
             if (enable_refined_mvs_in_tmvp(cm, xd, &mbmi)) {
-              av1_copy_frame_refined_mvs(cm, xd, &mbmi,
+              av2_copy_frame_refined_mvs(cm, xd, &mbmi,
                                          blk_row << TMVP_SHIFT_BITS,
                                          blk_col << TMVP_SHIFT_BITS,
                                          x_inside_boundary, y_inside_boundary);
             } else {
-              av1_copy_frame_mvs(cm, xd, &mbmi, blk_row << TMVP_SHIFT_BITS,
+              av2_copy_frame_mvs(cm, xd, &mbmi, blk_row << TMVP_SHIFT_BITS,
                                  blk_col << TMVP_SHIFT_BITS, x_inside_boundary,
                                  y_inside_boundary);
             }
@@ -923,8 +923,8 @@ static void tip_setup_tip_frame_plane(
   }
 }
 
-static AOM_INLINE void tip_setup_tip_frame_planes(
-    AV1_COMMON *cm, MACROBLOCKD *xd, int blk_row_start, int blk_col_start,
+static AVM_INLINE void tip_setup_tip_frame_planes(
+    AV2_COMMON *cm, MACROBLOCKD *xd, int blk_row_start, int blk_col_start,
     int blk_row_end, int blk_col_end, int mvs_stride, uint16_t **mc_buf,
     CONV_BUF_TYPE *tmp_conv_dst, CalcSubpelParamsFunc calc_subpel_params_func,
     int copy_refined_mvs) {
@@ -938,11 +938,11 @@ static AOM_INLINE void tip_setup_tip_frame_planes(
                             MAX_BLOCK_SIZE_WITH_SAME_MV, mc_buf, tmp_conv_dst,
                             calc_subpel_params_func, copy_refined_mvs);
 
-  aom_extend_frame_borders(&cm->tip_ref.tip_frame->buf, av1_num_planes(cm),
+  avm_extend_frame_borders(&cm->tip_ref.tip_frame->buf, av2_num_planes(cm),
                            cm->decoding);
 }
 
-void av1_setup_tip_frame(AV1_COMMON *cm, MACROBLOCKD *xd, uint16_t **mc_buf,
+void av2_setup_tip_frame(AV2_COMMON *cm, MACROBLOCKD *xd, uint16_t **mc_buf,
                          CONV_BUF_TYPE *tmp_conv_dst,
                          CalcSubpelParamsFunc calc_subpel_params_func,
                          int copy_refined_mvs) {

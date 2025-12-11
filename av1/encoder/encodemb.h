@@ -10,34 +10,34 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENCODEMB_H_
-#define AOM_AV1_ENCODER_ENCODEMB_H_
+#ifndef AVM_AV2_ENCODER_ENCODEMB_H_
+#define AVM_AV2_ENCODER_ENCODEMB_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/txb_common.h"
-#include "av1/encoder/av1_quantize.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/txb_common.h"
+#include "av2/encoder/av2_quantize.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/tokenize.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 enum {
-  AV1_XFORM_QUANT_FP = 0,
-  AV1_XFORM_QUANT_B = 1,
-  AV1_XFORM_QUANT_DC = 2,
-  AV1_XFORM_QUANT_SKIP_QUANT,
-  AV1_XFORM_QUANT_TYPES,
-} UENUM1BYTE(AV1_XFORM_QUANT);
+  AV2_XFORM_QUANT_FP = 0,
+  AV2_XFORM_QUANT_B = 1,
+  AV2_XFORM_QUANT_DC = 2,
+  AV2_XFORM_QUANT_SKIP_QUANT,
+  AV2_XFORM_QUANT_TYPES,
+} UENUM1BYTE(AV2_XFORM_QUANT);
 
 // TODO(any): Merge OPT_TYPe and TRELLLIS_OPT_TYPE
 // Available optimization types to optimize the quantized coefficients.
 enum {
   NONE_OPT = 0,            // No optimization.
-  TRELLIS_OPT = 1,         // Trellis optimization. See `av1_optimize_b()`.
-  DROPOUT_OPT = 2,         // Dropout optimization. See `av1_dropout_qcoeff()`.
+  TRELLIS_OPT = 1,         // Trellis optimization. See `av2_optimize_b()`.
+  DROPOUT_OPT = 2,         // Dropout optimization. See `av2_dropout_qcoeff()`.
   TRELLIS_DROPOUT_OPT = 3  // Perform dropout after trellis optimization.
 } UENUM1BYTE(OPT_TYPE);
 
@@ -54,7 +54,7 @@ struct optimize_ctx {
 };
 
 struct encode_b_args {
-  const struct AV1_COMP *cpi;
+  const struct AV2_COMP *cpi;
   MACROBLOCK *x;
   struct optimize_ctx *ctx;
   int8_t *skip;
@@ -64,37 +64,37 @@ struct encode_b_args {
   TRELLIS_OPT_TYPE enable_optimize_b;
 };
 
-void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+void av2_encode_sb(const struct AV2_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                    RUN_TYPE dry_run, int plane_start, int plane_end);
 
-void av1_foreach_transformed_block_in_plane(
+void av2_foreach_transformed_block_in_plane(
     const MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize, int plane,
     foreach_transformed_block_visitor visit, void *arg);
 
-void av1_encode_sby_pass1(struct AV1_COMP *cpi, MACROBLOCK *x,
+void av2_encode_sby_pass1(struct AV2_COMP *cpi, MACROBLOCK *x,
                           BLOCK_SIZE bsize);
 
-void av1_setup_xform(const AV1_COMMON *cm, MACROBLOCK *x, int plane,
+void av2_setup_xform(const AV2_COMMON *cm, MACROBLOCK *x, int plane,
                      TX_SIZE tx_size, TX_TYPE tx_type, CctxType cctx_Type,
                      TxfmParam *txfm_param);
-void av1_setup_quant(TX_SIZE tx_size, int use_optimize_b, int xform_quant_idx,
+void av2_setup_quant(TX_SIZE tx_size, int use_optimize_b, int xform_quant_idx,
                      int use_quant_b_adapt, QUANT_PARAM *qparam);
 
-void av1_update_trellisq(int use_optimize_b, int xform_quant_idx,
+void av2_update_trellisq(int use_optimize_b, int xform_quant_idx,
                          int use_quant_b_adapt, QUANT_PARAM *qparam);
 
-void av1_setup_qmatrix(const CommonQuantParams *quant_params,
+void av2_setup_qmatrix(const CommonQuantParams *quant_params,
                        const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
                        TX_TYPE tx_type, QUANT_PARAM *qparam);
 
-void av1_xform_dc_only(MACROBLOCK *x, int plane, int block,
+void av2_xform_dc_only(MACROBLOCK *x, int plane, int block,
                        TxfmParam *txfm_param, int64_t per_px_mean);
 
-void av1_xform_quant(const AV1_COMMON *cm, MACROBLOCK *x, int plane, int block,
+void av2_xform_quant(const AV2_COMMON *cm, MACROBLOCK *x, int plane, int block,
                      int blk_row, int blk_col, BLOCK_SIZE plane_bsize,
                      TxfmParam *txfm_param, QUANT_PARAM *qparam);
 
-void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
+void av2_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
                BLOCK_SIZE plane_bsize, TxfmParam *txfm_param, const int reuse,
                int64_t *sec_tx_sse);
 
@@ -105,19 +105,19 @@ void forward_cross_chroma_transform(MACROBLOCK *x, int block, TX_SIZE tx_size,
 void set_bob(MACROBLOCK *x, int plane, int block, TX_SIZE tx_size,
              TX_TYPE tx_type);
 
-void av1_quant(MACROBLOCK *x, int plane, int block, TxfmParam *txfm_param,
+void av2_quant(MACROBLOCK *x, int plane, int block, TxfmParam *txfm_param,
                QUANT_PARAM *qparam);
 
-int av1_optimize_fsc(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
+int av2_optimize_fsc(const struct AV2_COMP *cpi, MACROBLOCK *mb, int plane,
                      int block, TX_SIZE tx_size, TX_TYPE tx_type,
                      const TXB_CTX *const txb_ctx, int *rate_cost);
 
-int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *mb, int plane,
+int av2_optimize_b(const struct AV2_COMP *cpi, MACROBLOCK *mb, int plane,
                    int block, TX_SIZE tx_size, TX_TYPE tx_type,
                    CctxType cctx_type, const TXB_CTX *const txb_ctx,
                    int *rate_cost);
 // This function tunes the coefficients when trellis quantization is off.
-void parity_hiding_trellis_off(const struct AV1_COMP *cpi, MACROBLOCK *mb,
+void parity_hiding_trellis_off(const struct AV2_COMP *cpi, MACROBLOCK *mb,
                                const int plane_type, int block, TX_SIZE tx_size,
                                TX_TYPE tx_type);
 
@@ -144,17 +144,17 @@ void parity_hiding_trellis_off(const struct AV1_COMP *cpi, MACROBLOCK *mb,
 // Returns:
 //   Nothing will be returned, but `qcoeff`, `dqcoeff`, `eob`, as well as
 //   `txb_entropy_ctx`, which `mb` points to, may be modified by this function.
-void av1_dropout_qcoeff(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
+void av2_dropout_qcoeff(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
                         TX_TYPE tx_type, int qindex);
 
-void av1_subtract_block(const MACROBLOCKD *xd, int rows, int cols,
+void av2_subtract_block(const MACROBLOCKD *xd, int rows, int cols,
                         int16_t *diff, ptrdiff_t diff_stride,
                         const uint16_t *src, ptrdiff_t src_stride,
                         const uint16_t *pred, ptrdiff_t pred_stride, int plane,
                         int blk_col, int blk_row, int frame_width,
                         int frame_height, TX_TYPE tx_type);
 
-void av1_subtract_block_dpcm(const MACROBLOCKD *xd, int rows, int cols,
+void av2_subtract_block_dpcm(const MACROBLOCKD *xd, int rows, int cols,
                              int16_t *diff, ptrdiff_t diff_stride,
                              const uint16_t *src, ptrdiff_t src_stride,
                              const uint16_t *pred, ptrdiff_t pred_stride,
@@ -162,24 +162,24 @@ void av1_subtract_block_dpcm(const MACROBLOCKD *xd, int rows, int cols,
                              int frame_width, int frame_height,
                              TX_TYPE tx_type);
 
-void av1_subtract_block_vert(const MACROBLOCKD *xd, int rows, int cols,
+void av2_subtract_block_vert(const MACROBLOCKD *xd, int rows, int cols,
                              int16_t *diff, ptrdiff_t diff_stride,
                              const uint16_t *src, ptrdiff_t src_stride,
                              const uint16_t *pred, ptrdiff_t pred_stride);
 
-void av1_subtract_block_horz(const MACROBLOCKD *xd, int rows, int cols,
+void av2_subtract_block_horz(const MACROBLOCKD *xd, int rows, int cols,
                              int16_t *diff, ptrdiff_t diff_stride,
                              const uint16_t *src, ptrdiff_t src_stride,
                              const uint16_t *pred, ptrdiff_t pred_stride);
 
-void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
+void av2_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
                       int blk_col, int blk_row, TX_SIZE tx_size,
                       int frame_width, int frame_height, TX_TYPE tx_type);
 
-void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE plane_bsize, int plane,
+void av2_subtract_plane(MACROBLOCK *x, BLOCK_SIZE plane_bsize, int plane,
                         int frame_width, int frame_height);
 
-static INLINE void av1_set_txb_context(MACROBLOCK *x, int plane, int block,
+static INLINE void av2_set_txb_context(MACROBLOCK *x, int plane, int block,
                                        TX_SIZE tx_size, ENTROPY_CONTEXT *a,
                                        ENTROPY_CONTEXT *l) {
   const uint8_t ctx = x->plane[plane].txb_entropy_ctx[block];
@@ -187,14 +187,14 @@ static INLINE void av1_set_txb_context(MACROBLOCK *x, int plane, int block,
   memset(l, ctx, tx_size_high_unit[tx_size] * sizeof(*l));
 }
 
-void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
+void av2_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                             BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg);
 
-void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av2_encode_intra_block_plane(const struct AV2_COMP *cpi, MACROBLOCK *x,
                                   BLOCK_SIZE bsize, int plane, RUN_TYPE dry_run,
                                   TRELLIS_OPT_TYPE enable_optimize_b);
 
-void av1_encode_intra_block_joint_uv(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av2_encode_intra_block_joint_uv(const struct AV2_COMP *cpi, MACROBLOCK *x,
                                      BLOCK_SIZE bsize, RUN_TYPE dry_run,
                                      TRELLIS_OPT_TYPE enable_optimize_b);
 
@@ -221,4 +221,4 @@ static const uint16_t dc_coeff_scale[TX_SIZES_ALL] = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODEMB_H_
+#endif  // AVM_AV2_ENCODER_ENCODEMB_H_

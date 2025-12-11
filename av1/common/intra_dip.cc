@@ -12,14 +12,14 @@
 #include <cstdio>
 #include <memory>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "av1/common/av1_common_int.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "av2/common/av2_common_int.h"
 
 extern "C" {
-#include "av1/common/intra_matrix.h"
+#include "av2/common/intra_matrix.h"
 }
 
-#include "av1/common/intra_dip.h"
+#include "av2/common/intra_dip.h"
 
 #define INPUT_FEATURES 11
 
@@ -95,7 +95,7 @@ void resample_output_c(uint16_t *dst, int dst_stride, const uint16_t *above_row,
 }
 
 // Create intra DIP prediction for large blocks
-extern "C" void av1_highbd_intra_dip_predictor(int mode, uint16_t *dst,
+extern "C" void av2_highbd_intra_dip_predictor(int mode, uint16_t *dst,
                                                int dst_stride,
                                                const uint16_t *above_row,
                                                const uint16_t *left_col,
@@ -163,7 +163,7 @@ extern "C" void av1_highbd_intra_dip_predictor(int mode, uint16_t *dst,
     ml_input[ml_i++] = (sum + rnd1) >> down1_log2;
   }
 
-  av1_intra_matrix_pred(ml_input, iml_mode, ml_output, bd);
+  av2_intra_matrix_pred(ml_input, iml_mode, ml_output, bd);
 
 #if CONFIG_DIP_EXT_PRUNING
   // Collect DIP input features for ML pruning.

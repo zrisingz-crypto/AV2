@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_CONVOLVE_H_
-#define AOM_AV1_COMMON_CONVOLVE_H_
-#include "av1/common/filter.h"
+#ifndef AVM_AV2_COMMON_CONVOLVE_H_
+#define AVM_AV2_COMMON_CONVOLVE_H_
+#include "av2/common/filter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,12 +93,12 @@ static INLINE int config2ncoeffs_select(const NonsepFilterConfig *config,
 }
 
 // Nonseparable convolution.
-void av1_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
+void av2_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
                                        int height, int stride,
                                        const NonsepFilterConfig *config,
                                        const int16_t *filter, uint16_t *dst,
                                        int dst_stride, int bit_depth);
-void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
+void av2_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
                                        int height, int stride,
                                        const NonsepFilterConfig *config,
                                        const int16_t *filter, uint16_t *dst,
@@ -106,7 +106,7 @@ void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
 
 // Nonseparable convolution with dual input planes - used for cross component
 // filtering.
-void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
+void av2_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
                                      int stride, const uint16_t *dgd2,
                                      int stride2,
                                      const NonsepFilterConfig *config,
@@ -119,7 +119,7 @@ void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
 
 #define WIENER_CLAMP_LIMIT(r0, bd) (1 << ((bd) + 1 + FILTER_BITS - r0))
 
-struct AV1Common;
+struct AV2Common;
 struct scale_factors;
 
 static INLINE int is_uneven_wtd_comp_avg(const ConvolveParams *params) {
@@ -182,7 +182,7 @@ static INLINE WienerConvolveParams get_conv_params_wiener(int bd) {
   return conv_params;
 }
 
-void av1_highbd_convolve_2d_facade(const uint16_t *src8, int src_stride,
+void av2_highbd_convolve_2d_facade(const uint16_t *src8, int src_stride,
                                    uint16_t *dst, int dst_stride, int w, int h,
                                    const InterpFilterParams *interp_filters[2],
                                    const int subpel_x_qn, int x_step_q4,
@@ -220,4 +220,4 @@ void calc_gradient_in_various_directions_c(int16_t *feature_line_buffers[],
                                            int col_end, int feature_length,
                                            int buffer_col);
 
-#endif  // AOM_AV1_COMMON_CONVOLVE_H_
+#endif  // AVM_AV2_COMMON_CONVOLVE_H_

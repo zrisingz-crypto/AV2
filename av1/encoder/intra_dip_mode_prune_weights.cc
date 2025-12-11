@@ -1,8 +1,8 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "aom_ports/mem.h"
-#include "av1/encoder/intra_dip_mode_prune_tflite.h"
+#include "avm_ports/mem.h"
+#include "av2/encoder/intra_dip_mode_prune_tflite.h"
 
 // tflite::MemoryAllocation with a flatbuffer requires alignment.
 DECLARE_ALIGNED(8, const uint8_t, dip_pruning_tflite_qp85[58072]) = {

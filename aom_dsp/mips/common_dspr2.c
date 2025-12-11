@@ -10,23 +10,23 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/mips/common_dspr2.h"
+#include "avm_dsp/mips/common_dspr2.h"
 
 #if HAVE_DSPR2
-uint8_t aom_ff_cropTbl_a[256 + 2 * CROP_WIDTH];
-uint8_t *aom_ff_cropTbl;
+uint8_t avm_ff_cropTbl_a[256 + 2 * CROP_WIDTH];
+uint8_t *avm_ff_cropTbl;
 
-void aom_dsputil_static_init(void) {
+void avm_dsputil_static_init(void) {
   int i;
 
-  for (i = 0; i < 256; i++) aom_ff_cropTbl_a[i + CROP_WIDTH] = i;
+  for (i = 0; i < 256; i++) avm_ff_cropTbl_a[i + CROP_WIDTH] = i;
 
   for (i = 0; i < CROP_WIDTH; i++) {
-    aom_ff_cropTbl_a[i] = 0;
-    aom_ff_cropTbl_a[i + CROP_WIDTH + 256] = 255;
+    avm_ff_cropTbl_a[i] = 0;
+    avm_ff_cropTbl_a[i + CROP_WIDTH + 256] = 255;
   }
 
-  aom_ff_cropTbl = &aom_ff_cropTbl_a[CROP_WIDTH];
+  avm_ff_cropTbl = &avm_ff_cropTbl_a[CROP_WIDTH];
 }
 
 #endif

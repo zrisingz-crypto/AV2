@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/arg_defs.h"
+#include "av2/arg_defs.h"
 
 static const struct arg_enum_list test_decode_enum[] = {
   { "off", TEST_DECODE_OFF },
@@ -20,7 +20,7 @@ static const struct arg_enum_list test_decode_enum[] = {
 };
 
 static const struct arg_enum_list bitdepth_enum[] = {
-  { "8", AOM_BITS_8 }, { "10", AOM_BITS_10 }, { "12", AOM_BITS_12 }, { NULL, 0 }
+  { "8", AVM_BITS_8 }, { "10", AVM_BITS_10 }, { "12", AVM_BITS_12 }, { NULL, 0 }
 };
 
 #if CONFIG_WEBM_IO
@@ -34,120 +34,120 @@ static const struct arg_enum_list stereo_mode_enum[] = {
 };
 #endif
 
-static const struct arg_enum_list end_usage_enum[] = { { "vbr", AOM_VBR },
-                                                       { "cbr", AOM_CBR },
-                                                       { "cq", AOM_CQ },
-                                                       { "q", AOM_Q },
+static const struct arg_enum_list end_usage_enum[] = { { "vbr", AVM_VBR },
+                                                       { "cbr", AVM_CBR },
+                                                       { "cq", AVM_CQ },
+                                                       { "q", AVM_Q },
                                                        { NULL, 0 } };
 
 static const struct arg_enum_list tuning_enum[] = {
-  { "psnr", AOM_TUNE_PSNR },
-  { "ssim", AOM_TUNE_SSIM },
-  { "vmaf_with_preprocessing", AOM_TUNE_VMAF_WITH_PREPROCESSING },
-  { "vmaf_without_preprocessing", AOM_TUNE_VMAF_WITHOUT_PREPROCESSING },
-  { "vmaf", AOM_TUNE_VMAF_MAX_GAIN },
-  { "vmaf_neg", AOM_TUNE_VMAF_NEG_MAX_GAIN },
+  { "psnr", AVM_TUNE_PSNR },
+  { "ssim", AVM_TUNE_SSIM },
+  { "vmaf_with_preprocessing", AVM_TUNE_VMAF_WITH_PREPROCESSING },
+  { "vmaf_without_preprocessing", AVM_TUNE_VMAF_WITHOUT_PREPROCESSING },
+  { "vmaf", AVM_TUNE_VMAF_MAX_GAIN },
+  { "vmaf_neg", AVM_TUNE_VMAF_NEG_MAX_GAIN },
   { NULL, 0 }
 };
 
-#if CONFIG_AV1_ENCODER
+#if CONFIG_AV2_ENCODER
 static const struct arg_enum_list timing_info_enum[] = {
-  { "unspecified", AOM_TIMING_UNSPECIFIED },
-  { "constant", AOM_TIMING_EQUAL },
-  { "model", AOM_TIMING_DEC_MODEL },
+  { "unspecified", AVM_TIMING_UNSPECIFIED },
+  { "constant", AVM_TIMING_EQUAL },
+  { "model", AVM_TIMING_DEC_MODEL },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list superblock_size_enum[] = {
-  { "dynamic", AOM_SUPERBLOCK_SIZE_DYNAMIC },
-  { "64", AOM_SUPERBLOCK_SIZE_64X64 },
-  { "128", AOM_SUPERBLOCK_SIZE_128X128 },
-  { "256", AOM_SUPERBLOCK_SIZE_256X256 },
+  { "dynamic", AVM_SUPERBLOCK_SIZE_DYNAMIC },
+  { "64", AVM_SUPERBLOCK_SIZE_64X64 },
+  { "128", AVM_SUPERBLOCK_SIZE_128X128 },
+  { "256", AVM_SUPERBLOCK_SIZE_256X256 },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list matrix_coefficients_enum[] = {
-  { "identity", AOM_CICP_MC_IDENTITY },
-  { "bt709", AOM_CICP_MC_BT_709 },
-  { "unspecified", AOM_CICP_MC_UNSPECIFIED },
-  { "fcc73", AOM_CICP_MC_FCC },
-  { "bt470bg", AOM_CICP_MC_BT_470_B_G },
-  { "bt601", AOM_CICP_MC_BT_601 },
-  { "smpte240", AOM_CICP_CP_SMPTE_240 },
-  { "ycgco", AOM_CICP_MC_SMPTE_YCGCO },
-  { "bt2020ncl", AOM_CICP_MC_BT_2020_NCL },
-  { "bt2020cl", AOM_CICP_MC_BT_2020_CL },
-  { "smpte2085", AOM_CICP_MC_SMPTE_2085 },
-  { "chromncl", AOM_CICP_MC_CHROMAT_NCL },
-  { "chromcl", AOM_CICP_MC_CHROMAT_CL },
-  { "ictcp", AOM_CICP_MC_ICTCP },
+  { "identity", AVM_CICP_MC_IDENTITY },
+  { "bt709", AVM_CICP_MC_BT_709 },
+  { "unspecified", AVM_CICP_MC_UNSPECIFIED },
+  { "fcc73", AVM_CICP_MC_FCC },
+  { "bt470bg", AVM_CICP_MC_BT_470_B_G },
+  { "bt601", AVM_CICP_MC_BT_601 },
+  { "smpte240", AVM_CICP_CP_SMPTE_240 },
+  { "ycgco", AVM_CICP_MC_SMPTE_YCGCO },
+  { "bt2020ncl", AVM_CICP_MC_BT_2020_NCL },
+  { "bt2020cl", AVM_CICP_MC_BT_2020_CL },
+  { "smpte2085", AVM_CICP_MC_SMPTE_2085 },
+  { "chromncl", AVM_CICP_MC_CHROMAT_NCL },
+  { "chromcl", AVM_CICP_MC_CHROMAT_CL },
+  { "ictcp", AVM_CICP_MC_ICTCP },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list chroma_sample_position_enum[] = {
-  { "unspecified", AOM_CSP_UNSPECIFIED },
-  { "left", AOM_CSP_LEFT },
-  { "center", AOM_CSP_CENTER },
-  { "topleft", AOM_CSP_TOPLEFT },
-  { "top", AOM_CSP_TOP },
-  { "bottomleft", AOM_CSP_BOTTOMLEFT },
-  { "bottom", AOM_CSP_BOTTOM },
+  { "unspecified", AVM_CSP_UNSPECIFIED },
+  { "left", AVM_CSP_LEFT },
+  { "center", AVM_CSP_CENTER },
+  { "topleft", AVM_CSP_TOPLEFT },
+  { "top", AVM_CSP_TOP },
+  { "bottomleft", AVM_CSP_BOTTOMLEFT },
+  { "bottom", AVM_CSP_BOTTOM },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list tune_content_enum[] = {
-  { "default", AOM_CONTENT_DEFAULT },
-  { "screen", AOM_CONTENT_SCREEN },
+  { "default", AVM_CONTENT_DEFAULT },
+  { "screen", AVM_CONTENT_SCREEN },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list transfer_characteristics_enum[] = {
-  { "unspecified", AOM_CICP_CP_UNSPECIFIED },
-  { "bt709", AOM_CICP_TC_BT_709 },
-  { "bt470m", AOM_CICP_TC_BT_470_M },
-  { "bt470bg", AOM_CICP_TC_BT_470_B_G },
-  { "bt601", AOM_CICP_TC_BT_601 },
-  { "smpte240", AOM_CICP_TC_SMPTE_240 },
-  { "lin", AOM_CICP_TC_LINEAR },
-  { "log100", AOM_CICP_TC_LOG_100 },
-  { "log100sq10", AOM_CICP_TC_LOG_100_SQRT10 },
-  { "iec61966", AOM_CICP_TC_IEC_61966 },
-  { "bt1361", AOM_CICP_TC_BT_1361 },
-  { "srgb", AOM_CICP_TC_SRGB },
-  { "bt2020-10bit", AOM_CICP_TC_BT_2020_10_BIT },
-  { "bt2020-12bit", AOM_CICP_TC_BT_2020_12_BIT },
-  { "smpte2084", AOM_CICP_TC_SMPTE_2084 },
-  { "hlg", AOM_CICP_TC_HLG },
-  { "smpte428", AOM_CICP_TC_SMPTE_428 },
+  { "unspecified", AVM_CICP_CP_UNSPECIFIED },
+  { "bt709", AVM_CICP_TC_BT_709 },
+  { "bt470m", AVM_CICP_TC_BT_470_M },
+  { "bt470bg", AVM_CICP_TC_BT_470_B_G },
+  { "bt601", AVM_CICP_TC_BT_601 },
+  { "smpte240", AVM_CICP_TC_SMPTE_240 },
+  { "lin", AVM_CICP_TC_LINEAR },
+  { "log100", AVM_CICP_TC_LOG_100 },
+  { "log100sq10", AVM_CICP_TC_LOG_100_SQRT10 },
+  { "iec61966", AVM_CICP_TC_IEC_61966 },
+  { "bt1361", AVM_CICP_TC_BT_1361 },
+  { "srgb", AVM_CICP_TC_SRGB },
+  { "bt2020-10bit", AVM_CICP_TC_BT_2020_10_BIT },
+  { "bt2020-12bit", AVM_CICP_TC_BT_2020_12_BIT },
+  { "smpte2084", AVM_CICP_TC_SMPTE_2084 },
+  { "hlg", AVM_CICP_TC_HLG },
+  { "smpte428", AVM_CICP_TC_SMPTE_428 },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list color_primaries_enum[] = {
-  { "bt709", AOM_CICP_CP_BT_709 },
-  { "unspecified", AOM_CICP_CP_UNSPECIFIED },
-  { "bt601", AOM_CICP_CP_BT_601 },
-  { "bt470m", AOM_CICP_CP_BT_470_M },
-  { "bt470bg", AOM_CICP_CP_BT_470_B_G },
-  { "smpte240", AOM_CICP_CP_SMPTE_240 },
-  { "film", AOM_CICP_CP_GENERIC_FILM },
-  { "bt2020", AOM_CICP_CP_BT_2020 },
-  { "xyz", AOM_CICP_CP_XYZ },
-  { "smpte431", AOM_CICP_CP_SMPTE_431 },
-  { "smpte432", AOM_CICP_CP_SMPTE_432 },
-  { "ebu3213", AOM_CICP_CP_EBU_3213 },
+  { "bt709", AVM_CICP_CP_BT_709 },
+  { "unspecified", AVM_CICP_CP_UNSPECIFIED },
+  { "bt601", AVM_CICP_CP_BT_601 },
+  { "bt470m", AVM_CICP_CP_BT_470_M },
+  { "bt470bg", AVM_CICP_CP_BT_470_B_G },
+  { "smpte240", AVM_CICP_CP_SMPTE_240 },
+  { "film", AVM_CICP_CP_GENERIC_FILM },
+  { "bt2020", AVM_CICP_CP_BT_2020 },
+  { "xyz", AVM_CICP_CP_XYZ },
+  { "smpte431", AVM_CICP_CP_SMPTE_431 },
+  { "smpte432", AVM_CICP_CP_SMPTE_432 },
+  { "ebu3213", AVM_CICP_CP_EBU_3213 },
   { NULL, 0 }
 };
 
 static const struct arg_enum_list frame_hash_metadata_enum[] = {
-  { "off", AOM_DFH_DISABLED },
-  { "raw", AOM_DFH_RAW },
-  { "filmgrain", AOM_DFH_FG },
-  { "both", AOM_DFH_BOTH },
+  { "off", AVM_DFH_DISABLED },
+  { "raw", AVM_DFH_RAW },
+  { "filmgrain", AVM_DFH_FG },
+  { "both", AVM_DFH_BOTH },
   { NULL, 0 }
 };
-#endif  // CONFIG_AV1_ENCODER
+#endif  // CONFIG_AV2_ENCODER
 
-const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
+const av2_codec_arg_definitions_t g_av2_codec_arg_defs = {
   .help = ARG_DEF(NULL, "help", 0, "Show usage options and exit"),
   .debugmode =
       ARG_DEF("D", "debug", 0, "Debug mode (makes output deterministic)"),
@@ -318,8 +318,8 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
                       "in range [M, 255], where M = 0/-48/-96 for 8/10/12 bit"),
   .max_intra_rate_pct =
       ARG_DEF(NULL, "max-intra-rate", 1, "Max I-frame bitrate (pct)"),
-#if CONFIG_AV1_ENCODER
-  .cpu_used_av1 = ARG_DEF(NULL, "cpu-used", 1, "Speed setting (0..9)"),
+#if CONFIG_AV2_ENCODER
+  .cpu_used_av2 = ARG_DEF(NULL, "cpu-used", 1, "Speed setting (0..9)"),
   .rowmtarg =
       ARG_DEF(NULL, "row-mt", 1,
               "Enable row based multi-threading (0: off, 1: on (default))"),
@@ -874,7 +874,7 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
                                 "Use short metadata OBU format "
                                 "(0: GROUP format [default], 1: SHORT format)"),
 #endif  // CONFIG_METADATA
-#endif  // CONFIG_AV1_ENCODER
+#endif  // CONFIG_AV2_ENCODER
   .enable_short_refresh_frame_flags =
       ARG_DEF(NULL, "enable-short-refresh-frame-flags", 1,
               "Signal refresh frame flags with N bits. (0: N = 8, 1 : N = 3)"),

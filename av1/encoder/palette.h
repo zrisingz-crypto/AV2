@@ -13,32 +13,32 @@
 /*!\file
  * \brief Declares functions used in palette search.
  */
-#ifndef AOM_AV1_ENCODER_PALETTE_H_
-#define AOM_AV1_ENCODER_PALETTE_H_
+#ifndef AVM_AV2_ENCODER_PALETTE_H_
+#define AVM_AV2_ENCODER_PALETTE_H_
 
-#include "av1/common/blockd.h"
+#include "av2/common/blockd.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct PICK_MODE_CONTEXT;
 struct macroblock;
 
 /*!\cond */
-#define AV1_K_MEANS_RENAME(func, dim) func##_dim##dim
+#define AV2_K_MEANS_RENAME(func, dim) func##_dim##dim
 
-void AV1_K_MEANS_RENAME(av1_calc_indices, 1)(const int *data,
+void AV2_K_MEANS_RENAME(av2_calc_indices, 1)(const int *data,
                                              const int *centroids,
                                              uint8_t *indices, int n, int k);
-void AV1_K_MEANS_RENAME(av1_calc_indices, 2)(const int *data,
+void AV2_K_MEANS_RENAME(av2_calc_indices, 2)(const int *data,
                                              const int *centroids,
                                              uint8_t *indices, int n, int k);
-void AV1_K_MEANS_RENAME(av1_k_means, 1)(const int *data, int *centroids,
+void AV2_K_MEANS_RENAME(av2_k_means, 1)(const int *data, int *centroids,
                                         uint8_t *indices, int n, int k,
                                         int max_itr);
-void AV1_K_MEANS_RENAME(av1_k_means, 2)(const int *data, int *centroids,
+void AV2_K_MEANS_RENAME(av2_k_means, 2)(const int *data, int *centroids,
                                         uint8_t *indices, int n, int k,
                                         int max_itr);
 /*!\endcond */
@@ -58,14 +58,14 @@ void AV1_K_MEANS_RENAME(av1_k_means, 2)(const int *data, int *centroids,
  *
  * Returns nothing, but saves each data's cluster index in indices.
  */
-static INLINE void av1_calc_indices(const int *data, const int *centroids,
+static INLINE void av2_calc_indices(const int *data, const int *centroids,
                                     uint8_t *indices, int n, int k, int dim) {
   assert(n > 0);
   assert(k > 0);
   if (dim == 1) {
-    AV1_K_MEANS_RENAME(av1_calc_indices, 1)(data, centroids, indices, n, k);
+    AV2_K_MEANS_RENAME(av2_calc_indices, 1)(data, centroids, indices, n, k);
   } else if (dim == 2) {
-    AV1_K_MEANS_RENAME(av1_calc_indices, 2)(data, centroids, indices, n, k);
+    AV2_K_MEANS_RENAME(av2_calc_indices, 2)(data, centroids, indices, n, k);
   } else {
     assert(0 && "Untemplated k means dimension");
   }
@@ -91,15 +91,15 @@ static INLINE void av1_calc_indices(const int *data, const int *centroids,
  *
  * \attention The output centroids are rounded off to nearest integers.
  */
-static INLINE void av1_k_means(const int *data, int *centroids,
+static INLINE void av2_k_means(const int *data, int *centroids,
                                uint8_t *indices, int n, int k, int dim,
                                int max_itr) {
   assert(n > 0);
   assert(k > 0);
   if (dim == 1) {
-    AV1_K_MEANS_RENAME(av1_k_means, 1)(data, centroids, indices, n, k, max_itr);
+    AV2_K_MEANS_RENAME(av2_k_means, 1)(data, centroids, indices, n, k, max_itr);
   } else if (dim == 2) {
-    AV1_K_MEANS_RENAME(av1_k_means, 2)(data, centroids, indices, n, k, max_itr);
+    AV2_K_MEANS_RENAME(av2_k_means, 2)(data, centroids, indices, n, k, max_itr);
   } else {
     assert(0 && "Untemplated k means dimension");
   }
@@ -117,7 +117,7 @@ static INLINE void av1_k_means(const int *data, int *centroids,
  * \attention The centroids should be rounded to integers before calling this
  * method.
  */
-int av1_remove_duplicates(int *centroids, int num_centroids);
+int av2_remove_duplicates(int *centroids, int num_centroids);
 
 /*!\brief Checks what colors are in the color cache.
  *
@@ -134,7 +134,7 @@ int av1_remove_duplicates(int *centroids, int num_centroids);
  * records whether each cache color is presented in colors in cache_color_found,
  * and stores and stores the out of cache colors in out_cache_colors.
  */
-int av1_index_color_cache(const uint16_t *color_cache, int n_cache,
+int av2_index_color_cache(const uint16_t *color_cache, int n_cache,
                           const uint16_t *colors, int n_colors,
                           uint8_t *cache_color_found, int *out_cache_colors);
 
@@ -150,7 +150,7 @@ int av1_index_color_cache(const uint16_t *color_cache, int n_cache,
  * \return Returns the number of bits used to transmit each v palette color
  * delta and assigns zero_count with the number of deltas being 0.
  */
-int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
+int av2_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
                                  int bit_depth, int *zero_count, int *min_bits);
 
 /*!\brief Gets the rate cost for transmitting luma palette color values.
@@ -164,7 +164,7 @@ int av1_get_palette_delta_bits_v(const PALETTE_MODE_INFO *const pmi,
  * \return Returns the rate needed to transmit the palette. Note that this does
  * not include the cost of transmitted the color map.
  */
-int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
+int av2_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
                              const uint16_t *color_cache, int n_cache,
                              int bit_depth);
 
@@ -179,7 +179,7 @@ int av1_palette_color_cost_y(const PALETTE_MODE_INFO *const pmi,
  * \return Returns the rate needed to transmit the palette. Note that this does
  * not include the cost of transmitted the color map.
  */
-int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
+int av2_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
                               const uint16_t *color_cache, int n_cache,
                               int bit_depth);
 
@@ -189,8 +189,8 @@ int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
  * \callergraph
  * This function is used in both inter and intra frame coding.
  */
-void av1_rd_pick_palette_intra_sby(
-    const struct AV1_COMP *cpi, struct macroblock *x, BLOCK_SIZE bsize,
+void av2_rd_pick_palette_intra_sby(
+    const struct AV2_COMP *cpi, struct macroblock *x, BLOCK_SIZE bsize,
     int dc_mode_cost, MB_MODE_INFO *best_mbmi, uint8_t *best_palette_color_map,
     int64_t *best_rd, int64_t *best_model_rd, int *rate, int *rate_tokenonly,
     int64_t *distortion, int *skippable, int *beat_best_rd,
@@ -201,4 +201,4 @@ void av1_rd_pick_palette_intra_sby(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_PALETTE_H_
+#endif  // AVM_AV2_ENCODER_PALETTE_H_

@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_CFL_H_
-#define AOM_AV1_COMMON_CFL_H_
+#ifndef AVM_AV2_COMMON_CFL_H_
+#define AVM_AV2_COMMON_CFL_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
 
 #define CFL_ADD_BITS_ALPHA 5
 
@@ -66,10 +66,10 @@ static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(bool seq_enable_cfl_intra,
       return CFL_DISALLOWED;
   }
 
-  const BLOCK_SIZE bsize = get_bsize_base(xd, mbmi, AOM_PLANE_U);
+  const BLOCK_SIZE bsize = get_bsize_base(xd, mbmi, AVM_PLANE_U);
   assert(bsize < BLOCK_SIZES_ALL);
-  const int ssx = xd->plane[AOM_PLANE_U].subsampling_x;
-  const int ssy = xd->plane[AOM_PLANE_U].subsampling_y;
+  const int ssx = xd->plane[AVM_PLANE_U].subsampling_x;
+  const int ssy = xd->plane[AVM_PLANE_U].subsampling_y;
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ssx, ssy);
 
   // In lossless, CfL is available when the partition size is equal to the
@@ -79,10 +79,10 @@ static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(bool seq_enable_cfl_intra,
   }
 
   // Ensure that plane_bsize doesn't go beyond allowed max chroma TU size (which
-  // is 64x64 currently as per `av1_get_max_uv_txsize`). Specifically,
+  // is 64x64 currently as per `av2_get_max_uv_txsize`). Specifically,
   // Regardless YUV420, YUV422 and YUV444 input, the max chroma TU size allowing
   // CfL mode is 64x64.
-  const TX_SIZE max_uv_tx_size = av1_get_max_uv_txsize(bsize, ssx, ssy);
+  const TX_SIZE max_uv_tx_size = av2_get_max_uv_txsize(bsize, ssx, ssy);
   if (block_size_wide[plane_bsize] > tx_size_wide[max_uv_tx_size] ||
       block_size_high[plane_bsize] > tx_size_high[max_uv_tx_size]) {
     return CFL_DISALLOWED;
@@ -93,7 +93,7 @@ static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(bool seq_enable_cfl_intra,
                             block_size_high[bsize] <= CFL_BUF_LINE);
 }
 
-static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV1_COMMON *const cm,
+static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV2_COMMON *const cm,
                                                   const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
   if (xd->tree_type == LUMA_PART) return MHCCP_DISALLOWED;
@@ -106,10 +106,10 @@ static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV1_COMMON *const cm,
       return MHCCP_DISALLOWED;
   }
 
-  const BLOCK_SIZE bsize = get_bsize_base(xd, mbmi, AOM_PLANE_U);
+  const BLOCK_SIZE bsize = get_bsize_base(xd, mbmi, AVM_PLANE_U);
   assert(bsize < BLOCK_SIZES_ALL);
-  const int ssx = xd->plane[AOM_PLANE_U].subsampling_x;
-  const int ssy = xd->plane[AOM_PLANE_U].subsampling_y;
+  const int ssx = xd->plane[AVM_PLANE_U].subsampling_x;
+  const int ssy = xd->plane[AVM_PLANE_U].subsampling_y;
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ssx, ssy);
 
   // In lossless, MHCCP is available when the partition size is equal to the
@@ -128,7 +128,7 @@ static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV1_COMMON *const cm,
 #endif  // CONFIG_MHCCP_BLK_SIZE
 
   // Ensure that plane_bsize doesn't go beyond allowed max chroma tx size (which
-  // is 32x32 currently as per `av1_get_max_uv_txsize`). Specifically,
+  // is 32x32 currently as per `av2_get_max_uv_txsize`). Specifically,
   // - For YUV 4:2:0 input, this will imply max luma tx size of 64x64.
   // - For YUV 4:4:4 input, this will imply max luma tx size of 32x32.
   //   This is because, for a YUV444 input, luma tx size of 64x64 must NOT be
@@ -137,7 +137,7 @@ static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV1_COMMON *const cm,
   //   mismatch between chroma prediction block size and chroma transform block
   //   size, which is NOT allowed for intra blocks.
   const TX_SIZE max_uv_tx_size =
-      av1_get_max_uv_txsize_adjusted(bsize, ssx, ssy);
+      av2_get_max_uv_txsize_adjusted(bsize, ssx, ssy);
   if (block_size_wide[plane_bsize] > tx_size_wide[max_uv_tx_size] ||
       block_size_high[plane_bsize] > tx_size_high[max_uv_tx_size]) {
     return MHCCP_DISALLOWED;
@@ -151,7 +151,7 @@ static INLINE MHCCP_ALLOWED_TYPE is_mhccp_allowed(const AV1_COMMON *const cm,
 
 // Do we need to save the luma pixels from the current block,
 // for a possible future CfL prediction?
-static INLINE CFL_ALLOWED_TYPE store_cfl_required(const AV1_COMMON *cm,
+static INLINE CFL_ALLOWED_TYPE store_cfl_required(const AV2_COMMON *cm,
                                                   const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
 
@@ -232,7 +232,7 @@ void cfl_luma_subsampling_444_hbd_c(const uint16_t *input, int input_stride,
                                     uint16_t *output_q3, int width, int height);
 
 // Get neighbor luma reconstruction pixels
-void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
+void cfl_implicit_fetch_neighbor_luma(const AV2_COMMON *cm,
                                       MACROBLOCKD *const xd, int row, int col,
                                       int is_top_sb_boundary, int width,
                                       int height);
@@ -241,7 +241,7 @@ void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
 void cfl_calc_luma_dc(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size);
 
 // Get neighbor chroma reconstruction pixels
-void cfl_implicit_fetch_neighbor_chroma(const AV1_COMMON *cm,
+void cfl_implicit_fetch_neighbor_chroma(const AV2_COMMON *cm,
                                         MACROBLOCKD *const xd, int plane,
                                         int row, int col, TX_SIZE tx_size);
 
@@ -691,4 +691,4 @@ void cfl_subtract_average_4x16_c(const uint16_t *src, int16_t *dst);
     return pred[tx_size % TX_SIZES_ALL];                                    \
   }
 
-#endif  // AOM_AV1_COMMON_CFL_H_
+#endif  // AVM_AV2_COMMON_CFL_H_

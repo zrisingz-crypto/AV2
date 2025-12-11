@@ -15,12 +15,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_image.h"
-#include "aom/aom_integer.h"
-#include "aom/internal/aom_image_internal.h"
-#include "aom_mem/aom_mem.h"
+#include "avm/avm_image.h"
+#include "avm/avm_integer.h"
+#include "avm/internal/avm_image_internal.h"
+#include "avm_mem/avm_mem.h"
 
 static INLINE unsigned int align_image_dimension(unsigned int d,
                                                  unsigned int subsampling,
@@ -32,13 +32,13 @@ static INLINE unsigned int align_image_dimension(unsigned int d,
   return ((d + align) & ~align);
 }
 
-static aom_image_t *img_alloc_helper(
-    aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w, unsigned int d_h,
+static avm_image_t *img_alloc_helper(
+    avm_image_t *img, avm_img_fmt_t fmt, unsigned int d_w, unsigned int d_h,
     unsigned int buf_align, unsigned int stride_align, unsigned int size_align,
     unsigned int border, unsigned char *img_data,
-    aom_alloc_img_data_cb_fn_t alloc_cb, void *cb_priv) {
+    avm_alloc_img_data_cb_fn_t alloc_cb, void *cb_priv) {
   /* NOTE: In this function, bit_depth is either 8 or 16 (if
-   * AOM_IMG_FMT_HIGHBITDEPTH is set), never 10 or 12.
+   * AVM_IMG_FMT_HIGHBITDEPTH is set), never 10 or 12.
    */
   unsigned int h, w, s, xcs, ycs, bps, bit_depth;
   unsigned int stride_in_bytes;
@@ -63,41 +63,41 @@ static aom_image_t *img_alloc_helper(
 
   /* Get sample size for this format */
   switch (fmt) {
-    case AOM_IMG_FMT_I420:
-    case AOM_IMG_FMT_YV12:
-    case AOM_IMG_FMT_AOMI420:
-    case AOM_IMG_FMT_AOMYV12: bps = 12; break;
-    case AOM_IMG_FMT_I422: bps = 16; break;
-    case AOM_IMG_FMT_I444: bps = 24; break;
-    case AOM_IMG_FMT_YV1216:
-    case AOM_IMG_FMT_I42016: bps = 24; break;
-    case AOM_IMG_FMT_I42216: bps = 32; break;
-    case AOM_IMG_FMT_I44416: bps = 48; break;
+    case AVM_IMG_FMT_I420:
+    case AVM_IMG_FMT_YV12:
+    case AVM_IMG_FMT_AVMI420:
+    case AVM_IMG_FMT_AVMYV12: bps = 12; break;
+    case AVM_IMG_FMT_I422: bps = 16; break;
+    case AVM_IMG_FMT_I444: bps = 24; break;
+    case AVM_IMG_FMT_YV1216:
+    case AVM_IMG_FMT_I42016: bps = 24; break;
+    case AVM_IMG_FMT_I42216: bps = 32; break;
+    case AVM_IMG_FMT_I44416: bps = 48; break;
     default: bps = 16; break;
   }
 
-  bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
+  bit_depth = (fmt & AVM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
 
   /* Get chroma shift values for this format */
   switch (fmt) {
-    case AOM_IMG_FMT_I420:
-    case AOM_IMG_FMT_YV12:
-    case AOM_IMG_FMT_AOMI420:
-    case AOM_IMG_FMT_AOMYV12:
-    case AOM_IMG_FMT_I422:
-    case AOM_IMG_FMT_I42016:
-    case AOM_IMG_FMT_YV1216:
-    case AOM_IMG_FMT_I42216: xcs = 1; break;
+    case AVM_IMG_FMT_I420:
+    case AVM_IMG_FMT_YV12:
+    case AVM_IMG_FMT_AVMI420:
+    case AVM_IMG_FMT_AVMYV12:
+    case AVM_IMG_FMT_I422:
+    case AVM_IMG_FMT_I42016:
+    case AVM_IMG_FMT_YV1216:
+    case AVM_IMG_FMT_I42216: xcs = 1; break;
     default: xcs = 0; break;
   }
 
   switch (fmt) {
-    case AOM_IMG_FMT_I420:
-    case AOM_IMG_FMT_YV12:
-    case AOM_IMG_FMT_AOMI420:
-    case AOM_IMG_FMT_AOMYV12:
-    case AOM_IMG_FMT_YV1216:
-    case AOM_IMG_FMT_I42016: ycs = 1; break;
+    case AVM_IMG_FMT_I420:
+    case AVM_IMG_FMT_YV12:
+    case AVM_IMG_FMT_AVMI420:
+    case AVM_IMG_FMT_AVMYV12:
+    case AVM_IMG_FMT_YV1216:
+    case AVM_IMG_FMT_I42016: ycs = 1; break;
     default: ycs = 0; break;
   }
 
@@ -105,26 +105,26 @@ static aom_image_t *img_alloc_helper(
   w = align_image_dimension(d_w, xcs, size_align);
   h = align_image_dimension(d_h, ycs, size_align);
 
-  s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / bit_depth;
+  s = (fmt & AVM_IMG_FMT_PLANAR) ? w : bps * w / bit_depth;
   s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
   stride_in_bytes = s * bit_depth / 8;
 
   /* Allocate the new image */
   if (!img) {
-    img = (aom_image_t *)calloc(1, sizeof(aom_image_t));
+    img = (avm_image_t *)calloc(1, sizeof(avm_image_t));
 
     if (!img) goto fail;
 
     img->self_allocd = 1;
   } else {
-    memset(img, 0, sizeof(aom_image_t));
+    memset(img, 0, sizeof(avm_image_t));
   }
 
   img->img_data = img_data;
 
   if (!img_data) {
     const uint64_t alloc_size =
-        (fmt & AOM_IMG_FMT_PLANAR)
+        (fmt & AVM_IMG_FMT_PLANAR)
             ? (uint64_t)(h + 2 * border) * stride_in_bytes * bps / bit_depth
             : (uint64_t)(h + 2 * border) * stride_in_bytes;
 
@@ -134,11 +134,11 @@ static aom_image_t *img_alloc_helper(
       const size_t padded_alloc_size = (size_t)alloc_size + buf_align - 1;
       img->img_data = (uint8_t *)alloc_cb(cb_priv, padded_alloc_size);
       if (img->img_data) {
-        img->img_data = (uint8_t *)aom_align_addr(img->img_data, buf_align);
+        img->img_data = (uint8_t *)avm_align_addr(img->img_data, buf_align);
       }
       img->img_data_owner = 0;
     } else {
-      img->img_data = (uint8_t *)aom_memalign(buf_align, (size_t)alloc_size);
+      img->img_data = (uint8_t *)avm_memalign(buf_align, (size_t)alloc_size);
       img->img_data_owner = 1;
     }
     img->sz = (size_t)alloc_size;
@@ -156,36 +156,36 @@ static aom_image_t *img_alloc_helper(
   img->bps = bps;
 
   /* Calculate strides */
-  img->stride[AOM_PLANE_Y] = stride_in_bytes;
-  img->stride[AOM_PLANE_U] = img->stride[AOM_PLANE_V] = stride_in_bytes >> xcs;
+  img->stride[AVM_PLANE_Y] = stride_in_bytes;
+  img->stride[AVM_PLANE_U] = img->stride[AVM_PLANE_V] = stride_in_bytes >> xcs;
 
-  /* Default viewport to entire image. (This aom_img_set_rect call always
+  /* Default viewport to entire image. (This avm_img_set_rect call always
    * succeeds.) */
-  aom_img_set_rect(img, 0, 0, d_w, d_h, border);
+  avm_img_set_rect(img, 0, 0, d_w, d_h, border);
   return img;
 
 fail:
-  aom_img_free(img);
+  avm_img_free(img);
   return NULL;
 }
 
-aom_image_t *aom_img_alloc(aom_image_t *img, aom_img_fmt_t fmt,
+avm_image_t *avm_img_alloc(avm_image_t *img, avm_img_fmt_t fmt,
                            unsigned int d_w, unsigned int d_h,
                            unsigned int align) {
   return img_alloc_helper(img, fmt, d_w, d_h, align, align, 1, 0, NULL, NULL,
                           NULL);
 }
 
-aom_image_t *aom_img_alloc_with_cb(aom_image_t *img, aom_img_fmt_t fmt,
+avm_image_t *avm_img_alloc_with_cb(avm_image_t *img, avm_img_fmt_t fmt,
                                    unsigned int d_w, unsigned int d_h,
                                    unsigned int align,
-                                   aom_alloc_img_data_cb_fn_t alloc_cb,
+                                   avm_alloc_img_data_cb_fn_t alloc_cb,
                                    void *cb_priv) {
   return img_alloc_helper(img, fmt, d_w, d_h, align, align, 1, 0, NULL,
                           alloc_cb, cb_priv);
 }
 
-aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
+avm_image_t *avm_img_wrap(avm_image_t *img, avm_img_fmt_t fmt, unsigned int d_w,
                           unsigned int d_h, unsigned int stride_align,
                           unsigned char *img_data) {
   /* Set buf_align = 1. It is ignored by img_alloc_helper because img_data is
@@ -194,7 +194,7 @@ aom_image_t *aom_img_wrap(aom_image_t *img, aom_img_fmt_t fmt, unsigned int d_w,
                           NULL, NULL);
 }
 
-aom_image_t *aom_img_alloc_with_border(aom_image_t *img, aom_img_fmt_t fmt,
+avm_image_t *avm_img_alloc_with_border(avm_image_t *img, avm_img_fmt_t fmt,
                                        unsigned int d_w, unsigned int d_h,
                                        unsigned int align,
                                        unsigned int size_align,
@@ -203,7 +203,7 @@ aom_image_t *aom_img_alloc_with_border(aom_image_t *img, aom_img_fmt_t fmt,
                           NULL, NULL, NULL);
 }
 
-int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
+int avm_img_set_rect(avm_image_t *img, unsigned int x, unsigned int y,
                      unsigned int w, unsigned int h, unsigned int border) {
   unsigned char *data;
 
@@ -215,35 +215,35 @@ int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
     y += border;
 
     /* Calculate plane pointers */
-    if (!(img->fmt & AOM_IMG_FMT_PLANAR)) {
-      img->planes[AOM_PLANE_PACKED] =
-          img->img_data + x * img->bps / 8 + y * img->stride[AOM_PLANE_PACKED];
+    if (!(img->fmt & AVM_IMG_FMT_PLANAR)) {
+      img->planes[AVM_PLANE_PACKED] =
+          img->img_data + x * img->bps / 8 + y * img->stride[AVM_PLANE_PACKED];
     } else {
       const int bytes_per_sample =
-          (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1;
+          (img->fmt & AVM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1;
       data = img->img_data;
 
-      img->planes[AOM_PLANE_Y] =
-          data + x * bytes_per_sample + y * img->stride[AOM_PLANE_Y];
-      data += (img->h + 2 * border) * img->stride[AOM_PLANE_Y];
+      img->planes[AVM_PLANE_Y] =
+          data + x * bytes_per_sample + y * img->stride[AVM_PLANE_Y];
+      data += (img->h + 2 * border) * img->stride[AVM_PLANE_Y];
 
       unsigned int uv_border_h = border >> img->y_chroma_shift;
       unsigned int uv_x = x >> img->x_chroma_shift;
       unsigned int uv_y = y >> img->y_chroma_shift;
-      if (!(img->fmt & AOM_IMG_FMT_UV_FLIP)) {
-        img->planes[AOM_PLANE_U] =
-            data + uv_x * bytes_per_sample + uv_y * img->stride[AOM_PLANE_U];
+      if (!(img->fmt & AVM_IMG_FMT_UV_FLIP)) {
+        img->planes[AVM_PLANE_U] =
+            data + uv_x * bytes_per_sample + uv_y * img->stride[AVM_PLANE_U];
         data += ((img->h >> img->y_chroma_shift) + 2 * uv_border_h) *
-                img->stride[AOM_PLANE_U];
-        img->planes[AOM_PLANE_V] =
-            data + uv_x * bytes_per_sample + uv_y * img->stride[AOM_PLANE_V];
+                img->stride[AVM_PLANE_U];
+        img->planes[AVM_PLANE_V] =
+            data + uv_x * bytes_per_sample + uv_y * img->stride[AVM_PLANE_V];
       } else {
-        img->planes[AOM_PLANE_V] =
-            data + uv_x * bytes_per_sample + uv_y * img->stride[AOM_PLANE_V];
+        img->planes[AVM_PLANE_V] =
+            data + uv_x * bytes_per_sample + uv_y * img->stride[AVM_PLANE_V];
         data += ((img->h >> img->y_chroma_shift) + 2 * uv_border_h) *
-                img->stride[AOM_PLANE_V];
-        img->planes[AOM_PLANE_U] =
-            data + uv_x * bytes_per_sample + uv_y * img->stride[AOM_PLANE_U];
+                img->stride[AVM_PLANE_V];
+        img->planes[AVM_PLANE_U] =
+            data + uv_x * bytes_per_sample + uv_y * img->stride[AVM_PLANE_U];
       }
     }
     return 0;
@@ -251,54 +251,54 @@ int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
   return -1;
 }
 
-void aom_img_flip(aom_image_t *img) {
+void avm_img_flip(avm_image_t *img) {
   /* Note: In the calculation pointer adjustment calculation, we want the
    * rhs to be promoted to a signed type. Section 6.3.1.8 of the ISO C99
    * standard indicates that if the adjustment parameter is unsigned, the
    * stride parameter will be promoted to unsigned, causing errors when
    * the lhs is a larger type than the rhs.
    */
-  img->planes[AOM_PLANE_Y] += (signed)(img->d_h - 1) * img->stride[AOM_PLANE_Y];
-  img->stride[AOM_PLANE_Y] = -img->stride[AOM_PLANE_Y];
+  img->planes[AVM_PLANE_Y] += (signed)(img->d_h - 1) * img->stride[AVM_PLANE_Y];
+  img->stride[AVM_PLANE_Y] = -img->stride[AVM_PLANE_Y];
 
-  img->planes[AOM_PLANE_U] += (signed)((img->d_h >> img->y_chroma_shift) - 1) *
-                              img->stride[AOM_PLANE_U];
-  img->stride[AOM_PLANE_U] = -img->stride[AOM_PLANE_U];
+  img->planes[AVM_PLANE_U] += (signed)((img->d_h >> img->y_chroma_shift) - 1) *
+                              img->stride[AVM_PLANE_U];
+  img->stride[AVM_PLANE_U] = -img->stride[AVM_PLANE_U];
 
-  img->planes[AOM_PLANE_V] += (signed)((img->d_h >> img->y_chroma_shift) - 1) *
-                              img->stride[AOM_PLANE_V];
-  img->stride[AOM_PLANE_V] = -img->stride[AOM_PLANE_V];
+  img->planes[AVM_PLANE_V] += (signed)((img->d_h >> img->y_chroma_shift) - 1) *
+                              img->stride[AVM_PLANE_V];
+  img->stride[AVM_PLANE_V] = -img->stride[AVM_PLANE_V];
 }
 
-void aom_img_free(aom_image_t *img) {
+void avm_img_free(avm_image_t *img) {
   if (img) {
-    aom_img_remove_metadata(img);
-    if (img->img_data && img->img_data_owner) aom_free(img->img_data);
+    avm_img_remove_metadata(img);
+    if (img->img_data && img->img_data_owner) avm_free(img->img_data);
 
     if (img->self_allocd) free(img);
   }
 }
 
-int aom_img_plane_width(const aom_image_t *img, int plane) {
+int avm_img_plane_width(const avm_image_t *img, int plane) {
   if (plane > 0 && img->x_chroma_shift > 0)
     return (img->d_w + 1) >> img->x_chroma_shift;
   else
     return img->d_w;
 }
 
-int aom_img_plane_height(const aom_image_t *img, int plane) {
+int avm_img_plane_height(const avm_image_t *img, int plane) {
   if (plane > 0 && img->y_chroma_shift > 0)
     return (img->d_h + 1) >> img->y_chroma_shift;
   else
     return img->d_h;
 }
 
-aom_metadata_t *aom_img_metadata_alloc(
+avm_metadata_t *avm_img_metadata_alloc(
     uint32_t type, const uint8_t *data, size_t sz,
-    aom_metadata_insert_flags_t insert_flag) {
+    avm_metadata_insert_flags_t insert_flag) {
   if (!data || sz == 0) return NULL;
 
-  aom_metadata_t *metadata = (aom_metadata_t *)malloc(sizeof(aom_metadata_t));
+  avm_metadata_t *metadata = (avm_metadata_t *)malloc(sizeof(avm_metadata_t));
   if (!metadata) return NULL;
 
   metadata->type = type;
@@ -313,34 +313,34 @@ aom_metadata_t *aom_img_metadata_alloc(
 
 #if CONFIG_METADATA
   metadata->is_suffix = 0;
-  metadata->necessity_idc = AOM_NECESSITY_UNDEFINED;
-  metadata->application_id = AOM_APPID_UNDEFINED;
+  metadata->necessity_idc = AVM_NECESSITY_UNDEFINED;
+  metadata->application_id = AVM_APPID_UNDEFINED;
   metadata->cancel_flag = 0;
   metadata->priority = 0;
-  metadata->persistence_idc = AOM_GLOBAL_PERSISTENCE;
-  metadata->layer_idc = AOM_LAYER_UNSPECIFIED;
+  metadata->persistence_idc = AVM_GLOBAL_PERSISTENCE;
+  metadata->layer_idc = AVM_LAYER_UNSPECIFIED;
   metadata->xlayer_map = 0;
   memset(metadata->mlayer_map, 0, sizeof(metadata->mlayer_map));
 #endif  // CONFIG_METADATA
   return metadata;
 }
 
-void aom_img_metadata_free(aom_metadata_t *metadata) {
+void avm_img_metadata_free(avm_metadata_t *metadata) {
   if (metadata) {
     if (metadata->payload) free(metadata->payload);
     free(metadata);
   }
 }
 
-aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz) {
-  aom_metadata_array_t *arr =
-      (aom_metadata_array_t *)calloc(1, sizeof(aom_metadata_array_t));
+avm_metadata_array_t *avm_img_metadata_array_alloc(size_t sz) {
+  avm_metadata_array_t *arr =
+      (avm_metadata_array_t *)calloc(1, sizeof(avm_metadata_array_t));
   if (!arr) return NULL;
   if (sz > 0) {
     arr->metadata_array =
-        (aom_metadata_t **)calloc(sz, sizeof(aom_metadata_t *));
+        (avm_metadata_t **)calloc(sz, sizeof(avm_metadata_t *));
     if (!arr->metadata_array) {
-      aom_img_metadata_array_free(arr);
+      avm_img_metadata_array_free(arr);
       return NULL;
     }
     arr->sz = sz;
@@ -348,11 +348,11 @@ aom_metadata_array_t *aom_img_metadata_array_alloc(size_t sz) {
   return arr;
 }
 
-void aom_img_metadata_array_free(aom_metadata_array_t *arr) {
+void avm_img_metadata_array_free(avm_metadata_array_t *arr) {
   if (arr) {
     if (arr->metadata_array) {
       for (size_t i = 0; i < arr->sz; i++) {
-        aom_img_metadata_free(arr->metadata_array[i]);
+        avm_img_metadata_free(arr->metadata_array[i]);
       }
       free(arr->metadata_array);
     }
@@ -360,21 +360,21 @@ void aom_img_metadata_array_free(aom_metadata_array_t *arr) {
   }
 }
 
-int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
-                         size_t sz, aom_metadata_insert_flags_t insert_flag) {
+int avm_img_add_metadata(avm_image_t *img, uint32_t type, const uint8_t *data,
+                         size_t sz, avm_metadata_insert_flags_t insert_flag) {
   if (!img) return -1;
   if (!img->metadata) {
-    img->metadata = aom_img_metadata_array_alloc(0);
+    img->metadata = avm_img_metadata_array_alloc(0);
     if (!img->metadata) return -1;
   }
-  aom_metadata_t *metadata =
-      aom_img_metadata_alloc(type, data, sz, insert_flag);
+  avm_metadata_t *metadata =
+      avm_img_metadata_alloc(type, data, sz, insert_flag);
   if (!metadata) return -1;
-  aom_metadata_t **metadata_array =
-      (aom_metadata_t **)realloc(img->metadata->metadata_array,
+  avm_metadata_t **metadata_array =
+      (avm_metadata_t **)realloc(img->metadata->metadata_array,
                                  (img->metadata->sz + 1) * sizeof(metadata));
   if (!metadata_array) {
-    aom_img_metadata_free(metadata);
+    avm_img_metadata_free(metadata);
     return -1;
   }
   img->metadata->metadata_array = metadata_array;
@@ -383,24 +383,24 @@ int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
   return 0;
 }
 
-void aom_img_remove_metadata(aom_image_t *img) {
+void avm_img_remove_metadata(avm_image_t *img) {
   if (img && img->metadata) {
-    aom_img_metadata_array_free(img->metadata);
+    avm_img_metadata_array_free(img->metadata);
     img->metadata = NULL;
   }
 }
 
-const aom_metadata_t *aom_img_get_metadata(const aom_image_t *img,
+const avm_metadata_t *avm_img_get_metadata(const avm_image_t *img,
                                            size_t index) {
   if (!img) return NULL;
-  const aom_metadata_array_t *array = img->metadata;
+  const avm_metadata_array_t *array = img->metadata;
   if (array && index < array->sz) {
     return array->metadata_array[index];
   }
   return NULL;
 }
 
-size_t aom_img_num_metadata(const aom_image_t *img) {
+size_t avm_img_num_metadata(const avm_image_t *img) {
   if (!img || !img->metadata) return 0;
   return img->metadata->sz;
 }
@@ -417,17 +417,17 @@ size_t aom_img_num_metadata(const aom_image_t *img) {
   } while (0)
 
 #if defined(__GNUC__)
-#define AOM_NO_RETURN __attribute__((noreturn))
+#define AVM_NO_RETURN __attribute__((noreturn))
 #else
-#define AOM_NO_RETURN
+#define AVM_NO_RETURN
 #endif
 
-AOM_NO_RETURN static void fatal(const char *fmt, ...) {
+AVM_NO_RETURN static void fatal(const char *fmt, ...) {
   LOG_ERROR("Fatal");
   exit(EXIT_FAILURE);
 }
 
-static void highbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
+static void highbd_img_upshift(avm_image_t *dst, const avm_image_t *src,
                                int input_shift) {
   const int offset = 0;
   int plane;
@@ -438,9 +438,9 @@ static void highbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
     fatal("Unsupported image conversion");
   }
   switch (src->fmt) {
-    case AOM_IMG_FMT_I42016:
-    case AOM_IMG_FMT_I42216:
-    case AOM_IMG_FMT_I44416: break;
+    case AVM_IMG_FMT_I42016:
+    case AVM_IMG_FMT_I42216:
+    case AVM_IMG_FMT_I44416: break;
     default: fatal("Unsupported image conversion"); break;
   }
   for (plane = 0; plane < (dst->monochrome ? 1 : 3); plane++) {
@@ -470,21 +470,21 @@ static void highbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
   }
 }
 
-static void lowbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
+static void lowbd_img_upshift(avm_image_t *dst, const avm_image_t *src,
                               int input_shift) {
   const int offset = 0;
   int plane;
   if (dst->d_w != src->d_w || dst->d_h != src->d_h ||
       dst->x_chroma_shift != src->x_chroma_shift ||
       dst->y_chroma_shift != src->y_chroma_shift ||
-      dst->fmt != src->fmt + AOM_IMG_FMT_HIGHBITDEPTH || input_shift < 0) {
+      dst->fmt != src->fmt + AVM_IMG_FMT_HIGHBITDEPTH || input_shift < 0) {
     fatal("Unsupported image conversion");
   }
   switch (src->fmt) {
-    case AOM_IMG_FMT_YV12:
-    case AOM_IMG_FMT_I420:
-    case AOM_IMG_FMT_I422:
-    case AOM_IMG_FMT_I444: break;
+    case AVM_IMG_FMT_YV12:
+    case AVM_IMG_FMT_I420:
+    case AVM_IMG_FMT_I422:
+    case AVM_IMG_FMT_I444: break;
     default: fatal("Unsupported image conversion"); break;
   }
   for (plane = 0; plane < (dst->monochrome ? 1 : 3); plane++) {
@@ -515,9 +515,9 @@ static void lowbd_img_upshift(aom_image_t *dst, const aom_image_t *src,
   }
 }
 
-void aom_img_upshift(aom_image_t *dst, const aom_image_t *src,
+void avm_img_upshift(avm_image_t *dst, const avm_image_t *src,
                      int input_shift) {
-  if (src->fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
+  if (src->fmt & AVM_IMG_FMT_HIGHBITDEPTH) {
     highbd_img_upshift(dst, src, input_shift);
   } else {
     lowbd_img_upshift(dst, src, input_shift);

@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_TRELLIS_QUANT_H_
-#define AOM_AV1_ENCODER_TRELLIS_QUANT_H_
+#ifndef AVM_AV2_ENCODER_TRELLIS_QUANT_H_
+#define AVM_AV2_ENCODER_TRELLIS_QUANT_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/hr_coding.h"
-#include "av1/common/txb_common.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/encoder.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/hr_coding.h"
+#include "av2/common/txb_common.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,11 +111,11 @@ typedef struct tcq_param_t {
 // Packed format:
 //   mid_ctx: bits[7:4]
 //   base_ctx: bits[3:0]
-static AOM_FORCE_INLINE int get_mid_ctx(int coeff_ctx) {
+static AVM_FORCE_INLINE int get_mid_ctx(int coeff_ctx) {
   return coeff_ctx >> 4;
 }
 
-static AOM_FORCE_INLINE int get_base_ctx(int coeff_ctx) {
+static AVM_FORCE_INLINE int get_base_ctx(int coeff_ctx) {
   return coeff_ctx & 15;
 }
 
@@ -124,39 +124,39 @@ static AOM_FORCE_INLINE int get_base_ctx(int coeff_ctx) {
 // Packed format:
 //   mid_diag_ctx: bits[15:8]
 //   base_diag_ctx: bits[7:0]
-static AOM_FORCE_INLINE int get_mid_diag_ctx(int diag_ctx) {
+static AVM_FORCE_INLINE int get_mid_diag_ctx(int diag_ctx) {
   return diag_ctx >> 8;
 }
 
-static AOM_FORCE_INLINE int get_base_diag_ctx(int diag_ctx) {
+static AVM_FORCE_INLINE int get_base_diag_ctx(int diag_ctx) {
   return diag_ctx & 255;
 }
 
 // Get the low range part of a coeff
-static AOM_FORCE_INLINE int get_low_range(int abs_qc, int lf) {
+static AVM_FORCE_INLINE int get_low_range(int abs_qc, int lf) {
   int base_levels = lf ? 6 : 4;
   int parity = abs_qc & 1;
 #if ((COEFF_BASE_RANGE & 1) == 1)
   int br_max = COEFF_BASE_RANGE + base_levels - 1 - parity;
-  int low = AOMMIN(abs_qc, br_max);
+  int low = AVMMIN(abs_qc, br_max);
   low -= base_levels - 1;
 #else
   int abs2 = abs_qc & ~1;
-  int low = AOMMIN(abs2, COEFF_BASE_RANGE + base_levels - 2) + parity;
+  int low = AVMMIN(abs2, COEFF_BASE_RANGE + base_levels - 2) + parity;
   low -= base_levels - 1;
 #endif
   return low;
 }
 
 // Get the high range part of a coeff
-static AOM_FORCE_INLINE int get_high_range_uv(int abs_qc, int lf) {
+static AVM_FORCE_INLINE int get_high_range_uv(int abs_qc, int lf) {
   int base_levels = lf ? 6 : 4;
   int high_range = (abs_qc - (base_levels - 1)) >> 1;
   return high_range;
 }
 
 // Get the high range part of a coeff
-static AOM_FORCE_INLINE int get_high_range(int abs_qc, int lf) {
+static AVM_FORCE_INLINE int get_high_range(int abs_qc, int lf) {
   int base_levels = lf ? 6 : 4;
   int low_range = get_low_range(abs_qc, lf);
   int high_range = (abs_qc - low_range - (base_levels - 1)) >> 1;
@@ -164,21 +164,21 @@ static AOM_FORCE_INLINE int get_high_range(int abs_qc, int lf) {
 }
 
 // Calculate the cost of high range of a coeff
-static AOM_FORCE_INLINE int get_golomb_cost_tcq(int abs_qc, int lf) {
+static AVM_FORCE_INLINE int get_golomb_cost_tcq(int abs_qc, int lf) {
   int hr = get_high_range(abs_qc, lf);
-  int hr_cost = av1_cost_literal(get_adaptive_hr_length(hr, 0));
+  int hr_cost = av2_cost_literal(get_adaptive_hr_length(hr, 0));
   return hr_cost;
 }
 
 // Calculate the cost of low range of a coeff in low-freq region
-static AOM_FORCE_INLINE int get_br_lf_cost_tcq_uv(tran_low_t level) {
+static AVM_FORCE_INLINE int get_br_lf_cost_tcq_uv(tran_low_t level) {
   const int r = 1 + get_high_range_uv(level, 1);
   const int length = get_msb(r) + 1;
-  return av1_cost_literal(2 * length - 1);
+  return av2_cost_literal(2 * length - 1);
 }
 
 // Calculate the cost of low range of a coeff in low-freq region
-static AOM_FORCE_INLINE int get_br_lf_cost_tcq(tran_low_t level,
+static AVM_FORCE_INLINE int get_br_lf_cost_tcq(tran_low_t level,
                                                const int *coeff_lps) {
   const int base_range = get_low_range(level, 1);
   if (base_range < COEFF_BASE_RANGE - 1) return coeff_lps[base_range];
@@ -225,7 +225,7 @@ static INLINE int get_br_cost_tcq(tran_low_t level, const int *coeff_lps) {
  coefficients
  * and therefore preserve the sharpness of the reconstructed block.
  */
-int av1_trellis_quant(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
+int av2_trellis_quant(const struct AV2_COMP *cpi, MACROBLOCK *x, int plane,
                       int block, TX_SIZE tx_size, TX_TYPE tx_type,
                       CctxType cctx_type, const TXB_CTX *const txb_ctx,
                       int *rate_cost, int sharpness);
@@ -234,4 +234,4 @@ int av1_trellis_quant(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
 }
 #endif
 
-#endif  // AOM_AV1_ENCODER_TRELLIS_QUANT_H_
+#endif  // AVM_AV2_ENCODER_TRELLIS_QUANT_H_

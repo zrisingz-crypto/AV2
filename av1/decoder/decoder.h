@@ -10,24 +10,24 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_DECODER_DECODER_H_
-#define AOM_AV1_DECODER_DECODER_H_
+#ifndef AVM_AV2_DECODER_DECODER_H_
+#define AVM_AV2_DECODER_DECODER_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_codec.h"
-#include "aom_dsp/bitreader.h"
-#include "aom_scale/yv12config.h"
-#include "aom_util/aom_thread.h"
+#include "avm/avm_codec.h"
+#include "avm_dsp/bitreader.h"
+#include "avm_scale/yv12config.h"
+#include "avm_util/avm_thread.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/thread_common.h"
-#include "av1/decoder/dthread.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/thread_common.h"
+#include "av2/decoder/dthread.h"
 #if CONFIG_ACCOUNTING
-#include "av1/decoder/accounting.h"
+#include "av2/decoder/accounting.h"
 #endif
 #if CONFIG_INSPECTION
-#include "av1/decoder/inspection.h"
+#include "av2/decoder/inspection.h"
 #endif
 
 #ifdef __cplusplus
@@ -41,7 +41,7 @@ extern "C" {
  * - Coding block info that is common between encoder and decoder.
  * - Other coding block info only needed by the decoder.
  * Contrast this with a similar struct MACROBLOCK on encoder side.
- * This data is also common between ThreadData and AV1Decoder structs.
+ * This data is also common between ThreadData and AV2Decoder structs.
  */
 typedef struct DecoderCodingBlock {
   /*!
@@ -98,17 +98,17 @@ typedef struct DecoderCodingBlock {
 
 /*!\cond */
 
-typedef void (*decode_block_visitor_fn_t)(const AV1_COMMON *const cm,
+typedef void (*decode_block_visitor_fn_t)(const AV2_COMMON *const cm,
                                           DecoderCodingBlock *dcb,
-                                          aom_reader *const r, const int plane,
+                                          avm_reader *const r, const int plane,
                                           const int row, const int col,
                                           const TX_SIZE tx_size);
 
-typedef void (*predict_inter_block_visitor_fn_t)(AV1_COMMON *const cm,
+typedef void (*predict_inter_block_visitor_fn_t)(AV2_COMMON *const cm,
                                                  DecoderCodingBlock *dcb,
                                                  BLOCK_SIZE bsize);
 
-typedef void (*cfl_store_inter_block_visitor_fn_t)(AV1_COMMON *const cm,
+typedef void (*cfl_store_inter_block_visitor_fn_t)(AV2_COMMON *const cm,
                                                    MACROBLOCKD *const xd);
 
 typedef struct ThreadData {
@@ -117,10 +117,10 @@ typedef struct ThreadData {
   // Coding block buffer for the current superblock.
   // Used only for single-threaded decoding and multi-threaded decoding with
   // row_mt == 1 cases.
-  // See also: similar buffer in 'AV1Decoder'.
+  // See also: similar buffer in 'AV2Decoder'.
   CB_BUFFER cb_buffer_base;
 
-  aom_reader *bit_reader;
+  avm_reader *bit_reader;
 
   // Motion compensation buffer used to get a prediction buffer with extended
   // borders. One buffer for each of the two possible references.
@@ -150,13 +150,13 @@ typedef struct ThreadData {
   WARP_PARAM_BANK warp_param_bank;
 } ThreadData;
 
-typedef struct AV1DecRowMTJobInfo {
+typedef struct AV2DecRowMTJobInfo {
   int tile_row;
   int tile_col;
   int mi_row;
-} AV1DecRowMTJobInfo;
+} AV2DecRowMTJobInfo;
 
-typedef struct AV1DecRowMTSyncData {
+typedef struct AV2DecRowMTSyncData {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *mutex_;
   pthread_cond_t *cond_;
@@ -169,9 +169,9 @@ typedef struct AV1DecRowMTSyncData {
   int mi_rows_parse_done;
   int mi_rows_decode_started;
   int num_threads_working;
-} AV1DecRowMTSync;
+} AV2DecRowMTSync;
 
-typedef struct AV1DecRowMTInfo {
+typedef struct AV2DecRowMTInfo {
   int tile_rows_start;
   int tile_rows_end;
   int tile_cols_start;
@@ -199,13 +199,13 @@ typedef struct AV1DecRowMTInfo {
   // Boolean: Initialized to 0 (false). Set to 1 (true) on error to abort
   // decoding.
   int row_mt_exit;
-} AV1DecRowMTInfo;
+} AV2DecRowMTInfo;
 
 typedef struct TileDataDec {
   TileInfo tile_info;
-  aom_reader bit_reader;
+  avm_reader bit_reader;
   DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
-  AV1DecRowMTSync dec_row_mt_sync;
+  AV2DecRowMTSync dec_row_mt_sync;
 } TileDataDec;
 
 typedef struct TileBufferDec {
@@ -223,7 +223,7 @@ typedef struct TileJobsDec {
   TileDataDec *tile_data;
 } TileJobsDec;
 
-typedef struct AV1DecTileMTData {
+typedef struct AV2DecTileMTData {
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *job_mutex;
 #endif
@@ -232,7 +232,7 @@ typedef struct AV1DecTileMTData {
   int jobs_dequeued;
   int alloc_tile_rows;
   int alloc_tile_cols;
-} AV1DecTileMT;
+} AV2DecTileMT;
 
 /*!
  * \Holds subgop related info.
@@ -248,24 +248,24 @@ typedef struct {
 } SubGOPStatsDec;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-#include "aom_ports/aom_timer.h"
+#include "avm_ports/avm_timer.h"
 // Adjust the following to add new components.
 enum {
-  av1_decode_frame_headers_and_setup_time,
-  av1_read_tilegroup_header_time,
-  av1_decode_tg_tiles_and_wrapup_time,
-  aom_decode_frame_from_obus_time,
+  av2_decode_frame_headers_and_setup_time,
+  av2_read_tilegroup_header_time,
+  av2_decode_tg_tiles_and_wrapup_time,
+  avm_decode_frame_from_obus_time,
   kTimingComponents,
 } UENUM1BYTE(TIMING_COMPONENT);
 
 static INLINE char const *get_component_name(int index) {
   switch (index) {
-    case av1_decode_frame_headers_and_setup_time:
-      return "av1_decode_frame_headers_and_setup_time";
-    case av1_decode_tg_tiles_and_wrapup_time:
-      return "av1_decode_tg_tiles_and_wrapup_time";
-    case aom_decode_frame_from_obus_time:
-      return "aom_decode_frame_from_obus_time";
+    case av2_decode_frame_headers_and_setup_time:
+      return "av2_decode_frame_headers_and_setup_time";
+    case av2_decode_tg_tiles_and_wrapup_time:
+      return "av2_decode_tg_tiles_and_wrapup_time";
+    case avm_decode_frame_from_obus_time:
+      return "avm_decode_frame_from_obus_time";
 
     default: assert(0);
   }
@@ -273,18 +273,18 @@ static INLINE char const *get_component_name(int index) {
 }
 #endif
 
-typedef struct AV1Decoder {
+typedef struct AV2Decoder {
   DecoderCodingBlock dcb;
 
-  DECLARE_ALIGNED(32, AV1_COMMON, common);
+  DECLARE_ALIGNED(32, AV2_COMMON, common);
 
   AVxWorker lf_worker;
-  AV1LfSync lf_row_sync;
-  AV1CcsoSync ccso_sync;
-  AV1LrSync lr_row_sync;
-  AV1LrStruct lr_ctxt;
-  AV1CdefSync cdef_sync;
-  AV1CdefWorkerData *cdef_worker;
+  AV2LfSync lf_row_sync;
+  AV2CcsoSync ccso_sync;
+  AV2LrSync lr_row_sync;
+  AV2LrStruct lr_ctxt;
+  AV2CdefSync cdef_sync;
+  AV2CdefWorkerData *cdef_worker;
   AVxWorker *tile_workers;
   int num_workers;
   DecWorkerData *thread_data;
@@ -298,7 +298,7 @@ typedef struct AV1Decoder {
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
 
   TileBufferDec tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
-  AV1DecTileMT tile_mt_info;
+  AV2DecTileMT tile_mt_info;
 
   // Each time the decoder is called, we expect to receive a full temporal unit.
   // This can contain up to one shown frame per spatial layer in the current
@@ -309,7 +309,7 @@ typedef struct AV1Decoder {
   // temporal unit.
   //
   // Note: The saved buffers are released at the start of the next time the
-  // application calls aom_codec_decode().
+  // application calls avm_codec_decode().
   int output_all_layers;
   RefCntBuffer *output_frames[REF_FRAMES + 1];  // Use only for single layer
   size_t output_frames_offset;                  // Use only for single layer
@@ -336,11 +336,11 @@ typedef struct AV1Decoder {
   int stream_switched;
 #if CONFIG_INSPECTION
   // Inspection callback at the end of each frame.
-  aom_inspect_cb inspect_cb;
+  avm_inspect_cb inspect_cb;
   // Inspection callback at the end of each superblock.
-  aom_inspect_cb inspect_sb_cb;
+  avm_inspect_cb inspect_sb_cb;
   // Inspection callback when a TIP frame is output.
-  aom_inspect_cb inspect_tip_cb;
+  avm_inspect_cb inspect_tip_cb;
   void *inspect_ctx;
 #endif
   int operating_point;
@@ -380,8 +380,8 @@ typedef struct AV1Decoder {
   pthread_cond_t *row_mt_cond_;
 #endif
 
-  AV1DecRowMTInfo frame_row_mt_info;
-  aom_metadata_array_t *metadata;
+  AV2DecRowMTInfo frame_row_mt_info;
+  avm_metadata_array_t *metadata;
 
   int context_update_tile_id;
   int skip_loop_filter;
@@ -394,7 +394,7 @@ typedef struct AV1Decoder {
   int is_fwd_kf_present;
   int is_arf_frame_present;
   int num_tile_groups;
-  aom_s_frame_info sframe_info;
+  avm_s_frame_info sframe_info;
   unsigned int enable_subgop_stats;
   SubGOPStatsDec subgop_stats;
   /*!
@@ -407,7 +407,7 @@ typedef struct AV1Decoder {
    * component_time[] are initialized to zero while decoder starts.
    */
   uint64_t component_time[kTimingComponents];
-  struct aom_usec_timer component_timer[kTimingComponents];
+  struct avm_usec_timer component_timer[kTimingComponents];
   /*!
    * frame_component_time[] are initialized to zero at beginning of each frame.
    */
@@ -453,10 +453,10 @@ typedef struct AV1Decoder {
   int qm_protected[NUM_CUSTOM_QMS];
 #endif  // CONFIG_F255_QMOBU
 
-  RefCntBuffer *ref_frame_map_buf[AOM_MAX_NUM_STREAMS][REF_FRAMES];
-  int remapped_ref_idx_buf[AOM_MAX_NUM_STREAMS][REF_FRAMES];
-  SequenceHeader seq_params_buf[AOM_MAX_NUM_STREAMS];
-  MultiFrameHeader mfh_params_buf[AOM_MAX_NUM_STREAMS][MAX_MFH_NUM];
+  RefCntBuffer *ref_frame_map_buf[AVM_MAX_NUM_STREAMS][REF_FRAMES];
+  int remapped_ref_idx_buf[AVM_MAX_NUM_STREAMS][REF_FRAMES];
+  SequenceHeader seq_params_buf[AVM_MAX_NUM_STREAMS];
+  MultiFrameHeader mfh_params_buf[AVM_MAX_NUM_STREAMS][MAX_MFH_NUM];
 #if CONFIG_F024_KEYOBU
   /*!
    * Indicates an OLK is encountered in any layer
@@ -496,42 +496,42 @@ typedef struct AV1Decoder {
    */
   int ci_params_received;
 #endif  // CONFIG_CWG_F270_CI_OBU
-} AV1Decoder;
+} AV2Decoder;
 
 // Returns 0 on success. Sets pbi->common.error.error_code to a nonzero error
 // code and returns a nonzero value on failure.
-int av1_receive_compressed_data(struct AV1Decoder *pbi, size_t size,
+int av2_receive_compressed_data(struct AV2Decoder *pbi, size_t size,
                                 const uint8_t **psource);
 
 // Get the frame at a particular index in the output queue
-int av1_get_raw_frame(AV1Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
-                      aom_film_grain_t **grain_params);
+int av2_get_raw_frame(AV2Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
+                      avm_film_grain_t **grain_params);
 
-int av1_get_frame_to_show(struct AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame);
+int av2_get_frame_to_show(struct AV2Decoder *pbi, YV12_BUFFER_CONFIG *frame);
 
-aom_codec_err_t av1_copy_reference_dec(struct AV1Decoder *pbi, int idx,
+avm_codec_err_t av2_copy_reference_dec(struct AV2Decoder *pbi, int idx,
                                        YV12_BUFFER_CONFIG *sd);
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
+avm_codec_err_t av2_set_reference_dec(AV2_COMMON *cm, int idx,
                                       int use_external_ref,
                                       YV12_BUFFER_CONFIG *sd);
-aom_codec_err_t av1_copy_new_frame_dec(AV1_COMMON *cm,
+avm_codec_err_t av2_copy_new_frame_dec(AV2_COMMON *cm,
                                        YV12_BUFFER_CONFIG *new_frame,
                                        YV12_BUFFER_CONFIG *sd);
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-struct AV1Decoder *av1_decoder_create(BufferPool *const pool, const char *path,
+struct AV2Decoder *av2_decoder_create(BufferPool *const pool, const char *path,
                                       const char *suffix);
 #else
-struct AV1Decoder *av1_decoder_create(BufferPool *const pool);
+struct AV2Decoder *av2_decoder_create(BufferPool *const pool);
 #endif
 
-void av1_decoder_remove(struct AV1Decoder *pbi);
-void av1_dealloc_dec_jobs(struct AV1DecTileMTData *tile_mt_info);
+void av2_decoder_remove(struct AV2Decoder *pbi);
+void av2_dealloc_dec_jobs(struct AV2DecTileMTData *tile_mt_info);
 
-void av1_dec_row_mt_dealloc(AV1DecRowMTSync *dec_row_mt_sync);
+void av2_dec_row_mt_dealloc(AV2DecRowMTSync *dec_row_mt_sync);
 
-void av1_dec_free_cb_buf(AV1Decoder *pbi);
+void av2_dec_free_cb_buf(AV2Decoder *pbi);
 
 static INLINE void decrease_ref_count(RefCntBuffer *const buf,
                                       BufferPool *const pool) {
@@ -558,8 +558,8 @@ static INLINE bool is_frame_eligible_for_output(RefCntBuffer *const buf) {
   return ((buf != NULL) && !buf->frame_output_done && buf->showable_frame);
 }
 
-static INLINE void check_ref_count_status_dec(struct AV1Decoder *pbi) {
-  AV1_COMMON *volatile const cm = &pbi->common;
+static INLINE void check_ref_count_status_dec(struct AV2Decoder *pbi) {
+  AV2_COMMON *volatile const cm = &pbi->common;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   if (cm->num_streams > 1) return;
 
@@ -579,50 +579,50 @@ static INLINE void check_ref_count_status_dec(struct AV1Decoder *pbi) {
         ref_frame_map_cnt + cur_frame_cnt + output_frames_cnt;
 
     if (frame_bufs[i].ref_count != calculated_ref_count) {
-      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+      avm_internal_error(&cm->error, AVM_CODEC_MEM_ERROR,
                          "The ref_count value is not matched on the decoder");
     }
   }
 }
 
-void output_trailing_frames(AV1Decoder *pbi);
+void output_trailing_frames(AV2Decoder *pbi);
 
 #if CONFIG_F024_KEYOBU
-aom_codec_err_t flush_remaining_frames(struct AV1Decoder *pbi);
+avm_codec_err_t flush_remaining_frames(struct AV2Decoder *pbi);
 #endif
 
-static INLINE int av1_read_uniform(aom_reader *r, int n) {
+static INLINE int av2_read_uniform(avm_reader *r, int n) {
   const int l = get_unsigned_bits(n);
   const int m = (1 << l) - n;
-  const int v = aom_read_literal(r, l - 1, ACCT_INFO("v"));
+  const int v = avm_read_literal(r, l - 1, ACCT_INFO("v"));
   assert(l != 0);
   if (v < m)
     return v;
   else
-    return (v << 1) - m + aom_read_literal(r, 1, ACCT_INFO());
+    return (v << 1) - m + avm_read_literal(r, 1, ACCT_INFO());
 }
 
 typedef void (*palette_visitor_fn_t)(MACROBLOCKD *const xd, int plane,
-                                     aom_reader *r);
+                                     avm_reader *r);
 
-void av1_visit_palette(AV1Decoder *const pbi, MACROBLOCKD *const xd,
-                       aom_reader *r, palette_visitor_fn_t visit);
+void av2_visit_palette(AV2Decoder *const pbi, MACROBLOCKD *const xd,
+                       avm_reader *r, palette_visitor_fn_t visit);
 
-typedef void (*block_visitor_fn_t)(AV1Decoder *const pbi, ThreadData *const td,
-                                   int mi_row, int mi_col, aom_reader *r,
+typedef void (*block_visitor_fn_t)(AV2Decoder *const pbi, ThreadData *const td,
+                                   int mi_row, int mi_col, avm_reader *r,
                                    PARTITION_TYPE partition, BLOCK_SIZE bsize,
                                    PARTITION_TREE *parent, int index);
 
 /*!\endcond */
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-static INLINE void start_timing(AV1Decoder *pbi, int component) {
-  aom_usec_timer_start(&pbi->component_timer[component]);
+static INLINE void start_timing(AV2Decoder *pbi, int component) {
+  avm_usec_timer_start(&pbi->component_timer[component]);
 }
-static INLINE void end_timing(AV1Decoder *pbi, int component) {
-  aom_usec_timer_mark(&pbi->component_timer[component]);
+static INLINE void end_timing(AV2Decoder *pbi, int component) {
+  avm_usec_timer_mark(&pbi->component_timer[component]);
   pbi->frame_component_time[component] +=
-      aom_usec_timer_elapsed(&pbi->component_timer[component]);
+      avm_usec_timer_elapsed(&pbi->component_timer[component]);
 }
 
 static INLINE char const *get_frame_type_enum(int type) {
@@ -641,4 +641,4 @@ static INLINE char const *get_frame_type_enum(int type) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_DECODER_DECODER_H_
+#endif  // AVM_AV2_DECODER_DECODER_H_

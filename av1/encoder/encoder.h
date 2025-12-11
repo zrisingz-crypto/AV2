@@ -13,57 +13,57 @@
 /*!\file
  * \brief Declares top-level encoder structures and functions.
  */
-#ifndef AOM_AV1_ENCODER_ENCODER_H_
-#define AOM_AV1_ENCODER_ENCODER_H_
+#ifndef AVM_AV2_ENCODER_ENCODER_H_
+#define AVM_AV2_ENCODER_ENCODER_H_
 
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aomcx.h"
+#include "avm/avmcx.h"
 
-#include "av1/common/alloccommon.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/bru.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/enums.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/resize.h"
-#include "av1/common/thread_common.h"
-#include "av1/common/timing.h"
-#include "av1/common/gdf.h"
-#include "av1/encoder/aq_cyclicrefresh.h"
-#include "av1/encoder/av1_quantize.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/context_tree.h"
-#include "av1/encoder/encodemb.h"
-#include "av1/encoder/firstpass.h"
-#include "av1/encoder/global_motion.h"
-#include "av1/encoder/level.h"
-#include "av1/encoder/lookahead.h"
-#include "av1/encoder/mcomp.h"
-#include "av1/encoder/ratectrl.h"
-#include "av1/encoder/rd.h"
-#include "av1/encoder/speed_features.h"
-#include "av1/encoder/tokenize.h"
-#include "av1/encoder/tpl_model.h"
-#include "av1/encoder/av1_noise_estimate.h"
+#include "av2/common/alloccommon.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/bru.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/enums.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/resize.h"
+#include "av2/common/thread_common.h"
+#include "av2/common/timing.h"
+#include "av2/common/gdf.h"
+#include "av2/encoder/aq_cyclicrefresh.h"
+#include "av2/encoder/av2_quantize.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/context_tree.h"
+#include "av2/encoder/encodemb.h"
+#include "av2/encoder/firstpass.h"
+#include "av2/encoder/global_motion.h"
+#include "av2/encoder/level.h"
+#include "av2/encoder/lookahead.h"
+#include "av2/encoder/mcomp.h"
+#include "av2/encoder/ratectrl.h"
+#include "av2/encoder/rd.h"
+#include "av2/encoder/speed_features.h"
+#include "av2/encoder/tokenize.h"
+#include "av2/encoder/tpl_model.h"
+#include "av2/encoder/av2_noise_estimate.h"
 
 #if CONFIG_INTERNAL_STATS
-#include "aom_dsp/ssim.h"
+#include "avm_dsp/ssim.h"
 #endif
-#include "aom_dsp/variance.h"
+#include "avm_dsp/variance.h"
 #if CONFIG_DENOISE
-#include "aom_dsp/noise_model.h"
+#include "avm_dsp/noise_model.h"
 #endif
 #if CONFIG_TUNE_VMAF
-#include "av1/encoder/tune_vmaf.h"
+#include "av2/encoder/tune_vmaf.h"
 #endif
 
-#include "aom/internal/aom_codec_internal.h"
-#include "aom_util/aom_thread.h"
+#include "avm/internal/avm_codec_internal.h"
+#include "avm_util/avm_thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,10 +77,10 @@ extern "C" {
 
 // Rational number with an int64 numerator
 // This structure holds a fractional value
-typedef struct aom_rational64 {
+typedef struct avm_rational64 {
   int64_t num;       // fraction numerator
   int den;           // fraction denominator
-} aom_rational64_t;  // alias for struct aom_rational
+} avm_rational64_t;  // alias for struct avm_rational
 
 enum {
   NORMAL = 0,
@@ -90,7 +90,7 @@ enum {
   ONEFOUR = 4,
   ONEEIGHT = 5,
   ONETWO = 6
-} UENUM1BYTE(AOM_SCALING);
+} UENUM1BYTE(AVM_SCALING);
 
 enum {
   // Good Quality Fast Encoding. The encoder balances quality with the amount of
@@ -547,7 +547,7 @@ typedef struct {
    * Indicates if the encoding mode is vbr, cbr, constrained quality or
    * constant quality.
    */
-  enum aom_rc_mode mode;
+  enum avm_rc_mode mode;
   /*!
    * Indicates the minimum bitrate to be used for a single frame as a percentage
    * of the target bitrate.
@@ -626,7 +626,7 @@ typedef struct {
 
 typedef struct {
   // Timing info for each frame.
-  aom_timing_info_t timing_info;
+  avm_timing_info_t timing_info;
   // Indicates the number of time units of a decoding clock.
   uint32_t num_units_in_decoding_tick;
   // Indicates if decoder model information is present in the coded sequence
@@ -662,15 +662,15 @@ typedef struct {
 
 typedef struct {
   // Indicates the color space that should be used.
-  aom_color_primaries_t color_primaries;
+  avm_color_primaries_t color_primaries;
   // Indicates the characteristics of transfer function to be used.
-  aom_transfer_characteristics_t transfer_characteristics;
+  avm_transfer_characteristics_t transfer_characteristics;
   // Indicates the matrix coefficients to be used for the transfer function.
-  aom_matrix_coefficients_t matrix_coefficients;
+  avm_matrix_coefficients_t matrix_coefficients;
   // Indicates the chroma 4:2:2 or 4:2:0 sample position info.
-  aom_chroma_sample_position_t chroma_sample_position;
+  avm_chroma_sample_position_t chroma_sample_position;
   // Indicates if a limited color range or full color range should be used.
-  aom_color_range_t color_range;
+  avm_color_range_t color_range;
 } ColorCfg;
 
 typedef struct {
@@ -705,9 +705,9 @@ typedef struct {
   // Indicates the path to the film grain parameters.
   const char *film_grain_table_filename;
   // Indicates the visual tuning metric.
-  aom_tune_metric tuning;
+  avm_tune_metric tuning;
   // Indicates if the current content is screen or default type.
-  aom_tune_content content;
+  avm_tune_content content;
   // Indicates the film grain parameters.
   int film_grain_test_vector;
   // Indicates FGS block size: 0 - 16x16, 1 - 32x32
@@ -828,9 +828,9 @@ typedef struct {
 
 typedef struct {
   // Indicates the codec bit-depth.
-  aom_bit_depth_t bit_depth;
+  avm_bit_depth_t bit_depth;
   // Indicates the superblock size that should be used by the encoder.
-  aom_superblock_size_t superblock_size;
+  avm_superblock_size_t superblock_size;
   // Indicates if deblocking should be enabled.
   bool enable_deblocking;
   // Indicates if CDEF should be enabled.
@@ -928,7 +928,7 @@ typedef struct {
   // 1 : tile averaging
   bool avg_cdf_type;
   // Indicates if optical flow refinement should be enabled
-  aom_opfl_refine_type enable_opfl_refine;
+  avm_opfl_refine_type enable_opfl_refine;
   // Indicates if BRU is enabled and the mode
   unsigned int enable_bru;
   bool disable_loopfilters_across_tiles;
@@ -1053,7 +1053,7 @@ typedef struct {
   // Flag to indicate if the frame of type OVERLAY_UPDATE in the current GF
   // interval shows existing alt-ref frame
   int show_existing_alt_ref;
-  // This is currently only populated for AOM_Q mode
+  // This is currently only populated for AVM_Q mode
   unsigned char q_val[MAX_STATIC_GF_GROUP_LENGTH];
   int bit_allocation[MAX_STATIC_GF_GROUP_LENGTH];
   int arf_index;  // the index in the gf group of ARF, if no arf, then -1
@@ -1078,7 +1078,7 @@ typedef struct {
 /*!
  * \brief Main encoder configuration data structure.
  */
-typedef struct AV1EncoderConfig {
+typedef struct AV2EncoderConfig {
   /*!\cond */
   // Configuration related to the input video.
   InputCfg input_cfg;
@@ -1179,7 +1179,7 @@ typedef struct AV1EncoderConfig {
   int speed;
 
   // Indicates the target sequence level index for each operating point(OP).
-  AV1_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  AV2_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
 
   // Indicates the bitstream profile to be used.
   BITSTREAM_PROFILE profile;
@@ -1192,7 +1192,7 @@ typedef struct AV1EncoderConfig {
    * 2 = Second pass of two pass.
    *
    */
-  enum aom_enc_pass pass;
+  enum avm_enc_pass pass;
   /*!\cond */
 
   // Indicates encoding mode. Currently, only GOOD mode is supported.
@@ -1210,7 +1210,7 @@ typedef struct AV1EncoderConfig {
   // 0-31 = manually set operating_points_cnt_minus_1
   int operating_points_count;
   /*!\endcond */
-} AV1EncoderConfig;
+} AV2EncoderConfig;
 
 /*!\cond */
 static INLINE int is_lossless_requested(const RateControlCfg *const rc_cfg) {
@@ -1219,7 +1219,7 @@ static INLINE int is_lossless_requested(const RateControlCfg *const rc_cfg) {
 /*!\endcond */
 
 /*!
- * \brief Encoder-side probabilities for pruning of various AV1 tools
+ * \brief Encoder-side probabilities for pruning of various AV2 tools
  */
 typedef struct {
   /*!
@@ -1274,7 +1274,7 @@ typedef struct FRAME_COUNTS {
   // TODO(urvang, alican): The below are placeholder counters for missing CDF
   // entries for memory optimization code. These are not currently incremented
   // at the encoder to be able to train CDF entries with
-  // "aom_entropy_optimizers", these counters will need be incremented properly.
+  // "avm_entropy_optimizers", these counters will need be incremented properly.
   unsigned int delta_q_cnts[CDF_SIZE(DELTA_Q_PROBS + 1)];   // placeholder
   unsigned int stx_cnts[2][TX_SIZES][CDF_SIZE(STX_TYPES)];  // placeholder
   unsigned int stx_set_cnts[CDF_SIZE(IST_SET_SIZE)];        // placeholder
@@ -1604,7 +1604,7 @@ typedef struct {
    * Number of threads processing the current tile.
    */
   int num_threads_working;
-} AV1EncRowMultiThreadSync;
+} AV2EncRowMultiThreadSync;
 
 /*!\cond */
 
@@ -1615,7 +1615,7 @@ typedef struct TileDataEnc {
   FRAME_CONTEXT *row_ctx;
   uint8_t allow_update_cdf;
   InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
-  AV1EncRowMultiThreadSync row_mt_sync;
+  AV2EncRowMultiThreadSync row_mt_sync;
   MV firstpass_top_mv;
 } TileDataEnc;
 
@@ -1713,13 +1713,13 @@ typedef struct {
   /*!
    * Reader.
    */
-  void (*sync_read_ptr)(AV1EncRowMultiThreadSync *const, int, int);
+  void (*sync_read_ptr)(AV2EncRowMultiThreadSync *const, int, int);
   /*!
    * Writer.
    */
-  void (*sync_write_ptr)(AV1EncRowMultiThreadSync *const, int, int, int);
+  void (*sync_write_ptr)(AV2EncRowMultiThreadSync *const, int, int, int);
   /**@}*/
-} AV1EncRowMultiThreadInfo;
+} AV2EncRowMultiThreadInfo;
 
 /*!
  * \brief Encoder parameters related to multi-threading.
@@ -1760,27 +1760,27 @@ typedef struct {
   /*!
    * Encoder row multi-threading data.
    */
-  AV1EncRowMultiThreadInfo enc_row_mt;
+  AV2EncRowMultiThreadInfo enc_row_mt;
 
   /*!
    * Tpl row multi-threading data.
    */
-  AV1TplRowMultiThreadInfo tpl_row_mt;
+  AV2TplRowMultiThreadInfo tpl_row_mt;
 
   /*!
    * Loop Filter multi-threading object.
    */
-  AV1LfSync lf_row_sync;
+  AV2LfSync lf_row_sync;
 
   /*!
    * Loop Restoration multi-threading object.
    */
-  AV1LrSync lr_row_sync;
+  AV2LrSync lr_row_sync;
 
   /*!
    * Global Motion multi-threading object.
    */
-  AV1GlobalMotionSync gm_sync;
+  AV2GlobalMotionSync gm_sync;
 } MultiThreadInfo;
 
 /*!\cond */
@@ -1866,7 +1866,7 @@ typedef struct PartitionStats {
 #endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-#include "aom_ports/aom_timer.h"
+#include "avm_ports/avm_timer.h"
 // Adjust the following to add new components.
 enum {
   encode_frame_to_data_rate_time,
@@ -1874,16 +1874,16 @@ enum {
   loop_filter_time,
   cdef_time,
   loop_restoration_time,
-  av1_pack_bitstream_final_time,
-  av1_encode_frame_time,
-  av1_compute_global_motion_time,
-  av1_setup_motion_field_time,
-  av1_enc_setup_tip_frame_time,
+  av2_pack_bitstream_final_time,
+  av2_encode_frame_time,
+  av2_compute_global_motion_time,
+  av2_setup_motion_field_time,
+  av2_enc_setup_tip_frame_time,
   encode_sb_time,
   rd_pick_partition_time,
   rd_pick_sb_modes_time,
-  av1_rd_pick_intra_mode_sb_time,
-  av1_rd_pick_inter_mode_sb_time,
+  av2_rd_pick_intra_mode_sb_time,
+  av2_rd_pick_inter_mode_sb_time,
   handle_intra_mode_time,
   do_tx_search_time,
   handle_newmv_time,
@@ -1901,19 +1901,19 @@ static INLINE char const *get_component_name(int index) {
     case loop_filter_time: return "loop_filter_time";
     case cdef_time: return "cdef_time";
     case loop_restoration_time: return "loop_restoration_time";
-    case av1_pack_bitstream_final_time: return "av1_pack_bitstream_final_time";
-    case av1_encode_frame_time: return "av1_encode_frame_time";
-    case av1_compute_global_motion_time:
-      return "av1_compute_global_motion_time";
-    case av1_setup_motion_field_time: return "av1_setup_motion_field_time";
-    case av1_enc_setup_tip_frame_time: return "av1_enc_setup_tip_frame_time";
+    case av2_pack_bitstream_final_time: return "av2_pack_bitstream_final_time";
+    case av2_encode_frame_time: return "av2_encode_frame_time";
+    case av2_compute_global_motion_time:
+      return "av2_compute_global_motion_time";
+    case av2_setup_motion_field_time: return "av2_setup_motion_field_time";
+    case av2_enc_setup_tip_frame_time: return "av2_enc_setup_tip_frame_time";
     case encode_sb_time: return "encode_sb_time";
     case rd_pick_partition_time: return "rd_pick_partition_time";
     case rd_pick_sb_modes_time: return "rd_pick_sb_modes_time";
-    case av1_rd_pick_intra_mode_sb_time:
-      return "av1_rd_pick_intra_mode_sb_time";
-    case av1_rd_pick_inter_mode_sb_time:
-      return "av1_rd_pick_inter_mode_sb_time";
+    case av2_rd_pick_intra_mode_sb_time:
+      return "av2_rd_pick_intra_mode_sb_time";
+    case av2_rd_pick_inter_mode_sb_time:
+      return "av2_rd_pick_inter_mode_sb_time";
     case handle_intra_mode_time: return "handle_intra_mode_time";
     case do_tx_search_time: return "do_tx_search_time";
     case handle_newmv_time: return "handle_newmv_time";
@@ -2032,12 +2032,12 @@ typedef struct {
   int mv_step_param;
   /*!
    * Pointer to sub-pixel search function.
-   * In encoder: av1_find_best_sub_pixel_tree
-   *             av1_find_best_sub_pixel_tree_pruned
-   *             av1_find_best_sub_pixel_tree_pruned_more
-   *             av1_find_best_sub_pixel_tree_pruned_evenmore
-   * In MV unit test: av1_return_max_sub_pixel_mv
-   *                  av1_return_min_sub_pixel_mv
+   * In encoder: av2_find_best_sub_pixel_tree
+   *             av2_find_best_sub_pixel_tree_pruned
+   *             av2_find_best_sub_pixel_tree_pruned_more
+   *             av2_find_best_sub_pixel_tree_pruned_evenmore
+   * In MV unit test: av2_return_max_sub_pixel_mv
+   *                  av2_return_min_sub_pixel_mv
    */
   fractional_mv_step_fp *find_fractional_mv_step;
   /*!
@@ -2258,7 +2258,7 @@ typedef struct {
   int mb_rows;
   int mb_cols;
   int num_mbs;
-  aom_bit_depth_t bit_depth;
+  avm_bit_depth_t bit_depth;
   int subsampling_x;
   int subsampling_y;
 } FRAME_INFO;
@@ -2308,7 +2308,7 @@ typedef struct {
 /*!
  * \brief Top level encoder structure.
  */
-typedef struct AV1_COMP {
+typedef struct AV2_COMP {
   /*!
    * Quantization and dequantization parameters for internal quantizer setup
    * in the encoder.
@@ -2340,12 +2340,12 @@ typedef struct AV1_COMP {
   /*!
    * Structure holding variables common to encoder and decoder.
    */
-  AV1_COMMON common;
+  AV2_COMMON common;
 
   /*!
    * Encoder configuration related parameters.
    */
-  AV1EncoderConfig oxcf;
+  AV2EncoderConfig oxcf;
 
   /*!
    * Look-ahead context.
@@ -2503,10 +2503,10 @@ typedef struct AV1_COMP {
   double framerate;
 
   /*!
-   * Pointer to internal utility functions that manipulate aom_codec_* data
+   * Pointer to internal utility functions that manipulate avm_codec_* data
    * structures.
    */
-  struct aom_codec_pkt_list *output_pkt_list;
+  struct avm_codec_pkt_list *output_pkt_list;
 
   /*!
    * speed is passed as a per-frame parameter into the encoder.
@@ -2549,7 +2549,7 @@ typedef struct AV1_COMP {
    * fn_ptr[i] indicates the list of function pointers corresponding to block
    * size i.
    */
-  aom_variance_fn_ptr_t fn_ptr[BLOCK_SIZES_ALL];
+  avm_variance_fn_ptr_t fn_ptr[BLOCK_SIZES_ALL];
 
   /*!
    * Information related to two pass encoding.
@@ -2688,7 +2688,7 @@ typedef struct AV1_COMP {
 
   /*!
    * Sequence parameters have been transmitted already and locked
-   * or not. Once locked av1_change_config cannot change the seq
+   * or not. Once locked av2_change_config cannot change the seq
    * parameters.
    */
   int seq_params_locked;
@@ -2699,7 +2699,7 @@ typedef struct AV1_COMP {
   int vaq_refresh;
 
   /*!
-   * Probabilities for pruning of various AV1 tools.
+   * Probabilities for pruning of various AV2 tools.
    */
   FrameProbInfo frame_probs;
 
@@ -2735,19 +2735,19 @@ typedef struct AV1_COMP {
   /*!
    * Loop Restoration context.
    */
-  AV1LrStruct lr_ctxt;
+  AV2LrStruct lr_ctxt;
 
   /*!
    * Pointer to list of tables with film grain parameters.
    */
-  aom_film_grain_table_t *film_grain_table;
+  avm_film_grain_table_t *film_grain_table;
 
 #if CONFIG_DENOISE
   /*!
    * Pointer to structure holding the denoised image buffers and the helper
    * noise models.
    */
-  struct aom_denoise_and_model_t *denoise_and_model;
+  struct avm_denoise_and_model_t *denoise_and_model;
 #endif
 
   /*!
@@ -2769,7 +2769,7 @@ typedef struct AV1_COMP {
    * component_time[] are initialized to zero while encoder starts.
    */
   uint64_t component_time[kTimingComponents];
-  struct aom_usec_timer component_timer[kTimingComponents];
+  struct avm_usec_timer component_timer[kTimingComponents];
   /*!
    * frame_component_time[] are initialized to zero at beginning of each frame.
    */
@@ -2777,9 +2777,9 @@ typedef struct AV1_COMP {
 #endif
 
   /*!
-   * Parameters for AV1 bitstream levels.
+   * Parameters for AV2 bitstream levels.
    */
-  AV1LevelParams level_params;
+  AV2LevelParams level_params;
 
   /*!
    * Whether any no-zero delta_q was actually used.
@@ -2876,7 +2876,7 @@ typedef struct AV1_COMP {
 
   /*!
    * Number of pixels that choose palette mode for luma in the
-   * fast encoding pass in av1_determine_sc_tools_with_encoding().
+   * fast encoding pass in av2_determine_sc_tools_with_encoding().
    */
   int palette_pixel_num;
   /*!
@@ -3004,14 +3004,14 @@ typedef struct AV1_COMP {
    * Indicates the level index for the operating points
    */
 
-  AV1_LEVEL level_idx[MAX_NUM_OPERATING_POINTS];
+  AV2_LEVEL level_idx[MAX_NUM_OPERATING_POINTS];
   /*!
    * Indicates the tier information  for the operating points
    */
 
   uint8_t tier[MAX_NUM_OPERATING_POINTS];  // seq_tier in spec. One bit: 0 or 1.
 #endif                                     // CONFIG_CWG_F270_OPS
-} AV1_COMP;
+} AV2_COMP;
 
 /*!
  * \brief Input frames and last input frame
@@ -3027,7 +3027,7 @@ typedef struct EncodeFrameInput {
 
 /*!
  * \brief contains per-frame encoding parameters decided upon by
- * av1_encode_strategy() and passed down to av1_encode().
+ * av2_encode_strategy() and passed down to av2_encode().
  */
 typedef struct EncodeFrameParams {
   /*!
@@ -3086,27 +3086,27 @@ typedef struct {
 } EncodeFrameResults;
 
 // Must not be called more than once.
-void av1_initialize_enc(void);
+void av2_initialize_enc(void);
 
-struct AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf,
+struct AV2_COMP *av2_create_compressor(AV2EncoderConfig *oxcf,
                                        BufferPool *const pool,
                                        FIRSTPASS_STATS *frame_stats_buf,
                                        COMPRESSOR_STAGE stage,
                                        int num_lap_buffers,
                                        int lap_lag_in_frames,
                                        STATS_BUFFER_CTX *stats_buf_context);
-void av1_remove_compressor(AV1_COMP *cpi);
+void av2_remove_compressor(AV2_COMP *cpi);
 
-void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
+void av2_change_config(AV2_COMP *cpi, const AV2EncoderConfig *oxcf);
 
-void av1_check_initial_width(AV1_COMP *cpi, int subsampling_x,
+void av2_check_initial_width(AV2_COMP *cpi, int subsampling_x,
                              int subsampling_y);
 
-void av1_init_seq_coding_tools(
+void av2_init_seq_coding_tools(
 #if CONFIG_CWG_F270_OPS
-    AV1_COMP *cpi,
+    AV2_COMP *cpi,
 #endif  // CONFIG_CWG_F270_OPS
-    SequenceHeader *seq, AV1_COMMON *cm, const AV1EncoderConfig *oxcf);
+    SequenceHeader *seq, AV2_COMMON *cm, const AV2EncoderConfig *oxcf);
 
 /*!\endcond */
 
@@ -3126,7 +3126,7 @@ void av1_init_seq_coding_tools(
  * \note The caller can assume that a copy of this frame is made and not just a
  * copy of the pointer.
  */
-int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
+int av2_receive_raw_frame(AV2_COMP *cpi, avm_enc_frame_flags_t frame_flags,
                           YV12_BUFFER_CONFIG *sd, int64_t time_stamp,
                           int64_t end_time_stamp);
 
@@ -3137,7 +3137,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
  * \callergraph
  * This function encodes the raw frame data, and outputs the frame bit stream
  * to the designated buffer. The caller should use the output parameters
- * *time_stamp and *time_end only when this function returns AOM_CODEC_OK.
+ * *time_stamp and *time_end only when this function returns AVM_CODEC_OK.
  *
  * \param[in]    cpi         Top-level encoder structure
  * \param[in]    frame_flags Flags to decide how to encoding the frame
@@ -3149,15 +3149,15 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
  * \param[in]    timebase    Time base used
  *
  * \return Returns a value to indicate if the encoding is done successfully.
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  * \retval -1
  *     No frame encoded; more input is required.
- * \retval #AOM_CODEC_ERROR
+ * \retval #AVM_CODEC_ERROR
  */
-int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
+int av2_get_compressed_data(AV2_COMP *cpi, unsigned int *frame_flags,
                             size_t *size, uint8_t *dest, int64_t *time_stamp,
                             int64_t *time_end, int flush,
-                            const aom_rational64_t *timebase);
+                            const avm_rational64_t *timebase);
 
 /*!\brief Run 1-pass/2-pass encoding
  *
@@ -3165,47 +3165,47 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
  * \callgraph
  * \callergraph
  */
-int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
+int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
                const EncodeFrameInput *const frame_input,
                const EncodeFrameParams *const frame_params,
                EncodeFrameResults *const frame_results);
 
 /*!\cond */
-int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest);
+int av2_get_preview_raw_frame(AV2_COMP *cpi, YV12_BUFFER_CONFIG *dest);
 
-int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame);
+int av2_get_last_show_frame(AV2_COMP *cpi, YV12_BUFFER_CONFIG *frame);
 
-aom_codec_err_t av1_copy_new_frame_enc(AV1_COMMON *cm,
+avm_codec_err_t av2_copy_new_frame_enc(AV2_COMMON *cm,
                                        YV12_BUFFER_CONFIG *new_frame,
                                        YV12_BUFFER_CONFIG *sd);
 
-int av1_use_as_reference(int *ext_ref_frame_flags, int ref_frame_flags);
+int av2_use_as_reference(int *ext_ref_frame_flags, int ref_frame_flags);
 
-int av1_copy_reference_enc(AV1_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd);
+int av2_copy_reference_enc(AV2_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd);
 
-int av1_set_reference_enc(AV1_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd);
+int av2_set_reference_enc(AV2_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd);
 
-int av1_set_size_literal(AV1_COMP *cpi, int width, int height);
+int av2_set_size_literal(AV2_COMP *cpi, int width, int height);
 
-void av1_set_frame_size(AV1_COMP *cpi, int width, int height);
+void av2_set_frame_size(AV2_COMP *cpi, int width, int height);
 
-int av1_set_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
+int av2_set_active_map(AV2_COMP *cpi, unsigned char *map, int rows, int cols);
 
-int av1_get_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
+int av2_get_active_map(AV2_COMP *cpi, unsigned char *map, int rows, int cols);
 
-int av1_set_internal_size(AV1EncoderConfig *const oxcf,
+int av2_set_internal_size(AV2EncoderConfig *const oxcf,
                           ResizePendingParams *resize_pending_params,
-                          AOM_SCALING horiz_mode, AOM_SCALING vert_mode);
+                          AVM_SCALING horiz_mode, AVM_SCALING vert_mode);
 
-int av1_get_quantizer(struct AV1_COMP *cpi);
+int av2_get_quantizer(struct AV2_COMP *cpi);
 
 // The "sect5" and "annexb" in the function name refer to Section 5 and Annex B
-// in the AV1 spec, but AV2 only supports a simplified variant of Annex B.
+// in the AV2 spec, but AV2 only supports a simplified variant of Annex B.
 // TODO(wtc): write OBU sizes to the bitstream in the AV2 bitstream format
 // directly and remove this function.
-int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
+int av2_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 
-void av1_set_downsample_filter_options(AV1_COMP *cpi);
+void av2_set_downsample_filter_options(AV2_COMP *cpi);
 
 // Set screen content options.
 // This function estimates whether to use screen content tools, by counting
@@ -3215,26 +3215,26 @@ void av1_set_downsample_filter_options(AV1_COMP *cpi);
 //   cpi->common.allow_intrabc
 // However, the estimation is not accurate and may misclassify videos.
 // A slower but more accurate approach that determines whether to use screen
-// content tools is employed later. See av1_determine_sc_tools_with_encoding().
-void av1_set_screen_content_options(struct AV1_COMP *cpi,
+// content tools is employed later. See av2_determine_sc_tools_with_encoding().
+void av2_set_screen_content_options(struct AV2_COMP *cpi,
                                     FeatureFlags *features);
 
-// av1 uses 10,000,000 ticks/second as time stamp
+// av2 uses 10,000,000 ticks/second as time stamp
 #define TICKS_PER_SEC 10000000LL
 
 static INLINE int64_t
-timebase_units_to_ticks(const aom_rational64_t *timestamp_ratio, int64_t n) {
+timebase_units_to_ticks(const avm_rational64_t *timestamp_ratio, int64_t n) {
   return n * timestamp_ratio->num / timestamp_ratio->den;
 }
 
 static INLINE int64_t
-ticks_to_timebase_units(const aom_rational64_t *timestamp_ratio, int64_t n) {
+ticks_to_timebase_units(const avm_rational64_t *timestamp_ratio, int64_t n) {
   int64_t round = timestamp_ratio->num / 2;
   if (round > 0) --round;
   return (n * timestamp_ratio->den + round) / timestamp_ratio->num;
 }
 
-static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
+static INLINE int frame_is_kf_gf_arf(const AV2_COMP *cpi) {
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_group->index];
 
@@ -3243,7 +3243,7 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 }
 
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.
-static INLINE int av1_use_hash_me(const AV1_COMP *const cpi) {
+static INLINE int av2_use_hash_me(const AV2_COMP *const cpi) {
   if (!cpi->common.features.is_scc_content_by_detector) return 0;
   return (cpi->common.features.allow_intrabc) &&
          (frame_is_intra_only(&cpi->common) ||
@@ -3251,18 +3251,18 @@ static INLINE int av1_use_hash_me(const AV1_COMP *const cpi) {
 }
 
 static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf_res_indep(
-    const AV1_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
+    const AV2_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
   const RefCntBuffer *const buf = get_ref_frame_buf_res_indep(cm, ref_frame);
   return buf != NULL ? &buf->buf : NULL;
 }
 
 static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf(
-    const AV1_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
+    const AV2_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
   const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
   return buf != NULL ? &buf->buf : NULL;
 }
 
-static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, RefCntBuffer *buf) {
+static INLINE void alloc_frame_mvs(AV2_COMMON *const cm, RefCntBuffer *buf) {
   assert(buf != NULL);
   ensure_mv_buffer(buf, cm);
   buf->width = cm->width;
@@ -3279,10 +3279,10 @@ static INLINE unsigned int allocated_tokens(TileInfo tile, int sb_size_log2,
   return get_token_alloc(tile_mb_rows, tile_mb_cols, sb_size_log2, num_planes);
 }
 
-static INLINE void get_start_tok(AV1_COMP *cpi, int tile_row, int tile_col,
+static INLINE void get_start_tok(AV2_COMP *cpi, int tile_row, int tile_col,
                                  int mi_row, TokenExtra **tok, int sb_size_log2,
                                  int num_planes) {
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
   TileDataEnc *this_tile = &cpi->tile_data[tile_row * tile_cols + tile_col];
   const TileInfo *const tile_info = &this_tile->tile_info;
@@ -3295,7 +3295,7 @@ static INLINE void get_start_tok(AV1_COMP *cpi, int tile_row, int tile_col,
          get_token_alloc(tile_mb_row, tile_mb_cols, sb_size_log2, num_planes);
 }
 
-void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags);
+void av2_apply_encoding_flags(AV2_COMP *cpi, avm_enc_frame_flags_t flags);
 
 #define ALT_MIN_LAG 3
 static INLINE int is_altref_enabled(int lag_in_frames, bool enable_auto_arf) {
@@ -3303,14 +3303,14 @@ static INLINE int is_altref_enabled(int lag_in_frames, bool enable_auto_arf) {
 }
 
 // Check if statistics generation stage
-static INLINE int is_stat_generation_stage(const AV1_COMP *const cpi) {
+static INLINE int is_stat_generation_stage(const AV2_COMP *const cpi) {
   assert(IMPLIES(cpi->compressor_stage == LAP_STAGE,
                  cpi->oxcf.pass == 0 && cpi->lap_enabled));
   return (cpi->compressor_stage == LAP_STAGE);
 }
 
 // Check if statistics consumption stage
-static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
+static INLINE int is_stat_consumption_stage(const AV2_COMP *const cpi) {
   return (cpi->compressor_stage == ENCODE_STAGE && cpi->lap_enabled);
 }
 
@@ -3323,7 +3323,7 @@ static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
  *
  * \return 0 if no stats for current stage else 1
  */
-static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
+static INLINE int has_no_stats_stage(const AV2_COMP *const cpi) {
   assert(IMPLIES(!cpi->lap_enabled, cpi->compressor_stage == ENCODE_STAGE));
   return (!cpi->lap_enabled);
 }
@@ -3337,7 +3337,7 @@ static INLINE int get_stats_buf_size(int num_lap_buffer, int num_lag_buffer) {
 
 // TODO(zoeliu): To set up cpi->oxcf.gf_cfg.enable_auto_brf
 
-static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
+static INLINE void set_ref_ptrs(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                 MV_REFERENCE_FRAME ref0,
                                 MV_REFERENCE_FRAME ref1) {
   xd->block_ref_scale_factors[0] = get_ref_scale_factors_const(
@@ -3346,30 +3346,30 @@ static INLINE void set_ref_ptrs(const AV1_COMMON *cm, MACROBLOCKD *xd,
       cm, ref1 < INTER_REFS_PER_FRAME || is_tip_ref_frame(ref1) ? ref1 : 0);
 }
 
-static INLINE const int *cond_cost_list_const(const struct AV1_COMP *cpi,
+static INLINE const int *cond_cost_list_const(const struct AV2_COMP *cpi,
                                               const int *cost_list) {
   const int use_cost_list = cpi->sf.mv_sf.subpel_search_method != SUBPEL_TREE &&
                             cpi->sf.mv_sf.use_fullpel_costlist;
   return use_cost_list ? cost_list : NULL;
 }
 
-static INLINE int *cond_cost_list(const struct AV1_COMP *cpi, int *cost_list) {
+static INLINE int *cond_cost_list(const struct AV2_COMP *cpi, int *cost_list) {
   const int use_cost_list = cpi->sf.mv_sf.subpel_search_method != SUBPEL_TREE &&
                             cpi->sf.mv_sf.use_fullpel_costlist;
   return use_cost_list ? cost_list : NULL;
 }
 
 // Compression ratio of current frame.
-double av1_get_compression_ratio(const AV1_COMMON *const cm,
+double av2_get_compression_ratio(const AV2_COMMON *const cm,
                                  size_t encoded_frame_size);
 
-void av1_new_framerate(AV1_COMP *cpi, double framerate);
+void av2_new_framerate(AV2_COMP *cpi, double framerate);
 
 #if !CONFIG_F024_KEYOBU
 // Don't allow a show_existing_frame to coincide with an error resilient
 // frame. An exception can be made for a forward keyframe since it has no
 // previous dependencies.
-static INLINE int encode_show_existing_frame(const AV1_COMMON *cm) {
+static INLINE int encode_show_existing_frame(const AV2_COMMON *cm) {
   if (!cm->show_existing_frame) return 0;
   // show_existing_frame can be equal to 1
   // only for a forward key frame
@@ -3395,8 +3395,8 @@ static INLINE void set_mode_info_offsets(
     const MBMIExtFrameBufferInfo *const mbmi_ext_info, MACROBLOCK *const x,
     MACROBLOCKD *const xd, int mi_row, int mi_col, const int mi_width,
     const int mi_height) {
-  const int x_inside_boundary = AOMMIN(mi_width, mi_params->mi_cols - mi_col);
-  const int y_inside_boundary = AOMMIN(mi_height, mi_params->mi_rows - mi_row);
+  const int x_inside_boundary = AVMMIN(mi_width, mi_params->mi_cols - mi_col);
+  const int y_inside_boundary = AVMMIN(mi_height, mi_params->mi_rows - mi_row);
   set_mi_offsets(mi_params, xd, mi_row, mi_col, x_inside_boundary,
                  y_inside_boundary);
   const int ext_idx = get_mi_ext_idx(mi_row, mi_col, mi_params->mi_alloc_bsize,
@@ -3411,7 +3411,7 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
                                              int cols_left, int *bh, int *bw) {
   int int_size = (int)bsize;
   if (rows_left <= 0 || cols_left <= 0) {
-    return AOMMIN(bsize, BLOCK_8X8);
+    return AVMMIN(bsize, BLOCK_8X8);
   } else {
     for (; int_size > 0; int_size -= 3) {
       *bh = mi_size_high[int_size];
@@ -3429,7 +3429,7 @@ static INLINE int get_max_allowed_ref_frames(
   const unsigned int max_allowed_refs_for_given_speed =
       (selective_ref_frame >= 3) ? INTER_REFS_PER_FRAME - 1
                                  : INTER_REFS_PER_FRAME;
-  return AOMMIN(max_allowed_refs_for_given_speed, max_reference_frames);
+  return AVMMIN(max_allowed_refs_for_given_speed, max_reference_frames);
 }
 
 /*!\brief Return whether the current coding block has two separate DRLs,
@@ -3442,7 +3442,7 @@ static INLINE int has_second_drl_by_mode(const PREDICTION_MODE mode,
 
 // Enforce the number of references for each arbitrary frame based on user
 // options and speed.
-static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
+static AVM_INLINE void enforce_max_ref_frames(AV2_COMP *cpi,
                                               int *ref_frame_flags) {
   MV_REFERENCE_FRAME ref_frame;
   int total_valid_refs = 0;
@@ -3471,16 +3471,16 @@ static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
   }
 }
 
-// Returns a Sequence Header OBU stored in an aom_fixed_buf_t, or NULL upon
-// failure. When a non-NULL aom_fixed_buf_t pointer is returned by this
+// Returns a Sequence Header OBU stored in an avm_fixed_buf_t, or NULL upon
+// failure. When a non-NULL avm_fixed_buf_t pointer is returned by this
 // function, the memory must be freed by the caller. Both the buf member of the
-// aom_fixed_buf_t, and the aom_fixed_buf_t pointer itself must be freed. Memory
+// avm_fixed_buf_t, and the avm_fixed_buf_t pointer itself must be freed. Memory
 // returned must be freed via call to free().
 //
 // Note: The OBU returned is in Low Overhead Bitstream Format. Specifically,
 // the obu_has_size_field bit is set, and the buffer contains the obu_size
 // field.
-aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
+avm_fixed_buf_t *av2_get_global_headers(AV2_COMP *cpi);
 
 #define MAX_GFUBOOST_FACTOR 10.0
 
@@ -3505,19 +3505,19 @@ get_frame_update_type(const GF_GROUP *gf_group) {
   return gf_group->update_type[gf_group->index];
 }
 
-static INLINE int av1_pixels_to_mi(int pixels) {
+static INLINE int av2_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
 }
 
-static AOM_INLINE int is_psnr_calc_enabled(const AV1_COMP *cpi) {
-  const AV1_COMMON *const cm = &cpi->common;
+static AVM_INLINE int is_psnr_calc_enabled(const AV2_COMP *cpi) {
+  const AV2_COMMON *const cm = &cpi->common;
 
   return cpi->b_calculate_psnr >= 1 && !is_stat_generation_stage(cpi) &&
          cm->show_frame;
 }
 
 #if CONFIG_COLLECT_PARTITION_STATS == 2
-static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
+static INLINE void av2_print_partition_stats(PartitionStats *part_stats) {
   FILE *f = fopen("partition_stats.csv", "w");
   if (!f) {
     return;
@@ -3553,7 +3553,7 @@ static INLINE void av1_print_partition_stats(PartitionStats *part_stats) {
   fclose(f);
 }
 
-static INLINE int av1_get_bsize_idx_for_part_stats(BLOCK_SIZE bsize) {
+static INLINE int av2_get_bsize_idx_for_part_stats(BLOCK_SIZE bsize) {
   assert(bsize == BLOCK_128X128 || bsize == BLOCK_64X64 ||
          bsize == BLOCK_32X32 || bsize == BLOCK_16X16 || bsize == BLOCK_8X8 ||
          bsize == BLOCK_4X4);
@@ -3570,13 +3570,13 @@ static INLINE int av1_get_bsize_idx_for_part_stats(BLOCK_SIZE bsize) {
 #endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-static INLINE void start_timing(AV1_COMP *cpi, int component) {
-  aom_usec_timer_start(&cpi->component_timer[component]);
+static INLINE void start_timing(AV2_COMP *cpi, int component) {
+  avm_usec_timer_start(&cpi->component_timer[component]);
 }
-static INLINE void end_timing(AV1_COMP *cpi, int component) {
-  aom_usec_timer_mark(&cpi->component_timer[component]);
+static INLINE void end_timing(AV2_COMP *cpi, int component) {
+  avm_usec_timer_mark(&cpi->component_timer[component]);
   cpi->frame_component_time[component] +=
-      aom_usec_timer_elapsed(&cpi->component_timer[component]);
+      avm_usec_timer_elapsed(&cpi->component_timer[component]);
 }
 
 static INLINE char const *get_frame_type_enum(int type) {
@@ -3590,11 +3590,11 @@ static INLINE char const *get_frame_type_enum(int type) {
   return "error";
 }
 #endif
-void enc_bru_swap_stage(AV1_COMP *cpi);
-void enc_bru_swap_ref(AV1_COMMON *const cm);
+void enc_bru_swap_stage(AV2_COMP *cpi);
+void enc_bru_swap_ref(AV2_COMMON *const cm);
 
-static INLINE void check_ref_count_status_enc(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static INLINE void check_ref_count_status_enc(AV2_COMP *cpi) {
+  AV2_COMMON *const cm = &cpi->common;
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
 
   for (int i = 0; i < FRAME_BUFFERS; ++i) {
@@ -3612,14 +3612,14 @@ static INLINE void check_ref_count_status_enc(AV1_COMP *cpi) {
     calculated_ref_count = ref_frame_map_cnt + cur_frame_cnt + scaled_ref_cnt;
 
     if (frame_bufs[i].ref_count != calculated_ref_count) {
-      aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
+      avm_internal_error(&cm->error, AVM_CODEC_MEM_ERROR,
                          "The ref_count value is not matched on the encoder");
     }
   }
 }
 
 // Returns true if current frame is a shown (visible) keyframe.
-static INLINE bool av1_is_shown_keyframe(const AV1_COMP *cpi,
+static INLINE bool av2_is_shown_keyframe(const AV2_COMP *cpi,
                                          FRAME_TYPE frame_type) {
   return (frame_type == KEY_FRAME) && !cpi->no_show_fwd_kf;
 }
@@ -3630,4 +3630,4 @@ static INLINE bool av1_is_shown_keyframe(const AV1_COMP *cpi,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODER_H_
+#endif  // AVM_AV2_ENCODER_ENCODER_H_

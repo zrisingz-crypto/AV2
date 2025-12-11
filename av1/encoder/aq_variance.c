@@ -12,16 +12,16 @@
 
 #include <math.h>
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/encoder/aq_variance.h"
-#include "av1/common/seg_common.h"
-#include "av1/encoder/encodeframe.h"
-#include "av1/encoder/ratectrl.h"
-#include "av1/encoder/rd.h"
-#include "av1/encoder/segmentation.h"
-#include "av1/encoder/dwt.h"
-#include "aom_ports/system_state.h"
+#include "av2/encoder/aq_variance.h"
+#include "av2/common/seg_common.h"
+#include "av2/encoder/encodeframe.h"
+#include "av2/encoder/ratectrl.h"
+#include "av2/encoder/rd.h"
+#include "av2/encoder/segmentation.h"
+#include "av2/encoder/dwt.h"
+#include "avm_ports/system_state.h"
 
 static const double rate_ratio[MAX_SEGMENTS] = { 2.2, 1.7, 1.3, 1.0,
                                                  0.9, .8,  .7,  .6 };
@@ -36,14 +36,14 @@ static const double deltaq_rate_ratio[MAX_SEGMENTS] = { 2.5,  2.0, 1.5, 1.0,
   assert((energy) >= ENERGY_MIN && (energy) <= ENERGY_MAX)
 
 DECLARE_ALIGNED(16, static const uint16_t,
-                av1_highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
+                av2_highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
 
 static const int segment_id[ENERGY_SPAN] = { 0, 1, 1, 2, 3, 4 };
 
 #define SEGMENT_ID(i) segment_id[(i) - ENERGY_MIN]
 
-void av1_vaq_frame_setup(AV1_COMP *cpi) {
-  AV1_COMMON *cm = &cpi->common;
+void av2_vaq_frame_setup(AV2_COMP *cpi) {
+  AV2_COMMON *cm = &cpi->common;
   const int base_qindex = cm->quant_params.base_qindex;
   struct segmentation *seg = &cm->seg;
   int i;
@@ -59,19 +59,19 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
 
   if (resolution_change) {
     memset(cpi->enc_seg.map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
-    av1_clearall_segfeatures(seg);
-    aom_clear_system_state();
-    av1_disable_segmentation(seg);
+    av2_clearall_segfeatures(seg);
+    avm_clear_system_state();
+    av2_disable_segmentation(seg);
     return;
   }
   if (frame_is_intra_only(cm) || cm->current_frame.pyramid_level <= 1 ||
       frame_is_sframe(cm)) {
     cpi->vaq_refresh = 1;
 
-    av1_enable_segmentation(seg);
-    av1_clearall_segfeatures(seg);
+    av2_enable_segmentation(seg);
+    av2_clearall_segfeatures(seg);
 
-    aom_clear_system_state();
+    avm_clear_system_state();
 
     // TODO: This workaround is needed because existing aq_mode=1 is only
     // defined for 8 energy levles.
@@ -91,7 +91,7 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
       }
 
 #else
-      int qindex_delta = av1_compute_qdelta_by_rate(
+      int qindex_delta = av2_compute_qdelta_by_rate(
           &cpi->rc, cm->current_frame.frame_type, base_qindex,
           rate_ratio[i] / avg_ratio, cpi->is_screen_content_type,
           cm->seq_params.bit_depth);
@@ -104,8 +104,8 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
       }
 #endif  // CONFIG_MIXED_LOSSLESS_ENCODE
 
-      av1_set_segdata(seg, i, SEG_LVL_ALT_Q, qindex_delta);
-      av1_enable_segfeature(seg, i, SEG_LVL_ALT_Q);
+      av2_set_segdata(seg, i, SEG_LVL_ALT_Q, qindex_delta);
+      av2_enable_segfeature(seg, i, SEG_LVL_ALT_Q);
     }
 
     // TODO: This workaround is needed because existing aq_mode=1 is only
@@ -114,7 +114,7 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
     //
     // Please refer to the code, where energy level decides the seg_id,
     // in setup_block_rdmult()
-    //   energy = av1_log_block_var(cpi, x, bsize);
+    //   energy = av2_log_block_var(cpi, x, bsize);
     //   mbmi->segment_id = energy;
 
     SequenceHeader *const seq_params = &cm->seq_params;
@@ -122,13 +122,13 @@ void av1_vaq_frame_setup(AV1_COMP *cpi) {
 
     if (cm->seg.enable_ext_seg) {
       for (i = MAX_SEGMENTS_8; i < MAX_SEGMENTS; ++i) {
-        av1_disable_segfeature(seg, i, SEG_LVL_ALT_Q);
+        av2_disable_segfeature(seg, i, SEG_LVL_ALT_Q);
       }
     }
   }
 }
 
-int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
+int av2_log_block_var(const AV2_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
 #if CONFIG_MIXED_LOSSLESS_ENCODE
                       ,
                       int mi_row, int mi_col
@@ -155,11 +155,11 @@ int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
       (cpi->common.mi_params.mi_rows / cpi->common.mib_size) >> 1;
   int middle_sb_cols =
       (cpi->common.mi_params.mi_cols / cpi->common.mib_size) >> 1;
-  int min_sb_rows = AOMMAX(0, middle_sb_rows - 1);
-  int max_sb_rows = AOMMIN(cpi->common.mi_params.mi_rows / cpi->common.mib_size,
+  int min_sb_rows = AVMMAX(0, middle_sb_rows - 1);
+  int max_sb_rows = AVMMIN(cpi->common.mi_params.mi_rows / cpi->common.mib_size,
                            middle_sb_rows + 1);
-  int min_sb_cols = AOMMAX(0, middle_sb_cols - 1);
-  int max_sb_cols = AOMMIN(cpi->common.mi_params.mi_cols / cpi->common.mib_size,
+  int min_sb_cols = AVMMAX(0, middle_sb_cols - 1);
+  int max_sb_cols = AVMMIN(cpi->common.mi_params.mi_cols / cpi->common.mib_size,
                            middle_sb_cols + 1);
   int lossless = 1;
   lossless &= (curr_sb_row >= min_sb_rows) && (curr_sb_row <= max_sb_rows);
@@ -175,14 +175,14 @@ int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
   const int bw = MI_SIZE * mi_size_wide[bs] - right_overflow;
   const int bh = MI_SIZE * mi_size_high[bs] - bottom_overflow;
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 
   for (i = 0; i < bh; i += 4) {
     for (j = 0; j < bw; j += 4) {
       var +=
           log(1.0 + cpi->fn_ptr[BLOCK_4X4].vf(
                         x->plane[0].src.buf + i * x->plane[0].src.stride + j,
-                        x->plane[0].src.stride, av1_highbd_all_zeros, 0, &sse) /
+                        x->plane[0].src.stride, av2_highbd_all_zeros, 0, &sse) /
                         16);
     }
   }
@@ -190,7 +190,7 @@ int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs
   var /= (bw / 4 * bh / 4);
   if (var > 7) var = 7;
 
-  aom_clear_system_state();
+  avm_clear_system_state();
   return (int)(var);
 }
 
@@ -205,32 +205,32 @@ static unsigned int haar_ac_energy(MACROBLOCK *x, BLOCK_SIZE bs) {
   int var = 0;
   for (int r = 0; r < bh; r += 8)
     for (int c = 0; c < bw; c += 8) {
-      var += av1_haar_ac_sad_8x8_uint8_input(buf + c + r * stride, stride);
+      var += av2_haar_ac_sad_8x8_uint8_input(buf + c + r * stride, stride);
     }
 
   return (unsigned int)((uint64_t)var * 256) >> num_pels_log2_lookup[bs];
 }
 
-double av1_log_block_wavelet_energy(MACROBLOCK *x, BLOCK_SIZE bs) {
+double av2_log_block_wavelet_energy(MACROBLOCK *x, BLOCK_SIZE bs) {
   unsigned int haar_sad = haar_ac_energy(x, bs);
-  aom_clear_system_state();
+  avm_clear_system_state();
   return log(haar_sad + 1.0);
 }
 
-int av1_block_wavelet_energy_level(const AV1_COMP *cpi, MACROBLOCK *x,
+int av2_block_wavelet_energy_level(const AV2_COMP *cpi, MACROBLOCK *x,
                                    BLOCK_SIZE bs) {
   double energy, energy_midpoint;
-  aom_clear_system_state();
+  avm_clear_system_state();
   (void)cpi;
   energy_midpoint = DEFAULT_E_MIDPOINT;
-  energy = av1_log_block_wavelet_energy(x, bs) - energy_midpoint;
+  energy = av2_log_block_wavelet_energy(x, bs) - energy_midpoint;
   return clamp((int)round(energy), ENERGY_MIN, ENERGY_MAX);
 }
 
-int av1_compute_q_from_energy_level_deltaq_mode(const AV1_COMP *const cpi,
+int av2_compute_q_from_energy_level_deltaq_mode(const AV2_COMP *const cpi,
                                                 int block_var_level) {
   int rate_level;
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
 
   if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
     ENERGY_IN_BOUNDS(block_var_level);
@@ -239,7 +239,7 @@ int av1_compute_q_from_energy_level_deltaq_mode(const AV1_COMP *const cpi,
     rate_level = block_var_level;
   }
   const int base_qindex = cm->quant_params.base_qindex;
-  int qindex_delta = av1_compute_qdelta_by_rate(
+  int qindex_delta = av2_compute_qdelta_by_rate(
       &cpi->rc, cm->current_frame.frame_type, base_qindex,
       deltaq_rate_ratio[rate_level], cpi->is_screen_content_type,
       cm->seq_params.bit_depth);

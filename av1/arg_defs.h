@@ -9,19 +9,19 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_ARG_DEFS_H_
-#define AOM_AV1_ARG_DEFS_H_
+#ifndef AVM_AV2_ARG_DEFS_H_
+#define AVM_AV2_ARG_DEFS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 #include "common/args_helper.h"
 #if CONFIG_WEBM_IO
 #include "common/webmenc.h"
 #endif
-#include "aom/aomcx.h"
+#include "avm/avmcx.h"
 
 enum TestDecodeFatality {
   TEST_DECODE_OFF,
@@ -29,7 +29,7 @@ enum TestDecodeFatality {
   TEST_DECODE_WARN,
 };
 
-typedef struct av1_codec_arg_definitions {
+typedef struct av2_codec_arg_definitions {
   arg_def_t help;
   arg_def_t debugmode;
   arg_def_t outputfile;
@@ -120,8 +120,8 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t cq_level;
   arg_def_t qp_level;
   arg_def_t max_intra_rate_pct;
-#if CONFIG_AV1_ENCODER
-  arg_def_t cpu_used_av1;
+#if CONFIG_AV2_ENCODER
+  arg_def_t cpu_used_av2;
   arg_def_t rowmtarg;
   arg_def_t tile_cols;
   arg_def_t tile_rows;
@@ -272,7 +272,7 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t dpb_size;
   arg_def_t enable_bru;
   arg_def_t disable_loopfilters_across_tiles;
-#endif  // CONFIG_AV1_ENCODER
+#endif  // CONFIG_AV2_ENCODER
   arg_def_t frame_hash_metadata;
   arg_def_t frame_hash_per_plane;
 #if CONFIG_METADATA
@@ -301,11 +301,11 @@ typedef struct av1_codec_arg_definitions {
 #if CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
   arg_def_t cross_frame_cdf_init_mode;
 #endif  // CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
-} av1_codec_arg_definitions_t;
+} av2_codec_arg_definitions_t;
 
-extern const av1_codec_arg_definitions_t g_av1_codec_arg_defs;
+extern const av2_codec_arg_definitions_t g_av2_codec_arg_defs;
 
 #ifdef __cplusplus
 }
 #endif
-#endif  // AOM_AV1_ARG_DEFS_H_
+#endif  // AVM_AV2_ARG_DEFS_H_

@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/encoder/encoder_alloc.h"
-#include "av1/encoder/random.h"
-#include "av1/encoder/scale.h"
+#include "av2/encoder/encoder_alloc.h"
+#include "av2/encoder/random.h"
+#include "av2/encoder/scale.h"
 
 // This function is used to compute the resolution for low delay mode
 static uint8_t get_resolution_ratio_pattern1(const int display_order_hint) {
@@ -61,7 +61,7 @@ static uint8_t get_resolution_bridge_frame_pattern(const int frame_count) {
   return new_denom;
 }
 
-static uint8_t calculate_next_resize_scale(const AV1_COMP *cpi) {
+static uint8_t calculate_next_resize_scale(const AV2_COMP *cpi) {
   // Choose an arbitrary random number
   static unsigned int seed = 56789;
   const ResizeCfg *resize_cfg = &cpi->oxcf.resize_cfg;
@@ -120,14 +120,14 @@ static int validate_size_scales(RESIZE_MODE resize_mode, int owidth,
         (2 * SCALE_NUMERATOR * SCALE_NUMERATOR) / SCALE_NUMERATOR;
     rsz->resize_width = owidth;
     rsz->resize_height = oheight;
-    av1_calculate_scaled_size(&rsz->resize_width, &rsz->resize_height,
+    av2_calculate_scaled_size(&rsz->resize_width, &rsz->resize_height,
                               resize_denom);
     if (!dimensions_are_ok(owidth, oheight, rsz)) {
       if (resize_denom > SCALE_NUMERATOR) {
         --resize_denom;
         rsz->resize_width = owidth;
         rsz->resize_height = oheight;
-        av1_calculate_scaled_size(&rsz->resize_width, &rsz->resize_height,
+        av2_calculate_scaled_size(&rsz->resize_width, &rsz->resize_height,
                                   resize_denom);
       }
     }
@@ -138,8 +138,8 @@ static int validate_size_scales(RESIZE_MODE resize_mode, int owidth,
 }
 
 // Calculates resize params for next frame.
-static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
-  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+static size_params_type calculate_next_size_params(AV2_COMP *cpi) {
+  const AV2EncoderConfig *oxcf = &cpi->oxcf;
   ResizePendingParams *resize_pending_params = &cpi->resize_pending_params;
   const FrameDimensionCfg *const frm_dim_cfg = &oxcf->frm_dim_cfg;
   size_params_type rsz = { frm_dim_cfg->width, frm_dim_cfg->height };
@@ -154,7 +154,7 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
     resize_denom = calculate_next_resize_scale(cpi);
     rsz.resize_width = frm_dim_cfg->width;
     rsz.resize_height = frm_dim_cfg->height;
-    av1_calculate_scaled_size(&rsz.resize_width, &rsz.resize_height,
+    av2_calculate_scaled_size(&rsz.resize_width, &rsz.resize_height,
                               resize_denom);
   }
   if (oxcf->resize_cfg.resize_mode != RESIZE_BRIDGE_FRAME_PATTERN)
@@ -164,19 +164,19 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
   return rsz;
 }
 
-static void setup_frame_size_from_params(AV1_COMP *cpi,
+static void setup_frame_size_from_params(AV2_COMP *cpi,
                                          const size_params_type *rsz) {
   int encode_width = rsz->resize_width;
   int encode_height = rsz->resize_height;
-  av1_set_frame_size(cpi, encode_width, encode_height);
+  av2_set_frame_size(cpi, encode_width, encode_height);
 }
 
-void av1_setup_frame_size(AV1_COMP *cpi) {
+void av2_setup_frame_size(AV2_COMP *cpi) {
   const size_params_type rsz = calculate_next_size_params(cpi);
   setup_frame_size_from_params(cpi, &rsz);
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   CurrentFrame *const current_frame = &cm->current_frame;
-  av1_get_ref_frames(cm, current_frame->display_order_hint, 1,
+  av2_get_ref_frames(cm, current_frame->display_order_hint, 1,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                      0,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME

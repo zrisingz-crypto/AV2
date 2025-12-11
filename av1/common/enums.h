@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_ENUMS_H_
-#define AOM_AV1_COMMON_ENUMS_H_
+#ifndef AVM_AV2_COMMON_ENUMS_H_
+#define AVM_AV2_COMMON_ENUMS_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_codec.h"
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom/aom_frame_buffer.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm/avm_frame_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -408,7 +408,7 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_INVALID = 255,
 } BLOCK_SIZE;
 
-static AOM_INLINE BLOCK_SIZE get_larger_sqr_bsize(BLOCK_SIZE bsize) {
+static AVM_INLINE BLOCK_SIZE get_larger_sqr_bsize(BLOCK_SIZE bsize) {
   switch (bsize) {
     case BLOCK_4X4:
     case BLOCK_4X8:
@@ -896,7 +896,7 @@ enum {
 } UENUM1BYTE(UV_PREDICTION_MODE);
 
 enum {
-  CFL_EXPLICIT,       // av1 cfl
+  CFL_EXPLICIT,       // av2 cfl
   CFL_DERIVED_ALPHA,  // implicit CfL mode with derived scaling factor
   CFL_MULTI_PARAM,    // multi hypothesis cross component prediction
   CFL_TYPE_COUNT,     // CfL mode type count
@@ -967,7 +967,7 @@ enum {
   SEQ_LEVEL_7_3,
   SEQ_LEVELS,
   SEQ_LEVEL_MAX = 31
-} UENUM1BYTE(AV1_LEVEL);
+} UENUM1BYTE(AV2_LEVEL);
 
 #define LEVEL_BITS 5
 
@@ -1101,14 +1101,14 @@ typedef uint16_t TXFM_CONTEXT;
 // inter and intra.
 #define INTRA_FRAME_INDEX INTER_REFS_PER_FRAME
 #define NONE_FRAME INVALID_IDX
-#define AOM_REFFRAME_ALL ((1 << INTER_REFS_PER_FRAME) - 1)
+#define AVM_REFFRAME_ALL ((1 << INTER_REFS_PER_FRAME) - 1)
 
 // REF_FRAMES for the cm->ref_frame_map array, 1 scratch frame for the new
 // frame in cm->cur_frame, INTER_REFS_PER_FRAME for scaled references on the
 // encoder in the cpi->scaled_ref_buf array.
 // Each substream has its own sub-DPB.
 #define FRAME_BUFFERS \
-  (REF_FRAMES + 1 + INTER_REFS_PER_FRAME) * AOM_MAX_NUM_STREAMS
+  (REF_FRAMES + 1 + INTER_REFS_PER_FRAME) * AVM_MAX_NUM_STREAMS
 
 #define TIP_FRAME (MODE_CTX_REF_FRAMES - 1)
 #define TIP_FRAME_INDEX (INTER_REFS_PER_FRAME + 1)
@@ -1182,4 +1182,4 @@ typedef enum {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_ENUMS_H_
+#endif  // AVM_AV2_COMMON_ENUMS_H_

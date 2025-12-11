@@ -28,27 +28,27 @@
  * parameters, that are then extracted from the table before the encoded frame
  * is written.
  */
-#ifndef AOM_AOM_DSP_GRAIN_TABLE_H_
-#define AOM_AOM_DSP_GRAIN_TABLE_H_
+#ifndef AVM_AVM_DSP_GRAIN_TABLE_H_
+#define AVM_AVM_DSP_GRAIN_TABLE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "aom_dsp/grain_synthesis.h"
-#include "aom/internal/aom_codec_internal.h"
+#include "avm_dsp/grain_synthesis.h"
+#include "avm/internal/avm_codec_internal.h"
 
-typedef struct aom_film_grain_table_entry_t {
-  aom_film_grain_t params;
+typedef struct avm_film_grain_table_entry_t {
+  avm_film_grain_t params;
   int64_t start_time;
   int64_t end_time;
-  struct aom_film_grain_table_entry_t *next;
-} aom_film_grain_table_entry_t;
+  struct avm_film_grain_table_entry_t *next;
+} avm_film_grain_table_entry_t;
 
 typedef struct {
-  aom_film_grain_table_entry_t *head;
-  aom_film_grain_table_entry_t *tail;
-} aom_film_grain_table_t;
+  avm_film_grain_table_entry_t *head;
+  avm_film_grain_table_entry_t *tail;
+} avm_film_grain_table_t;
 
 /*!\brief Add a mapping from [time_stamp, end_time) to the given grain
  * parameters
@@ -58,9 +58,9 @@ typedef struct {
  * \param[in]     end_stamp  The end time_stamp
  * \param[in]     grain      The grain parameters
  */
-void aom_film_grain_table_append(aom_film_grain_table_t *table,
+void avm_film_grain_table_append(avm_film_grain_table_t *table,
                                  int64_t time_stamp, int64_t end_time,
-                                 const aom_film_grain_t *grain);
+                                 const avm_film_grain_t *grain);
 
 /*!\brief Look-up (and optionally erase) the grain parameters for the given time
  *
@@ -70,9 +70,9 @@ void aom_film_grain_table_append(aom_film_grain_table_t *table,
  * \param[in]  erase      Whether the time segment can be deleted
  * \param[out] grain      The output grain parameters
  */
-int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
+int avm_film_grain_table_lookup(avm_film_grain_table_t *t, int64_t time_stamp,
                                 int64_t end_time, int erase,
-                                aom_film_grain_t *grain);
+                                avm_film_grain_t *grain);
 
 /*!\brief Reads the grain table from a file.
  *
@@ -80,9 +80,9 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
  * \param[in]   filename    The file to read from
  * \param[in]   error_info  Error info for tracking errors
  */
-aom_codec_err_t aom_film_grain_table_read(
-    aom_film_grain_table_t *table, const char *filename,
-    struct aom_internal_error_info *error_info);
+avm_codec_err_t avm_film_grain_table_read(
+    avm_film_grain_table_t *table, const char *filename,
+    struct avm_internal_error_info *error_info);
 
 /*!\brief Writes the grain table from a file.
  *
@@ -90,14 +90,14 @@ aom_codec_err_t aom_film_grain_table_read(
  * \param[in]   filename    The file to read from
  * \param[in]   error_info  Error info for tracking errors
  */
-aom_codec_err_t aom_film_grain_table_write(
-    const aom_film_grain_table_t *t, const char *filename,
-    struct aom_internal_error_info *error_info);
+avm_codec_err_t avm_film_grain_table_write(
+    const avm_film_grain_table_t *t, const char *filename,
+    struct avm_internal_error_info *error_info);
 
-void aom_film_grain_table_free(aom_film_grain_table_t *t);
+void avm_film_grain_table_free(avm_film_grain_table_t *t);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // AOM_AOM_DSP_GRAIN_TABLE_H_
+#endif  // AVM_AVM_DSP_GRAIN_TABLE_H_

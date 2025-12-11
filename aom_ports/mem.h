@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_MEM_H_
-#define AOM_AOM_PORTS_MEM_H_
+#ifndef AVM_AVM_PORTS_MEM_H_
+#define AVM_AVM_PORTS_MEM_H_
 
-#include "aom/aom_integer.h"
-#include "config/aom_config.h"
+#include "avm/avm_integer.h"
+#include "config/avm_config.h"
 
 #if (defined(__GNUC__) && __GNUC__) || defined(__SUNPRO_C)
 #define DECLARE_ALIGNED(n, typ, val) typ val __attribute__((aligned(n)))
@@ -96,4 +96,4 @@
   ;                         \
   typedef int32_t enumvar
 
-#endif  // AOM_AOM_PORTS_MEM_H_
+#endif  // AVM_AVM_PORTS_MEM_H_

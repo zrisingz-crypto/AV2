@@ -12,12 +12,12 @@
 
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/blend.h"
 
 /* clang-format on */
 static INLINE unsigned int highbd_masked_sad(const uint16_t *src,
@@ -31,7 +31,7 @@ static INLINE unsigned int highbd_masked_sad(const uint16_t *src,
 
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x++) {
-      const uint16_t pred = AOM_BLEND_A64(m[x], a[x], b[x]);
+      const uint16_t pred = AVM_BLEND_A64(m[x], a[x], b[x]);
       sad += abs(pred - src[x]);
     }
 
@@ -45,7 +45,7 @@ static INLINE unsigned int highbd_masked_sad(const uint16_t *src,
 }
 
 #define HIGHBD_MASKSADMXN(m, n)                                               \
-  unsigned int aom_highbd_masked_sad##m##x##n##_c(                            \
+  unsigned int avm_highbd_masked_sad##m##x##n##_c(                            \
       const uint16_t *src, int src_stride, const uint16_t *ref,               \
       int ref_stride, const uint16_t *second_pred, const uint8_t *msk,        \
       int msk_stride, int invert_mask) {                                      \

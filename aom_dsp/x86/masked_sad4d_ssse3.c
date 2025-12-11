@@ -13,26 +13,26 @@
 #include <stdio.h>
 #include <tmmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/blend.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/synonyms.h"
 
-#include "aom_dsp/x86/masked_sad_intrin_ssse3.h"
+#include "avm_dsp/x86/masked_sad_intrin_ssse3.h"
 
 #define MASK_SAD16XH_ONE_REF(idx)                             \
   a = _mm_loadu_si128((const __m128i *)&ref##idx[x]);         \
   data_l = _mm_unpacklo_epi8(a, b);                           \
   mask_l = _mm_unpacklo_epi8(m, m_inv);                       \
   pred_l = _mm_maddubs_epi16(data_l, mask_l);                 \
-  pred_l = xx_roundn_epu16(pred_l, AOM_BLEND_A64_ROUND_BITS); \
+  pred_l = xx_roundn_epu16(pred_l, AVM_BLEND_A64_ROUND_BITS); \
                                                               \
   data_r = _mm_unpackhi_epi8(a, b);                           \
   mask_r = _mm_unpackhi_epi8(m, m_inv);                       \
   pred_r = _mm_maddubs_epi16(data_r, mask_r);                 \
-  pred_r = xx_roundn_epu16(pred_r, AOM_BLEND_A64_ROUND_BITS); \
+  pred_r = xx_roundn_epu16(pred_r, AVM_BLEND_A64_ROUND_BITS); \
                                                               \
   pred = _mm_packus_epi16(pred_l, pred_r);                    \
   res##idx = _mm_add_epi32(res##idx, _mm_sad_epu8(pred, src));
@@ -46,7 +46,7 @@ static INLINE void masked_sadx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   int x, y;
   __m128i a;
   __m128i data_l, data_r, mask_l, mask_r, pred_l, pred_r, pred;
-  const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
   __m128i res0 = _mm_setzero_si128();
   __m128i res1 = _mm_setzero_si128();
   __m128i res2 = _mm_setzero_si128();
@@ -94,17 +94,17 @@ static INLINE void masked_sadx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   data_l = _mm_unpacklo_epi8(a##idx##0, b0);                                   \
   mask_l = _mm_unpacklo_epi8(m, m_inv);                                        \
   pred_l = _mm_maddubs_epi16(data_l, mask_l);                                  \
-  pred_l = xx_roundn_epu16(pred_l, AOM_BLEND_A64_ROUND_BITS);                  \
+  pred_l = xx_roundn_epu16(pred_l, AVM_BLEND_A64_ROUND_BITS);                  \
                                                                                \
   data_r = _mm_unpacklo_epi8(a##idx##1, b1);                                   \
   mask_r = _mm_unpackhi_epi8(m, m_inv);                                        \
   pred_r = _mm_maddubs_epi16(data_r, mask_r);                                  \
-  pred_r = xx_roundn_epu16(pred_r, AOM_BLEND_A64_ROUND_BITS);                  \
+  pred_r = xx_roundn_epu16(pred_r, AVM_BLEND_A64_ROUND_BITS);                  \
                                                                                \
   pred = _mm_packus_epi16(pred_l, pred_r);                                     \
   res##idx = _mm_add_epi32(res##idx, _mm_sad_epu8(pred, src));
 
-void aom_masked_sad8xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
+void avm_masked_sad8xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
                                 const uint8_t *ref_array[], int a_stride,
                                 const uint8_t *b_ptr, int b_stride,
                                 const uint8_t *m_ptr, int m_stride, int height,
@@ -118,7 +118,7 @@ void aom_masked_sad8xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   __m128i res1 = _mm_setzero_si128();
   __m128i res2 = _mm_setzero_si128();
   __m128i res3 = _mm_setzero_si128();
-  const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
 
   for (int y = 0; y < height; y += 2) {
     const __m128i src = _mm_unpacklo_epi64(
@@ -160,12 +160,12 @@ void aom_masked_sad8xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   data = _mm_unpacklo_epi8(a, b);                                              \
   mask = _mm_unpacklo_epi8(m, m_inv);                                          \
   pred = _mm_maddubs_epi16(data, mask);                                        \
-  pred = xx_roundn_epu16(pred, AOM_BLEND_A64_ROUND_BITS);                      \
+  pred = xx_roundn_epu16(pred, AVM_BLEND_A64_ROUND_BITS);                      \
                                                                                \
   pred = _mm_packus_epi16(pred, _mm_setzero_si128());                          \
   res##idx = _mm_add_epi32(res##idx, _mm_sad_epu8(pred, src));
 
-void aom_masked_sad4xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
+void avm_masked_sad4xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
                                 const uint8_t *ref_array[], int a_stride,
                                 const uint8_t *b_ptr, int b_stride,
                                 const uint8_t *m_ptr, int m_stride, int height,
@@ -180,7 +180,7 @@ void aom_masked_sad4xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   __m128i res2 = _mm_setzero_si128();
   __m128i res3 = _mm_setzero_si128();
   __m128i a;
-  const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
 
   for (int y = 0; y < height; y += 2) {
     const __m128i src = _mm_unpacklo_epi32(
@@ -217,7 +217,7 @@ void aom_masked_sad4xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
 }
 
 #define MASKSADMXN_SSSE3(m, n)                                                 \
-  void aom_masked_sad##m##x##n##x4d_ssse3(                                     \
+  void avm_masked_sad##m##x##n##x4d_ssse3(                                     \
       const uint8_t *src, int src_stride, const uint8_t *ref[],                \
       int ref_stride, const uint8_t *second_pred, const uint8_t *msk,          \
       int msk_stride, int inv_mask, unsigned sad_array[]) {                    \
@@ -226,20 +226,20 @@ void aom_masked_sad4xhx4d_ssse3(const uint8_t *src_ptr, int src_stride,
   }
 
 #define MASKSAD8XN_SSSE3(n)                                                   \
-  void aom_masked_sad8x##n##x4d_ssse3(                                        \
+  void avm_masked_sad8x##n##x4d_ssse3(                                        \
       const uint8_t *src, int src_stride, const uint8_t *ref[],               \
       int ref_stride, const uint8_t *second_pred, const uint8_t *msk,         \
       int msk_stride, int inv_mask, unsigned sad_array[]) {                   \
-    aom_masked_sad8xhx4d_ssse3(src, src_stride, ref, ref_stride, second_pred, \
+    avm_masked_sad8xhx4d_ssse3(src, src_stride, ref, ref_stride, second_pred, \
                                8, msk, msk_stride, n, inv_mask, sad_array);   \
   }
 
 #define MASKSAD4XN_SSSE3(n)                                                   \
-  void aom_masked_sad4x##n##x4d_ssse3(                                        \
+  void avm_masked_sad4x##n##x4d_ssse3(                                        \
       const uint8_t *src, int src_stride, const uint8_t *ref[],               \
       int ref_stride, const uint8_t *second_pred, const uint8_t *msk,         \
       int msk_stride, int inv_mask, unsigned sad_array[]) {                   \
-    aom_masked_sad4xhx4d_ssse3(src, src_stride, ref, ref_stride, second_pred, \
+    avm_masked_sad4xhx4d_ssse3(src, src_stride, ref, ref_stride, second_pred, \
                                4, msk, msk_stride, n, inv_mask, sad_array);   \
   }
 

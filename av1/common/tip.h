@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_TIP_H_
-#define AOM_AV1_COMMON_TIP_H_
+#ifndef AVM_AV2_COMMON_TIP_H_
+#define AVM_AV2_COMMON_TIP_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/mvref_common.h"
-#include "av1/common/reconinter.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/mvref_common.h"
+#include "av2/common/reconinter.h"
 
 #define TIP_RD_CORRECTION 100000
 
@@ -29,21 +29,21 @@ extern "C" {
 // Encoder: Decide TIP mode is enabled or disabled. If TIP is enabled, derive
 // temporal motion field from one closest forward and one closet backward
 // reference frames, then fill the hole
-void av1_enc_setup_tip_motion_field(AV1_COMMON *cm);
+void av2_enc_setup_tip_motion_field(AV2_COMMON *cm);
 
 // Derive temporal motion field from one closest forward and one closet
 // backward reference frames, then fill the hole
-void av1_setup_tip_motion_field(AV1_COMMON *cm);
+void av2_setup_tip_motion_field(AV2_COMMON *cm);
 
 // Generate the whole TIP frame with the temporal motion field
-void av1_setup_tip_frame(AV1_COMMON *cm, MACROBLOCKD *xd, uint16_t **mc_buf,
+void av2_setup_tip_frame(AV2_COMMON *cm, MACROBLOCKD *xd, uint16_t **mc_buf,
                          CONV_BUF_TYPE *tmp_conv_dst,
                          CalcSubpelParamsFunc calc_subpel_params_func,
                          int copy_refined_mvs);
 
 // Get the block width when blocks with same MV are combined.
-static AOM_INLINE int get_tip_block_width_with_same_mv(
-    const AV1_COMMON *cm, const TPL_MV_REF *tpl_mvs, int unit_blk_size,
+static AVM_INLINE int get_tip_block_width_with_same_mv(
+    const AV2_COMMON *cm, const TPL_MV_REF *tpl_mvs, int unit_blk_size,
     int blk_col, int blk_col_end, int max_allow_blk_size) {
   int blk_width = unit_blk_size;
   const int step = unit_blk_size >> TMVP_MI_SZ_LOG2;
@@ -72,23 +72,23 @@ static AOM_INLINE int get_tip_block_width_with_same_mv(
 }
 
 // Check if MV refinement is disabled for TIP 16x16 blocks.
-static AOM_INLINE int is_tip_mv_refinement_disabled_for_unit_size_16x16(
+static AVM_INLINE int is_tip_mv_refinement_disabled_for_unit_size_16x16(
     int unit_blk_size, int enable_tip_refinemv, TIP_FRAME_MODE tip_frame_mode) {
   if (unit_blk_size != 16) return 0;
   return !enable_tip_refinemv || tip_frame_mode == TIP_FRAME_AS_OUTPUT;
 }
 
 // Compute scale factor for temporal scaling
-static AOM_INLINE int tip_derive_scale_factor(int num, int den_signed) {
+static AVM_INLINE int tip_derive_scale_factor(int num, int den_signed) {
   int den = den_signed < 0 ? -den_signed : den_signed;
   int sign = den_signed < 0 ? -1 : 1;
-  den = AOMMIN(den, MAX_FRAME_DISTANCE);
-  num = num > 0 ? AOMMIN(num, MAX_FRAME_DISTANCE)
-                : AOMMAX(num, -MAX_FRAME_DISTANCE);
+  den = AVMMIN(den, MAX_FRAME_DISTANCE);
+  num = num > 0 ? AVMMIN(num, MAX_FRAME_DISTANCE)
+                : AVMMAX(num, -MAX_FRAME_DISTANCE);
   return sign * num * div_mult[den];
 }
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_TIP_H_
+#endif  // AVM_AV2_COMMON_TIP_H_

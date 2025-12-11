@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_CONVOLVE_SSE2_H_
-#define AOM_AOM_DSP_X86_CONVOLVE_SSE2_H_
+#ifndef AVM_AVM_DSP_X86_CONVOLVE_SSE2_H_
+#define AVM_AVM_DSP_X86_CONVOLVE_SSE2_H_
 
 // Note:
 //  This header file should be put below any x86 intrinsics head file
@@ -19,7 +19,7 @@
 static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
                                   const int subpel_q4,
                                   __m128i *const coeffs /* [4] */) {
-  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
   const __m128i coeff = _mm_loadu_si128((__m128i *)filter);
 
@@ -119,4 +119,4 @@ static INLINE __m128i highbd_convolve_rounding_sse2(
   return res_round;
 }
 
-#endif  // AOM_AOM_DSP_X86_CONVOLVE_SSE2_H_
+#endif  // AVM_AVM_DSP_X86_CONVOLVE_SSE2_H_

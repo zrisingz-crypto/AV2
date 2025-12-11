@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_FILTER_H_
-#define AOM_AV1_COMMON_FILTER_H_
+#ifndef AVM_AV2_COMMON_FILTER_H_
+#define AVM_AV2_COMMON_FILTER_H_
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_ports/mem.h"
-#include "av1/common/enums.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_ports/mem.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +55,7 @@ enum {
   INTERP_SKIP_LUMA_SKIP_CHROMA,
 } UENUM1BYTE(INTERP_EVAL_PLANE);
 
-static INLINE InterpFilter av1_unswitchable_filter(InterpFilter filter) {
+static INLINE InterpFilter av2_unswitchable_filter(InterpFilter filter) {
   return filter == SWITCHABLE ? EIGHTTAP_REGULAR : filter;
 }
 
@@ -73,7 +73,7 @@ typedef struct InterpFilterParams {
 } InterpFilterParams;
 
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_bilinear_filters[SUBPEL_SHIFTS]) = {
+                av2_bilinear_filters[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },  { 0, 0, 0, 120, 8, 0, 0, 0 },
   { 0, 0, 0, 112, 16, 0, 0, 0 }, { 0, 0, 0, 104, 24, 0, 0, 0 },
   { 0, 0, 0, 96, 32, 0, 0, 0 },  { 0, 0, 0, 88, 40, 0, 0, 0 },
@@ -85,7 +85,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 };
 
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_sub_pel_filters_8[SUBPEL_SHIFTS]) = {
+                av2_sub_pel_filters_8[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 2, -6, 126, 8, -2, 0, 0 },
   { 0, 2, -10, 122, 18, -4, 0, 0 },  { 0, 2, -12, 116, 28, -8, 2, 0 },
   { 0, 2, -14, 110, 38, -10, 2, 0 }, { 0, 2, -14, 102, 48, -12, 2, 0 },
@@ -97,7 +97,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 };
 
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_sub_pel_filters_8sharp[SUBPEL_SHIFTS]) = {
+                av2_sub_pel_filters_8sharp[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },         { -2, 2, -6, 126, 8, -2, 2, 0 },
   { -2, 6, -12, 124, 16, -6, 4, -2 },   { -2, 8, -18, 120, 26, -10, 6, -2 },
   { -4, 10, -22, 116, 38, -14, 6, -2 }, { -4, 10, -22, 108, 48, -18, 8, -2 },
@@ -109,7 +109,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 };
 
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_sub_pel_filters_8smooth[SUBPEL_SHIFTS]) = {
+                av2_sub_pel_filters_8smooth[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 2, 28, 62, 34, 2, 0, 0 },
   { 0, 0, 26, 62, 36, 4, 0, 0 },    { 0, 0, 22, 62, 40, 4, 0, 0 },
   { 0, 0, 20, 60, 42, 6, 0, 0 },    { 0, 0, 18, 58, 44, 8, 0, 0 },
@@ -121,7 +121,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 };
 
 DECLARE_ALIGNED(256, static const int16_t,
-                av1_sub_pel_filters_12sharp[SUBPEL_SHIFTS][12]) = {
+                av2_sub_pel_filters_12sharp[SUBPEL_SHIFTS][12]) = {
   { 0, 0, 0, 0, 0, 128, 0, 0, 0, 0, 0, 0 },
   { 0, 1, -2, 3, -7, 127, 8, -4, 2, -1, 1, 0 },
   { -1, 2, -3, 6, -13, 124, 18, -8, 4, -2, 2, -1 },
@@ -141,22 +141,22 @@ DECLARE_ALIGNED(256, static const int16_t,
 };
 
 static const InterpFilterParams
-    av1_interp_filter_params_list[INTERP_FILTERS_ALL] = {
-      { (const int16_t *)av1_sub_pel_filters_8, SUBPEL_TAPS, EIGHTTAP_REGULAR },
-      { (const int16_t *)av1_sub_pel_filters_8smooth, SUBPEL_TAPS,
+    av2_interp_filter_params_list[INTERP_FILTERS_ALL] = {
+      { (const int16_t *)av2_sub_pel_filters_8, SUBPEL_TAPS, EIGHTTAP_REGULAR },
+      { (const int16_t *)av2_sub_pel_filters_8smooth, SUBPEL_TAPS,
         EIGHTTAP_SMOOTH },
-      { (const int16_t *)av1_sub_pel_filters_8sharp, SUBPEL_TAPS,
+      { (const int16_t *)av2_sub_pel_filters_8sharp, SUBPEL_TAPS,
         MULTITAP_SHARP },
-      { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR },
+      { (const int16_t *)av2_bilinear_filters, SUBPEL_TAPS, BILINEAR },
 
       // The following filters are for encoder only, and now they are used in
       // temporal filtering. The predictor block size >= 16 in temporal filter.
-      { (const int16_t *)av1_sub_pel_filters_12sharp, 12, MULTITAP_SHARP2 },
+      { (const int16_t *)av2_sub_pel_filters_12sharp, 12, MULTITAP_SHARP2 },
     };
 
 // A special 2-tap bilinear filter for IntraBC.
 DECLARE_ALIGNED(256, static const int16_t,
-                av1_intrabc_bilinear_filter[2 * SUBPEL_SHIFTS]) = {
+                av2_intrabc_bilinear_filter[2 * SUBPEL_SHIFTS]) = {
   128, 0,    // phase 0
   120, 8,    // phase 1
   112, 16,   // phase 2
@@ -175,12 +175,12 @@ DECLARE_ALIGNED(256, static const int16_t,
   8,   120,  // phase 15
 };
 
-static const InterpFilterParams av1_intrabc_filter_params = {
-  av1_intrabc_bilinear_filter, 2, BILINEAR
+static const InterpFilterParams av2_intrabc_filter_params = {
+  av2_intrabc_bilinear_filter, 2, BILINEAR
 };
 
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_sub_pel_filters_4[SUBPEL_SHIFTS]) = {
+                av2_sub_pel_filters_4[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },     { 0, 0, -4, 126, 8, -2, 0, 0 },
   { 0, 0, -8, 122, 18, -4, 0, 0 },  { 0, 0, -10, 116, 28, -6, 0, 0 },
   { 0, 0, -12, 110, 38, -8, 0, 0 }, { 0, 0, -12, 102, 48, -10, 0, 0 },
@@ -191,7 +191,7 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, -4, 18, 122, -8, 0, 0 },  { 0, 0, -2, 8, 126, -4, 0, 0 }
 };
 DECLARE_ALIGNED(256, static const InterpKernel,
-                av1_sub_pel_filters_4smooth[SUBPEL_SHIFTS]) = {
+                av2_sub_pel_filters_4smooth[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },   { 0, 0, 30, 62, 34, 2, 0, 0 },
   { 0, 0, 26, 62, 36, 4, 0, 0 },  { 0, 0, 22, 62, 40, 4, 0, 0 },
   { 0, 0, 20, 60, 42, 6, 0, 0 },  { 0, 0, 18, 58, 44, 8, 0, 0 },
@@ -203,50 +203,50 @@ DECLARE_ALIGNED(256, static const InterpKernel,
 };
 
 // For w<=4, MULTITAP_SHARP is the same as EIGHTTAP_REGULAR
-static const InterpFilterParams av1_interp_4tap[SWITCHABLE_FILTERS + 1] = {
-  { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
-  { (const int16_t *)av1_sub_pel_filters_4smooth, SUBPEL_TAPS,
+static const InterpFilterParams av2_interp_4tap[SWITCHABLE_FILTERS + 1] = {
+  { (const int16_t *)av2_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
+  { (const int16_t *)av2_sub_pel_filters_4smooth, SUBPEL_TAPS,
     EIGHTTAP_SMOOTH },
-  { (const int16_t *)av1_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
-  { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR },
+  { (const int16_t *)av2_sub_pel_filters_4, SUBPEL_TAPS, EIGHTTAP_REGULAR },
+  { (const int16_t *)av2_bilinear_filters, SUBPEL_TAPS, BILINEAR },
 };
 
 static INLINE const InterpFilterParams *
-av1_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
+av2_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
                                              const int w) {
-  if (w <= 4) return &av1_interp_4tap[interp_filter];
-  return &av1_interp_filter_params_list[interp_filter];
+  if (w <= 4) return &av2_interp_4tap[interp_filter];
+  return &av2_interp_filter_params_list[interp_filter];
 }
 
-static INLINE const int16_t *av1_get_interp_filter_kernel(
+static INLINE const int16_t *av2_get_interp_filter_kernel(
     const InterpFilter interp_filter, int subpel_search) {
   assert(subpel_search >= USE_2_TAPS);
   return (subpel_search == USE_2_TAPS)
-             ? av1_interp_4tap[BILINEAR].filter_ptr
+             ? av2_interp_4tap[BILINEAR].filter_ptr
              : ((subpel_search == USE_4_TAPS)
-                    ? av1_interp_4tap[interp_filter].filter_ptr
-                    : av1_interp_filter_params_list[interp_filter].filter_ptr);
+                    ? av2_interp_4tap[interp_filter].filter_ptr
+                    : av2_interp_filter_params_list[interp_filter].filter_ptr);
 }
 
-static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
+static INLINE const int16_t *av2_get_interp_filter_subpel_kernel(
     const InterpFilterParams *const filter_params, const int subpel) {
   return filter_params->filter_ptr + filter_params->taps * subpel;
 }
 
-static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
+static INLINE const InterpFilterParams *av2_get_filter(int subpel_search) {
   assert(subpel_search >= USE_2_TAPS);
 
   switch (subpel_search) {
-    case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
-    case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
-    case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    case USE_2_TAPS: return &av2_interp_4tap[BILINEAR];
+    case USE_4_TAPS: return &av2_interp_4tap[EIGHTTAP_REGULAR];
+    case USE_8_TAPS: return &av2_interp_filter_params_list[EIGHTTAP_REGULAR];
     default: assert(0); return NULL;
   }
 }
 
-static AOM_INLINE int get_filter_tap(
+static AVM_INLINE int get_filter_tap(
     const InterpFilterParams *const filter_params, int subpel_qn) {
-  const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *const filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_qn & SUBPEL_MASK);
   if (filter_params->taps == 12 || filter_params->taps == 2) {
     return filter_params->taps;
@@ -266,4 +266,4 @@ static AOM_INLINE int get_filter_tap(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_FILTER_H_
+#endif  // AVM_AV2_COMMON_FILTER_H_

@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_RESTORATION_H_
-#define AOM_AV1_COMMON_RESTORATION_H_
+#ifndef AVM_AV2_COMMON_RESTORATION_H_
+#define AVM_AV2_COMMON_RESTORATION_H_
 
-#include "aom_ports/mem.h"
-#include "config/aom_config.h"
+#include "avm_ports/mem.h"
+#include "config/avm_config.h"
 
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 
 #include "third_party/vector/vector.h"
 
@@ -30,7 +30,7 @@ extern "C" {
 /*!\cond */
 
 // Border for Loop restoration buffer
-#define AOM_RESTORATION_FRAME_BORDER 32
+#define AVM_RESTORATION_FRAME_BORDER 32
 #define CLIP(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 
 #define RESTORATION_PROC_UNIT_SIZE 64
@@ -55,7 +55,7 @@ extern "C" {
   ((RESTORATION_WIDTH_MAX + 2 * RESTORATION_BORDER_HORZ) * \
    (RESTORATION_PROC_UNIT_SIZE + 2 * RESTORATION_BORDER_VERT))
 #define NUM_PC_WIENER_TAPS_LUMA 13
-#include "av1/common/pc_wiener_filters.h"
+#include "av2/common/pc_wiener_filters.h"
 
 // Maximum number of filter-taps in LR non-separable filtering.
 #define MAX_NUM_DICTIONARY_TAPS 28
@@ -126,15 +126,15 @@ static inline int is_frame_filters_enabled(int plane) {
 // augment those for plane.
 static inline int alternate_ref_plane(int plane) {
   switch (plane) {
-    case AOM_PLANE_Y: return -1;
-    case AOM_PLANE_U: return AOM_PLANE_V;
-    case AOM_PLANE_V: return AOM_PLANE_U;
+    case AVM_PLANE_Y: return -1;
+    case AVM_PLANE_U: return AVM_PLANE_V;
+    case AVM_PLANE_V: return AVM_PLANE_U;
     default: assert(0); return -1;
   }
 }
 
 static inline int max_num_classes(int plane) {
-  return (plane == AOM_PLANE_Y) ? NUM_WIENERNS_CLASS_INIT_LUMA
+  return (plane == AVM_PLANE_Y) ? NUM_WIENERNS_CLASS_INIT_LUMA
                                 : NUM_WIENERNS_CLASS_INIT_CHROMA;
 }
 
@@ -241,7 +241,7 @@ typedef struct {
   int mi_stride;
   int ss_x;
   int ss_y;
-  struct aom_internal_error_info *error;
+  struct avm_internal_error_info *error;
   /*!\endcond */
   /*!
    * Pointer to point lossless_segment array in cm.
@@ -250,7 +250,7 @@ typedef struct {
   /*!
    * Pointer to cm.
    */
-  const struct AV1Common *cm;
+  const struct AV2Common *cm;
 } RestorationUnitInfo;
 
 /*!\cond */
@@ -333,7 +333,7 @@ typedef struct {
    */
   int min_restoration_unit_size;
   /**
-   * \name Fields allocated and initialised by av1_alloc_restoration_struct.
+   * \name Fields allocated and initialised by av2_alloc_restoration_struct.
    * (horz_)units_per_tile give the number of restoration units in
    * (one row of) the largest tile in the frame.
    */
@@ -420,8 +420,8 @@ typedef struct {
 // Clips scale_x to allowed range of Wienerns filter taps.
 static INLINE int16_t clip_to_wienerns_range(int16_t scale_x, int16_t minv,
                                              int16_t n) {
-  scale_x = AOMMAX(scale_x, minv);
-  scale_x = AOMMIN(scale_x, minv + n - 1);
+  scale_x = AVMMAX(scale_x, minv);
+  scale_x = AVMMIN(scale_x, minv + n - 1);
   return (int16_t)scale_x;
 }
 
@@ -479,7 +479,7 @@ typedef struct {
 } RestorationTileLimits;
 
 typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
-                                    const AV1PixelRect *tile_rect,
+                                    const AV2PixelRect *tile_rect,
                                     int rest_unit_idx, int rest_unit_idx_seq,
                                     void *priv, RestorationLineBuffers *rlbs);
 
@@ -490,7 +490,7 @@ typedef struct FilterFrameCtxt {
   int bit_depth;
   uint16_t *data8, *dst8;
   int data_stride, dst_stride;
-  AV1PixelRect tile_rect;
+  AV2PixelRect tile_rect;
   int plane;
   int plane_width;
   int plane_height;
@@ -505,28 +505,28 @@ typedef struct FilterFrameCtxt {
   bool tskip_zero_flag;
   const struct CommonModeInfoParams *mi_params;
   int order_hint;
-  struct aom_internal_error_info *error;
+  struct avm_internal_error_info *error;
   const bool *lossless_segment;
-  const struct AV1Common *cm;
+  const struct AV2Common *cm;
   int disable_loopfilters_across_tiles;
 } FilterFrameCtxt;
 
-typedef struct AV1LrStruct {
+typedef struct AV2LrStruct {
   rest_unit_visitor_t on_rest_unit;
   FilterFrameCtxt ctxt[MAX_MB_PLANE];
   YV12_BUFFER_CONFIG *frame;
   YV12_BUFFER_CONFIG *dst;
   struct CommonTileParams *tiles;
-} AV1LrStruct;
+} AV2LrStruct;
 
-uint16_t *wienerns_copy_luma_with_virtual_lines(struct AV1Common *cm,
+uint16_t *wienerns_copy_luma_with_virtual_lines(struct AV2Common *cm,
                                                 uint16_t **luma_hbd);
 
-void av1_alloc_restoration_struct(struct AV1Common *cm, RestorationInfo *rsi,
+void av2_alloc_restoration_struct(struct AV2Common *cm, RestorationInfo *rsi,
                                   int is_uv);
-void av1_free_restoration_struct(RestorationInfo *rst_info);
+void av2_free_restoration_struct(RestorationInfo *rst_info);
 
-void av1_extend_frame(uint16_t *data, int width, int height, int stride,
+void av2_extend_frame(uint16_t *data, int width, int height, int stride,
                       int border_horz, int border_vert);
 
 /*!\endcond */
@@ -562,10 +562,10 @@ void av1_extend_frame(uint16_t *data, int width, int height, int stride,
  * Nothing is returned. Instead, the filtered unit is output in \c dst
  * at the proper restoration unit offset.
  */
-void av1_loop_restoration_filter_unit(
+void av2_loop_restoration_filter_unit(
     const RestorationTileLimits *limits, const RestorationUnitInfo *rui,
     const RestorationStripeBoundaries *rsb, RestorationLineBuffers *rlbs,
-    const AV1PixelRect *tile_rect, int tile_stripe0, int ss_x, int ss_y,
+    const AV2PixelRect *tile_rect, int tile_stripe0, int ss_x, int ss_y,
     int bit_depth, uint16_t *data, int stride, uint16_t *dst, int dst_stride,
     int plane_width, int disable_loopfilters_across_tiles, int optimized_lr);
 
@@ -581,14 +581,14 @@ void av1_loop_restoration_filter_unit(
  *
  * Nothing is returned. Instead, the filtered frame is output in \c frame.
  */
-void av1_loop_restoration_filter_frame(YV12_BUFFER_CONFIG *frame,
-                                       struct AV1Common *cm, int optimized_lr,
+void av2_loop_restoration_filter_frame(YV12_BUFFER_CONFIG *frame,
+                                       struct AV2Common *cm, int optimized_lr,
                                        void *lr_ctxt);
 /*!\cond */
 
 #define DEF_UV_LR_TOOLS_DISABLE_MASK (1 << RESTORE_PC_WIENER)
 
-struct AV1LrSyncData;
+struct AV2LrSyncData;
 
 typedef void (*sync_read_fn_t)(void *const lr_sync, int r, int c, int plane);
 
@@ -596,22 +596,22 @@ typedef void (*sync_write_fn_t)(void *const lr_sync, int r, int c,
                                 const int sb_cols, int plane);
 
 // Call on_rest_unit for each loop restoration unit in a tile.
-void av1_foreach_rest_unit_in_tile(const AV1PixelRect *tile_rect, int unit_idx0,
+void av2_foreach_rest_unit_in_tile(const AV2PixelRect *tile_rect, int unit_idx0,
                                    int hunits_per_tile, int vunits_per_tile,
                                    int unit_stride, int unit_size, int ss_y,
                                    int tile_stripe0, void *priv,
                                    uint16_t *stripe_buf);
 // Call on_rest_unit for each loop restoration unit in a coded SB.
-void av1_foreach_rest_unit_in_sb(const AV1PixelRect *tile_rect,
-                                 const AV1PixelRect *sb_rect, int unit_idx0,
+void av2_foreach_rest_unit_in_sb(const AV2PixelRect *tile_rect,
+                                 const AV2PixelRect *sb_rect, int unit_idx0,
                                  int hunits_per_tile, int vunits_per_tile,
                                  int unit_stride, int unit_size, int ss_y,
                                  int plane, rest_unit_visitor_t on_rest_unit,
                                  void *priv, RestorationLineBuffers *rlbs,
                                  int *processed);
 // Call on_rest_unit for each loop restoration unit in the plane.
-void av1_foreach_rest_unit_in_plane(const struct AV1Common *cm, int plane,
-                                    void *priv, AV1PixelRect *tile_rect);
+void av2_foreach_rest_unit_in_plane(const struct AV2Common *cm, int plane,
+                                    void *priv, AV2PixelRect *tile_rect);
 
 // Return 1 iff the block at mi_row, mi_col with size bsize is a
 // top-level superblock containing the top-left corner of at least one
@@ -622,46 +622,46 @@ void av1_foreach_rest_unit_in_plane(const struct AV1Common *cm, int plane,
 // indices given by [*rcol0, *rcol1) x [*rrow0, *rrow1) are relative
 // to the current tile, whose starting index is returned as
 // *tile_tl_idx.
-int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
+int av2_loop_restoration_corners_in_sb(const struct AV2Common *cm, int plane,
                                        int mi_row, int mi_col, BLOCK_SIZE bsize,
                                        int *rcol0, int *rcol1, int *rrow0,
                                        int *rrow1);
 
-void av1_loop_restoration_save_boundary_lines(const YV12_BUFFER_CONFIG *frame,
-                                              struct AV1Common *cm,
+void av2_loop_restoration_save_boundary_lines(const YV12_BUFFER_CONFIG *frame,
+                                              struct AV2Common *cm,
                                               int after_cdef);
 void save_tile_row_boundary_lines(const YV12_BUFFER_CONFIG *frame, int plane,
-                                  struct AV1Common *cm, int after_cdef);
-void av1_loop_restoration_filter_frame_init(AV1LrStruct *lr_ctxt,
+                                  struct AV2Common *cm, int after_cdef);
+void av2_loop_restoration_filter_frame_init(AV2LrStruct *lr_ctxt,
                                             YV12_BUFFER_CONFIG *frame,
-                                            struct AV1Common *cm,
+                                            struct AV2Common *cm,
                                             int optimized_lr, int num_planes);
-void av1_loop_restoration_copy_planes(AV1LrStruct *loop_rest_ctxt,
-                                      struct AV1Common *cm, int num_planes);
-void av1_foreach_rest_unit_in_row(
-    RestorationTileLimits *limits, const AV1PixelRect *proc_rect,
-    const AV1PixelRect *tile_rect, rest_unit_visitor_t on_rest_unit,
+void av2_loop_restoration_copy_planes(AV2LrStruct *loop_rest_ctxt,
+                                      struct AV2Common *cm, int num_planes);
+void av2_foreach_rest_unit_in_row(
+    RestorationTileLimits *limits, const AV2PixelRect *proc_rect,
+    const AV2PixelRect *tile_rect, rest_unit_visitor_t on_rest_unit,
     int row_number, int unit_size, int unit_idx0, int hunits_per_tile,
     int vunits_per_tile, int unit_stride, int plane, void *priv,
     RestorationLineBuffers *rlbs, sync_read_fn_t on_sync_read,
-    sync_write_fn_t on_sync_write, struct AV1LrSyncData *const lr_sync,
+    sync_write_fn_t on_sync_write, struct AV2LrSyncData *const lr_sync,
     int *processed);
-AV1PixelRect av1_whole_frame_rect(const struct AV1Common *cm, int is_uv);
-AV1PixelRect av1_get_rutile_rect(const struct AV1Common *cm, int is_uv,
+AV2PixelRect av2_whole_frame_rect(const struct AV2Common *cm, int is_uv);
+AV2PixelRect av2_get_rutile_rect(const struct AV2Common *cm, int is_uv,
                                  int ru_start_row, int ru_end_row,
                                  int ru_start_col, int ru_end_col,
                                  int ru_height, int ru_width);
 
-int av1_lr_count_units_in_tile(int unit_size, int tile_size);
-int av1_lr_count_stripes_in_tile(int tile_size, int ss_y);
-void av1_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane);
-void av1_lr_sync_write_dummy(void *const lr_sync, int r, int c,
+int av2_lr_count_units_in_tile(int unit_size, int tile_size);
+int av2_lr_count_stripes_in_tile(int tile_size, int ss_y);
+void av2_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane);
+void av2_lr_sync_write_dummy(void *const lr_sync, int r, int c,
                              const int sb_cols, int plane);
 
 void copy_tile(int width, int height, const uint16_t *src, int src_stride,
                uint16_t *dst, int dst_stride);
 
-void set_restoration_unit_size(struct AV1Common *cm, int width, int height,
+void set_restoration_unit_size(struct AV2Common *cm, int width, int height,
                                int sx, int sy, RestorationInfo *rst);
 
 static INLINE int to_readwrite_framefilters(const RestorationInfo *rsi,
@@ -672,7 +672,7 @@ static INLINE int to_readwrite_framefilters(const RestorationInfo *rsi,
           mi_col == 0);
 }
 
-void av1_copy_rst_frame_filters(RestorationInfo *to,
+void av2_copy_rst_frame_filters(RestorationInfo *to,
                                 const RestorationInfo *from);
 
 // returns 1 if sym does not need signaling because there are no asymmetric taps
@@ -704,13 +704,13 @@ static INLINE int skip_sym_bit(const WienernsFilterParameters *nsfilter_params,
 
 // This function derive index of the first stripe of a tile
 static INLINE int get_top_stripe_idx_in_tile(int tile_row, int tile_col,
-                                             const struct AV1Common *cm,
+                                             const struct AV2Common *cm,
                                              int procunit_size,
                                              int procunit_voffset) {
   TileInfo tile_info;
   int top_stripe = 0;
   for (int tr = 0; tr < tile_row; ++tr) {
-    av1_tile_init(&tile_info, cm, tr, tile_col);
+    av2_tile_init(&tile_info, cm, tr, tile_col);
     const int tile_height =
         (tile_info.mi_row_end - tile_info.mi_row_start) * MI_SIZE;
     const int vprocunits_in_tile =
@@ -734,4 +734,4 @@ static INLINE int get_ru_index_for_tile_start(const RestorationInfo *rsi,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_RESTORATION_H_
+#endif  // AVM_AV2_COMMON_RESTORATION_H_

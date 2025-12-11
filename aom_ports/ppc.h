@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_PPC_H_
-#define AOM_AOM_PORTS_PPC_H_
+#ifndef AVM_AVM_PORTS_PPC_H_
+#define AVM_AVM_PORTS_PPC_H_
 #include <stdlib.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,4 +28,4 @@ int ppc_simd_caps(void);
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_PORTS_PPC_H_
+#endif  // AVM_AVM_PORTS_PPC_H_

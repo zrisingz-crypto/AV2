@@ -13,11 +13,11 @@
 #include <assert.h>
 #include <smmintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "av1/common/convolve.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "av2/common/convolve.h"
 
 static __m128i convolve_16_8(const int16_t *src, __m128i coeff) {
   __m128i data = _mm_loadu_si128((__m128i *)src);
@@ -25,7 +25,7 @@ static __m128i convolve_16_8(const int16_t *src, __m128i coeff) {
 }
 
 // A specialised version of hfilter, the horizontal filter for
-// av1_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
+// av2_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
 // filters.
 static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
                             int w, int h, int subpel_x_qn, int x_step_qn,
@@ -45,7 +45,7 @@ static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
     const int filter_idx = (x_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
     assert(filter_idx < SUBPEL_SHIFTS);
     const int16_t *filter =
-        av1_get_interp_filter_subpel_kernel(filter_params, filter_idx);
+        av2_get_interp_filter_subpel_kernel(filter_params, filter_idx);
 
     // Load the filter coefficients
     const __m128i coefflo = _mm_loadu_si128((__m128i *)filter);
@@ -96,7 +96,7 @@ static void highbd_hfilter8(const uint16_t *src, int src_stride, int16_t *dst,
   }
 }
 // A specialised version of vfilter, the vertical filter for
-// av1_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
+// av2_highbd_convolve_2d_scale_sse4_1. This version only supports 8 tap
 // filters.
 static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
                             int dst_stride, int w, int h, int subpel_y_qn,
@@ -140,7 +140,7 @@ static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
     const int filter_idx = (y_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
     assert(filter_idx < SUBPEL_SHIFTS);
     const int16_t *filter =
-        av1_get_interp_filter_subpel_kernel(filter_params, filter_idx);
+        av2_get_interp_filter_subpel_kernel(filter_params, filter_idx);
 
     const __m128i coeff0716 = _mm_loadu_si128((__m128i *)filter);
     int x;
@@ -238,7 +238,7 @@ static void highbd_vfilter8(const int16_t *src, int src_stride, uint16_t *dst,
   }
 }
 
-void av1_highbd_convolve_2d_scale_sse4_1(
+void av2_highbd_convolve_2d_scale_sse4_1(
     const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,

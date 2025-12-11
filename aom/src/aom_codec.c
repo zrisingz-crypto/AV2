@@ -17,120 +17,120 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_version.h"
+#include "config/avm_config.h"
+#include "config/avm_version.h"
 
-#include "aom/aom_integer.h"
-#include "aom/internal/aom_codec_internal.h"
+#include "avm/avm_integer.h"
+#include "avm/internal/avm_codec_internal.h"
 
-int aom_codec_version(void) { return VERSION_PACKED; }
+int avm_codec_version(void) { return VERSION_PACKED; }
 
-const char *aom_codec_version_str(void) { return VERSION_STRING_NOSP; }
+const char *avm_codec_version_str(void) { return VERSION_STRING_NOSP; }
 
-const char *aom_codec_version_extra_str(void) { return VERSION_EXTRA; }
+const char *avm_codec_version_extra_str(void) { return VERSION_EXTRA; }
 
-const char *aom_codec_iface_name(aom_codec_iface_t *iface) {
+const char *avm_codec_iface_name(avm_codec_iface_t *iface) {
   return iface ? iface->name : "<invalid interface>";
 }
 
-const char *aom_codec_err_to_string(aom_codec_err_t err) {
+const char *avm_codec_err_to_string(avm_codec_err_t err) {
   switch (err) {
-    case AOM_CODEC_OK: return "Success";
-    case AOM_CODEC_ERROR: return "Unspecified internal error";
-    case AOM_CODEC_MEM_ERROR: return "Memory allocation error";
-    case AOM_CODEC_ABI_MISMATCH: return "ABI version mismatch";
-    case AOM_CODEC_INCAPABLE:
+    case AVM_CODEC_OK: return "Success";
+    case AVM_CODEC_ERROR: return "Unspecified internal error";
+    case AVM_CODEC_MEM_ERROR: return "Memory allocation error";
+    case AVM_CODEC_ABI_MISMATCH: return "ABI version mismatch";
+    case AVM_CODEC_INCAPABLE:
       return "Codec does not implement requested capability";
-    case AOM_CODEC_UNSUP_BITSTREAM:
+    case AVM_CODEC_UNSUP_BITSTREAM:
       return "Bitstream not supported by this decoder";
-    case AOM_CODEC_UNSUP_FEATURE:
+    case AVM_CODEC_UNSUP_FEATURE:
       return "Bitstream required feature not supported by this decoder";
-    case AOM_CODEC_CORRUPT_FRAME: return "Corrupt frame detected";
-    case AOM_CODEC_INVALID_PARAM: return "Invalid parameter";
-    case AOM_CODEC_LIST_END: return "End of iterated list";
+    case AVM_CODEC_CORRUPT_FRAME: return "Corrupt frame detected";
+    case AVM_CODEC_INVALID_PARAM: return "Invalid parameter";
+    case AVM_CODEC_LIST_END: return "End of iterated list";
   }
 
   return "Unrecognized error code";
 }
 
-const char *aom_codec_error(aom_codec_ctx_t *ctx) {
-  return (ctx) ? aom_codec_err_to_string(ctx->err)
-               : aom_codec_err_to_string(AOM_CODEC_INVALID_PARAM);
+const char *avm_codec_error(avm_codec_ctx_t *ctx) {
+  return (ctx) ? avm_codec_err_to_string(ctx->err)
+               : avm_codec_err_to_string(AVM_CODEC_INVALID_PARAM);
 }
 
-const char *aom_codec_error_detail(aom_codec_ctx_t *ctx) {
+const char *avm_codec_error_detail(avm_codec_ctx_t *ctx) {
   if (ctx && ctx->err)
     return ctx->priv ? ctx->priv->err_detail : ctx->err_detail;
 
   return NULL;
 }
 
-aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx) {
+avm_codec_err_t avm_codec_destroy(avm_codec_ctx_t *ctx) {
   if (!ctx) {
-    return AOM_CODEC_INVALID_PARAM;
+    return AVM_CODEC_INVALID_PARAM;
   }
   if (!ctx->iface || !ctx->priv) {
-    ctx->err = AOM_CODEC_ERROR;
-    return AOM_CODEC_ERROR;
+    ctx->err = AVM_CODEC_ERROR;
+    return AVM_CODEC_ERROR;
   }
-  ctx->iface->destroy((aom_codec_alg_priv_t *)ctx->priv);
+  ctx->iface->destroy((avm_codec_alg_priv_t *)ctx->priv);
   ctx->iface = NULL;
   ctx->name = NULL;
   ctx->priv = NULL;
-  ctx->err = AOM_CODEC_OK;
-  return AOM_CODEC_OK;
+  ctx->err = AVM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 
-aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface) {
+avm_codec_caps_t avm_codec_get_caps(avm_codec_iface_t *iface) {
   return (iface) ? iface->caps : 0;
 }
 
-aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
+avm_codec_err_t avm_codec_control(avm_codec_ctx_t *ctx, int ctrl_id, ...) {
   if (!ctx) {
-    return AOM_CODEC_INVALID_PARAM;
+    return AVM_CODEC_INVALID_PARAM;
   }
   // Control ID must be non-zero.
   if (!ctrl_id) {
-    ctx->err = AOM_CODEC_INVALID_PARAM;
-    return AOM_CODEC_INVALID_PARAM;
+    ctx->err = AVM_CODEC_INVALID_PARAM;
+    return AVM_CODEC_INVALID_PARAM;
   }
   if (!ctx->iface || !ctx->priv || !ctx->iface->ctrl_maps) {
-    ctx->err = AOM_CODEC_ERROR;
-    return AOM_CODEC_ERROR;
+    ctx->err = AVM_CODEC_ERROR;
+    return AVM_CODEC_ERROR;
   }
 
   // "ctrl_maps" is an array of (control ID, function pointer) elements,
   // with CTRL_MAP_END as a sentinel.
-  for (aom_codec_ctrl_fn_map_t *entry = ctx->iface->ctrl_maps;
+  for (avm_codec_ctrl_fn_map_t *entry = ctx->iface->ctrl_maps;
        !at_ctrl_map_end(entry); ++entry) {
     if (entry->ctrl_id == ctrl_id) {
       va_list ap;
       va_start(ap, ctrl_id);
-      ctx->err = entry->fn((aom_codec_alg_priv_t *)ctx->priv, ap);
+      ctx->err = entry->fn((avm_codec_alg_priv_t *)ctx->priv, ap);
       va_end(ap);
       return ctx->err;
     }
   }
-  ctx->err = AOM_CODEC_ERROR;
-  return AOM_CODEC_ERROR;
+  ctx->err = AVM_CODEC_ERROR;
+  return AVM_CODEC_ERROR;
 }
 
-aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *name,
+avm_codec_err_t avm_codec_set_option(avm_codec_ctx_t *ctx, const char *name,
                                      const char *value) {
   if (!ctx) {
-    return AOM_CODEC_INVALID_PARAM;
+    return AVM_CODEC_INVALID_PARAM;
   }
   if (!ctx->iface || !ctx->priv || !ctx->iface->set_option) {
-    ctx->err = AOM_CODEC_ERROR;
-    return AOM_CODEC_ERROR;
+    ctx->err = AVM_CODEC_ERROR;
+    return AVM_CODEC_ERROR;
   }
   ctx->err =
-      ctx->iface->set_option((aom_codec_alg_priv_t *)ctx->priv, name, value);
+      ctx->iface->set_option((avm_codec_alg_priv_t *)ctx->priv, name, value);
   return ctx->err;
 }
 
-void aom_internal_error(struct aom_internal_error_info *info,
-                        aom_codec_err_t error, const char *fmt, ...) {
+void avm_internal_error(struct avm_internal_error_info *info,
+                        avm_codec_err_t error, const char *fmt, ...) {
   va_list ap;
 
   info->error_code = error;
@@ -149,11 +149,11 @@ void aom_internal_error(struct aom_internal_error_info *info,
   if (info->setjmp) longjmp(info->jmp, info->error_code);
 }
 
-void aom_merge_corrupted_flag(int *corrupted, int value) {
+void avm_merge_corrupted_flag(int *corrupted, int value) {
   *corrupted |= value;
 }
 
-const char *aom_obu_type_to_string(OBU_TYPE type) {
+const char *avm_obu_type_to_string(OBU_TYPE type) {
   switch (type) {
     case OBU_SEQUENCE_HEADER: return "OBU_SEQUENCE_HEADER";
 #if CONFIG_CWG_F270_CI_OBU

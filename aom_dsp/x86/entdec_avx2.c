@@ -12,9 +12,9 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom_dsp/entdec.h"
-#include "aom_dsp/entcode.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm_dsp/entdec.h"
+#include "avm_dsp/entcode.h"
 
 /*Decodes a symbol given an inverse cumulative distribution function (CDF)
    table in Q15.
@@ -31,7 +31,7 @@ int od_ec_decode_cdf_q15_avx2(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
   __m256i cdf = _mm256_lddqu_si256((__m256i *)icdf);
   cdf = _mm256_srli_epi16(cdf, EC_PROB_SHIFT);
   cdf = _mm256_slli_epi16(cdf, EC_PROB_SHIFT - 2);
-  __m256i inc = _mm256_lddqu_si256((__m256i *)av1_prob_inc_tbl[nsyms - 2]);
+  __m256i inc = _mm256_lddqu_si256((__m256i *)av2_prob_inc_tbl[nsyms - 2]);
   __m256i mask = _mm256_srai_epi16(inc, 15);
   inc = _mm256_slli_epi16(inc, EC_PROB_SHIFT - 6);
   cdf = _mm256_add_epi16(cdf, inc);

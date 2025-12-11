@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_WARPED_MOTION_H_
-#define AOM_AV1_COMMON_WARPED_MOTION_H_
+#ifndef AVM_AV2_COMMON_WARPED_MOTION_H_
+#define AVM_AV2_COMMON_WARPED_MOTION_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,13 +20,13 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_ports/mem.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "av1/common/mv.h"
-#include "av1/common/convolve.h"
-#include "av1/common/blockd.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "av2/common/mv.h"
+#include "av2/common/convolve.h"
+#include "av2/common/blockd.h"
 
 #define LEAST_SQUARES_SAMPLES_MAX_BITS 3
 #define LEAST_SQUARES_SAMPLES_MAX (1 << LEAST_SQUARES_SAMPLES_MAX_BITS)
@@ -134,12 +134,12 @@ static INLINE int16_t resolve_divisor_32_CfL(int32_t N, int32_t D,
   }
 }
 
-extern const int16_t av1_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 7 + 1][8];
+extern const int16_t av2_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 7 + 1][8];
 
 DECLARE_ALIGNED(8, extern const int8_t,
-                av1_filter_8bit[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8]);
+                av2_filter_8bit[WARPEDPIXEL_PREC_SHIFTS * 3 + 1][8]);
 
-extern const int16_t av1_ext_warped_filter[EXT_WARP_PHASES + 1]
+extern const int16_t av2_ext_warped_filter[EXT_WARP_PHASES + 1]
                                           [EXT_WARP_STORAGE_TAPS];
 
 static const uint8_t warp_pad_left[14][16] = {
@@ -179,7 +179,7 @@ static const uint8_t warp_pad_right[14][16] = {
 // Recompute the translational part of a warp model, so that the center
 // of the current block (determined by `mi_row`, `mi_col`, `bsize`)
 // has an induced motion vector of `mv`
-void av1_set_warp_translation(int mi_row, int mi_col, BLOCK_SIZE bsize, MV mv,
+void av2_set_warp_translation(int mi_row, int mi_col, BLOCK_SIZE bsize, MV mv,
                               WarpedMotionParams *wm);
 
 void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
@@ -192,7 +192,7 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
                        ,
                        int use_warp_bd_box, PadBlock *warp_bd_box);
 
-void av1_warp_plane(WarpedMotionParams *wm, int bd, const uint16_t *ref,
+void av2_warp_plane(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                     int width, int height, int stride, uint16_t *pred,
                     int p_col, int p_row, int p_width, int p_height,
                     int p_stride, int subsampling_x, int subsampling_y,
@@ -201,27 +201,27 @@ void av1_warp_plane(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                     ,
                     int use_warp_bd_box, PadBlock *warp_bd_box);
 
-int av1_find_projection(int np, const int *pts1, const int *pts2,
+int av2_find_projection(int np, const int *pts1, const int *pts2,
                         BLOCK_SIZE bsize, MV mv, WarpedMotionParams *wm_params,
                         int mi_row, int mi_col, const struct scale_factors *sf
 
 );
 
-int av1_get_shear_params(WarpedMotionParams *wm, const struct scale_factors *sf
+int av2_get_shear_params(WarpedMotionParams *wm, const struct scale_factors *sf
 
 );
 
 // Reduce the precision of a warp model, ready for use in the warp filter
 // and for storage. This should be called after the non-translational parameters
-// are calculated, but before av1_set_warp_translation() or
-// av1_get_shear_params() are called
-void av1_reduce_warp_model(WarpedMotionParams *wm);
+// are calculated, but before av2_set_warp_translation() or
+// av2_get_shear_params() are called
+void av2_reduce_warp_model(WarpedMotionParams *wm);
 
 // Check if a model is already properly reduced, according to the same logic
-// used in av1_reduce_warp_model()
-bool av1_is_warp_model_reduced(WarpedMotionParams *wm);
+// used in av2_reduce_warp_model()
+bool av2_is_warp_model_reduced(WarpedMotionParams *wm);
 
-int av1_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
+int av2_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
                           const MV *center_mv, const int mi_row,
                           const int mi_col,
                           const WarpedMotionParams *neighbor_wm,
@@ -256,7 +256,7 @@ int av1_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
 // for the models we use in practice, which are all reasonably near to the
 // identity model (all parameters except for the translational part are
 // within +/- 1/2 of the identity).
-static INLINE void av1_scale_warp_model(const WarpedMotionParams *in_params,
+static INLINE void av2_scale_warp_model(const WarpedMotionParams *in_params,
                                         int in_distance,
                                         WarpedMotionParams *out_params,
                                         int out_distance) {
@@ -338,4 +338,4 @@ int get_model_from_corner_mvs(WarpedMotionParams *derive_model, int *pts,
                               const struct scale_factors *sf
 
 );
-#endif  // AOM_AV1_COMMON_WARPED_MOTION_H_
+#endif  // AVM_AV2_COMMON_WARPED_MOTION_H_

@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-/*!\defgroup aom AOM
+/*!\defgroup avm AVM
  * \ingroup codecs
- * AOM is aom's newest video compression algorithm that uses motion
+ * AVM is avm's newest video compression algorithm that uses motion
  * compensated prediction, Discrete Cosine Transform (DCT) coding of the
  * prediction error signal and context dependent entropy coding techniques
  * based on arithmetic principles. It features:
@@ -27,13 +27,13 @@
  * @{
  */
 /*!\file
- * \brief Provides controls common to both the AOM encoder and decoder.
+ * \brief Provides controls common to both the AVM encoder and decoder.
  */
-#ifndef AOM_AOM_AOM_H_
-#define AOM_AOM_AOM_H_
+#ifndef AVM_AVM_AVM_H_
+#define AVM_AVM_AVM_H_
 
-#include "aom/aom_codec.h"
-#include "aom/aom_image.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_image.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,70 +41,70 @@ extern "C" {
 
 /*!\brief Control functions
  *
- * The set of macros define the control functions of AOM interface
+ * The set of macros define the control functions of AVM interface
  */
-enum aom_com_control_id {
+enum avm_com_control_id {
   /* TODO(https://crbug.com/aomedia/2671): The encoder overlaps the range of
-   * these values for its control ids, see the NOTEs in aom/aomcx.h. These
-   * should be migrated to something like the AOM_DECODER_CTRL_ID_START range
+   * these values for its control ids, see the NOTEs in avm/avmcx.h. These
+   * should be migrated to something like the AVM_DECODER_CTRL_ID_START range
    * next time we're ready to break the ABI.
    */
-  AV1_GET_REFERENCE = 128,  /**< get a pointer to a reference frame,
-                               av1_ref_frame_t* parameter */
-  AV1_SET_REFERENCE = 129,  /**< write a frame into a reference buffer,
-                               av1_ref_frame_t* parameter */
-  AV1_COPY_REFERENCE = 130, /**< get a copy of reference frame from the decoderm
-                               av1_ref_frame_t* parameter */
-  AOM_COMMON_CTRL_ID_MAX,
+  AV2_GET_REFERENCE = 128,  /**< get a pointer to a reference frame,
+                               av2_ref_frame_t* parameter */
+  AV2_SET_REFERENCE = 129,  /**< write a frame into a reference buffer,
+                               av2_ref_frame_t* parameter */
+  AV2_COPY_REFERENCE = 130, /**< get a copy of reference frame from the decoderm
+                               av2_ref_frame_t* parameter */
+  AVM_COMMON_CTRL_ID_MAX,
 
-  AV1_GET_NEW_FRAME_IMAGE =
-      192, /**< get a pointer to the new frame, aom_image_t* parameter */
-  AV1_COPY_NEW_FRAME_IMAGE = 193, /**< copy the new frame to an external buffer,
-                                     aom_image_t* parameter */
+  AV2_GET_NEW_FRAME_IMAGE =
+      192, /**< get a pointer to the new frame, avm_image_t* parameter */
+  AV2_COPY_NEW_FRAME_IMAGE = 193, /**< copy the new frame to an external buffer,
+                                     avm_image_t* parameter */
 
-  AOM_DECODER_CTRL_ID_START = 256
+  AVM_DECODER_CTRL_ID_START = 256
 };
 
-/*!\brief AV1 specific reference frame data struct
+/*!\brief AV2 specific reference frame data struct
  *
- * Define the data struct to access av1 reference frames.
+ * Define the data struct to access av2 reference frames.
  */
-typedef struct av1_ref_frame {
+typedef struct av2_ref_frame {
   int idx;              /**< frame index to get (input) */
   int use_external_ref; /**< Directly use external ref buffer(decoder only) */
-  aom_image_t img;      /**< img structure to populate (output) */
-} av1_ref_frame_t;
+  avm_image_t img;      /**< img structure to populate (output) */
+} av2_ref_frame_t;
 
 /*!\cond */
-/*!\brief aom decoder control function parameter type
+/*!\brief avm decoder control function parameter type
  *
- * Defines the data type for each of AOM decoder control function requires.
+ * Defines the data type for each of AVM decoder control function requires.
  *
  * \note For each control ID "X", a macro-define of
- * AOM_CTRL_X is provided. It is used at compile time to determine
- * if the control ID is supported by the libaom library available,
- * when the libaom version cannot be controlled.
+ * AVM_CTRL_X is provided. It is used at compile time to determine
+ * if the control ID is supported by the libavm library available,
+ * when the libavm version cannot be controlled.
  */
-AOM_CTRL_USE_TYPE(AV1_GET_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_GET_REFERENCE
+AVM_CTRL_USE_TYPE(AV2_GET_REFERENCE, av2_ref_frame_t *)
+#define AVM_CTRL_AV2_GET_REFERENCE
 
-AOM_CTRL_USE_TYPE(AV1_SET_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_SET_REFERENCE
+AVM_CTRL_USE_TYPE(AV2_SET_REFERENCE, av2_ref_frame_t *)
+#define AVM_CTRL_AV2_SET_REFERENCE
 
-AOM_CTRL_USE_TYPE(AV1_COPY_REFERENCE, av1_ref_frame_t *)
-#define AOM_CTRL_AV1_COPY_REFERENCE
+AVM_CTRL_USE_TYPE(AV2_COPY_REFERENCE, av2_ref_frame_t *)
+#define AVM_CTRL_AV2_COPY_REFERENCE
 
-AOM_CTRL_USE_TYPE(AV1_GET_NEW_FRAME_IMAGE, aom_image_t *)
-#define AOM_CTRL_AV1_GET_NEW_FRAME_IMAGE
+AVM_CTRL_USE_TYPE(AV2_GET_NEW_FRAME_IMAGE, avm_image_t *)
+#define AVM_CTRL_AV2_GET_NEW_FRAME_IMAGE
 
-AOM_CTRL_USE_TYPE(AV1_COPY_NEW_FRAME_IMAGE, aom_image_t *)
-#define AOM_CTRL_AV1_COPY_NEW_FRAME_IMAGE
+AVM_CTRL_USE_TYPE(AV2_COPY_NEW_FRAME_IMAGE, avm_image_t *)
+#define AVM_CTRL_AV2_COPY_NEW_FRAME_IMAGE
 
 /*!\endcond */
-/*! @} - end defgroup aom */
+/*! @} - end defgroup avm */
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_AOM_H_
+#endif  // AVM_AVM_AVM_H_

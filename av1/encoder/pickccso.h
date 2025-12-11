@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_PICKCCSO_H_
-#define AOM_AV1_ENCODER_PICKCCSO_H_
+#ifndef AVM_AV2_ENCODER_PICKCCSO_H_
+#define AVM_AV2_ENCODER_PICKCCSO_H_
 
 #define CCSO_MAX_ITERATIONS 15
 
-#include "av1/common/ccso.h"
-#include "av1/encoder/speed_features.h"
+#include "av2/common/ccso.h"
+#include "av2/encoder/speed_features.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ccso_search(AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult,
+void ccso_search(AV2_COMMON *cm, MACROBLOCKD *xd, int rdmult,
                  const uint16_t *ext_rec_y, uint16_t *rec_uv[3],
                  uint16_t *org_uv[3], bool error_resilient_frame_seen
 #if CONFIG_ENTROPY_STATS
@@ -34,4 +34,4 @@ void ccso_search(AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult,
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_ENCODER_PICKCCSO_H_
+#endif  // AVM_AV2_ENCODER_PICKCCSO_H_

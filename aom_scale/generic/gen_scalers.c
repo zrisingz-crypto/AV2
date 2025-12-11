@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom_scale/aom_scale.h"
-#include "aom_mem/aom_mem.h"
+#include "avm_scale/avm_scale.h"
+#include "avm_mem/avm_mem.h"
 /****************************************************************************
  *  Imports
  ****************************************************************************/
@@ -37,7 +37,7 @@
  *  SPECIAL NOTES : None.
  *
  ****************************************************************************/
-void aom_horizontal_line_5_4_scale_c(const unsigned char *source,
+void avm_horizontal_line_5_4_scale_c(const unsigned char *source,
                                      unsigned int source_width,
                                      unsigned char *dest,
                                      unsigned int dest_width) {
@@ -61,7 +61,7 @@ void aom_horizontal_line_5_4_scale_c(const unsigned char *source,
   }
 }
 
-void aom_vertical_band_5_4_scale_c(unsigned char *source, int src_pitch,
+void avm_vertical_band_5_4_scale_c(unsigned char *source, int src_pitch,
                                    unsigned char *dest, int dest_pitch,
                                    unsigned int dest_width) {
   const unsigned char *const dest_end = dest + dest_width;
@@ -84,7 +84,7 @@ void aom_vertical_band_5_4_scale_c(unsigned char *source, int src_pitch,
 
 /*7***************************************************************************
  *
- *  ROUTINE       : aom_horizontal_line_3_5_scale_c
+ *  ROUTINE       : avm_horizontal_line_3_5_scale_c
  *
  *  INPUTS        : const unsigned char *source : Pointer to source data.
  *                  unsigned int source_width   : Stride of source.
@@ -103,7 +103,7 @@ void aom_vertical_band_5_4_scale_c(unsigned char *source, int src_pitch,
  *
  *
  ****************************************************************************/
-void aom_horizontal_line_5_3_scale_c(const unsigned char *source,
+void avm_horizontal_line_5_3_scale_c(const unsigned char *source,
                                      unsigned int source_width,
                                      unsigned char *dest,
                                      unsigned int dest_width) {
@@ -125,7 +125,7 @@ void aom_horizontal_line_5_3_scale_c(const unsigned char *source,
   }
 }
 
-void aom_vertical_band_5_3_scale_c(unsigned char *source, int src_pitch,
+void avm_vertical_band_5_3_scale_c(unsigned char *source, int src_pitch,
                                    unsigned char *dest, int dest_pitch,
                                    unsigned int dest_width) {
   const unsigned char *const dest_end = dest + dest_width;
@@ -147,7 +147,7 @@ void aom_vertical_band_5_3_scale_c(unsigned char *source, int src_pitch,
 
 /****************************************************************************
  *
- *  ROUTINE       : aom_horizontal_line_1_2_scale_c
+ *  ROUTINE       : avm_horizontal_line_1_2_scale_c
  *
  *  INPUTS        : const unsigned char *source : Pointer to source data.
  *                  unsigned int source_width   : Stride of source.
@@ -165,7 +165,7 @@ void aom_vertical_band_5_3_scale_c(unsigned char *source, int src_pitch,
  *  SPECIAL NOTES : None.
  *
  ****************************************************************************/
-void aom_horizontal_line_2_1_scale_c(const unsigned char *source,
+void avm_horizontal_line_2_1_scale_c(const unsigned char *source,
                                      unsigned int source_width,
                                      unsigned char *dest,
                                      unsigned int dest_width) {
@@ -178,7 +178,7 @@ void aom_horizontal_line_2_1_scale_c(const unsigned char *source,
   }
 }
 
-void aom_vertical_band_2_1_scale_c(unsigned char *source, int src_pitch,
+void avm_vertical_band_2_1_scale_c(unsigned char *source, int src_pitch,
                                    unsigned char *dest, int dest_pitch,
                                    unsigned int dest_width) {
   (void)dest_pitch;
@@ -186,7 +186,7 @@ void aom_vertical_band_2_1_scale_c(unsigned char *source, int src_pitch,
   memcpy(dest, source, dest_width);
 }
 
-void aom_vertical_band_2_1_scale_i_c(unsigned char *source, int src_pitch,
+void avm_vertical_band_2_1_scale_i_c(unsigned char *source, int src_pitch,
                                      unsigned char *dest, int dest_pitch,
                                      unsigned int dest_width) {
   const unsigned char *const dest_end = dest + dest_width;

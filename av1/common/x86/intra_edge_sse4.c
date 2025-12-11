@@ -13,10 +13,10 @@
 #include <assert.h>
 #include <smmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
-void av1_filter_intra_edge_high_sse4_1(uint16_t *p, int sz, int strength) {
+void av2_filter_intra_edge_high_sse4_1(uint16_t *p, int sz, int strength) {
   if (!strength) return;
 
   DECLARE_ALIGNED(16, static const int16_t, kern[3][8]) = {

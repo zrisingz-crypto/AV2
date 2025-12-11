@@ -11,12 +11,12 @@
 
 #include <assert.h>
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 #include "intra_dip.h"
 #include "intra_matrix.h"
 
 const uint16_t
-    av1_intra_matrix_weights[INTRA_DIP_MODE_CNT][DIP_ROWS][DIP_COLS] = {
+    av2_intra_matrix_weights[INTRA_DIP_MODE_CNT][DIP_ROWS][DIP_COLS] = {
       {
           { 776, 1714, 1077, 998, 1043, 1437, 1157, 1027, 1027, 1011, 1023 },
           { 845, 1519, 1598, 892, 1088, 988, 1219, 1079, 1039, 1000, 1022 },
@@ -420,7 +420,7 @@ const uint16_t
 // B - pointer to feature vector
 // C - 8x8 output prediction
 // bd - bit depth
-void av1_dip_matrix_multiplication_c(const uint16_t *A, const uint16_t *B,
+void av2_dip_matrix_multiplication_c(const uint16_t *A, const uint16_t *B,
                                      uint16_t *C, int bd) {
   int sum = 0;
   for (int j = 0; j < DIP_FEATURES; j++) sum += B[j];
@@ -436,10 +436,10 @@ void av1_dip_matrix_multiplication_c(const uint16_t *A, const uint16_t *B,
 }
 
 // Create one 8x8 DIP prediction from feature vector.
-void av1_intra_matrix_pred(const uint16_t *input, int mode, uint16_t *output,
+void av2_intra_matrix_pred(const uint16_t *input, int mode, uint16_t *output,
                            int bd) {
   assert(mode >= 0 && mode < INTRA_DIP_MODE_CNT);
-  const uint16_t *A = &av1_intra_matrix_weights[mode][0][0];
+  const uint16_t *A = &av2_intra_matrix_weights[mode][0][0];
 
-  av1_dip_matrix_multiplication(A, input, output, bd);
+  av2_dip_matrix_multiplication(A, input, output, bd);
 }

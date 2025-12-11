@@ -10,34 +10,34 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_BITREADER_H_
-#define AOM_AOM_DSP_BITREADER_H_
+#ifndef AVM_AVM_DSP_BITREADER_H_
+#define AVM_AVM_DSP_BITREADER_H_
 
 #include <assert.h>
 #include <limits.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aomdx.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/entdec.h"
-#include "aom_dsp/prob.h"
-#include "av1/common/odintrin.h"
-#include "aom_dsp/recenter.h"
+#include "avm/avmdx.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/entdec.h"
+#include "avm_dsp/prob.h"
+#include "av2/common/odintrin.h"
+#include "avm_dsp/recenter.h"
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-#include "av1/common/cost.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/entropy_sideinfo.h"
+#include "av2/common/cost.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/entropy_sideinfo.h"
 #endif
 
 #if CONFIG_BITSTREAM_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
 #if CONFIG_ACCOUNTING
-#include "av1/decoder/accounting.h"
+#include "av2/decoder/accounting.h"
 #define ACCT_INFO_NAME acct_info
 #define ACCT_INFO_PARAM , AccountingSymbolInfo acct_info
 #define ACCT_INFO_ARG(s) , s
@@ -46,35 +46,35 @@
 #define ACCT_INFO_ARG(s)
 #endif
 
-#define aom_read(r, prob, ACCT_INFO_NAME) \
-  aom_read_(r, prob ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_bypass(r, ACCT_INFO_NAME) \
-  aom_read_bypass_(r ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_bit(r, ACCT_INFO_NAME) \
-  aom_read_bit_(r ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_tree(r, tree, probs, ACCT_INFO_NAME) \
-  aom_read_tree_(r, tree, probs ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_literal(r, bits, ACCT_INFO_NAME) \
-  aom_read_literal_(r, bits ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_cdf(r, cdf, nsymbs, ACCT_INFO_NAME) \
-  aom_read_cdf_(r, cdf, nsymbs ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_symbol(r, cdf, nsymbs, ACCT_INFO_NAME) \
-  aom_read_symbol_(r, cdf, nsymbs ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read(r, prob, ACCT_INFO_NAME) \
+  avm_read_(r, prob ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_bypass(r, ACCT_INFO_NAME) \
+  avm_read_bypass_(r ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_bit(r, ACCT_INFO_NAME) \
+  avm_read_bit_(r ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_tree(r, tree, probs, ACCT_INFO_NAME) \
+  avm_read_tree_(r, tree, probs ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_literal(r, bits, ACCT_INFO_NAME) \
+  avm_read_literal_(r, bits ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_cdf(r, cdf, nsymbs, ACCT_INFO_NAME) \
+  avm_read_cdf_(r, cdf, nsymbs ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_symbol(r, cdf, nsymbs, ACCT_INFO_NAME) \
+  avm_read_symbol_(r, cdf, nsymbs ACCT_INFO_ARG(ACCT_INFO_NAME))
 
-#define aom_read_unary(r, bits, ACCT_INFO_NAME) \
-  aom_read_unary_(r, bits ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_unary(r, bits, ACCT_INFO_NAME) \
+  avm_read_unary_(r, bits ACCT_INFO_ARG(ACCT_INFO_NAME))
 
-#define aom_read_4part(r, cdf, nsymb_bits, ACCT_INFO_NAME) \
-  aom_read_4part_(r, cdf, nsymb_bits ACCT_INFO_ARG(ACCT_INFO_NAME))
-#define aom_read_4part_wref(r, ref_symb, cdf, nsymb_bits, ACCT_INFO_NAME) \
-  aom_read_4part_wref_(r, ref_symb, cdf,                                  \
+#define avm_read_4part(r, cdf, nsymb_bits, ACCT_INFO_NAME) \
+  avm_read_4part_(r, cdf, nsymb_bits ACCT_INFO_ARG(ACCT_INFO_NAME))
+#define avm_read_4part_wref(r, ref_symb, cdf, nsymb_bits, ACCT_INFO_NAME) \
+  avm_read_4part_wref_(r, ref_symb, cdf,                                  \
                        nsymb_bits ACCT_INFO_ARG(ACCT_INFO_NAME))
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct aom_reader {
+struct avm_reader {
   const uint8_t *buffer;
   const uint8_t *buffer_end;
   od_ec_dec ec;
@@ -84,43 +84,43 @@ struct aom_reader {
   uint8_t allow_update_cdf;
 };
 
-typedef struct aom_reader aom_reader;
+typedef struct avm_reader avm_reader;
 
-int aom_reader_init(aom_reader *r, const uint8_t *buffer, size_t size);
+int avm_reader_init(avm_reader *r, const uint8_t *buffer, size_t size);
 
-const uint8_t *aom_reader_find_begin(aom_reader *r);
+const uint8_t *avm_reader_find_begin(avm_reader *r);
 
-const uint8_t *aom_reader_find_end(aom_reader *r);
+const uint8_t *avm_reader_find_end(avm_reader *r);
 
 // Returns true if the bit reader has tried to decode more data from the buffer
 // than was actually provided.
-int aom_reader_has_overflowed(const aom_reader *r);
+int avm_reader_has_overflowed(const avm_reader *r);
 
 // Returns the position in the bit reader in bits.
-uint32_t aom_reader_tell(const aom_reader *r);
+uint32_t avm_reader_tell(const avm_reader *r);
 
 // Returns the position in the bit reader in 1/65536th bits.
-uint64_t aom_reader_tell_frac(const aom_reader *r);
+uint64_t avm_reader_tell_frac(const avm_reader *r);
 
 #if CONFIG_ACCOUNTING
-static INLINE void aom_process_accounting(const aom_reader *r, int value,
+static INLINE void avm_process_accounting(const avm_reader *r, int value,
                                           SYMBOL_CODING_MODE coding_mode
                                               ACCT_INFO_PARAM) {
   if (r->accounting != NULL) {
     uint64_t tell_frac;
-    tell_frac = aom_reader_tell_frac(r);
-    aom_accounting_record(r->accounting, value, coding_mode, ACCT_INFO_NAME,
+    tell_frac = avm_reader_tell_frac(r);
+    avm_accounting_record(r->accounting, value, coding_mode, ACCT_INFO_NAME,
                           tell_frac - r->accounting->last_tell_frac);
     r->accounting->last_tell_frac = tell_frac;
   }
 }
 
 #if CONFIG_THROUGHPUT_ANALYSIS
-static INLINE void aom_update_symb_counts(const aom_reader *r, int is_binary,
+static INLINE void avm_update_symb_counts(const avm_reader *r, int is_binary,
                                           int is_context_coded, int n_bits,
-                                          const aom_cdf_prob *cdf) {
+                                          const avm_cdf_prob *cdf) {
 #else
-static INLINE void aom_update_symb_counts(const aom_reader *r, int is_binary,
+static INLINE void avm_update_symb_counts(const avm_reader *r, int is_binary,
                                           int n_bits) {
 #endif  // CONFIG_THROUGHPUT_ANALYSIS
   if (r->accounting != NULL) {
@@ -137,14 +137,14 @@ static INLINE void aom_update_symb_counts(const aom_reader *r, int is_binary,
         r->accounting->syms.context_switch += 1;
       }
       r->accounting->syms.total_hits++;
-      r->accounting->syms.prev_context_id = (aom_cdf_prob *)cdf;
+      r->accounting->syms.prev_context_id = (avm_cdf_prob *)cdf;
     }
 #endif  // CONFIG_THROUGHPUT_ANALYSIS
   }
 }
 #endif
 
-static INLINE int aom_read_(aom_reader *r, int prob ACCT_INFO_PARAM) {
+static INLINE int avm_read_(avm_reader *r, int prob ACCT_INFO_PARAM) {
   int p = (0x7FFFFF - (prob << 15) + prob) >> 8;
   int bit = od_ec_decode_bool_q15(&r->ec, p);
 
@@ -152,9 +152,9 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_INFO_PARAM) {
   {
     int i;
     int ref_bit, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    avm_cdf_prob ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
-    const int frame_idx = aom_bitstream_queue_get_frame_read();
+    const int frame_idx = avm_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_bit, ref_cdf, &ref_nsymbs);
     if (ref_nsymbs != 2) {
       fprintf(stderr,
@@ -163,7 +163,7 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_INFO_PARAM) {
               frame_idx, 2, ref_nsymbs, queue_r);
       assert(0);
     }
-    if ((ref_nsymbs != 2) || (ref_cdf[0] != (aom_cdf_prob)p) ||
+    if ((ref_nsymbs != 2) || (ref_cdf[0] != (avm_cdf_prob)p) ||
         (ref_cdf[1] != 32767)) {
       fprintf(stderr,
               "\n *** [bit] cdf error, frame_idx_r %d cdf {%d, %d} ref_cdf {%d",
@@ -184,11 +184,11 @@ static INLINE int aom_read_(aom_reader *r, int prob ACCT_INFO_PARAM) {
 
 #if CONFIG_ACCOUNTING
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, bit, SYMBOL_BIT, ACCT_INFO_NAME);
+    avm_process_accounting(r, bit, SYMBOL_BIT, ACCT_INFO_NAME);
 #if CONFIG_THROUGHPUT_ANALYSIS
-  aom_update_symb_counts(r, 1, 0, 1, NULL);
+  avm_update_symb_counts(r, 1, 0, 1, NULL);
 #else
-  aom_update_symb_counts(r, 1, 1);
+  avm_update_symb_counts(r, 1, 1);
 #endif  // CONFIG_THROUGHPUT_ANALYSIS
 #endif
   return bit;
@@ -202,9 +202,9 @@ static INLINE void bitstream_queue_pop_literal(int data, int bits) {
     int bit = 1 & (data >> b);
     int i;
     int ref_bit, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    avm_cdf_prob ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
-    const int frame_idx = aom_bitstream_queue_get_frame_read();
+    const int frame_idx = avm_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_bit, ref_cdf, &ref_nsymbs);
     if (ref_nsymbs != 2) {
       fprintf(stderr,
@@ -233,34 +233,34 @@ static INLINE void bitstream_queue_pop_literal(int data, int bits) {
 }
 #endif  // CONFIG_BITSTREAM_DEBUG
 
-static INLINE int aom_read_bypass_(aom_reader *r ACCT_INFO_PARAM) {
+static INLINE int avm_read_bypass_(avm_reader *r ACCT_INFO_PARAM) {
   int ret = od_ec_decode_literal_bypass(&r->ec, 1);
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_pop_literal(ret, 1);
 #endif  // CONFIG_BITSTREAM_DEBUG
 #if CONFIG_ACCOUNTING
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, ret, SYMBOL_BIT_BYPASS, ACCT_INFO_NAME);
+    avm_process_accounting(r, ret, SYMBOL_BIT_BYPASS, ACCT_INFO_NAME);
 #if CONFIG_THROUGHPUT_ANALYSIS
-  aom_update_symb_counts(r, 1, 0, 1, NULL);
+  avm_update_symb_counts(r, 1, 0, 1, NULL);
 #else
-  aom_update_symb_counts(r, 1, 1);
+  avm_update_symb_counts(r, 1, 1);
 #endif
 #endif
   return ret;
 }
 
-static INLINE int aom_read_bit_(aom_reader *r ACCT_INFO_PARAM) {
+static INLINE int avm_read_bit_(avm_reader *r ACCT_INFO_PARAM) {
   int ret;
-  ret = aom_read_bypass(r, ACCT_INFO_NAME);
+  ret = avm_read_bypass(r, ACCT_INFO_NAME);
 #if CONFIG_ACCOUNTING
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, ret, SYMBOL_BIT_BYPASS, ACCT_INFO_NAME);
+    avm_process_accounting(r, ret, SYMBOL_BIT_BYPASS, ACCT_INFO_NAME);
 #endif
   return ret;
 }
 
-static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_INFO_PARAM) {
+static INLINE int avm_read_literal_(avm_reader *r, int bits ACCT_INFO_PARAM) {
   int literal = 0;
   int n_bits = bits;
   int n;
@@ -275,18 +275,18 @@ static INLINE int aom_read_literal_(aom_reader *r, int bits ACCT_INFO_PARAM) {
 #endif  // CONFIG_BITSTREAM_DEBUG
 #if CONFIG_ACCOUNTING
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, literal, SYMBOL_LITERAL_BYPASS, ACCT_INFO_NAME);
+    avm_process_accounting(r, literal, SYMBOL_LITERAL_BYPASS, ACCT_INFO_NAME);
 #if CONFIG_THROUGHPUT_ANALYSIS
-  aom_update_symb_counts(r, 1, 0, bits, NULL);
+  avm_update_symb_counts(r, 1, 0, bits, NULL);
 #else
-  aom_update_symb_counts(r, 1, bits);
+  avm_update_symb_counts(r, 1, bits);
 #endif
 #endif  // CONFIG_ACCOUNTING
   return literal;
 }
 
 // Deocode unary coded symbol with truncation at max_nbits.
-static INLINE int aom_read_unary_(aom_reader *r,
+static INLINE int avm_read_unary_(avm_reader *r,
                                   int max_nbits ACCT_INFO_PARAM) {
   int ret = od_ec_decode_unary_bypass(&r->ec, max_nbits);
 #if CONFIG_BITSTREAM_DEBUG
@@ -297,17 +297,17 @@ static INLINE int aom_read_unary_(aom_reader *r,
 #if CONFIG_ACCOUNTING
   int n_bits = ret < max_nbits ? ret + 1 : max_nbits;
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, ret, SYMBOL_UNARY, ACCT_INFO_NAME);
+    avm_process_accounting(r, ret, SYMBOL_UNARY, ACCT_INFO_NAME);
 #if CONFIG_THROUGHPUT_ANALYSIS
-  aom_update_symb_counts(r, 1, 0, n_bits, NULL);
+  avm_update_symb_counts(r, 1, 0, n_bits, NULL);
 #else
-  aom_update_symb_counts(r, 1, n_bits);
+  avm_update_symb_counts(r, 1, n_bits);
 #endif
 #endif
   return ret;
 }
 
-static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
+static INLINE int avm_read_cdf_(avm_reader *r, const avm_cdf_prob *cdf,
                                 int nsymbs ACCT_INFO_PARAM) {
   int symb;
   assert(cdf != NULL);
@@ -318,9 +318,9 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
     int i;
     int cdf_error = 0;
     int ref_symb, ref_nsymbs;
-    aom_cdf_prob ref_cdf[16];
+    avm_cdf_prob ref_cdf[16];
     const int queue_r = bitstream_queue_get_read();
-    const int frame_idx = aom_bitstream_queue_get_frame_read();
+    const int frame_idx = avm_bitstream_queue_get_frame_read();
     bitstream_queue_pop(&ref_symb, ref_cdf, &ref_nsymbs);
     if (nsymbs != ref_nsymbs) {
       fprintf(stderr,
@@ -354,26 +354,26 @@ static INLINE int aom_read_cdf_(aom_reader *r, const aom_cdf_prob *cdf,
 
 #if CONFIG_ACCOUNTING
   if (ACCT_INFO_NAME.c_file)
-    aom_process_accounting(r, symb, SYMBOL_CDF, ACCT_INFO_NAME);
+    avm_process_accounting(r, symb, SYMBOL_CDF, ACCT_INFO_NAME);
 #if CONFIG_THROUGHPUT_ANALYSIS
-  aom_update_symb_counts(r, (nsymbs == 2), 1, 1, cdf);
+  avm_update_symb_counts(r, (nsymbs == 2), 1, 1, cdf);
 #else
-  aom_update_symb_counts(r, (nsymbs == 2), 1);
+  avm_update_symb_counts(r, (nsymbs == 2), 1);
 #endif  // CONFIG_THROUGHPUT_ANALYSIS
 #endif
   return symb;
 }
 
-static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
+static INLINE int avm_read_symbol_(avm_reader *r, avm_cdf_prob *cdf,
                                    int nsymbs ACCT_INFO_PARAM) {
   int ret;
-  ret = aom_read_cdf(r, cdf, nsymbs, ACCT_INFO_NAME);
+  ret = avm_read_cdf(r, cdf, nsymbs, ACCT_INFO_NAME);
   if (r->allow_update_cdf) update_cdf(cdf, ret, nsymbs);
   return ret;
 }
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-static INLINE int aom_read_cdf_probdata(aom_reader *r, const aom_cdf_prob *cdf,
+static INLINE int avm_read_cdf_probdata(avm_reader *r, const avm_cdf_prob *cdf,
                                         int nsymbs) {
   int symb;
   assert(cdf != NULL);
@@ -381,10 +381,10 @@ static INLINE int aom_read_cdf_probdata(aom_reader *r, const aom_cdf_prob *cdf,
   return symb;
 }
 
-// @ParaKit: use aom_read_symbol_probdata function for decoding to collect data
-//            make sure that "const AV1_COMMON *const cm" pointer that has
+// @ParaKit: use avm_read_symbol_probdata function for decoding to collect data
+//            make sure that "const AV2_COMMON *const cm" pointer that has
 //            prob_info information
-static INLINE int aom_read_symbol_probdata(aom_reader *r, aom_cdf_prob *cdf,
+static INLINE int avm_read_symbol_probdata(avm_reader *r, avm_cdf_prob *cdf,
                                            const int *indexlist,
                                            ProbModelInfo prob_info) {
   FILE *filedata = prob_info.fDataCollect;
@@ -419,10 +419,10 @@ static INLINE int aom_read_symbol_probdata(aom_reader *r, aom_cdf_prob *cdf,
     cdf_list[sym] = CDF_INIT_TOP - cdf[sym];
   }
   int cost_list[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  av1_cost_tokens_from_cdf(cost_list, cdf, NULL);
+  av2_cost_tokens_from_cdf(cost_list, cdf, NULL);
 
   int ret;
-  ret = aom_read_cdf_probdata(r, cdf, symLength);
+  ret = avm_read_cdf_probdata(r, cdf, symLength);
   if (r->allow_update_cdf) update_cdf(cdf, ret, symLength);
 
   const int cost = cost_list[ret];
@@ -451,23 +451,23 @@ static INLINE int aom_read_symbol_probdata(aom_reader *r, aom_cdf_prob *cdf,
 // offset within each part is coded using fixed length binary codes with
 // (nsymb_bits - 3), (nsymb_bits - 3), (nsymb_bits - 2) or (nsymb_bits - 1)
 // bits, depending on the part.
-static INLINE int aom_read_4part_(aom_reader *r, aom_cdf_prob *cdf,
+static INLINE int avm_read_4part_(avm_reader *r, avm_cdf_prob *cdf,
                                   int nsymb_bits ACCT_INFO_PARAM) {
   assert(nsymb_bits >= 3);
   int part_bits[4] = { (nsymb_bits - 3), (nsymb_bits - 3), (nsymb_bits - 2),
                        (nsymb_bits - 1) };
   int part_offs[4] = { 0, 1 << (nsymb_bits - 3), 1 << (nsymb_bits - 2),
                        1 << (nsymb_bits - 1) };
-  const int part = aom_read_symbol(r, cdf, 4, ACCT_INFO_NAME);
-  return aom_read_literal(r, part_bits[part], ACCT_INFO_NAME) + part_offs[part];
+  const int part = avm_read_symbol(r, cdf, 4, ACCT_INFO_NAME);
+  return avm_read_literal(r, part_bits[part], ACCT_INFO_NAME) + part_offs[part];
 }
 
 // Implements a nsymb_bits bit 4-part code that codes a symbol symb given a
 // reference ref_symb after recentering symb around ref_symb.
-static INLINE int aom_read_4part_wref_(aom_reader *r, int ref_symb,
-                                       aom_cdf_prob *cdf,
+static INLINE int avm_read_4part_wref_(avm_reader *r, int ref_symb,
+                                       avm_cdf_prob *cdf,
                                        int nsymb_bits ACCT_INFO_PARAM) {
-  const int symb = aom_read_4part(r, cdf, nsymb_bits, ACCT_INFO_NAME);
+  const int symb = avm_read_4part(r, cdf, nsymb_bits, ACCT_INFO_NAME);
   return inv_recenter_finite_nonneg(1 << nsymb_bits, ref_symb, symb);
 }
 
@@ -475,4 +475,4 @@ static INLINE int aom_read_4part_wref_(aom_reader *r, int ref_symb,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_BITREADER_H_
+#endif  // AVM_AVM_DSP_BITREADER_H_

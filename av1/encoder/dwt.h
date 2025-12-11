@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_DWT_H_
-#define AOM_AV1_ENCODER_DWT_H_
+#ifndef AVM_AV2_ENCODER_DWT_H_
+#define AVM_AV2_ENCODER_DWT_H_
 
-#include "av1/common/common.h"
-#include "av1/common/enums.h"
+#include "av2/common/common.h"
+#include "av2/common/enums.h"
 
 #define DWT_MAX_LENGTH 64
 
-void av1_fdwt8x8_uint8_input_c(uint16_t *input, tran_low_t *output, int stride);
-int av1_haar_ac_sad_8x8_uint8_input(uint16_t *input, int stride);
+void av2_fdwt8x8_uint8_input_c(uint16_t *input, tran_low_t *output, int stride);
+int av2_haar_ac_sad_8x8_uint8_input(uint16_t *input, int stride);
 
-#endif  // AOM_AV1_ENCODER_DWT_H_
+#endif  // AVM_AV2_ENCODER_DWT_H_

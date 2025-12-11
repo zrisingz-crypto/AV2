@@ -10,21 +10,21 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "av1/common/idct.h"
-#include "av1/encoder/hybrid_fwd_txfm.h"
-#include "av1/common/scan.h"
-#include "av1/common/secondary_tx.h"
-#include "av1/common/txb_common.h"
+#include "av2/common/idct.h"
+#include "av2/encoder/hybrid_fwd_txfm.h"
+#include "av2/common/scan.h"
+#include "av2/common/secondary_tx.h"
+#include "av2/common/txb_common.h"
 
-void av1_lossless_fwd_idtx_c(const int16_t *src_diff, tran_low_t *coeff,
+void av2_lossless_fwd_idtx_c(const int16_t *src_diff, tran_low_t *coeff,
                              int diff_stride, TxfmParam *txfm_param) {
   const int txw = tx_size_wide[txfm_param->tx_size];
   const int txh = tx_size_high[txfm_param->tx_size];
-  int scale_bits = 3 - av1_get_tx_scale(txfm_param->tx_size);
+  int scale_bits = 3 - av2_get_tx_scale(txfm_param->tx_size);
   for (int i = 0; i < txh; i++) {
     for (int j = 0; j < txw; j++) {
       coeff[i * txw + j] = src_diff[i * diff_stride + j] * (1 << scale_bits);
@@ -790,7 +790,7 @@ void fwd_txfm_fddt_size16_c(const int *src, int *dst, int shift, int line,
 
 /* 4-point reversible, orthonormal Walsh-Hadamard in 3.5 adds, 0.5 shifts per
    pixel. */
-void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
+void av2_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   int i;
   tran_high_t a1, b1, c1, d1, e1;
   const int16_t *ip_pass0 = input;
@@ -844,9 +844,9 @@ void av1_fwht4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   }
 }
 
-void av1_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
+void av2_highbd_fwht4x4_c(const int16_t *input, tran_low_t *output,
                           int stride) {
-  av1_fwht4x4_c(input, output, stride);
+  av2_fwht4x4_c(input, output, stride);
 }
 
 void fwd_transform_1d_c(const int *src, int *dst, int shift, int line,
@@ -959,7 +959,7 @@ void fwd_txfm_c(const int16_t *resi, tran_low_t *coeff, int diff_stride,
 
   if (txfm_param->lossless) {
     assert(tx_type == DCT_DCT);
-    av1_highbd_fwht4x4(resi, coeff, diff_stride);
+    av2_highbd_fwht4x4(resi, coeff, diff_stride);
     return;
   }
 
@@ -1011,17 +1011,17 @@ void fwd_txfm_c(const int16_t *resi, tran_low_t *coeff, int diff_stride,
   const int log2height = tx_size_high_log2[tx_size];
   const int sqrt2 = ((log2width + log2height) & 1) ? 1 : 0;
   if (sqrt2) {
-    for (int i = 0; i < AOMMIN(1024, width * height); i++) {
+    for (int i = 0; i < AVMMIN(1024, width * height); i++) {
       coeff[i] = round_shift((int64_t)coeff[i] * NewSqrt2, NewSqrt2Bits);
     }
   }
 }
 
-void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
+void av2_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   TxfmParam *txfm_param) {
   if (txfm_param->lossless) {
     if (txfm_param->tx_type == IDTX) {
-      av1_lossless_fwd_idtx(src_diff, coeff, diff_stride, txfm_param);
+      av2_lossless_fwd_idtx(src_diff, coeff, diff_stride, txfm_param);
       return;
     }
   }
@@ -1029,11 +1029,11 @@ void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
 }
 
 // Apply forward cross chroma component transform
-void av1_fwd_cross_chroma_tx_block_c(tran_low_t *coeff_c1, tran_low_t *coeff_c2,
+void av2_fwd_cross_chroma_tx_block_c(tran_low_t *coeff_c1, tran_low_t *coeff_c2,
                                      TX_SIZE tx_size, CctxType cctx_type,
                                      const int bd) {
   if (cctx_type == CCTX_NONE) return;
-  const int ncoeffs = av1_get_max_eob(tx_size);
+  const int ncoeffs = av2_get_max_eob(tx_size);
   int32_t *src_c1 = (int32_t *)coeff_c1;
   int32_t *src_c2 = (int32_t *)coeff_c2;
   int64_t tmp[2] = { 0, 0 };
@@ -1051,7 +1051,7 @@ void av1_fwd_cross_chroma_tx_block_c(tran_low_t *coeff_c1, tran_low_t *coeff_c2,
   }
 }
 
-void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
+void av2_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
                    int64_t *sec_tx_sse) {
   const TX_TYPE stx_type = txfm_param->sec_tx_type;
 
@@ -1077,7 +1077,7 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
     tran_low_t *tmp = buf0;
     tran_low_t *src = coeff;
     int8_t transpose = 0;
-    mode = AOMMIN(intra_mode, SMOOTH_H_PRED);
+    mode = AVMMIN(intra_mode, SMOOTH_H_PRED);
     if ((mode == H_PRED) || (mode == D157_PRED) || (mode == D67_PRED) ||
         (mode == SMOOTH_H_PRED))
       transpose = 1;
@@ -1128,16 +1128,16 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
           : (st_size_class == 1)
               ? IST_8x8_HEIGHT_RED
               : ((st_size_class == 3) ? IST_ADST_NZ_CNT : IST_8x8_HEIGHT);
-      // SIMD implementation of aom_sum_squares_i32() only supports if n value
+      // SIMD implementation of avm_sum_squares_i32() only supports if n value
       // is multiple of 16. Hence, the n value is ensured to be at least 16
       // since the remaining elements of buf1[] are initialized with zero.
       uint64_t sec_tx_coeff_energy =
-          aom_sum_squares_i32(buf1, ALIGN_POWER_OF_TWO(reduced_height, 4));
+          avm_sum_squares_i32(buf1, ALIGN_POWER_OF_TWO(reduced_height, 4));
       const int bd_shift = 2 * (txfm_param->bd - 8);
       const int rounding = bd_shift > 0 ? 1 << (bd_shift - 1) : 0;
       sec_tx_coeff_energy = (sec_tx_coeff_energy + rounding) >> bd_shift;
       const int tx_shift =
-          (MAX_TX_SCALE - av1_get_tx_scale(txfm_param->tx_size)) * 2;
+          (MAX_TX_SCALE - av2_get_tx_scale(txfm_param->tx_size)) * 2;
       sec_tx_coeff_energy = RIGHT_SIGNED_SHIFT(sec_tx_coeff_energy, tx_shift);
       *sec_tx_sse = sec_tx_coeff_energy;
     }

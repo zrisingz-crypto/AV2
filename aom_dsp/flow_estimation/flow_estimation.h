@@ -9,13 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AOM_DSP_FLOW_ESTIMATION_H_
-#define AOM_AOM_DSP_FLOW_ESTIMATION_H_
+#ifndef AVM_AVM_DSP_FLOW_ESTIMATION_H_
+#define AVM_AVM_DSP_FLOW_ESTIMATION_H_
 
-#include "aom_dsp/pyramid.h"
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_ports/mem.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/pyramid.h"
+#include "avm_dsp/flow_estimation/corner_detect.h"
+#include "avm_ports/mem.h"
+#include "avm_scale/yv12config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,7 +77,7 @@ extern const double kIdentityParams[MAX_PARAMDIM];
 //
 // Returns true if global motion estimation succeeded, false if not.
 // The output models should only be used if this function succeeds.
-bool aom_compute_global_motion(TransformationType type, YV12_BUFFER_CONFIG *src,
+bool avm_compute_global_motion(TransformationType type, YV12_BUFFER_CONFIG *src,
                                YV12_BUFFER_CONFIG *ref, int bit_depth,
                                GlobalMotionMethod gm_method,
                                int downsample_level, MotionModel *motion_models,
@@ -87,4 +87,4 @@ bool aom_compute_global_motion(TransformationType type, YV12_BUFFER_CONFIG *src,
 }
 #endif
 
-#endif  // AOM_AOM_DSP_FLOW_ESTIMATION_H_
+#endif  // AVM_AVM_DSP_FLOW_ESTIMATION_H_

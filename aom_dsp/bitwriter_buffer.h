@@ -10,66 +10,66 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_BITWRITER_BUFFER_H_
-#define AOM_AOM_DSP_BITWRITER_BUFFER_H_
+#ifndef AVM_AVM_DSP_BITWRITER_BUFFER_H_
+#define AVM_AVM_DSP_BITWRITER_BUFFER_H_
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct aom_write_bit_buffer {
+struct avm_write_bit_buffer {
   uint8_t *bit_buffer;
   uint32_t bit_offset;
 };
 
-int aom_wb_is_byte_aligned(const struct aom_write_bit_buffer *wb);
+int avm_wb_is_byte_aligned(const struct avm_write_bit_buffer *wb);
 
-uint32_t aom_wb_bytes_written(const struct aom_write_bit_buffer *wb);
+uint32_t avm_wb_bytes_written(const struct avm_write_bit_buffer *wb);
 
-void aom_wb_write_bit(struct aom_write_bit_buffer *wb, int bit);
+void avm_wb_write_bit(struct avm_write_bit_buffer *wb, int bit);
 
-void aom_wb_overwrite_bit(struct aom_write_bit_buffer *wb, int bit);
+void avm_wb_overwrite_bit(struct avm_write_bit_buffer *wb, int bit);
 
-void aom_wb_write_literal(struct aom_write_bit_buffer *wb, int data, int bits);
+void avm_wb_write_literal(struct avm_write_bit_buffer *wb, int data, int bits);
 
-void aom_wb_write_unsigned_literal(struct aom_write_bit_buffer *wb,
+void avm_wb_write_unsigned_literal(struct avm_write_bit_buffer *wb,
                                    uint32_t data, int bits);
 
-void aom_wb_overwrite_literal(struct aom_write_bit_buffer *wb, int data,
+void avm_wb_overwrite_literal(struct avm_write_bit_buffer *wb, int data,
                               int bits);
 
-void aom_wb_write_inv_signed_literal(struct aom_write_bit_buffer *wb, int data,
+void avm_wb_write_inv_signed_literal(struct avm_write_bit_buffer *wb, int data,
                                      int bits);
 
 // Writes a variable length unsigned integer. UINT32_MAX is an invalid input.
-void aom_wb_write_uvlc(struct aom_write_bit_buffer *wb, uint32_t v);
+void avm_wb_write_uvlc(struct avm_write_bit_buffer *wb, uint32_t v);
 
 // Writes a variable length signed integer. INT32_MIN is an invalid input.
-void aom_wb_write_svlc(struct aom_write_bit_buffer *wb, int32_t v);
+void avm_wb_write_svlc(struct avm_write_bit_buffer *wb, int32_t v);
 
-void aom_wb_write_primitive_refsubexpfin(struct aom_write_bit_buffer *wb,
+void avm_wb_write_primitive_refsubexpfin(struct avm_write_bit_buffer *wb,
                                          uint16_t n, uint16_t k, uint16_t ref,
                                          uint16_t v);
-void aom_wb_write_signed_primitive_refsubexpfin(struct aom_write_bit_buffer *wb,
+void avm_wb_write_signed_primitive_refsubexpfin(struct avm_write_bit_buffer *wb,
                                                 uint16_t n, uint16_t k,
                                                 int16_t ref, int16_t v);
-void aom_wb_write_primitive_quniform(struct aom_write_bit_buffer *wb,
+void avm_wb_write_primitive_quniform(struct avm_write_bit_buffer *wb,
                                      uint16_t n, uint16_t v);
-void aom_wb_write_primitive_ref_quniform(struct aom_write_bit_buffer *wb,
+void avm_wb_write_primitive_ref_quniform(struct avm_write_bit_buffer *wb,
                                          uint16_t n, uint16_t r, uint16_t v);
 
-int aom_wb_count_primitive_refsubexpfin(uint16_t n, uint16_t k, int16_t ref,
+int avm_wb_count_primitive_refsubexpfin(uint16_t n, uint16_t k, int16_t ref,
                                         int16_t v);
 
-void aom_wb_write_uleb(struct aom_write_bit_buffer *wb, uint32_t value);
+void avm_wb_write_uleb(struct avm_write_bit_buffer *wb, uint32_t value);
 
-void aom_wb_write_rice_golomb(struct aom_write_bit_buffer *wb, uint32_t data,
+void avm_wb_write_rice_golomb(struct avm_write_bit_buffer *wb, uint32_t data,
                               int k);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_BITWRITER_BUFFER_H_
+#endif  // AVM_AVM_DSP_BITWRITER_BUFFER_H_

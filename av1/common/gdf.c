@@ -9,11 +9,11 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_COMMON_GDF_H_
-#define AOM_COMMON_GDF_H_
+#ifndef AVM_COMMON_GDF_H_
+#define AVM_COMMON_GDF_H_
 
-#include "av1/common/gdf.h"
-#include "av1/common/gdf_block.h"
+#include "av2/common/gdf.h"
+#include "av2/common/gdf_block.h"
 
 static int gdf_num_stripes_in_tile(int stripe_size, int tile_size) {
   const int first_stripe_offset = GDF_TEST_STRIPE_OFF;
@@ -24,7 +24,7 @@ void init_gdf_test(GdfInfo *gi, int mib_size, int rec_height, int rec_width) {
   gi->gdf_mode = 0;
   gi->gdf_pic_qp_idx = 0;
   gi->gdf_pic_scale_idx = 0;
-  gi->gdf_block_size = AOMMAX(mib_size << MI_SIZE_LOG2, GDF_TEST_BLK_SIZE);
+  gi->gdf_block_size = AVMMAX(mib_size << MI_SIZE_LOG2, GDF_TEST_BLK_SIZE);
   gi->gdf_stripe_size = GDF_TEST_STRIPE_SIZE;
   gi->gdf_unit_size = GDF_TEST_STRIPE_SIZE;
   gi->gdf_vert_blks_per_tile[0] = 1 + ((rec_height - 1) / gi->gdf_block_size);
@@ -40,12 +40,12 @@ void init_gdf_test(GdfInfo *gi, int mib_size, int rec_height, int rec_width) {
   gi->err_stride = gi->gdf_unit_size + GDF_ERR_STRIDE_MARGIN;
 }
 
-void init_gdf(AV1_COMMON *cm) {
+void init_gdf(AV2_COMMON *cm) {
   GdfInfo *gi = &cm->gdf_info;
   gi->gdf_mode = 0;
   gi->gdf_pic_qp_idx = 0;
   gi->gdf_pic_scale_idx = 0;
-  gi->gdf_block_size = AOMMAX(cm->mib_size << MI_SIZE_LOG2, GDF_TEST_BLK_SIZE);
+  gi->gdf_block_size = AVMMAX(cm->mib_size << MI_SIZE_LOG2, GDF_TEST_BLK_SIZE);
   const int num_tile_rows = cm->tiles.rows;
   const int num_tile_cols = cm->tiles.cols;
 
@@ -71,7 +71,7 @@ void init_gdf(AV1_COMMON *cm) {
   gi->gdf_block_num_h = 0;
   gi->gdf_block_num_w = 0;
   if (num_tile_rows == 1 && num_tile_cols == 1) {
-    AV1PixelRect tile_rect = av1_whole_frame_rect(cm, 0);
+    AV2PixelRect tile_rect = av2_whole_frame_rect(cm, 0);
     const int tile_height = tile_rect.bottom - tile_rect.top;
     const int tile_width = tile_rect.right - tile_rect.left;
     gi->gdf_vert_blks_per_tile[0] =
@@ -84,8 +84,8 @@ void init_gdf(AV1_COMMON *cm) {
   } else {
     for (int tile_row = 0; tile_row < num_tile_rows; ++tile_row) {
       TileInfo tile_info;
-      av1_tile_init(&tile_info, cm, tile_row, 0);
-      AV1PixelRect tile_rect = av1_get_tile_rect(&tile_info, cm, 0);
+      av2_tile_init(&tile_info, cm, tile_row, 0);
+      AV2PixelRect tile_rect = av2_get_tile_rect(&tile_info, cm, 0);
       const int tile_height = tile_rect.bottom - tile_rect.top;
       gi->gdf_vert_blks_per_tile[tile_row] =
           1 + ((tile_height - 1) / gi->gdf_block_size);
@@ -95,8 +95,8 @@ void init_gdf(AV1_COMMON *cm) {
     }
     for (int tile_col = 0; tile_col < num_tile_cols; ++tile_col) {
       TileInfo tile_info;
-      av1_tile_init(&tile_info, cm, 0, tile_col);
-      AV1PixelRect tile_rect = av1_get_tile_rect(&tile_info, cm, 0);
+      av2_tile_init(&tile_info, cm, 0, tile_col);
+      AV2PixelRect tile_rect = av2_get_tile_rect(&tile_info, cm, 0);
       const int tile_width = tile_rect.right - tile_rect.left;
       gi->gdf_horz_blks_per_tile[tile_col] =
           1 + ((tile_width - 1) / gi->gdf_block_size);
@@ -113,28 +113,28 @@ void init_gdf(AV1_COMMON *cm) {
 void alloc_gdf_buffers(GdfInfo *gi) {
   free_gdf_buffers(gi);
   gi->lap_ptr =
-      (uint16_t **)aom_malloc(GDF_NET_INP_GRD_NUM * sizeof(uint16_t *));
+      (uint16_t **)avm_malloc(GDF_NET_INP_GRD_NUM * sizeof(uint16_t *));
   const int lap_buf_height = (gi->err_height >> 1) + 2;
   const int cls_buf_height = (gi->err_height >> 1) + 2;
   for (int i = 0; i < GDF_NET_INP_GRD_NUM; i++) {
-    gi->lap_ptr[i] = (uint16_t *)aom_memalign(
+    gi->lap_ptr[i] = (uint16_t *)avm_memalign(
         32, lap_buf_height * gi->lap_stride * sizeof(uint16_t));
     memset(gi->lap_ptr[i], 0,
            lap_buf_height * gi->lap_stride * sizeof(uint16_t));
   }
-  gi->cls_ptr = (uint32_t *)aom_memalign(
+  gi->cls_ptr = (uint32_t *)avm_memalign(
       32, cls_buf_height * gi->cls_stride * sizeof(uint32_t));
   memset(gi->cls_ptr, 0, cls_buf_height * gi->cls_stride * sizeof(uint32_t));
-  gi->err_ptr = (int16_t *)aom_memalign(
+  gi->err_ptr = (int16_t *)avm_memalign(
       32, gi->err_height * gi->err_stride * sizeof(int16_t));
   memset(gi->err_ptr, 0, gi->err_height * gi->err_stride * sizeof(int16_t));
-  gi->gdf_block_flags = (int32_t *)aom_malloc(gi->gdf_block_num * sizeof(int));
+  gi->gdf_block_flags = (int32_t *)avm_malloc(gi->gdf_block_num * sizeof(int));
   memset(gi->gdf_block_flags, 0, gi->gdf_block_num * sizeof(int));
-  gi->glbs = (GDFLineBuffers *)aom_malloc(sizeof(GDFLineBuffers));
-  gi->tmp_save_left = (uint16_t *)aom_malloc(
+  gi->glbs = (GDFLineBuffers *)avm_malloc(sizeof(GDFLineBuffers));
+  gi->tmp_save_left = (uint16_t *)avm_malloc(
       (gi->gdf_unit_size + 2 * GDF_TEST_EXTRA_VER_BORDER) *
       GDF_TEST_EXTRA_HOR_BORDER * sizeof(*gi->tmp_save_left));
-  gi->tmp_save_right = (uint16_t *)aom_malloc(
+  gi->tmp_save_right = (uint16_t *)avm_malloc(
       (gi->gdf_unit_size + 2 * GDF_TEST_EXTRA_VER_BORDER) *
       GDF_TEST_EXTRA_HOR_BORDER * sizeof(*gi->tmp_save_right));
 }
@@ -142,41 +142,41 @@ void alloc_gdf_buffers(GdfInfo *gi) {
 void free_gdf_buffers(GdfInfo *gi) {
   if (gi->lap_ptr != NULL) {
     for (int i = 0; i < GDF_NET_INP_GRD_NUM; i++) {
-      aom_free(gi->lap_ptr[i]);
+      avm_free(gi->lap_ptr[i]);
       gi->lap_ptr[i] = NULL;
     }
-    aom_free(gi->lap_ptr);
+    avm_free(gi->lap_ptr);
     gi->lap_ptr = NULL;
   }
   if (gi->cls_ptr != NULL) {
-    aom_free(gi->cls_ptr);
+    avm_free(gi->cls_ptr);
     gi->cls_ptr = NULL;
   }
   if (gi->err_ptr != NULL) {
-    aom_free(gi->err_ptr);
+    avm_free(gi->err_ptr);
     gi->err_ptr = NULL;
   }
   if (gi->gdf_block_flags != NULL) {
-    aom_free(gi->gdf_block_flags);
+    avm_free(gi->gdf_block_flags);
     gi->gdf_block_flags = NULL;
   }
   if (gi->glbs != NULL) {
-    aom_free(gi->glbs);
+    avm_free(gi->glbs);
     gi->glbs = NULL;
   }
   if (gi->tmp_save_left != NULL) {
-    aom_free(gi->tmp_save_left);
+    avm_free(gi->tmp_save_left);
     gi->tmp_save_left = NULL;
   }
   if (gi->tmp_save_right != NULL) {
-    aom_free(gi->tmp_save_right);
+    avm_free(gi->tmp_save_right);
     gi->tmp_save_right = NULL;
   }
 }
 
 #define GDF_PRINT_INT(x) printf(#x " : %d\n", x)
 
-void gdf_print_info(AV1_COMMON *cm, char *info, int poc) {
+void gdf_print_info(AV2_COMMON *cm, char *info, int poc) {
   printf("=================GDF %s info=================\n", info);
 
   GDF_PRINT_INT(cm->cur_frame->buf.y_width);
@@ -227,7 +227,7 @@ void gdf_extend_frame_highbd(uint16_t *data, int width, int height, int stride,
   }
 }
 
-void gdf_copy_guided_frame(AV1_COMMON *cm) {
+void gdf_copy_guided_frame(AV2_COMMON *cm) {
   int top_buf = GDF_TEST_EXTRA_VER_BORDER;
   int bot_buf = GDF_TEST_EXTRA_VER_BORDER;
   const int rec_height = cm->cur_frame->buf.y_height;
@@ -240,12 +240,12 @@ void gdf_copy_guided_frame(AV1_COMMON *cm) {
   cm->gdf_info.inp_stride = input_stride;
 
   cm->gdf_info.inp_pad_ptr =
-      (uint16_t *)aom_memalign(32, (top_buf + rec_height + bot_buf + 4) *
+      (uint16_t *)avm_memalign(32, (top_buf + rec_height + bot_buf + 4) *
                                        input_stride * sizeof(uint16_t));
   for (int i = top_buf; i < top_buf + rec_height; i++) {
     memcpy(
         cm->gdf_info.inp_pad_ptr + i * input_stride + GDF_TEST_EXTRA_HOR_BORDER,
-        cm->cur_frame->buf.buffers[AOM_PLANE_Y] + (i - top_buf) * rec_stride,
+        cm->cur_frame->buf.buffers[AVM_PLANE_Y] + (i - top_buf) * rec_stride,
         sizeof(uint16_t) * rec_width);
     if (cm->cur_frame->buf.bit_depth > GDF_TEST_INP_PREC) {
       const unsigned int diff_bit_depth =
@@ -283,21 +283,21 @@ void gdf_setup_processing_stripe_leftright_boundary(GdfInfo *gdf, int i_min,
       memcpy(gdf->tmp_save_left + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
+      avm_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
                    h_border);
     }
     for (int i = v_border; i < h + v_border; ++i) {
       memcpy(gdf->tmp_save_left + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
+      avm_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
                    h_border);
     }
     for (int i = h + v_border; i < h + 2 * v_border; ++i) {
       memcpy(gdf->tmp_save_left + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
+      avm_memset16(d + i * data_stride, *(d + i * data_stride + h_border),
                    h_border);
     }
   }
@@ -307,19 +307,19 @@ void gdf_setup_processing_stripe_leftright_boundary(GdfInfo *gdf, int i_min,
       memcpy(gdf->tmp_save_right + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
+      avm_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
     }
     for (int i = v_border; i < h + v_border; ++i) {
       memcpy(gdf->tmp_save_right + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
+      avm_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
     }
     for (int i = h + v_border; i < h + 2 * v_border; ++i) {
       memcpy(gdf->tmp_save_right + i * stride, d + i * data_stride,
              h_border * sizeof(*d));
       // Replicate
-      aom_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
+      avm_memset16(d + i * data_stride, *(d + i * data_stride - 1), h_border);
     }
   }
 }
@@ -353,7 +353,7 @@ void gdf_restore_processing_stripe_leftright_boundary(GdfInfo *gdf, int i_min,
   }
 }
 
-void gdf_setup_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
+void gdf_setup_reference_lines(AV2_COMMON *cm, int i_min, int i_max,
                                int frame_stripe, int copy_above,
                                int copy_below) {
   const RestorationStripeBoundaries *rsb = &cm->rst_info[0].boundaries;
@@ -368,7 +368,7 @@ void gdf_setup_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
   if (copy_above) {
     uint16_t *data_tl = cm->gdf_info.inp_ptr + i_min * data_stride;
     for (int i = -GDF_TEST_EXTRA_VER_BORDER; i < 0; ++i) {
-      const int buf_row = rsb_row + AOMMAX(i + RESTORATION_CTX_VERT, 0);
+      const int buf_row = rsb_row + AVMMAX(i + RESTORATION_CTX_VERT, 0);
       const int buf_off = buf_x0_off + buf_row * buf_stride;
       const uint16_t *buf = rsb->stripe_boundary_above + buf_off;
       uint16_t *dst = data_tl + i * data_stride;
@@ -395,7 +395,7 @@ void gdf_setup_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
   if (copy_below) {
     uint16_t *data_bl = cm->gdf_info.inp_ptr + i_max * data_stride;
     for (int i = 0; i < GDF_TEST_EXTRA_VER_BORDER; ++i) {
-      const int buf_row = rsb_row + AOMMIN(i, RESTORATION_CTX_VERT - 1);
+      const int buf_row = rsb_row + AVMMIN(i, RESTORATION_CTX_VERT - 1);
       const int buf_off = buf_x0_off + buf_row * buf_stride;
       const uint16_t *src = rsb->stripe_boundary_below + buf_off;
       uint16_t *dst = data_bl + i * data_stride;
@@ -418,7 +418,7 @@ void gdf_setup_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
   }
 }
 
-void gdf_unset_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
+void gdf_unset_reference_lines(AV2_COMMON *cm, int i_min, int i_max,
                                int copy_above, int copy_below) {
   const int rec_width = cm->cur_frame->buf.y_width;
   const int data_stride = cm->gdf_info.inp_stride;
@@ -445,11 +445,11 @@ void gdf_unset_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
   }
 }
 
-void gdf_free_guided_frame(AV1_COMMON *cm) {
-  aom_free(cm->gdf_info.inp_pad_ptr);
+void gdf_free_guided_frame(AV2_COMMON *cm) {
+  avm_free(cm->gdf_info.inp_pad_ptr);
 }
 
-int gdf_get_block_idx(const AV1_COMMON *cm, int y_h, int y_w) {
+int gdf_get_block_idx(const AV2_COMMON *cm, int y_h, int y_w) {
   int blk_idx = -1;
   if ((y_h % cm->gdf_info.gdf_block_size == 0) &&
       (y_w % cm->gdf_info.gdf_block_size == 0)) {
@@ -461,27 +461,27 @@ int gdf_get_block_idx(const AV1_COMMON *cm, int y_h, int y_w) {
   return blk_idx;
 }
 
-static INLINE int get_ref_dst_max(const AV1_COMMON *const cm) {
+static INLINE int get_ref_dst_max(const AV2_COMMON *const cm) {
   int ref_dst_max = 0;
   for (int i = 0; i < cm->ref_frames_info.num_future_refs; i++) {
     const int ref = cm->ref_frames_info.future_refs[i];
     if ((ref == 0 || ref == 1) && get_ref_frame_buf(cm, ref) != NULL) {
       ref_dst_max =
-          AOMMAX(ref_dst_max, abs(cm->ref_frames_info.ref_frame_distance[ref]));
+          AVMMAX(ref_dst_max, abs(cm->ref_frames_info.ref_frame_distance[ref]));
     }
   }
   for (int i = 0; i < cm->ref_frames_info.num_past_refs; i++) {
     const int ref = cm->ref_frames_info.past_refs[i];
     if ((ref == 0 || ref == 1) && get_ref_frame_buf(cm, ref) != NULL) {
       ref_dst_max =
-          AOMMAX(ref_dst_max, abs(cm->ref_frames_info.ref_frame_distance[ref]));
+          AVMMAX(ref_dst_max, abs(cm->ref_frames_info.ref_frame_distance[ref]));
     }
   }
 
   return ref_dst_max > 0 ? ref_dst_max : INT_MAX;
 }
 
-int gdf_get_ref_dst_idx(const AV1_COMMON *cm) {
+int gdf_get_ref_dst_idx(const AV2_COMMON *cm) {
   int ref_dst_idx = 0;
   if (frame_is_intra_only(cm)) return ref_dst_idx;
 
@@ -499,7 +499,7 @@ int gdf_get_ref_dst_idx(const AV1_COMMON *cm) {
   return ref_dst_idx;
 }
 
-int gdf_get_qp_idx_base(const AV1_COMMON *cm) {
+int gdf_get_qp_idx_base(const AV2_COMMON *cm) {
   const int is_intra = frame_is_intra_only(cm);
   const int bit_depth = cm->cur_frame->buf.bit_depth;
   int qp_base = is_intra ? 85 : 110;
@@ -523,8 +523,8 @@ int gdf_get_qp_idx_base(const AV1_COMMON *cm) {
   return qp_idx_base;
 }
 
-void gdf_filter_frame(AV1_COMMON *cm) {
-  uint16_t *const rec_pnt = cm->cur_frame->buf.buffers[AOM_PLANE_Y];
+void gdf_filter_frame(AV2_COMMON *cm) {
+  uint16_t *const rec_pnt = cm->cur_frame->buf.buffers[AVM_PLANE_Y];
   const int rec_stride = cm->cur_frame->buf.y_stride;
 
   if (cm->bru.frame_inactive_flag) return;
@@ -532,7 +532,7 @@ void gdf_filter_frame(AV1_COMMON *cm) {
   const int bit_depth = cm->cur_frame->buf.bit_depth;
   const int pxl_max = (1 << cm->cur_frame->buf.bit_depth) - 1;
   const int pxl_shift =
-      GDF_TEST_INP_PREC - AOMMIN(bit_depth, GDF_TEST_INP_PREC);
+      GDF_TEST_INP_PREC - AVMMIN(bit_depth, GDF_TEST_INP_PREC);
   const int err_shift = GDF_RDO_SCALE_NUM_LOG2 + GDF_TEST_INP_PREC - bit_depth;
   int ref_dst_idx = gdf_get_ref_dst_idx(cm);
   int qp_idx_min = gdf_get_qp_idx_base(cm) + cm->gdf_info.gdf_pic_qp_idx;
@@ -545,8 +545,8 @@ void gdf_filter_frame(AV1_COMMON *cm) {
   int tile_blk_stripe0 = 0;
   for (int tile_row = 0; tile_row < num_tile_rows; ++tile_row) {
     TileInfo tile_info;
-    av1_tile_init(&tile_info, cm, tile_row, 0);
-    AV1PixelRect tile_rect = av1_get_tile_rect(&tile_info, cm, 0);
+    av2_tile_init(&tile_info, cm, tile_row, 0);
+    AV2PixelRect tile_rect = av2_get_tile_rect(&tile_info, cm, 0);
     const int tile_height = tile_rect.bottom - tile_rect.top;
     for (int y_pos = -GDF_TEST_STRIPE_OFF, blk_idx_h = 0; y_pos < tile_height;
          y_pos += cm->gdf_info.gdf_block_size, blk_idx_h++) {
@@ -555,8 +555,8 @@ void gdf_filter_frame(AV1_COMMON *cm) {
       }
       int blk_stripe = 0;
       for (int tile_col = 0; tile_col < num_tile_cols; ++tile_col) {
-        av1_tile_init(&tile_info, cm, tile_row, tile_col);
-        tile_rect = av1_get_tile_rect(&tile_info, cm, 0);
+        av2_tile_init(&tile_info, cm, tile_row, tile_col);
+        tile_rect = av2_get_tile_rect(&tile_info, cm, 0);
         const int tile_width = tile_rect.right - tile_rect.left;
         for (int x_pos = 0; x_pos < tile_width;
              x_pos += cm->gdf_info.gdf_block_size) {
@@ -565,8 +565,8 @@ void gdf_filter_frame(AV1_COMMON *cm) {
                                   v_pos < tile_height;
                v_pos += cm->gdf_info.gdf_unit_size) {
             int i_min =
-                AOMMAX(v_pos, GDF_TEST_FRAME_BOUNDARY_SIZE) + tile_rect.top;
-            int i_max = AOMMIN(v_pos + cm->gdf_info.gdf_unit_size,
+                AVMMAX(v_pos, GDF_TEST_FRAME_BOUNDARY_SIZE) + tile_rect.top;
+            int i_max = AVMMIN(v_pos + cm->gdf_info.gdf_unit_size,
                                tile_height - GDF_TEST_FRAME_BOUNDARY_SIZE) +
                         tile_rect.top;
 
@@ -589,8 +589,8 @@ void gdf_filter_frame(AV1_COMMON *cm) {
                  u_pos < tile_width;
                  u_pos += cm->gdf_info.gdf_unit_size) {
               int j_min =
-                  AOMMAX(u_pos, GDF_TEST_FRAME_BOUNDARY_SIZE) + tile_rect.left;
-              int j_max = AOMMIN(u_pos + cm->gdf_info.gdf_unit_size,
+                  AVMMAX(u_pos, GDF_TEST_FRAME_BOUNDARY_SIZE) + tile_rect.left;
+              int j_max = AVMMIN(u_pos + cm->gdf_info.gdf_unit_size,
                                  tile_width - GDF_TEST_FRAME_BOUNDARY_SIZE) +
                           tile_rect.left;
               int tile_boundary_left =
@@ -611,7 +611,7 @@ void gdf_filter_frame(AV1_COMMON *cm) {
               if (cm->bru.enabled) {
                 const int mbmi_idx = get_mi_grid_idx(
                     &cm->mi_params,
-                    AOMMIN(i_max - 1, (i_min + GDF_TEST_STRIPE_OFF)) >>
+                    AVMMIN(i_max - 1, (i_min + GDF_TEST_STRIPE_OFF)) >>
                         MI_SIZE_LOG2,
                     j_min >> MI_SIZE_LOG2);
                 use_gdf_local =
@@ -624,10 +624,10 @@ void gdf_filter_frame(AV1_COMMON *cm) {
                   use_gdf_local) {
                 const int bru_blk_skip = !bru_is_sb_active(
                     cm, j_min >> MI_SIZE_LOG2,
-                    AOMMIN(i_max - 1, (i_min + GDF_TEST_STRIPE_OFF)) >>
+                    AVMMIN(i_max - 1, (i_min + GDF_TEST_STRIPE_OFF)) >>
                         MI_SIZE_LOG2);
                 if (cm->bru.enabled && bru_blk_skip) {
-                  aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                  avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                                      "GDF on not active SB");
                 }
                 for (int qp_idx = qp_idx_min; qp_idx < qp_idx_max_plus_1;
@@ -674,8 +674,8 @@ void gdf_filter_frame(AV1_COMMON *cm) {
                                                       ->segment_id];
                         if (!is_lossless) {
                           int height_4x4 =
-                              AOMMIN(min_b_size, i_max - i_pos_4x4);
-                          int width_4x4 = AOMMIN(min_b_size, j_max - j_pos_4x4);
+                              AVMMIN(min_b_size, i_max - i_pos_4x4);
+                          int width_4x4 = AVMMIN(min_b_size, j_max - j_pos_4x4);
                           uint16_t *rec_pnt_4x4 =
                               rec_pnt + i_pos_4x4 * rec_stride + j_pos_4x4;
                           int16_t *errPnt =
@@ -713,4 +713,4 @@ void gdf_filter_frame(AV1_COMMON *cm) {
   }  // tile_row
 }
 
-#endif  // AOM_COMMON_GDF_H_
+#endif  // AVM_COMMON_GDF_H_

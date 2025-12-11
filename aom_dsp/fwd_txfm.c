@@ -11,10 +11,10 @@
  */
 
 #include <assert.h>
-#include "aom_dsp/txfm_common.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm_dsp/txfm_common.h"
+#include "config/avm_dsp_rtcd.h"
 
-void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
+void avm_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty
   // similar. In the first one, we transform the columns and transpose
   // the results. In the second one, we transform the rows. To achieve that,
@@ -76,7 +76,7 @@ void aom_fdct4x4_c(const int16_t *input, tran_low_t *output, int stride) {
   }
 }
 
-void aom_fdct4x4_lp_c(const int16_t *input, int16_t *output, int stride) {
+void avm_fdct4x4_lp_c(const int16_t *input, int16_t *output, int stride) {
   // The 2D transform is done with two passes which are actually pretty
   // similar. In the first one, we transform the columns and transpose
   // the results. In the second one, we transform the rows. To achieve that,
@@ -138,7 +138,7 @@ void aom_fdct4x4_lp_c(const int16_t *input, int16_t *output, int stride) {
   }
 }
 
-void aom_highbd_fdct8x8_c(const int16_t *input, tran_low_t *final_output,
+void avm_highbd_fdct8x8_c(const int16_t *input, tran_low_t *final_output,
                           int stride) {
   int i, j;
   tran_low_t intermediate[64];

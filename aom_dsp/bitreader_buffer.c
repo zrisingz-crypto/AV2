@@ -12,17 +12,17 @@
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/bitreader_buffer.h"
-#include "aom_dsp/recenter.h"
-#include "aom_ports/bitops.h"
+#include "avm_dsp/bitreader_buffer.h"
+#include "avm_dsp/recenter.h"
+#include "avm_ports/bitops.h"
 
-size_t aom_rb_bytes_read(const struct aom_read_bit_buffer *rb) {
+size_t avm_rb_bytes_read(const struct avm_read_bit_buffer *rb) {
   return (rb->bit_offset + 7) >> 3;
 }
 
-int aom_rb_read_bit(struct aom_read_bit_buffer *rb) {
+int avm_rb_read_bit(struct avm_read_bit_buffer *rb) {
   const uint32_t off = rb->bit_offset;
   const uint32_t p = off >> 3;
   const int q = 7 - (int)(off & 0x7);
@@ -32,72 +32,72 @@ int aom_rb_read_bit(struct aom_read_bit_buffer *rb) {
     return bit;
   } else {
     if (rb->error_handler) {
-      rb->error_handler(rb->error_handler_data, AOM_CODEC_CORRUPT_FRAME,
+      rb->error_handler(rb->error_handler_data, AVM_CODEC_CORRUPT_FRAME,
                         "Truncated packet");
     }
     return 0;
   }
 }
 
-int aom_rb_read_literal(struct aom_read_bit_buffer *rb, int bits) {
+int avm_rb_read_literal(struct avm_read_bit_buffer *rb, int bits) {
   assert(bits <= 31);
   int value = 0, bit;
-  for (bit = bits - 1; bit >= 0; bit--) value |= aom_rb_read_bit(rb) << bit;
+  for (bit = bits - 1; bit >= 0; bit--) value |= avm_rb_read_bit(rb) << bit;
   return value;
 }
 
-uint32_t aom_rb_read_unsigned_literal(struct aom_read_bit_buffer *rb,
+uint32_t avm_rb_read_unsigned_literal(struct avm_read_bit_buffer *rb,
                                       int bits) {
   assert(bits <= 32);
   uint32_t value = 0;
   int bit;
   for (bit = bits - 1; bit >= 0; bit--)
-    value |= (uint32_t)aom_rb_read_bit(rb) << bit;
+    value |= (uint32_t)avm_rb_read_bit(rb) << bit;
   return value;
 }
 
-int aom_rb_read_inv_signed_literal(struct aom_read_bit_buffer *rb, int bits) {
+int avm_rb_read_inv_signed_literal(struct avm_read_bit_buffer *rb, int bits) {
   const int nbits = sizeof(unsigned) * 8 - bits - 1;
-  const unsigned value = (unsigned)aom_rb_read_literal(rb, bits + 1) << nbits;
+  const unsigned value = (unsigned)avm_rb_read_literal(rb, bits + 1) << nbits;
   return ((int)value) >> nbits;
 }
 
-uint32_t aom_rb_read_uvlc(struct aom_read_bit_buffer *rb) {
+uint32_t avm_rb_read_uvlc(struct avm_read_bit_buffer *rb) {
   int leading_zeros = 0;
-  while (leading_zeros < 32 && !aom_rb_read_bit(rb)) ++leading_zeros;
+  while (leading_zeros < 32 && !avm_rb_read_bit(rb)) ++leading_zeros;
   // Maximum 32 bits.
   if (leading_zeros == 32) {
     if (rb->error_handler) {
-      rb->error_handler(rb->error_handler_data, AOM_CODEC_CORRUPT_FRAME,
+      rb->error_handler(rb->error_handler_data, AVM_CODEC_CORRUPT_FRAME,
                         "VLC input too long (more than 31 leading zeros)");
     }
     return UINT32_MAX;  // Error.
   }
   const uint32_t base = (1u << leading_zeros) - 1;
-  const uint32_t value = aom_rb_read_literal(rb, leading_zeros);
+  const uint32_t value = avm_rb_read_literal(rb, leading_zeros);
   return base + value;
 }
 
-int32_t aom_rb_read_svlc(struct aom_read_bit_buffer *rb) {
-  const uint32_t value = aom_rb_read_uvlc(rb);
+int32_t avm_rb_read_svlc(struct avm_read_bit_buffer *rb) {
+  const uint32_t value = avm_rb_read_uvlc(rb);
   if (value == UINT32_MAX) return INT32_MIN;  // Error.
   const int32_t ceil_half = (int32_t)((value + 1) / 2);
   return (value % 2) ? ceil_half : -ceil_half;
 }
 
-uint16_t aom_rb_read_primitive_quniform(struct aom_read_bit_buffer *rb,
+uint16_t avm_rb_read_primitive_quniform(struct avm_read_bit_buffer *rb,
                                         uint16_t n) {
   if (n <= 1) return 0;
   const int l = get_msb(n) + 1;
   const int m = (1 << l) - n;
-  const int v = aom_rb_read_literal(rb, l - 1);
-  return v < m ? v : (v << 1) - m + aom_rb_read_bit(rb);
+  const int v = avm_rb_read_literal(rb, l - 1);
+  return v < m ? v : (v << 1) - m + avm_rb_read_bit(rb);
 }
 
-uint16_t aom_rb_read_primitive_ref_quniform(struct aom_read_bit_buffer *rb,
+uint16_t avm_rb_read_primitive_ref_quniform(struct avm_read_bit_buffer *rb,
                                             uint16_t n, uint16_t r) {
-  if (aom_rb_read_bit(rb)) {  // unequal
-    int v = aom_rb_read_primitive_quniform(rb, n - 1);
+  if (avm_rb_read_bit(rb)) {  // unequal
+    int v = avm_rb_read_primitive_quniform(rb, n - 1);
     v += (v >= r);
     return v;
   } else {
@@ -105,7 +105,7 @@ uint16_t aom_rb_read_primitive_ref_quniform(struct aom_read_bit_buffer *rb,
   }
 }
 
-static uint16_t aom_rb_read_primitive_subexpfin(struct aom_read_bit_buffer *rb,
+static uint16_t avm_rb_read_primitive_subexpfin(struct avm_read_bit_buffer *rb,
                                                 uint16_t n, uint16_t k) {
   int i = 0;
   int mk = 0;
@@ -115,11 +115,11 @@ static uint16_t aom_rb_read_primitive_subexpfin(struct aom_read_bit_buffer *rb,
     int a = (1 << b);
 
     if (n <= mk + 3 * a) {
-      return aom_rb_read_primitive_quniform(rb, n - mk) + mk;
+      return avm_rb_read_primitive_quniform(rb, n - mk) + mk;
     }
 
-    if (!aom_rb_read_bit(rb)) {
-      return aom_rb_read_literal(rb, b) + mk;
+    if (!avm_rb_read_bit(rb)) {
+      return avm_rb_read_literal(rb, b) + mk;
     }
 
     i = i + 1;
@@ -130,34 +130,34 @@ static uint16_t aom_rb_read_primitive_subexpfin(struct aom_read_bit_buffer *rb,
   return 0;
 }
 
-uint16_t aom_rb_read_primitive_refsubexpfin(struct aom_read_bit_buffer *rb,
+uint16_t avm_rb_read_primitive_refsubexpfin(struct avm_read_bit_buffer *rb,
                                             uint16_t n, uint16_t k,
                                             uint16_t ref) {
   assert(ref < n);
   return inv_recenter_finite_nonneg(n, ref,
-                                    aom_rb_read_primitive_subexpfin(rb, n, k));
+                                    avm_rb_read_primitive_subexpfin(rb, n, k));
 }
 
-int16_t aom_rb_read_signed_primitive_refsubexpfin(
-    struct aom_read_bit_buffer *rb, uint16_t n, uint16_t k, int16_t ref) {
+int16_t avm_rb_read_signed_primitive_refsubexpfin(
+    struct avm_read_bit_buffer *rb, uint16_t n, uint16_t k, int16_t ref) {
   assert(n > 0);
   const uint16_t offset = n - 1;
   const uint16_t scaled_n = (n << 1) - 1;
-  return aom_rb_read_primitive_refsubexpfin(rb, scaled_n, k, ref + offset) -
+  return avm_rb_read_primitive_refsubexpfin(rb, scaled_n, k, ref + offset) -
          offset;
 }
 
 // implementation of leb128() signaling in the specification using
-// aom_read_bit_buffer
-uint32_t aom_rb_read_uleb(struct aom_read_bit_buffer *rb) {
+// avm_read_bit_buffer
+uint32_t avm_rb_read_uleb(struct avm_read_bit_buffer *rb) {
   uint64_t value = 0;
   for (size_t i = 0; i < 8; ++i) {
-    uint64_t byte = aom_rb_read_literal(rb, 8);
+    uint64_t byte = avm_rb_read_literal(rb, 8);
     value |= ((byte & 0x7f) << (i * 7));
     if (!(byte & 0x80)) {
       if (value > UINT32_MAX) {
         if (rb->error_handler) {
-          rb->error_handler(rb->error_handler_data, AOM_CODEC_CORRUPT_FRAME,
+          rb->error_handler(rb->error_handler_data, AVM_CODEC_CORRUPT_FRAME,
                             "leb128() value greater than UINT32_MAX");
         }
         return 0;
@@ -166,13 +166,13 @@ uint32_t aom_rb_read_uleb(struct aom_read_bit_buffer *rb) {
     }
   }
   if (rb->error_handler) {
-    rb->error_handler(rb->error_handler_data, AOM_CODEC_CORRUPT_FRAME,
+    rb->error_handler(rb->error_handler_data, AVM_CODEC_CORRUPT_FRAME,
                       "leb128() input longer than 8 bytes");
   }
   return 0;
 }
 
-uint32_t aom_rb_read_rice_golomb(struct aom_read_bit_buffer *rb, int k) {
+uint32_t avm_rb_read_rice_golomb(struct avm_read_bit_buffer *rb, int k) {
   // The maximum of k is related to the maximum of quotient.
   assert(k <= 26);
   uint32_t value = 0;
@@ -184,15 +184,15 @@ uint32_t aom_rb_read_rice_golomb(struct aom_read_bit_buffer *rb, int k) {
   // maximum of 31 (= 2^5 - 1) is somewhat arbitrary. In general it is
   // convenient to choose a maximum that is 2^q - 1 for some q < 31. Then we can
   // require k <= 31 - q.
-  while (quotient < 32 && aom_rb_read_bit(rb) != 0) quotient++;
+  while (quotient < 32 && avm_rb_read_bit(rb) != 0) quotient++;
   if (quotient == 32) {
     if (rb->error_handler) {
-      rb->error_handler(rb->error_handler_data, AOM_CODEC_CORRUPT_FRAME,
+      rb->error_handler(rb->error_handler_data, AVM_CODEC_CORRUPT_FRAME,
                         "Rice Golomb coding too long (quotient >= 32)");
     }
     return UINT32_MAX;  // Error.
   }
-  remainder = aom_rb_read_unsigned_literal(rb, k);
+  remainder = avm_rb_read_unsigned_literal(rb, k);
   // value <= 2^31 - 1 if k <= 26, so there is no risk of overflow.
   value = quotient * M + remainder;
   return value;

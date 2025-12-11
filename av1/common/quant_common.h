@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_QUANT_COMMON_H_
-#define AOM_AV1_COMMON_QUANT_COMMON_H_
+#ifndef AVM_AV2_COMMON_QUANT_COMMON_H_
+#define AVM_AV2_COMMON_QUANT_COMMON_H_
 
 #include <stdbool.h>
-#include "aom/aom_codec.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/enums.h"
-#include "av1/common/entropy.h"
+#include "avm/avm_codec.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/enums.h"
+#include "av2/common/entropy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +55,7 @@ extern "C" {
 #define DEFAULT_QM_FIRST 5
 #define DEFAULT_QM_LAST 9
 
-struct AV1Common;
+struct AV2Common;
 struct CommonQuantParams;
 struct macroblockd;
 
@@ -86,42 +86,42 @@ int tcq_init_state(int tcq_mode);
 // Find the next state in trellis codec quant
 int tcq_next_state(const int curState, const int absLevel);
 
-int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
-                         aom_bit_depth_t bit_depth);
-int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
-                         aom_bit_depth_t bit_depth);
+int32_t av2_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         avm_bit_depth_t bit_depth);
+int32_t av2_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
+                         avm_bit_depth_t bit_depth);
 
-int av1_q_clamped(int qindex, int delta, int base_dc_delta_q,
-                  aom_bit_depth_t bit_depth);
-void get_qindex_with_offsets(const struct AV1Common *cm, int current_qindex,
+int av2_q_clamped(int qindex, int delta, int base_dc_delta_q,
+                  avm_bit_depth_t bit_depth);
+void get_qindex_with_offsets(const struct AV2Common *cm, int current_qindex,
                              int final_qindex_dc[3], int final_qindex_ac[3]);
 
-int av1_get_qindex(const struct segmentation *seg, int segment_id,
-                   int base_qindex, aom_bit_depth_t bit_depth);
+int av2_get_qindex(const struct segmentation *seg, int segment_id,
+                   int base_qindex, avm_bit_depth_t bit_depth);
 
 // Returns true if we are using quantization matrix.
-bool av1_use_qmatrix(const struct CommonQuantParams *quant_params,
+bool av2_use_qmatrix(const struct CommonQuantParams *quant_params,
                      const struct macroblockd *xd, int segment_id);
 
 // Reduce the large number of quantizers to a smaller number of levels for which
 // different matrices may be defined
-static INLINE int aom_get_qmlevel(int qindex, int first, int last,
-                                  aom_bit_depth_t bit_depth) {
+static INLINE int avm_get_qmlevel(int qindex, int first, int last,
+                                  avm_bit_depth_t bit_depth) {
   return first + (qindex * (last + 1 - first)) /
-                     (bit_depth == AOM_BITS_8    ? QINDEX_RANGE_8_BITS
-                      : bit_depth == AOM_BITS_10 ? QINDEX_RANGE_10_BITS
+                     (bit_depth == AVM_BITS_8    ? QINDEX_RANGE_8_BITS
+                      : bit_depth == AVM_BITS_10 ? QINDEX_RANGE_10_BITS
                                                  : QINDEX_RANGE);
 }
 
 #if CONFIG_F255_QMOBU
-void av1_free_qmset(qm_val_t ***mat);
-qm_val_t ***av1_alloc_qmset();
+void av2_free_qmset(qm_val_t ***mat);
+qm_val_t ***av2_alloc_qmset();
 // Initialize all global quant/dequant matrices. Used by the encoder.
-void av1_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
+void av2_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
                          int qm_id, qm_val_t ***matrix_set);
-void av1_qm_init(struct CommonQuantParams *quant_params, int num_planes);
+void av2_qm_init(struct CommonQuantParams *quant_params, int num_planes);
 
-void av1_qm_replace_level(struct CommonQuantParams *quant_params, int level,
+void av2_qm_replace_level(struct CommonQuantParams *quant_params, int level,
                           int num_planes, qm_val_t ***fund_matrices);
 void scale_tx(const int txsize, const int plane, qm_val_t *output,
               qm_val_t ***fund_matrices);
@@ -132,41 +132,41 @@ void scale_tx(const int txsize, const int plane, qm_val_t *output,
 // third dimension is width * height and represents a flattened width-by-height
 // quantization matrix. Returns a pointer to the allocated three-dimensional
 // array.
-qm_val_t ***av1_alloc_qm(int width, int height);
+qm_val_t ***av2_alloc_qm(int width, int height);
 
 // Frees the three-dimensional array mat. The three-dimensional array must have
-// been allocated by av1_alloc_qm().
-void av1_free_qm(qm_val_t ***mat);
+// been allocated by av2_alloc_qm().
+void av2_free_qm(qm_val_t ***mat);
 // Initializes the fundamental quantization matrices to the default ones.
-void av1_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
+void av2_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
                       qm_val_t ***qm_4x8, int num_planes);
 
 // Initialize all global quant/dequant matrices. Used by the encoder.
-void av1_qm_init(struct CommonQuantParams *quant_params, int num_planes,
+void av2_qm_init(struct CommonQuantParams *quant_params, int num_planes,
                  qm_val_t ****fund_matrices);
 
 // Initialize all global dequant matrices. Used by the decoder.
-void av1_qm_init_dequant_only(struct CommonQuantParams *quant_params,
+void av2_qm_init_dequant_only(struct CommonQuantParams *quant_params,
                               int num_planes, qm_val_t ****fund_matrices);
 
 // Replaces a level of quantization matrices based on the fundamental matrices
-// for that level. Assumes av1_qm_init() has been called. Used by the encoder.
-void av1_qm_replace_level(struct CommonQuantParams *quant_params, int level,
+// for that level. Assumes av2_qm_init() has been called. Used by the encoder.
+void av2_qm_replace_level(struct CommonQuantParams *quant_params, int level,
                           int num_planes, qm_val_t ****fund_matrices);
 #endif  // CONFIG_F255_QMOBU
 // Get global dequant matrix.
-const qm_val_t *av1_iqmatrix(const struct CommonQuantParams *quant_params,
+const qm_val_t *av2_iqmatrix(const struct CommonQuantParams *quant_params,
                              int qmlevel, int plane, TX_SIZE tx_size);
 // Get global quant matrix.
-const qm_val_t *av1_qmatrix(const struct CommonQuantParams *quant_params,
+const qm_val_t *av2_qmatrix(const struct CommonQuantParams *quant_params,
                             int qmlevel, int plane, TX_SIZE tx_size);
 
 // Get either local / global dequant matrix as appropriate.
-const qm_val_t *av1_get_iqmatrix(const struct CommonQuantParams *quant_params,
+const qm_val_t *av2_get_iqmatrix(const struct CommonQuantParams *quant_params,
                                  const struct macroblockd *xd, int plane,
                                  TX_SIZE tx_size, TX_TYPE tx_type);
 // Get either local / global quant matrix as appropriate.
-const qm_val_t *av1_get_qmatrix(const struct CommonQuantParams *quant_params,
+const qm_val_t *av2_get_qmatrix(const struct CommonQuantParams *quant_params,
                                 const struct macroblockd *xd, int plane,
                                 TX_SIZE tx_size, TX_TYPE tx_type);
 
@@ -191,4 +191,4 @@ extern const qm_val_t predefined_wt_matrix_ref[NUM_QM_LEVELS - 1][2]
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_QUANT_COMMON_H_
+#endif  // AVM_AV2_COMMON_QUANT_COMMON_H_

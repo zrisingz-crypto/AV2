@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_ports/mem.h"
-#include "aom_dsp/mips/macros_msa.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_dsp/variance.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/mips/macros_msa.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_dsp/variance.h"
 
 #define CALC_MSE_AVG_B(src, ref, var, sub)                          \
   {                                                                 \
@@ -1616,8 +1616,8 @@ static uint32_t sub_pixel_avg_sse_diff_64width_hv_msa(
 #define VARIANCE_64Wx32H(sse, diff) VARIANCE_LARGE_WxH(sse, diff, 11);
 #define VARIANCE_64Wx64H(sse, diff) VARIANCE_LARGE_WxH(sse, diff, 12);
 
-#define AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(wd, ht)                              \
-  uint32_t aom_sub_pixel_variance##wd##x##ht##_msa(                           \
+#define AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(wd, ht)                              \
+  uint32_t avm_sub_pixel_variance##wd##x##ht##_msa(                           \
       const uint8_t *src, int32_t src_stride, int32_t xoffset,                \
       int32_t yoffset, const uint8_t *ref, int32_t ref_stride,                \
       uint32_t *sse) {                                                        \
@@ -1643,7 +1643,7 @@ static uint32_t sub_pixel_avg_sse_diff_64width_hv_msa(
                                                                               \
         var = VARIANCE_##wd##Wx##ht##H(*sse, diff);                           \
       } else {                                                                \
-        var = aom_variance##wd##x##ht##_msa(src, src_stride, ref, ref_stride, \
+        var = avm_variance##wd##x##ht##_msa(src, src_stride, ref, ref_stride, \
                                             sse);                             \
       }                                                                       \
     }                                                                         \
@@ -1652,27 +1652,27 @@ static uint32_t sub_pixel_avg_sse_diff_64width_hv_msa(
   }
 
 /* clang-format off */
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(4, 4)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(4, 8)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(4, 4)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(4, 8)
 
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 4)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 8)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 16)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 4)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 8)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(8, 16)
 
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 8)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 16)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 32)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 8)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 16)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(16, 32)
 
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 16)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 32)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 64)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 16)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 32)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(32, 64)
 
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(64, 32)
-AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(64, 64)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(64, 32)
+AVM_SUB_PIXEL_VARIANCE_WDXHT_MSA(64, 64)
 /* clang-format on */
 
-#define AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(wd, ht)                          \
-  uint32_t aom_sub_pixel_avg_variance##wd##x##ht##_msa(                       \
+#define AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(wd, ht)                          \
+  uint32_t avm_sub_pixel_avg_variance##wd##x##ht##_msa(                       \
       const uint8_t *src_ptr, int32_t src_stride, int32_t xoffset,            \
       int32_t yoffset, const uint8_t *ref_ptr, int32_t ref_stride,            \
       uint32_t *sse, const uint8_t *sec_pred) {                               \
@@ -1705,22 +1705,22 @@ AOM_SUB_PIXEL_VARIANCE_WDXHT_MSA(64, 64)
   }
 
 /* clang-format off */
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(4, 4)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(4, 8)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(4, 4)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(4, 8)
 
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 4)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 8)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 16)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 4)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 8)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(8, 16)
 
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 8)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 16)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 32)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 8)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 16)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(16, 32)
 
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(32, 16)
-AOM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(32, 32)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(32, 16)
+AVM_SUB_PIXEL_AVG_VARIANCE_WDXHT_MSA(32, 32)
 /* clang-format on */
 
-uint32_t aom_sub_pixel_avg_variance32x64_msa(const uint8_t *src_ptr,
+uint32_t avm_sub_pixel_avg_variance32x64_msa(const uint8_t *src_ptr,
                                              int32_t src_stride,
                                              int32_t xoffset, int32_t yoffset,
                                              const uint8_t *ref_ptr,
@@ -1754,8 +1754,8 @@ uint32_t aom_sub_pixel_avg_variance32x64_msa(const uint8_t *src_ptr,
   return VARIANCE_32Wx64H(*sse, diff);
 }
 
-#define AOM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(ht)                           \
-  uint32_t aom_sub_pixel_avg_variance64x##ht##_msa(                           \
+#define AVM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(ht)                           \
+  uint32_t avm_sub_pixel_avg_variance64x##ht##_msa(                           \
       const uint8_t *src_ptr, int32_t src_stride, int32_t xoffset,            \
       int32_t yoffset, const uint8_t *ref_ptr, int32_t ref_stride,            \
       uint32_t *sse, const uint8_t *sec_pred) {                               \
@@ -1788,6 +1788,6 @@ uint32_t aom_sub_pixel_avg_variance32x64_msa(const uint8_t *src_ptr,
   }
 
 /* clang-format off */
-AOM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(32)
-AOM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(64)
+AVM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(32)
+AVM_SUB_PIXEL_AVG_VARIANCE64XHEIGHT_MSA(64)
 /* clang-format on */

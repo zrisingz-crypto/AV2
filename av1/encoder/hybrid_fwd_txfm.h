@@ -10,23 +10,23 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_HYBRID_FWD_TXFM_H_
-#define AOM_AV1_ENCODER_HYBRID_FWD_TXFM_H_
+#ifndef AVM_AV2_ENCODER_HYBRID_FWD_TXFM_H_
+#define AVM_AV2_ENCODER_HYBRID_FWD_TXFM_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
+void av2_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff, int diff_stride,
                   TxfmParam *txfm_param);
 
-void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
+void av2_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param,
                    int64_t *sec_tx_sse);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_HYBRID_FWD_TXFM_H_
+#endif  // AVM_AV2_ENCODER_HYBRID_FWD_TXFM_H_

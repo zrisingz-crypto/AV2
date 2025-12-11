@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/common.h"
-#include "av1/encoder/extend.h"
+#include "av2/common/common.h"
+#include "av2/encoder/extend.h"
 
 static void highbd_copy_and_extend_plane(const uint16_t *src, int src_pitch,
                                          uint16_t *dst, int dst_pitch, int w,
@@ -30,9 +30,9 @@ static void highbd_copy_and_extend_plane(const uint16_t *src, int src_pitch,
   uint16_t *dst_ptr2 = dst + w;
 
   for (i = 0; i < h; i++) {
-    aom_memset16(dst_ptr1, src_ptr1[0], extend_left);
+    avm_memset16(dst_ptr1, src_ptr1[0], extend_left);
     memcpy(dst_ptr1 + extend_left, src_ptr1, w * sizeof(src_ptr1[0]));
-    aom_memset16(dst_ptr2, src_ptr2[0], extend_right);
+    avm_memset16(dst_ptr2, src_ptr2[0], extend_right);
     src_ptr1 += src_pitch;
     src_ptr2 += src_pitch;
     dst_ptr1 += dst_pitch;
@@ -58,15 +58,15 @@ static void highbd_copy_and_extend_plane(const uint16_t *src, int src_pitch,
   }
 }
 
-void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
+void av2_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
                                YV12_BUFFER_CONFIG *dst) {
   // Extend src frame in buffer
   const int et_y = dst->border;
   const int el_y = dst->border;
   const int er_y =
-      AOMMAX(src->y_width + dst->border, ALIGN_POWER_OF_TWO(src->y_width, 6)) -
+      AVMMAX(src->y_width + dst->border, ALIGN_POWER_OF_TWO(src->y_width, 6)) -
       src->y_crop_width;
-  const int eb_y = AOMMAX(src->y_height + dst->border,
+  const int eb_y = AVMMAX(src->y_height + dst->border,
                           ALIGN_POWER_OF_TWO(src->y_height, 6)) -
                    src->y_crop_height;
   const int uv_width_subsampling = (src->uv_width != src->y_width);

@@ -12,13 +12,13 @@
 
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
 
-void aom_highbd_subtract_block_c(int rows, int cols, int16_t *diff,
+void avm_highbd_subtract_block_c(int rows, int cols, int16_t *diff,
                                  ptrdiff_t diff_stride, const uint16_t *src,
                                  ptrdiff_t src_stride, const uint16_t *pred,
                                  ptrdiff_t pred_stride, int bd) {
@@ -37,7 +37,7 @@ void aom_highbd_subtract_block_c(int rows, int cols, int16_t *diff,
 }
 
 // perform vertical subtraction for DPCM lossless mode
-void aom_highbd_subtract_block_vert_c(int rows, int cols, int16_t *diff,
+void avm_highbd_subtract_block_vert_c(int rows, int cols, int16_t *diff,
                                       ptrdiff_t diff_stride,
                                       const uint16_t *src, ptrdiff_t src_stride,
                                       const uint16_t *pred,
@@ -67,7 +67,7 @@ void aom_highbd_subtract_block_vert_c(int rows, int cols, int16_t *diff,
 }
 
 // perform horizontal subtraction for DPCM lossless mode
-void aom_highbd_subtract_block_horz_c(int rows, int cols, int16_t *diff,
+void avm_highbd_subtract_block_horz_c(int rows, int cols, int16_t *diff,
                                       ptrdiff_t diff_stride,
                                       const uint16_t *src, ptrdiff_t src_stride,
                                       const uint16_t *pred,

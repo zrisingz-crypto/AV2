@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/enums.h"
-#include "av1/common/av1_txfm.h"
+#include "av2/common/enums.h"
+#include "av2/common/av2_txfm.h"
 
-void av1_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint16_t *dest,
                                  int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
      0.5 shifts per pixel. */
@@ -77,7 +77,7 @@ void av1_highbd_iwht4x4_16_add_c(const tran_low_t *input, uint16_t *dest,
 }
 
 // perform 16 coefficents 4x4 inverse Hadamard transform for vertical DPCM
-void av1_highbd_iwht4x4_16_vert_add_c(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_iwht4x4_16_vert_add_c(const tran_low_t *input, uint16_t *dest,
                                       int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
      0.5 shifts per pixel. */
@@ -140,7 +140,7 @@ void av1_highbd_iwht4x4_16_vert_add_c(const tran_low_t *input, uint16_t *dest,
 }
 
 // perform 16 coefficents 4x4 inverse Hadamard transform for horizontal DPCM
-void av1_highbd_iwht4x4_16_horz_add_c(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_iwht4x4_16_horz_add_c(const tran_low_t *input, uint16_t *dest,
                                       int stride, int bd) {
   /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
      0.5 shifts per pixel. */
@@ -227,7 +227,7 @@ void av1_highbd_iwht4x4_16_horz_add_c(const tran_low_t *input, uint16_t *dest,
   }
 }
 
-void av1_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint16_t *dest,
+void av2_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint16_t *dest,
                                 int dest_stride, int bd) {
   int i;
   tran_low_t a1, e1;
@@ -260,7 +260,7 @@ void av1_highbd_iwht4x4_1_add_c(const tran_low_t *in, uint16_t *dest,
 }
 
 // perform 1 coefficents 4x4 inverse idetity transform for vertical DPCM
-void av1_highbd_iwht4x4_1_vert_add_c(const tran_low_t *in, uint16_t *dest,
+void av2_highbd_iwht4x4_1_vert_add_c(const tran_low_t *in, uint16_t *dest,
                                      int dest_stride, int bd) {
   int i;
   tran_low_t a1, e1;
@@ -297,7 +297,7 @@ void av1_highbd_iwht4x4_1_vert_add_c(const tran_low_t *in, uint16_t *dest,
 }
 
 // perform 1 coefficents 4x4 inverse idetity transform for horizontal DPCM
-void av1_highbd_iwht4x4_1_horz_add_c(const tran_low_t *in, uint16_t *dest,
+void av2_highbd_iwht4x4_1_horz_add_c(const tran_low_t *in, uint16_t *dest,
                                      int dest_stride, int bd) {
   int i;
   tran_low_t a1, e1;

@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V64_INTRINSICS_ARM_H_
-#define AOM_AOM_DSP_SIMD_V64_INTRINSICS_ARM_H_
+#ifndef AVM_AVM_DSP_SIMD_V64_INTRINSICS_ARM_H_
+#define AVM_AVM_DSP_SIMD_V64_INTRINSICS_ARM_H_
 
 #include <arm_neon.h>
 
-#include "aom_dsp/simd/v64_intrinsics_arm.h"
-#include "aom_ports/arm.h"
+#include "avm_dsp/simd/v64_intrinsics_arm.h"
+#include "avm_ports/arm.h"
 
-#ifdef AOM_INCOMPATIBLE_GCC
+#ifdef AVM_INCOMPATIBLE_GCC
 #error Incompatible gcc
 #endif
 
@@ -682,4 +682,4 @@ SIMD_INLINE v64 v64_shr_n_s32(v64 a, unsigned int c) {
 
 #endif
 
-#endif  // AOM_AOM_DSP_SIMD_V64_INTRINSICS_ARM_H_
+#endif  // AVM_AVM_DSP_SIMD_V64_INTRINSICS_ARM_H_

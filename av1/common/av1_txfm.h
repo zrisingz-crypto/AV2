@@ -10,20 +10,20 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_AV1_TXFM_H_
-#define AOM_AV1_COMMON_AV1_TXFM_H_
+#ifndef AVM_AV2_COMMON_AV2_TXFM_H_
+#define AVM_AV2_COMMON_AV2_TXFM_H_
 
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/enums.h"
-#include "av1/common/blockd.h"
-#include "av1/common/secondary_tx.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "av2/common/enums.h"
+#include "av2/common/blockd.h"
+#include "av2/common/secondary_tx.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +53,7 @@ static const int32_t NewSqrt2 = 5793;
 // 2^12 / sqrt(2)
 static const int32_t NewInvSqrt2 = 2896;
 
-void av1_init_stxfm_kernels(void);
+void av2_init_stxfm_kernels(void);
 
 static INLINE int32_t clamp_value(int32_t value, int8_t bit) {
   if (bit <= 0) return value;  // Do nothing for invalid clamp bit.
@@ -68,13 +68,13 @@ static INLINE int32_t range_check_value(int32_t value, int8_t bit) {
   const int64_t min_value = -(1LL << (bit - 1));
   if (value < min_value || value > max_value) {
     fprintf(stderr, "coeff out of bit range, value: %d bit %d\n", value, bit);
-#if !CONFIG_AV1_ENCODER
+#if !CONFIG_AV2_ENCODER
     assert(0);
 #endif
   }
 #endif  // CONFIG_COEFFICIENT_RANGE_CHECKING
 #if DO_RANGE_CHECK_CLAMP
-  bit = AOMMIN(bit, 31);
+  bit = AVMMIN(bit, 31);
   return clamp(value, -(1 << (bit - 1)), (1 << (bit - 1)) - 1);
 #endif  // DO_RANGE_CHECK_CLAMP
   (void)bit;
@@ -95,4 +95,4 @@ static INLINE uint16_t highbd_clip_pixel_add(uint16_t dest, tran_high_t trans,
 }
 #endif  // __cplusplus
 
-#endif  // AOM_AV1_COMMON_AV1_TXFM_H_
+#endif  // AVM_AV2_COMMON_AV2_TXFM_H_

@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RATECTRL_H_
-#define AOM_AV1_ENCODER_RATECTRL_H_
+#ifndef AVM_AV2_ENCODER_RATECTRL_H_
+#define AVM_AV2_ENCODER_RATECTRL_H_
 
-#include "aom/aom_codec.h"
-#include "aom/aom_integer.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_integer.h"
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -287,39 +287,39 @@ typedef struct {
 
 /*!\cond */
 
-struct AV1_COMP;
-struct AV1EncoderConfig;
+struct AV2_COMP;
+struct AV2EncoderConfig;
 
-void av1_rc_init(const struct AV1EncoderConfig *oxcf, int pass,
+void av2_rc_init(const struct AV2EncoderConfig *oxcf, int pass,
                  RATE_CONTROL *rc);
 
-int av1_estimate_bits_at_q(FRAME_TYPE frame_kind, int q, int mbs,
-                           double correction_factor, aom_bit_depth_t bit_depth,
+int av2_estimate_bits_at_q(FRAME_TYPE frame_kind, int q, int mbs,
+                           double correction_factor, avm_bit_depth_t bit_depth,
                            const int is_screen_content_type);
 
-double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth);
+double av2_convert_qindex_to_q(int qindex, avm_bit_depth_t bit_depth);
 
-void av1_rc_init_minq_luts(void);
+void av2_rc_init_minq_luts(void);
 
-int av1_rc_get_default_min_gf_interval(int width, int height, double framerate);
-// Note av1_rc_get_default_max_gf_interval() requires the min_gf_interval to
+int av2_rc_get_default_min_gf_interval(int width, int height, double framerate);
+// Note av2_rc_get_default_max_gf_interval() requires the min_gf_interval to
 // be passed in to ensure that the max_gf_interval returned is at least as bis
 // as that.
-int av1_rc_get_default_max_gf_interval(double framerate, int min_gf_interval);
+int av2_rc_get_default_max_gf_interval(double framerate, int min_gf_interval);
 
 // Generally at the high level, the following flow is expected
 // to be enforced for rate control:
 // Call encode_frame_to_data_rate() to perform the
 // actual encode. This function will in turn call encode_frame()
 // one or more times, followed by one of:
-//   av1_rc_postencode_update()
-//   av1_rc_postencode_update_drop_frame()
+//   av2_rc_postencode_update()
+//   av2_rc_postencode_update_drop_frame()
 //
 // The majority of rate control parameters are only expected
-// to be set in the av1_rc_get_..._params() functions and
-// updated during the av1_rc_postencode_update...() functions.
-// The only exceptions are av1_rc_drop_frame() and
-// av1_rc_update_rate_correction_factors() functions.
+// to be set in the av2_rc_get_..._params() functions and
+// updated during the av2_rc_postencode_update...() functions.
+// The only exceptions are av2_rc_drop_frame() and
+// av2_rc_update_rate_correction_factors() functions.
 
 // Functions to set parameters for encoding before the actual
 // encode_frame_to_data_rate() function.
@@ -327,9 +327,9 @@ struct EncodeFrameParams;
 
 // Post encode update of the rate control parameters based
 // on bytes used
-void av1_rc_postencode_update(struct AV1_COMP *cpi, uint64_t bytes_used);
+void av2_rc_postencode_update(struct AV2_COMP *cpi, uint64_t bytes_used);
 // Post encode update of the rate control parameters for dropped frames
-void av1_rc_postencode_update_drop_frame(struct AV1_COMP *cpi);
+void av2_rc_postencode_update_drop_frame(struct AV2_COMP *cpi);
 
 /*!\endcond */
 /*!\brief Updates the rate correction factor linking Q to output bits
@@ -344,16 +344,16 @@ void av1_rc_postencode_update_drop_frame(struct AV1_COMP *cpi);
  *
  * No return value but updates the relevant rate correction factor in cpi->rc
  */
-void av1_rc_update_rate_correction_factors(struct AV1_COMP *cpi, int width,
+void av2_rc_update_rate_correction_factors(struct AV2_COMP *cpi, int width,
                                            int height);
 /*!\cond */
 
 // Decide if we should drop this frame: For 1-pass CBR.
 // Changes only the decimation count in the rate control structure
-int av1_rc_drop_frame(struct AV1_COMP *cpi);
+int av2_rc_drop_frame(struct AV2_COMP *cpi);
 
 // Computes frame size bounds.
-void av1_rc_compute_frame_size_bounds(const struct AV1_COMP *cpi,
+void av2_rc_compute_frame_size_bounds(const struct AV2_COMP *cpi,
                                       int this_frame_target,
                                       int *frame_under_shoot_limit,
                                       int *frame_over_shoot_limit);
@@ -373,7 +373,7 @@ void av1_rc_compute_frame_size_bounds(const struct AV1_COMP *cpi,
  * \return Returns selected q index to be used for encoding this frame.
  * Also, updates \c rc->level1_qp.
  */
-int av1_rc_pick_q_and_bounds(const struct AV1_COMP *cpi, RATE_CONTROL *rc,
+int av2_rc_pick_q_and_bounds(const struct AV2_COMP *cpi, RATE_CONTROL *rc,
                              int width, int height, int gf_index,
                              int *bottom_index, int *top_index);
 
@@ -389,51 +389,51 @@ int av1_rc_pick_q_and_bounds(const struct AV1_COMP *cpi, RATE_CONTROL *rc,
  *
  * \return Returns a q index value
  */
-int av1_rc_regulate_q(const struct AV1_COMP *cpi, int target_bits_per_frame,
+int av2_rc_regulate_q(const struct AV2_COMP *cpi, int target_bits_per_frame,
                       int active_best_quality, int active_worst_quality,
                       int width, int height);
 
 /*!\cond */
 // Estimates bits per mb for a given qindex and correction factor.
-int av1_rc_bits_per_mb(FRAME_TYPE frame_type, int qindex,
-                       double correction_factor, aom_bit_depth_t bit_depth,
+int av2_rc_bits_per_mb(FRAME_TYPE frame_type, int qindex,
+                       double correction_factor, avm_bit_depth_t bit_depth,
                        const int is_screen_content_type);
 
 // Clamping utilities for bitrate targets for iframes and pframes.
-int av1_rc_clamp_iframe_target_size(const struct AV1_COMP *const cpi,
+int av2_rc_clamp_iframe_target_size(const struct AV2_COMP *const cpi,
                                     int target);
-int av1_rc_clamp_pframe_target_size(const struct AV1_COMP *const cpi,
+int av2_rc_clamp_pframe_target_size(const struct AV2_COMP *const cpi,
                                     int target, uint8_t frame_update_type);
 
 // Find q_index corresponding to desired_q, within [best_qindex, worst_qindex].
 // To be precise, 'q_index' is the smallest integer, for which the corresponding
 // q >= desired_q.
 // If no such q index is found, returns 'worst_qindex'.
-int av1_find_qindex(double desired_q, aom_bit_depth_t bit_depth,
+int av2_find_qindex(double desired_q, avm_bit_depth_t bit_depth,
                     int best_qindex, int worst_qindex);
 
 // Computes a q delta (in "q index" terms) to get from a starting q value
 // to a target q value
-int av1_compute_qdelta(const RATE_CONTROL *rc, double qstart, double qtarget,
-                       aom_bit_depth_t bit_depth);
+int av2_compute_qdelta(const RATE_CONTROL *rc, double qstart, double qtarget,
+                       avm_bit_depth_t bit_depth);
 
 // Computes a q delta (in "q index" terms) to get from a starting q value
 // to a value that should equate to the given rate ratio.
-int av1_compute_qdelta_by_rate(const RATE_CONTROL *rc, FRAME_TYPE frame_type,
+int av2_compute_qdelta_by_rate(const RATE_CONTROL *rc, FRAME_TYPE frame_type,
                                int qindex, double rate_target_ratio,
                                const int is_screen_content_type,
-                               aom_bit_depth_t bit_depth);
+                               avm_bit_depth_t bit_depth);
 
-int av1_frame_type_qdelta(const struct AV1_COMP *cpi, int q);
+int av2_frame_type_qdelta(const struct AV2_COMP *cpi, int q);
 
-void av1_rc_update_framerate(struct AV1_COMP *cpi, int width, int height);
+void av2_rc_update_framerate(struct AV2_COMP *cpi, int width, int height);
 
-void av1_rc_set_gf_interval_range(const struct AV1_COMP *const cpi,
+void av2_rc_set_gf_interval_range(const struct AV2_COMP *const cpi,
                                   RATE_CONTROL *const rc);
 
-void av1_set_target_rate(struct AV1_COMP *cpi, int width, int height);
+void av2_set_target_rate(struct AV2_COMP *cpi, int width, int height);
 
-void av1_rc_set_frame_target(struct AV1_COMP *cpi, int target, int width,
+void av2_rc_set_frame_target(struct AV2_COMP *cpi, int target, int width,
                              int height);
 
 /*!\endcond */
@@ -448,8 +448,8 @@ void av1_rc_set_frame_target(struct AV1_COMP *cpi, int target, int width,
  *
  * \return	Returns the target number of bits for this frame.
  */
-int av1_calc_pframe_target_size_one_pass_vbr(
-    const struct AV1_COMP *const cpi, FRAME_UPDATE_TYPE frame_update_type);
+int av2_calc_pframe_target_size_one_pass_vbr(
+    const struct AV2_COMP *const cpi, FRAME_UPDATE_TYPE frame_update_type);
 
 /*!\brief Calculates how many bits to use for an i frame in one pass vbr
  *
@@ -461,7 +461,7 @@ int av1_calc_pframe_target_size_one_pass_vbr(
  *
  * \return	Returns the target number of bits for this frame.
  */
-int av1_calc_iframe_target_size_one_pass_vbr(const struct AV1_COMP *const cpi);
+int av2_calc_iframe_target_size_one_pass_vbr(const struct AV2_COMP *const cpi);
 
 /*!\brief Calculates how many bits to use for a P frame in one pass cbr
  *
@@ -474,8 +474,8 @@ int av1_calc_iframe_target_size_one_pass_vbr(const struct AV1_COMP *const cpi);
  *
  * \return  Returns the target number of bits for this frame.
  */
-int av1_calc_pframe_target_size_one_pass_cbr(
-    const struct AV1_COMP *cpi, FRAME_UPDATE_TYPE frame_update_type);
+int av2_calc_pframe_target_size_one_pass_cbr(
+    const struct AV2_COMP *cpi, FRAME_UPDATE_TYPE frame_update_type);
 
 /*!\brief Calculates how many bits to use for an i frame in one pass cbr
  *
@@ -487,10 +487,10 @@ int av1_calc_pframe_target_size_one_pass_cbr(
  *
  * \return  Returns the target number of bits for this frame.
  */
-int av1_calc_iframe_target_size_one_pass_cbr(const struct AV1_COMP *cpi);
+int av2_calc_iframe_target_size_one_pass_cbr(const struct AV2_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RATECTRL_H_
+#endif  // AVM_AV2_ENCODER_RATECTRL_H_

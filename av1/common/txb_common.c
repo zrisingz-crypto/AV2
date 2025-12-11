@@ -9,25 +9,25 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#include "aom/aom_integer.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/txb_common.h"
+#include "avm/avm_integer.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/txb_common.h"
 
 // The ctx offset table when TX is TX_CLASS_2D.
 // TX col and row indices are clamped to 4
 
-const int8_t av1_nz_map_ctx_offset_4x4[16] = {
+const int8_t av2_nz_map_ctx_offset_4x4[16] = {
   0, 1, 6, 6, 1, 6, 6, 21, 6, 6, 21, 21, 6, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_8x8[64] = {
+const int8_t av2_nz_map_ctx_offset_8x8[64] = {
   0,  1,  6,  6,  21, 21, 21, 21, 1,  6,  6,  21, 21, 21, 21, 21,
   6,  6,  21, 21, 21, 21, 21, 21, 6,  21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_16x16[256] = {
+const int8_t av2_nz_map_ctx_offset_16x16[256] = {
   0,  1,  6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 1,  6,  6,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 6,  6,  21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 6,  21, 21, 21, 21, 21, 21, 21, 21,
@@ -44,7 +44,7 @@ const int8_t av1_nz_map_ctx_offset_16x16[256] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_32x32[1024] = {
+const int8_t av2_nz_map_ctx_offset_32x32[1024] = {
   0,  1,  6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 1,  6,  6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -101,12 +101,12 @@ const int8_t av1_nz_map_ctx_offset_32x32[1024] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_8x4[32] = {
+const int8_t av2_nz_map_ctx_offset_8x4[32] = {
   0,  16, 6,  6,  21, 21, 21, 21, 16, 16, 6,  21, 21, 21, 21, 21,
   16, 16, 21, 21, 21, 21, 21, 21, 16, 16, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_8x16[128] = {
+const int8_t av2_nz_map_ctx_offset_8x16[128] = {
   0,  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 6,  6,  21,
   21, 21, 21, 21, 21, 6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -116,7 +116,7 @@ const int8_t av1_nz_map_ctx_offset_8x16[128] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_16x8[128] = {
+const int8_t av2_nz_map_ctx_offset_16x8[128] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 6,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 21, 21, 21, 21, 21, 21, 21,
@@ -126,7 +126,7 @@ const int8_t av1_nz_map_ctx_offset_16x8[128] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_16x32[512] = {
+const int8_t av2_nz_map_ctx_offset_16x32[512] = {
   0,  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
   11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 6,  6,  21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 6,  21, 21, 21, 21, 21, 21, 21, 21,
@@ -156,7 +156,7 @@ const int8_t av1_nz_map_ctx_offset_16x32[512] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_32x16[512] = {
+const int8_t av2_nz_map_ctx_offset_32x16[512] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -186,7 +186,7 @@ const int8_t av1_nz_map_ctx_offset_32x16[512] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_32x64[1024] = {
+const int8_t av2_nz_map_ctx_offset_32x64[1024] = {
   0,  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
   11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
   11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
@@ -243,7 +243,7 @@ const int8_t av1_nz_map_ctx_offset_32x64[1024] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_64x32[1024] = {
+const int8_t av2_nz_map_ctx_offset_64x32[1024] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -300,21 +300,21 @@ const int8_t av1_nz_map_ctx_offset_64x32[1024] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_4x16[64] = {
+const int8_t av2_nz_map_ctx_offset_4x16[64] = {
   0,  11, 11, 11, 11, 11, 11, 11, 6,  6,  21, 21, 6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_16x4[64] = {
+const int8_t av2_nz_map_ctx_offset_16x4[64] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   16, 16, 6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   16, 16, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   16, 16, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_8x32[256] = {
+const int8_t av2_nz_map_ctx_offset_8x32[256] = {
   0,  11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 6,  6,  21,
   21, 21, 21, 21, 21, 6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -331,7 +331,7 @@ const int8_t av1_nz_map_ctx_offset_8x32[256] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_32x8[256] = {
+const int8_t av2_nz_map_ctx_offset_32x8[256] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -348,7 +348,7 @@ const int8_t av1_nz_map_ctx_offset_32x8[256] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_4x32[128] = {
+const int8_t av2_nz_map_ctx_offset_4x32[128] = {
   0,  11, 11, 11, 11, 11, 11, 11, 6,  6,  21, 21, 6,  21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -358,7 +358,7 @@ const int8_t av1_nz_map_ctx_offset_4x32[128] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t av1_nz_map_ctx_offset_32x4[128] = {
+const int8_t av2_nz_map_ctx_offset_32x4[128] = {
   0,  16, 6,  6,  21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 16, 16, 6,  21, 21, 21,
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
@@ -368,37 +368,37 @@ const int8_t av1_nz_map_ctx_offset_32x4[128] = {
   21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
 };
 
-const int8_t *av1_nz_map_ctx_offset[TX_SIZES_ALL] = {
-  av1_nz_map_ctx_offset_4x4,    // TX_4x4
-  av1_nz_map_ctx_offset_8x8,    // TX_8x8
-  av1_nz_map_ctx_offset_16x16,  // TX_16x16
-  av1_nz_map_ctx_offset_32x32,  // TX_32x32
-  av1_nz_map_ctx_offset_32x32,  // TX_32x32
-  av1_nz_map_ctx_offset_4x16,   // TX_4x8
-  av1_nz_map_ctx_offset_8x4,    // TX_8x4
-  av1_nz_map_ctx_offset_8x32,   // TX_8x16
-  av1_nz_map_ctx_offset_16x8,   // TX_16x8
-  av1_nz_map_ctx_offset_16x32,  // TX_16x32
-  av1_nz_map_ctx_offset_32x16,  // TX_32x16
-  av1_nz_map_ctx_offset_32x64,  // TX_32x64
-  av1_nz_map_ctx_offset_64x32,  // TX_64x32
-  av1_nz_map_ctx_offset_4x16,   // TX_4x16
-  av1_nz_map_ctx_offset_16x4,   // TX_16x4
-  av1_nz_map_ctx_offset_8x32,   // TX_8x32
-  av1_nz_map_ctx_offset_32x8,   // TX_32x8
-  av1_nz_map_ctx_offset_16x32,  // TX_16x64
-  av1_nz_map_ctx_offset_64x32,  // TX_64x16
-  av1_nz_map_ctx_offset_4x32,   // TX_4x32
-  av1_nz_map_ctx_offset_32x4,   // TX_32x4
-  av1_nz_map_ctx_offset_8x32,   // TX_8x64
-  av1_nz_map_ctx_offset_32x8,   // TX_64x8
-  av1_nz_map_ctx_offset_4x32,   // TX_4x64
-  av1_nz_map_ctx_offset_32x4,   // TX_64x4
+const int8_t *av2_nz_map_ctx_offset[TX_SIZES_ALL] = {
+  av2_nz_map_ctx_offset_4x4,    // TX_4x4
+  av2_nz_map_ctx_offset_8x8,    // TX_8x8
+  av2_nz_map_ctx_offset_16x16,  // TX_16x16
+  av2_nz_map_ctx_offset_32x32,  // TX_32x32
+  av2_nz_map_ctx_offset_32x32,  // TX_32x32
+  av2_nz_map_ctx_offset_4x16,   // TX_4x8
+  av2_nz_map_ctx_offset_8x4,    // TX_8x4
+  av2_nz_map_ctx_offset_8x32,   // TX_8x16
+  av2_nz_map_ctx_offset_16x8,   // TX_16x8
+  av2_nz_map_ctx_offset_16x32,  // TX_16x32
+  av2_nz_map_ctx_offset_32x16,  // TX_32x16
+  av2_nz_map_ctx_offset_32x64,  // TX_32x64
+  av2_nz_map_ctx_offset_64x32,  // TX_64x32
+  av2_nz_map_ctx_offset_4x16,   // TX_4x16
+  av2_nz_map_ctx_offset_16x4,   // TX_16x4
+  av2_nz_map_ctx_offset_8x32,   // TX_8x32
+  av2_nz_map_ctx_offset_32x8,   // TX_32x8
+  av2_nz_map_ctx_offset_16x32,  // TX_16x64
+  av2_nz_map_ctx_offset_64x32,  // TX_64x16
+  av2_nz_map_ctx_offset_4x32,   // TX_4x32
+  av2_nz_map_ctx_offset_32x4,   // TX_32x4
+  av2_nz_map_ctx_offset_8x32,   // TX_8x64
+  av2_nz_map_ctx_offset_32x8,   // TX_64x8
+  av2_nz_map_ctx_offset_4x32,   // TX_4x64
+  av2_nz_map_ctx_offset_32x4,   // TX_64x4
 };
 
-const int16_t av1_eob_group_start[12] = { 0,  1,  2,  3,   5,   9,
+const int16_t av2_eob_group_start[12] = { 0,  1,  2,  3,   5,   9,
                                           17, 33, 65, 129, 257, 513 };
-const int16_t av1_eob_offset_bits[12] = { 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+const int16_t av2_eob_offset_bits[12] = { 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 // DCT-2
 const int tx_kernel_dct2_size4[TXFM_DIRECTIONS][4][4] = {

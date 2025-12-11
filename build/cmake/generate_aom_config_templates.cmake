@@ -34,8 +34,8 @@ set(h_file_header_block
  * License 1.0 was not distributed with this source code in the PATENTS file, you
  * can obtain it at aomedia.org/license/patent-license/.
  */
-\#ifndef AOM_CONFIG_H_
-\#define AOM_CONFIG_H_
+\#ifndef AVM_CONFIG_H_
+\#define AVM_CONFIG_H_
 ")
 set(cmake_file_header_block
     "##
@@ -62,34 +62,34 @@ function(check_directory_var var_name)
   endif()
 endfunction()
 
-check_directory_var(AOM_CONFIG_DIR)
-check_directory_var(AOM_ROOT)
+check_directory_var(AVM_CONFIG_DIR)
+check_directory_var(AVM_ROOT)
 
-set(AOM_DEFAULTS "${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
-if(NOT EXISTS "${AOM_DEFAULTS}")
+set(AVM_DEFAULTS "${AVM_ROOT}/build/cmake/avm_config_defaults.cmake")
+if(NOT EXISTS "${AVM_DEFAULTS}")
   message(
-    FATAL_ERROR "Configuration default values file (${AOM_DEFAULTS}) missing.")
+    FATAL_ERROR "Configuration default values file (${AVM_DEFAULTS}) missing.")
 endif()
 
-include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
-list(APPEND aom_build_vars ${AOM_DETECT_VARS} ${AOM_CONFIG_VARS})
-list(SORT aom_build_vars)
+include("${AVM_ROOT}/build/cmake/avm_config_defaults.cmake")
+list(APPEND avm_build_vars ${AVM_DETECT_VARS} ${AVM_CONFIG_VARS})
+list(SORT avm_build_vars)
 
-set(aom_config_h_template "${AOM_CONFIG_DIR}/config/aom_config.h.cmake")
-file(WRITE "${aom_config_h_template}" ${h_file_header_block})
-foreach(aom_var ${aom_build_vars})
-  if(NOT "${aom_var}" STREQUAL "AOM_RTCD_FLAGS")
-    file(APPEND "${aom_config_h_template}"
-         "\#define ${aom_var} \${${aom_var}}\n")
+set(avm_config_h_template "${AVM_CONFIG_DIR}/config/avm_config.h.cmake")
+file(WRITE "${avm_config_h_template}" ${h_file_header_block})
+foreach(avm_var ${avm_build_vars})
+  if(NOT "${avm_var}" STREQUAL "AVM_RTCD_FLAGS")
+    file(APPEND "${avm_config_h_template}"
+         "\#define ${avm_var} \${${avm_var}}\n")
   endif()
 endforeach()
-file(APPEND "${aom_config_h_template}" "\#endif  // AOM_CONFIG_H_")
+file(APPEND "${avm_config_h_template}" "\#endif  // AVM_CONFIG_H_")
 
-set(aom_asm_config_template "${AOM_CONFIG_DIR}/config/aom_config.asm.cmake")
-file(WRITE "${aom_asm_config_template}" ${asm_file_header_block})
-foreach(aom_var ${aom_build_vars})
-  if(NOT "${aom_var}" STREQUAL "INLINE" AND NOT "${aom_var}" STREQUAL
-                                            "AOM_RTCD_FLAGS")
-    file(APPEND "${aom_asm_config_template}" "${aom_var} equ \${${aom_var}}\n")
+set(avm_asm_config_template "${AVM_CONFIG_DIR}/config/avm_config.asm.cmake")
+file(WRITE "${avm_asm_config_template}" ${asm_file_header_block})
+foreach(avm_var ${avm_build_vars})
+  if(NOT "${avm_var}" STREQUAL "INLINE" AND NOT "${avm_var}" STREQUAL
+                                            "AVM_RTCD_FLAGS")
+    file(APPEND "${avm_asm_config_template}" "${avm_var} equ \${${avm_var}}\n")
   endif()
 endforeach()

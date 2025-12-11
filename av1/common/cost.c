@@ -11,11 +11,11 @@
  */
 #include <assert.h>
 
-#include "av1/common/cost.h"
-#include "av1/common/entropy.h"
+#include "av2/common/cost.h"
+#include "av2/common/entropy.h"
 
-// round(-log2(i/256.) * (1 << AV1_PROB_COST_SHIFT)); i = 128~255.
-const uint16_t av1_prob_cost[128] = {
+// round(-log2(i/256.) * (1 << AV2_PROB_COST_SHIFT)); i = 128~255.
+const uint16_t av2_prob_cost[128] = {
   512, 506, 501, 495, 489, 484, 478, 473, 467, 462, 456, 451, 446, 441, 435,
   430, 425, 420, 415, 410, 405, 400, 395, 390, 385, 380, 375, 371, 366, 361,
   356, 352, 347, 343, 338, 333, 329, 324, 320, 316, 311, 307, 302, 298, 294,
@@ -27,16 +27,16 @@ const uint16_t av1_prob_cost[128] = {
   23,  20,  18,  15,  12,  9,   6,   3,
 };
 
-void av1_cost_tokens_from_cdf(int *costs, const aom_cdf_prob *cdf,
+void av2_cost_tokens_from_cdf(int *costs, const avm_cdf_prob *cdf,
                               const int nsym, const int *inv_map) {
-  aom_cdf_prob p0 = CDF_PROB_TOP;
+  avm_cdf_prob p0 = CDF_PROB_TOP;
   for (int i = 0; i < nsym; i++) {
-    aom_cdf_prob p1 = get_adjusted_prob(cdf[i], i, nsym);
-    aom_cdf_prob p15 = p0 - p1;
+    avm_cdf_prob p1 = get_adjusted_prob(cdf[i], i, nsym);
+    avm_cdf_prob p15 = p0 - p1;
     p0 = p1;
     if (inv_map)
-      costs[inv_map[i]] = av1_cost_symbol(p15);
+      costs[inv_map[i]] = av2_cost_symbol(p15);
     else
-      costs[i] = av1_cost_symbol(p15);
+      costs[i] = av2_cost_symbol(p15);
   }
 }

@@ -12,13 +12,13 @@
 
 #include <assert.h>
 
-#include "config/aom_config.h"
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
-#include "aom_scale/yv12config.h"
+#include "avm/avm_integer.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
+#include "avm_scale/yv12config.h"
 
 static void extend_plane_high(uint16_t *const src, int src_stride, int width,
                               int height, int extend_top, int extend_left,
@@ -33,8 +33,8 @@ static void extend_plane_high(uint16_t *const src, int src_stride, int width,
   uint16_t *dst_ptr2 = src + width;
 
   for (i = 0; i < height; ++i) {
-    aom_memset16(dst_ptr1, src_ptr1[0], extend_left);
-    aom_memset16(dst_ptr2, src_ptr2[0], extend_right);
+    avm_memset16(dst_ptr1, src_ptr1[0], extend_left);
+    avm_memset16(dst_ptr2, src_ptr2[0], extend_right);
     src_ptr1 += src_stride;
     src_ptr2 += src_stride;
     dst_ptr1 += src_stride;
@@ -82,22 +82,22 @@ static void extend_frame(YV12_BUFFER_CONFIG *const ybf, int ext_size,
   }
 }
 
-void aom_extend_frame_borders_c(YV12_BUFFER_CONFIG *ybf, const int num_planes,
+void avm_extend_frame_borders_c(YV12_BUFFER_CONFIG *ybf, const int num_planes,
                                 bool decoding) {
   (void)decoding;
   // if (decoding) return;
   extend_frame(ybf, ybf->border, num_planes);
 }
 
-void aom_extend_frame_inner_borders_c(YV12_BUFFER_CONFIG *ybf,
+void avm_extend_frame_inner_borders_c(YV12_BUFFER_CONFIG *ybf,
                                       const int num_planes) {
-  const int inner_bw = (ybf->border > AOMINNERBORDERINPIXELS)
-                           ? AOMINNERBORDERINPIXELS
+  const int inner_bw = (ybf->border > AVMINNERBORDERINPIXELS)
+                           ? AVMINNERBORDERINPIXELS
                            : ybf->border;
   extend_frame(ybf, inner_bw, num_planes);
 }
 
-void aom_extend_frame_borders_y_c(YV12_BUFFER_CONFIG *ybf) {
+void avm_extend_frame_borders_y_c(YV12_BUFFER_CONFIG *ybf) {
   int ext_size = ybf->border;
   assert(ybf->y_height - ybf->y_crop_height < 16);
   assert(ybf->y_width - ybf->y_crop_width < 16);
@@ -111,7 +111,7 @@ void aom_extend_frame_borders_y_c(YV12_BUFFER_CONFIG *ybf) {
 // Copies the source image into the destination image and updates the
 // destination's UMV borders.
 // Note: The frames are assumed to be identical in size.
-void aom_yv12_copy_frame_c(const YV12_BUFFER_CONFIG *src_bc,
+void avm_yv12_copy_frame_c(const YV12_BUFFER_CONFIG *src_bc,
                            YV12_BUFFER_CONFIG *dst_bc, const int num_planes) {
   assert(src_bc->y_width == dst_bc->y_width);
   assert(src_bc->y_height == dst_bc->y_height);
@@ -127,10 +127,10 @@ void aom_yv12_copy_frame_c(const YV12_BUFFER_CONFIG *src_bc,
       plane_dst += dst_bc->strides[is_uv];
     }
   }
-  aom_extend_frame_borders(dst_bc, num_planes, 0);
+  avm_extend_frame_borders(dst_bc, num_planes, 0);
 }
 
-void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
+void avm_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
                        YV12_BUFFER_CONFIG *dst_ybc) {
   int row;
   const uint16_t *src = src_ybc->y_buffer;
@@ -143,7 +143,7 @@ void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
   }
 }
 
-void aom_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
+void avm_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
                        YV12_BUFFER_CONFIG *dst_bc) {
   int row;
   const uint16_t *src = src_bc->u_buffer;
@@ -156,7 +156,7 @@ void aom_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
   }
 }
 
-void aom_yv12_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
+void avm_yv12_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
                        YV12_BUFFER_CONFIG *dst_bc) {
   int row;
   const uint16_t *src = src_bc->v_buffer;
@@ -169,7 +169,7 @@ void aom_yv12_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
   }
 }
 
-void aom_yv12_partial_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc, int hstart1,
+void avm_yv12_partial_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc, int hstart1,
                                int hend1, int vstart1, int vend1,
                                YV12_BUFFER_CONFIG *dst_ybc, int hstart2,
                                int vstart2) {
@@ -185,14 +185,14 @@ void aom_yv12_partial_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc, int hstart1,
   }
 }
 
-void aom_yv12_partial_coloc_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
+void avm_yv12_partial_coloc_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
                                      YV12_BUFFER_CONFIG *dst_ybc, int hstart,
                                      int hend, int vstart, int vend) {
-  aom_yv12_partial_copy_y_c(src_ybc, hstart, hend, vstart, vend, dst_ybc,
+  avm_yv12_partial_copy_y_c(src_ybc, hstart, hend, vstart, vend, dst_ybc,
                             hstart, vstart);
 }
 
-void aom_yv12_partial_copy_u_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
+void avm_yv12_partial_copy_u_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
                                int hend1, int vstart1, int vend1,
                                YV12_BUFFER_CONFIG *dst_bc, int hstart2,
                                int vstart2) {
@@ -208,14 +208,14 @@ void aom_yv12_partial_copy_u_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
   }
 }
 
-void aom_yv12_partial_coloc_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
+void avm_yv12_partial_coloc_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
                                      YV12_BUFFER_CONFIG *dst_bc, int hstart,
                                      int hend, int vstart, int vend) {
-  aom_yv12_partial_copy_u_c(src_bc, hstart, hend, vstart, vend, dst_bc, hstart,
+  avm_yv12_partial_copy_u_c(src_bc, hstart, hend, vstart, vend, dst_bc, hstart,
                             vstart);
 }
 
-void aom_yv12_partial_copy_v_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
+void avm_yv12_partial_copy_v_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
                                int hend1, int vstart1, int vend1,
                                YV12_BUFFER_CONFIG *dst_bc, int hstart2,
                                int vstart2) {
@@ -231,29 +231,29 @@ void aom_yv12_partial_copy_v_c(const YV12_BUFFER_CONFIG *src_bc, int hstart1,
   }
 }
 
-void aom_yv12_partial_coloc_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
+void avm_yv12_partial_coloc_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
                                      YV12_BUFFER_CONFIG *dst_bc, int hstart,
                                      int hend, int vstart, int vend) {
-  aom_yv12_partial_copy_v_c(src_bc, hstart, hend, vstart, vend, dst_bc, hstart,
+  avm_yv12_partial_copy_v_c(src_bc, hstart, hend, vstart, vend, dst_bc, hstart,
                             vstart);
 }
 
-int aom_yv12_realloc_with_new_border_c(YV12_BUFFER_CONFIG *ybf, int new_border,
+int avm_yv12_realloc_with_new_border_c(YV12_BUFFER_CONFIG *ybf, int new_border,
                                        int byte_alignment, int num_planes,
                                        bool alloc_pyramid) {
   if (ybf) {
     if (new_border == ybf->border) return 0;
     YV12_BUFFER_CONFIG new_buf;
     memset(&new_buf, 0, sizeof(new_buf));
-    const int error = aom_alloc_frame_buffer(
+    const int error = avm_alloc_frame_buffer(
         &new_buf, ybf->y_width, ybf->y_height, ybf->subsampling_x,
         ybf->subsampling_y, new_border, byte_alignment, alloc_pyramid);
     if (error) return error;
     // Copy image buffer
-    aom_yv12_copy_frame(ybf, &new_buf, num_planes);
+    avm_yv12_copy_frame(ybf, &new_buf, num_planes);
 
     // Now free the old buffer and replace with the new
-    aom_free_frame_buffer(ybf);
+    avm_free_frame_buffer(ybf);
     memcpy(ybf, &new_buf, sizeof(new_buf));
     return 0;
   }

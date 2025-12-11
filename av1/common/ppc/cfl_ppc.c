@@ -12,9 +12,9 @@
 
 #include <altivec.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cfl.h"
+#include "av2/common/cfl.h"
 
 #define OFF_0 0
 #define OFF_1 16

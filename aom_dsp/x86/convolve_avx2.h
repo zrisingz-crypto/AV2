@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_CONVOLVE_AVX2_H_
-#define AOM_AOM_DSP_X86_CONVOLVE_AVX2_H_
+#ifndef AVM_AVM_DSP_X86_CONVOLVE_AVX2_H_
+#define AVM_AVM_DSP_X86_CONVOLVE_AVX2_H_
 
 // filters for 16
 DECLARE_ALIGNED(32, static const uint8_t, filt_global_avx2[]) = {
@@ -434,7 +434,7 @@ DECLARE_ALIGNED(32, static const uint8_t, filt4_global_avx2[32]) = {
 static INLINE void prepare_coeffs_lowbd(
     const InterpFilterParams *const filter_params, const int subpel_q4,
     __m256i *const coeffs /* [4] */) {
-  const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *const filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
   const __m128i coeffs_8 = _mm_loadu_si128((__m128i *)filter);
   const __m256i filter_coeffs = _mm256_broadcastsi128_si256(coeffs_8);
@@ -462,7 +462,7 @@ static INLINE void prepare_coeffs_lowbd(
 static INLINE void prepare_coeffs_6t_lowbd(
     const InterpFilterParams *const filter_params, const int subpel_q4,
     __m256i *const coeffs /* [4] */) {
-  const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *const filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
   const __m128i coeffs_8 = _mm_loadu_si128((__m128i *)filter);
   const __m256i filter_coeffs = _mm256_broadcastsi128_si256(coeffs_8);
@@ -488,7 +488,7 @@ static INLINE void prepare_coeffs_6t_lowbd(
 static INLINE void prepare_coeffs_6t(
     const InterpFilterParams *const filter_params, const int subpel_q4,
     __m256i *const coeffs /* [4] */) {
-  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
 
   const __m128i coeff_8 = _mm_loadu_si128((__m128i *)(filter + 1));
@@ -505,7 +505,7 @@ static INLINE void prepare_coeffs_6t(
 static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
                                   const int subpel_q4,
                                   __m256i *const coeffs /* [4] */) {
-  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
 
   const __m128i coeff_8 = _mm_loadu_si128((__m128i *)filter);
@@ -524,7 +524,7 @@ static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
 static INLINE void prepare_coeffs_4t(
     const InterpFilterParams *const filter_params, const int subpel_q4,
     __m256i *const coeffs /* [4] */) {
-  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
 
   const __m128i coeff_8 = _mm_loadu_si128((__m128i *)filter);
@@ -540,7 +540,7 @@ static INLINE void prepare_coeffs_4t(
 // filter.
 static INLINE __m256i prepare_coeffs_bilinear(
     const InterpFilterParams *const filter_params, const int subpel_q4) {
-  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *filter = av2_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
   const int16_t *filter_pos = filter;
   if (filter_params->taps == 8) filter_pos = filter + 3;
@@ -730,4 +730,4 @@ static INLINE __m256i highbd_convolve_rounding(
   return res_round;
 }
 
-#endif  // AOM_AOM_DSP_X86_CONVOLVE_AVX2_H_
+#endif  // AVM_AVM_DSP_X86_CONVOLVE_AVX2_H_

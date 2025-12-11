@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_CONVOLVE_SSE4_1_H_
-#define AOM_AOM_DSP_X86_CONVOLVE_SSE4_1_H_
+#ifndef AVM_AVM_DSP_X86_CONVOLVE_SSE4_1_H_
+#define AVM_AVM_DSP_X86_CONVOLVE_SSE4_1_H_
 
 // Note:
 //  This header file should be put below any x86 intrinsics head file
 
-void av1_ext_highbd_warp_horiz_sse4_1(const uint16_t *ref, __m128i *tmp,
+void av2_ext_highbd_warp_horiz_sse4_1(const uint16_t *ref, __m128i *tmp,
                                       int stride, int32_t ix4, int32_t iy4,
                                       int32_t offset, int height, int width,
                                       int bd, const int offset_bits_horiz,
@@ -57,4 +57,4 @@ static INLINE __m128i highbd_comp_avg_sse4_1(const __m128i *const data_ref_0,
   return res;
 }
 
-#endif  // AOM_AOM_DSP_X86_CONVOLVE_SSE4_1_H_
+#endif  // AVM_AVM_DSP_X86_CONVOLVE_SSE4_1_H_

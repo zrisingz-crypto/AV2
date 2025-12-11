@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AV1_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H
-#define AV1_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H
+#ifndef AV2_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H
+#define AV2_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/common/av1_common_int.h"
+#include "av2/common/av2_common_int.h"
 
 #define DIP_PRUNING_NUM_INPUTS 5
 #define DIP_PRUNING_MAX_INPUT_SIZE 64
@@ -62,4 +62,4 @@ void intra_dip_mode_prune_close(void **context);
 }
 #endif
 
-#endif  // AV1_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H
+#endif  // AV2_ENCODER_INTRA_DIP_MODE_PRUNE_TFLITE_H

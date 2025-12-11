@@ -12,7 +12,7 @@
 ;
 
 
-%include "aom_ports/x86_abi_support.asm"
+%include "avm_ports/x86_abi_support.asm"
 
 ;Note: tap3 and tap4 have to be applied and added after other taps to avoid
 ;overflow.
@@ -202,7 +202,7 @@
 
 SECTION .text
 
-;void aom_filter_block1d4_v8_sse2
+;void avm_filter_block1d4_v8_sse2
 ;(
 ;    unsigned char *src_ptr,
 ;    unsigned int   src_pitch,
@@ -211,8 +211,8 @@ SECTION .text
 ;    unsigned int   output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d4_v8_sse2)
-sym(aom_highbd_filter_block1d4_v8_sse2):
+globalsym(avm_highbd_filter_block1d4_v8_sse2)
+sym(avm_highbd_filter_block1d4_v8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -272,7 +272,7 @@ sym(aom_highbd_filter_block1d4_v8_sse2):
     pop         rbp
     ret
 
-;void aom_filter_block1d8_v8_sse2
+;void avm_filter_block1d8_v8_sse2
 ;(
 ;    unsigned char *src_ptr,
 ;    unsigned int   src_pitch,
@@ -281,8 +281,8 @@ sym(aom_highbd_filter_block1d4_v8_sse2):
 ;    unsigned int   output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d8_v8_sse2)
-sym(aom_highbd_filter_block1d8_v8_sse2):
+globalsym(avm_highbd_filter_block1d8_v8_sse2)
+sym(avm_highbd_filter_block1d8_v8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -331,7 +331,7 @@ sym(aom_highbd_filter_block1d8_v8_sse2):
     pop         rbp
     ret
 
-;void aom_filter_block1d16_v8_sse2
+;void avm_filter_block1d16_v8_sse2
 ;(
 ;    unsigned char *src_ptr,
 ;    unsigned int   src_pitch,
@@ -340,8 +340,8 @@ sym(aom_highbd_filter_block1d8_v8_sse2):
 ;    unsigned int   output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d16_v8_sse2)
-sym(aom_highbd_filter_block1d16_v8_sse2):
+globalsym(avm_highbd_filter_block1d16_v8_sse2)
+sym(avm_highbd_filter_block1d16_v8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -394,7 +394,7 @@ sym(aom_highbd_filter_block1d16_v8_sse2):
     pop         rbp
     ret
 
-;void aom_filter_block1d4_h8_sse2
+;void avm_filter_block1d4_h8_sse2
 ;(
 ;    unsigned char  *src_ptr,
 ;    unsigned int    src_pixels_per_line,
@@ -403,8 +403,8 @@ sym(aom_highbd_filter_block1d16_v8_sse2):
 ;    unsigned int    output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d4_h8_sse2)
-sym(aom_highbd_filter_block1d4_h8_sse2):
+globalsym(avm_highbd_filter_block1d4_h8_sse2)
+sym(avm_highbd_filter_block1d4_h8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -469,7 +469,7 @@ sym(aom_highbd_filter_block1d4_h8_sse2):
     pop         rbp
     ret
 
-;void aom_filter_block1d8_h8_sse2
+;void avm_filter_block1d8_h8_sse2
 ;(
 ;    unsigned char  *src_ptr,
 ;    unsigned int    src_pixels_per_line,
@@ -478,8 +478,8 @@ sym(aom_highbd_filter_block1d4_h8_sse2):
 ;    unsigned int    output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d8_h8_sse2)
-sym(aom_highbd_filter_block1d8_h8_sse2):
+globalsym(avm_highbd_filter_block1d8_h8_sse2)
+sym(avm_highbd_filter_block1d8_h8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -535,7 +535,7 @@ sym(aom_highbd_filter_block1d8_h8_sse2):
     pop         rbp
     ret
 
-;void aom_filter_block1d16_h8_sse2
+;void avm_filter_block1d16_h8_sse2
 ;(
 ;    unsigned char  *src_ptr,
 ;    unsigned int    src_pixels_per_line,
@@ -544,8 +544,8 @@ sym(aom_highbd_filter_block1d8_h8_sse2):
 ;    unsigned int    output_height,
 ;    short *filter
 ;)
-globalsym(aom_highbd_filter_block1d16_h8_sse2)
-sym(aom_highbd_filter_block1d16_h8_sse2):
+globalsym(avm_highbd_filter_block1d16_h8_sse2)
+sym(avm_highbd_filter_block1d16_h8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7

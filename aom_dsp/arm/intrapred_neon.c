@@ -14,10 +14,10 @@
 
 #include "common/tools_common.h"
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
                                        const uint16_t *above,
@@ -62,7 +62,7 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
 }
 
 #define intra_pred_highbd_sized_neon(type, width)               \
-  void aom_highbd_##type##_predictor_##width##x##width##_neon(  \
+  void avm_highbd_##type##_predictor_##width##x##width##_neon(  \
       uint16_t *dst, ptrdiff_t stride, const uint16_t *above,   \
       const uint16_t *left, int bd) {                           \
     (void)bd;                                                   \

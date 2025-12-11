@@ -9,10 +9,10 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_COMMON_OBU_UTIL_H_
-#define AOM_AV1_COMMON_OBU_UTIL_H_
+#ifndef AVM_AV2_COMMON_OBU_UTIL_H_
+#define AVM_AV2_COMMON_OBU_UTIL_H_
 
-#include "aom/aom_codec.h"
+#include "avm/avm_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +28,7 @@ typedef struct {
   int obu_xlayer_id;
 } ObuHeader;
 
-aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
+avm_codec_err_t avm_read_obu_header_and_size(const uint8_t *data,
                                              size_t bytes_available,
                                              ObuHeader *obu_header,
                                              size_t *const payload_size,
@@ -37,4 +37,4 @@ aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_OBU_UTIL_H_
+#endif  // AVM_AV2_COMMON_OBU_UTIL_H_

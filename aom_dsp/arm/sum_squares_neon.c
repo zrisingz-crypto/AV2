@@ -13,8 +13,8 @@
 #include <arm_neon.h>
 #include <assert.h>
 
-#include "aom_dsp/arm/mem_neon.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "config/avm_dsp_rtcd.h"
 
 static INLINE uint32x4_t sum_squares_i16_4x4_neon(const int16_t *src,
                                                   int stride) {
@@ -34,7 +34,7 @@ static INLINE uint32x4_t sum_squares_i16_4x4_neon(const int16_t *src,
 #endif
 }
 
-uint64_t aom_sum_squares_2d_i16_4x4_neon(const int16_t *src, int stride) {
+uint64_t avm_sum_squares_2d_i16_4x4_neon(const int16_t *src, int stride) {
   const uint32x4_t v_sum_0123_d = sum_squares_i16_4x4_neon(src, stride);
 #if defined(__aarch64__)
   return (uint64_t)vaddvq_u32(v_sum_0123_d);
@@ -45,7 +45,7 @@ uint64_t aom_sum_squares_2d_i16_4x4_neon(const int16_t *src, int stride) {
 #endif
 }
 
-uint64_t aom_sum_squares_2d_i16_4xn_neon(const int16_t *src, int stride,
+uint64_t avm_sum_squares_2d_i16_4xn_neon(const int16_t *src, int stride,
                                          int height) {
   int r = 0;
   uint32x4_t v_acc_q = vdupq_n_u32(0);
@@ -65,7 +65,7 @@ uint64_t aom_sum_squares_2d_i16_4xn_neon(const int16_t *src, int stride,
 #endif
 }
 
-uint64_t aom_sum_squares_2d_i16_nxn_neon(const int16_t *src, int stride,
+uint64_t avm_sum_squares_2d_i16_nxn_neon(const int16_t *src, int stride,
                                          int width, int height) {
   int r = 0;
   const int32x4_t zero = vdupq_n_s32(0);
@@ -121,20 +121,20 @@ uint64_t aom_sum_squares_2d_i16_nxn_neon(const int16_t *src, int stride,
 #endif
 }
 
-uint64_t aom_sum_squares_2d_i16_neon(const int16_t *src, int stride, int width,
+uint64_t avm_sum_squares_2d_i16_neon(const int16_t *src, int stride, int width,
                                      int height) {
   assert(width > 0 && height > 0);
   // 4 elements per row only requires half an SIMD register, so this
   // must be a special case, but also note that over 75% of all calls
   // are with size == 4, so it is also the common case.
   if (LIKELY(width == 4 && height == 4)) {
-    return aom_sum_squares_2d_i16_4x4_neon(src, stride);
+    return avm_sum_squares_2d_i16_4x4_neon(src, stride);
   } else if (LIKELY(width == 4 && (height & 3) == 0)) {
-    return aom_sum_squares_2d_i16_4xn_neon(src, stride, height);
+    return avm_sum_squares_2d_i16_4xn_neon(src, stride, height);
   } else if (LIKELY((width & 7) == 0 && (height & 3) == 0)) {
     // Generic case
-    return aom_sum_squares_2d_i16_nxn_neon(src, stride, width, height);
+    return avm_sum_squares_2d_i16_nxn_neon(src, stride, width, height);
   } else {
-    return aom_sum_squares_2d_i16_c(src, stride, width, height);
+    return avm_sum_squares_2d_i16_c(src, stride, width, height);
   }
 }

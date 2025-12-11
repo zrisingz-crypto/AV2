@@ -12,10 +12,10 @@
 
 #include <immintrin.h>
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
-void av1_make_bawp_block_avx2(uint16_t *dst, int dst_stride, int16_t alpha,
+void av2_make_bawp_block_avx2(uint16_t *dst, int dst_stride, int16_t alpha,
                               int32_t beta, int shift, int bw, int bh, int bd) {
   const __m256i alpha_reg = _mm256_set1_epi32((int)alpha);
   const __m256i beta_reg = _mm256_set1_epi32(beta);
@@ -88,6 +88,6 @@ void av1_make_bawp_block_avx2(uint16_t *dst, int dst_stride, int16_t alpha,
       }
     }
   } else {
-    av1_make_bawp_block_c(dst, dst_stride, alpha, beta, shift, bw, bh, bd);
+    av2_make_bawp_block_c(dst, dst_stride, alpha, beta, shift, bw, bh, bd);
   }
 }

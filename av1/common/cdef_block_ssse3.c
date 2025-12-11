@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/aom_simd.h"
+#include "avm_dsp/avm_simd.h"
 #define SIMD_FUNC(name) name##_ssse3
-#include "av1/common/cdef_block_simd.h"
+#include "av2/common/cdef_block_simd.h"
 
 /* SSSE3 function which computes the CDEF directions of two 8x8 blocks */
 void cdef_find_dir_dual_ssse3(const uint16_t *img1, const uint16_t *img2,

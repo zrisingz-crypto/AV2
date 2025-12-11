@@ -12,12 +12,12 @@
 
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/blend.h"
 
 static INLINE unsigned int highbd_sad(const uint16_t *a, int a_stride,
                                       const uint16_t *b, int b_stride,
@@ -52,23 +52,23 @@ static INLINE unsigned int highbd_sadb(const uint16_t *a, int a_stride,
 }
 
 #define highbd_avg_skip_sadMxN(m, n)                                           \
-  unsigned int aom_highbd_sad##m##x##n##_avg_c(                                \
+  unsigned int avm_highbd_sad##m##x##n##_avg_c(                                \
       const uint16_t *src, int src_stride, const uint16_t *ref,                \
       int ref_stride, const uint16_t *second_pred) {                           \
     uint16_t comp_pred[m * n];                                                 \
-    aom_highbd_comp_avg_pred(comp_pred, second_pred, m, n, ref, ref_stride);   \
+    avm_highbd_comp_avg_pred(comp_pred, second_pred, m, n, ref, ref_stride);   \
     return highbd_sadb(src, src_stride, comp_pred, m, m, n);                   \
   }                                                                            \
-  unsigned int aom_highbd_dist_wtd_sad##m##x##n##_avg_c(                       \
+  unsigned int avm_highbd_dist_wtd_sad##m##x##n##_avg_c(                       \
       const uint16_t *src, int src_stride, const uint16_t *ref,                \
       int ref_stride, const uint16_t *second_pred,                             \
       const DIST_WTD_COMP_PARAMS *jcp_param) {                                 \
     uint16_t comp_pred[m * n];                                                 \
-    aom_highbd_dist_wtd_comp_avg_pred(comp_pred, second_pred, m, n, ref,       \
+    avm_highbd_dist_wtd_comp_avg_pred(comp_pred, second_pred, m, n, ref,       \
                                       ref_stride, jcp_param);                  \
     return highbd_sadb(src, src_stride, comp_pred, m, m, n);                   \
   }                                                                            \
-  unsigned int aom_highbd_sad_skip_##m##x##n##_c(                              \
+  unsigned int avm_highbd_sad_skip_##m##x##n##_c(                              \
       const uint16_t *src, int src_stride, const uint16_t *ref,                \
       int ref_stride) {                                                        \
     return 2 *                                                                 \
@@ -76,16 +76,16 @@ static INLINE unsigned int highbd_sadb(const uint16_t *a, int a_stride,
   }
 
 #define highbd_sadMxNx4D(m, n)                                                \
-  void aom_highbd_sad##m##x##n##x4d_c(const uint16_t *src, int src_stride,    \
+  void avm_highbd_sad##m##x##n##x4d_c(const uint16_t *src, int src_stride,    \
                                       const uint16_t *const ref_array[],      \
                                       int ref_stride, uint32_t *sad_array) {  \
     int i;                                                                    \
     for (i = 0; i < 4; ++i) {                                                 \
-      sad_array[i] = aom_highbd_sad##m##x##n##_c(src, src_stride,             \
+      sad_array[i] = avm_highbd_sad##m##x##n##_c(src, src_stride,             \
                                                  ref_array[i], ref_stride);   \
     }                                                                         \
   }                                                                           \
-  void aom_highbd_sad_skip_##m##x##n##x4d_c(                                  \
+  void avm_highbd_sad_skip_##m##x##n##x4d_c(                                  \
       const uint16_t *src, int src_stride, const uint16_t *const ref_array[], \
       int ref_stride, uint32_t *sad_array) {                                  \
     int i;                                                                    \

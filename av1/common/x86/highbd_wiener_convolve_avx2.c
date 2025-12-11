@@ -13,22 +13,22 @@
 #include <immintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/convolve.h"
-#include "av1/common/restoration.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
+#include "av2/common/convolve.h"
+#include "av2/common/restoration.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
 
 // 128-bit xmmwords are written as [ ... ] with the MSB on the left.
 // 256-bit ymmwords are written as two xmmwords, [ ... ][ ... ] with the MSB
 // on the left.
 // A row of, say, 16-bit pixels with values p0, p1, p2, ..., p14, p15 will be
 // loaded and stored as [ p15 ... p9 p8 ][ p7 ... p1 p0 ].
-void av1_highbd_wiener_convolve_add_src_avx2(
+void av2_highbd_wiener_convolve_add_src_avx2(
     const uint16_t *src, ptrdiff_t src_stride, uint16_t *dst,
     ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4,
     const int16_t *filter_y, int y_step_q4, int w, int h,
@@ -602,7 +602,7 @@ static INLINE void round_and_store_avx2(const uint16_t *dst, int dst_stride,
 // order of filter taps needed is shown below.
 // Filter Coefficients: fc0 fc1 fc2 fc3 fc4 fc5 fc
 // Here, 'fc0-fc5' corresponds to symmetric taps and 'fc' is the center tap.
-static AOM_INLINE void convolve_symmetric_highbd_7tap_avx2(
+static AVM_INLINE void convolve_symmetric_highbd_7tap_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -671,7 +671,7 @@ static AOM_INLINE void convolve_symmetric_highbd_7tap_avx2(
 //  __m256i out_f0_0 = _mm256_madd_epi16(src_rag3, filter_0);
 //                   = (a3*f0+g3*f0) (a4*f0+g4*f0) .. | (b3*f0+h3*f0) . .
 // Here, out_f0_0 contains partial output of rows 1 and 2 corresponding to fc0.
-static AOM_INLINE void convolve_symmetric_highbd_13tap_avx2(
+static AVM_INLINE void convolve_symmetric_highbd_13tap_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter_, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -1030,7 +1030,7 @@ static AOM_INLINE void convolve_symmetric_highbd_13tap_avx2(
 // calculated with DIAMOND shaped filter considering a 11x11 grid surrounded by
 // that pixel. DIAMOND shape uses 13-tap filter for convolution. The filter taps
 // are expected to be passed as symmetric taps followed by a center tap.
-static AOM_INLINE void convolve_symmetric_highbd_13tap_blk8x8_avx2(
+static AVM_INLINE void convolve_symmetric_highbd_13tap_blk8x8_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter_, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -1823,7 +1823,7 @@ static AOM_INLINE void convolve_symmetric_highbd_13tap_blk8x8_avx2(
 // calculated with DIAMOND shaped filter considering a 8x8 grid surrounded by
 // that pixel. DIAMOND shape uses 16-tap filter for convolution. The filter taps
 // are expected to be passed as symmetric taps followed by a center tap.
-static AOM_INLINE void convolve_symmetric_highbd_16tap9x9_avx2(
+static AVM_INLINE void convolve_symmetric_highbd_16tap9x9_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter_, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -2324,7 +2324,7 @@ static AOM_INLINE void convolve_symmetric_highbd_16tap9x9_avx2(
 // calculated with DIAMOND shaped filter considering a 12x12 grid surrounded by
 // that pixel. DIAMOND shape uses 16-tap filter for convolution. The filter taps
 // are expected to be passed as symmetric taps followed by a center tap.
-static AOM_INLINE void convolve_symmetric_highbd_16tap9x9_blk8x8_avx2(
+static AVM_INLINE void convolve_symmetric_highbd_16tap9x9_blk8x8_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter_, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -3251,7 +3251,7 @@ static AOM_INLINE void convolve_symmetric_highbd_16tap9x9_blk8x8_avx2(
 // wiener filter corresponds to CONFIG_PC_WIENER loop restoration. DIAMOND shape
 // with 16-tap (16 symmetric+1) or 13-tap (12 symmetric+1) or 7-tap (6 symmetric
 // + 1) filter is used for convolution.
-void av1_convolve_symmetric_highbd_avx2(const uint16_t *dgd, int stride,
+void av2_convolve_symmetric_highbd_avx2(const uint16_t *dgd, int stride,
                                         const NonsepFilterConfig *filter_config,
                                         const int16_t *filter, uint16_t *dst,
                                         int dst_stride, int bit_depth,
@@ -3316,7 +3316,7 @@ void av1_convolve_symmetric_highbd_avx2(const uint16_t *dgd, int stride,
                                         dst_stride, bit_depth, block_row_begin,
                                         block_col_begin);
   } else {
-    av1_convolve_symmetric_highbd_c(
+    av2_convolve_symmetric_highbd_c(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_row_end, block_col_begin, block_col_end);
   }
@@ -3326,7 +3326,7 @@ void av1_convolve_symmetric_highbd_avx2(const uint16_t *dgd, int stride,
 // non-separable filter. For an 8x8 block, the convolution is
 // performed with a DIAMOND-shaped filter, using either a 16-tap (16 symmetric +
 // 1) or a 13-tap (12 symmetric + 1) filter.
-void av1_convolve_symmetric_blk8x8_highbd_avx2(
+void av2_convolve_symmetric_blk8x8_highbd_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
@@ -3373,13 +3373,13 @@ void av1_convolve_symmetric_blk8x8_highbd_avx2(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_col_begin);
   } else {
-    av1_convolve_symmetric_highbd(
+    av2_convolve_symmetric_highbd(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_row_end, block_col_begin, block_col_end);
   }
 }
 
-void av1_convolve_mixedsymmetric_highbd_avx2(
+void av2_convolve_mixedsymmetric_highbd_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
@@ -3389,7 +3389,7 @@ void av1_convolve_mixedsymmetric_highbd_avx2(
   (void)num_rows;
   (void)num_cols;
 
-  av1_convolve_mixedsymmetric_highbd_c(
+  av2_convolve_mixedsymmetric_highbd_c(
       dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
       block_row_begin, block_row_end, block_col_begin, block_col_end);
 }
@@ -3691,7 +3691,7 @@ static INLINE void apply_asym_12tap_filtering(
 //                   = ((a2-c2)*fc4+(e2-c2)*fc4) (a3-c3)*fc4+(e3-c3)*fc4) .. |
 //                   (b2-d2)*fc4 +(f2-d2)*fc4) . .
 // Here, out_f4_01 contains partial output of rows 0 and 1 corresponding to fc4.
-void av1_convolve_symmetric_subtract_center_highbd_6tap_avx2(
+void av2_convolve_symmetric_subtract_center_highbd_6tap_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -3772,7 +3772,7 @@ void av1_convolve_symmetric_subtract_center_highbd_6tap_avx2(
 //                   (b3-e3)*f10+(h3-e3)*f10) . .
 // Here, out_f10_01 contains partial output of rows 0 and 1 corresponding to
 // fc10.
-void av1_convolve_symmetric_subtract_center_highbd_12tap_avx2(
+void av2_convolve_symmetric_subtract_center_highbd_12tap_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_col_begin) {
@@ -4178,7 +4178,7 @@ void av1_convolve_symmetric_subtract_center_highbd_12tap_avx2(
 
 // TODO(rachelbarker): Standardize on non-subtract-center code path,
 // so that this one can be removed
-void av1_convolve_symmetric_subtract_center_highbd_avx2(
+void av2_convolve_symmetric_subtract_center_highbd_avx2(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
@@ -4195,7 +4195,7 @@ void av1_convolve_symmetric_subtract_center_highbd_avx2(
        !memcmp(wienerns_simd_config_uv_from_uv, filter_config->config,
                filter_config->num_pixels * 3 *
                    sizeof(filter_config->config[0][0])))) {
-    av1_convolve_symmetric_subtract_center_highbd_6tap_avx2(
+    av2_convolve_symmetric_subtract_center_highbd_6tap_avx2(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_col_begin);
   } else if (num_rows == 4 && num_cols == 4 && num_sym_taps == 12 &&
@@ -4203,11 +4203,11 @@ void av1_convolve_symmetric_subtract_center_highbd_avx2(
               !memcmp(wienerns_simd_config_y, filter_config->config,
                       filter_config->num_pixels * 3 *
                           sizeof(filter_config->config[0][0])))) {
-    av1_convolve_symmetric_subtract_center_highbd_12tap_avx2(
+    av2_convolve_symmetric_subtract_center_highbd_12tap_avx2(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_col_begin);
   } else {
-    av1_convolve_symmetric_subtract_center_highbd_c(
+    av2_convolve_symmetric_subtract_center_highbd_c(
         dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
         block_row_begin, block_row_end, block_col_begin, block_col_end);
   }
@@ -4286,7 +4286,7 @@ const int config_13tap_uv_from_y_avx2[][3] = {
 };
 */
 
-void av1_convolve_symmetric_dual_highbd_7plus13tap_avx2(
+void av2_convolve_symmetric_dual_highbd_7plus13tap_avx2(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -4349,7 +4349,7 @@ void av1_convolve_symmetric_dual_highbd_7plus13tap_avx2(
                        block_col_begin);
 }
 
-void av1_convolve_symmetric_dual_highbd_avx2(
+void av2_convolve_symmetric_dual_highbd_avx2(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -4362,7 +4362,7 @@ void av1_convolve_symmetric_dual_highbd_avx2(
   assert(num_rows >= 0 && num_cols >= 0);
 
   if (num_rows != 4 || num_cols != 4) {
-    av1_convolve_symmetric_dual_highbd_c(
+    av2_convolve_symmetric_dual_highbd_c(
         dgd, dgd_stride, dgd_dual, dgd_dual_stride, filter_config, filter, dst,
         dst_stride, bit_depth, block_row_begin, block_row_end, block_col_begin,
         block_col_end);
@@ -4383,12 +4383,12 @@ void av1_convolve_symmetric_dual_highbd_avx2(
        !memcmp(wienerns_simd_config_uv_from_y, filter_config->config,
                filter_config->num_pixels2 * 3 *
                    sizeof(filter_config->config2[0][0])))) {
-    av1_convolve_symmetric_dual_highbd_7plus13tap_avx2(
+    av2_convolve_symmetric_dual_highbd_7plus13tap_avx2(
         dgd, dgd_stride, dgd_dual, dgd_dual_stride, filter_config, filter, dst,
         dst_stride, bit_depth, block_row_begin, block_col_begin);
     return;
   }
-  av1_convolve_symmetric_dual_highbd_c(
+  av2_convolve_symmetric_dual_highbd_c(
       dgd, dgd_stride, dgd_dual, dgd_dual_stride, filter_config, filter, dst,
       dst_stride, bit_depth, block_row_begin, block_row_end, block_col_begin,
       block_col_end);
@@ -4435,7 +4435,7 @@ void av1_convolve_symmetric_dual_highbd_avx2(
 //                   (b2-d2)*fc4 +(f2-d2)*fc4) . .
 // Here, out_f4_01 contains partial output of rows 0 and 1 corresponding to fc4.
 
-void av1_convolve_symmetric_dual_subtract_center_highbd_6plus12tap_avx2(
+void av2_convolve_symmetric_dual_subtract_center_highbd_6plus12tap_avx2(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -4494,7 +4494,7 @@ void av1_convolve_symmetric_dual_subtract_center_highbd_6plus12tap_avx2(
 
 // TODO(rachelbarker): Standardize on non-subtract-center code path,
 // so that this one can be removed
-void av1_convolve_symmetric_dual_subtract_center_highbd_avx2(
+void av2_convolve_symmetric_dual_subtract_center_highbd_avx2(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -4519,11 +4519,11 @@ void av1_convolve_symmetric_dual_subtract_center_highbd_avx2(
        !memcmp(wienerns_simd_config_uv_from_y, filter_config->config2,
                filter_config->num_pixels2 * 3 *
                    sizeof(filter_config->config2[0][0])))) {
-    av1_convolve_symmetric_dual_subtract_center_highbd_6plus12tap_avx2(
+    av2_convolve_symmetric_dual_subtract_center_highbd_6plus12tap_avx2(
         dgd, dgd_stride, dgd_dual, dgd_dual_stride, filter_config, filter, dst,
         dst_stride, bit_depth, block_row_begin, block_col_begin);
   } else {
-    av1_convolve_symmetric_dual_subtract_center_highbd_c(
+    av2_convolve_symmetric_dual_subtract_center_highbd_c(
         dgd, dgd_stride, dgd_dual, dgd_dual_stride, filter_config, filter, dst,
         dst_stride, bit_depth, block_row_begin, block_row_end, block_col_begin,
         block_col_end);
@@ -4557,7 +4557,7 @@ void calc_gradient_in_various_directions_avx2(
   const int16_t *line_buf3 = feature_line_buffers[buffer_row_3];
   const int tot_width = col_end - col_begin;
   // Width for which SIMD is possible due to constrains of odd width.
-  const int pos_simd_width = AOMMIN(tot_width, width + 3 - 2);
+  const int pos_simd_width = AVMMIN(tot_width, width + 3 - 2);
   const uint16_t *cur_row = dgd + (row * dgd_stride) + col_begin;
   const uint16_t *prev_row = cur_row - dgd_stride;
   const uint16_t *next_row = cur_row + dgd_stride;
@@ -4771,7 +4771,7 @@ static const uint8_t shuffle_mask_high[32] = { 8,  8,  8,  8,  9,  9,  9,  9,
                                                12, 12, 12, 12, 13, 13, 13, 13,
                                                14, 14, 14, 14, 15, 15, 15, 15 };
 
-static AOM_INLINE void set_left_and_right_tskip_sum(int8_t *tskip_sum_buffer,
+static AVM_INLINE void set_left_and_right_tskip_sum(int8_t *tskip_sum_buffer,
                                                     int col_begin, int width,
                                                     int col_end,
                                                     int8_t left_tskip,
@@ -4789,12 +4789,12 @@ static AOM_INLINE void set_left_and_right_tskip_sum(int8_t *tskip_sum_buffer,
   }
 }
 
-void av1_fill_tskip_sum_buffer_avx2(int row, const uint8_t *tskip,
+void av2_fill_tskip_sum_buffer_avx2(int row, const uint8_t *tskip,
                                     int tskip_stride, int8_t *tskip_sum_buffer,
                                     int width, int height, int tskip_lead,
                                     int tskip_lag, bool use_strict_bounds) {
   if ((width != 64) && (width != 32)) {
-    av1_fill_tskip_sum_buffer_c(row, tskip, tskip_stride, tskip_sum_buffer,
+    av2_fill_tskip_sum_buffer_c(row, tskip, tskip_stride, tskip_sum_buffer,
                                 width, height, tskip_lead, tskip_lag,
                                 use_strict_bounds);
     return;
@@ -4804,7 +4804,7 @@ void av1_fill_tskip_sum_buffer_avx2(int row, const uint8_t *tskip,
   const int col_begin = -tskip_lead;
   const int col_end = width + tskip_lag;
 
-  const int clamped_row = AOMMAX(AOMMIN(row, height - 1), 0);
+  const int clamped_row = AVMMAX(AVMMIN(row, height - 1), 0);
   const int tskip_id_base_add = (clamped_row >> MI_SIZE_LOG2) * tskip_stride;
 
   const int tskip_length = tskip_lead + tskip_lag + 1;
@@ -4921,7 +4921,7 @@ void av1_fill_tskip_sum_buffer_avx2(int row, const uint8_t *tskip,
   /* d0 d1 d2 d3 d4 d5 d6 d7 */                      \
   src_d = _mm256_loadu_si256((__m256i *)(lb3 + cl));
 
-static AOM_INLINE void process_feature_accum_wd8(__m256i src_A, __m256i src_B,
+static AVM_INLINE void process_feature_accum_wd8(__m256i src_A, __m256i src_B,
                                                  __m256i src_C, __m256i src_D,
                                                  __m256i src_a, __m256i src_b,
                                                  __m256i src_c, __m256i src_d,
@@ -4943,7 +4943,7 @@ static AOM_INLINE void process_feature_accum_wd8(__m256i src_A, __m256i src_B,
   *result = _mm256_hadd_epi32(result0, result1);
 }
 
-static AOM_INLINE void unpack_results_and_store(
+static AVM_INLINE void unpack_results_and_store(
     int dir_feature_accum[][PC_WIENER_FEATURE_ACC_SIZE], __m256i result0,
     __m256i result1, int cur_col) {
   const int cur_idx = cur_col / 4;
@@ -5001,7 +5001,7 @@ static AOM_INLINE void unpack_results_and_store(
   _mm_storeu_si128((__m128i *)(sb3 + cur_idx + 1), r3);
 }
 
-static AOM_INLINE void process_feature_accum_wd16(
+static AVM_INLINE void process_feature_accum_wd16(
     int dir_feature_accum[][PC_WIENER_FEATURE_ACC_SIZE], int *feature_sum_buf[],
     int cur_col, int cb, int feature_length) {
   const int cl = cb - feature_length;
@@ -5026,7 +5026,7 @@ static AOM_INLINE void process_feature_accum_wd16(
   unpack_results_and_store(dir_feature_accum, result0, result1, cur_col);
 }
 
-static AOM_INLINE void process_feature_accum_wd15(
+static AVM_INLINE void process_feature_accum_wd15(
     int dir_feature_accum[][PC_WIENER_FEATURE_ACC_SIZE], int *feature_sum_buf[],
     int cur_col, int cb, int feature_length) {
   const int cl = cb - feature_length;
@@ -5060,7 +5060,7 @@ static AOM_INLINE void process_feature_accum_wd15(
   unpack_results_and_store(dir_feature_accum, result0, result1, cur_col);
 }
 
-void av1_fill_directional_feature_accumulators_avx2(
+void av2_fill_directional_feature_accumulators_avx2(
     int dir_feature_accum[NUM_PC_WIENER_FEATURES][PC_WIENER_FEATURE_ACC_SIZE],
     int *feature_sum_buf[NUM_PC_WIENER_FEATURES], int width, int col_offset,
     int feature_lead, int feature_lag) {
@@ -5068,7 +5068,7 @@ void av1_fill_directional_feature_accumulators_avx2(
   // restoration unit size must be 64x64 for luma or 32x32 for chroma plane.
   if ((PC_WIENER_BLOCK_SIZE != 4) || ((width != 64) && (width != 32))) {
     // TODO(oguleryuz): Reduce the cases where we punt to c-code.
-    av1_fill_directional_feature_accumulators_c(
+    av2_fill_directional_feature_accumulators_c(
         dir_feature_accum, feature_sum_buf, width, col_offset, feature_lead,
         feature_lag);
     return;
@@ -5130,7 +5130,7 @@ static const int8_t blend_mask[32] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                        0, 0, 0, 0, 0, 0, 0, 0, 0, -1 };
 
-static AOM_INLINE void process_accumulation_wd32(const __m256i src_A,
+static AVM_INLINE void process_accumulation_wd32(const __m256i src_A,
                                                  const __m256i src_a,
                                                  const __m128i accum_reg,
                                                  int16_t *tskip_out) {
@@ -5169,7 +5169,7 @@ static AOM_INLINE void process_accumulation_wd32(const __m256i src_A,
   _mm_storeu_si128((__m128i *)(tskip_out), result);
 }
 
-void av1_fill_tskip_feature_accumulator_avx2(
+void av2_fill_tskip_feature_accumulator_avx2(
     int16_t tskip_feature_accum[PC_WIENER_FEATURE_ACC_SIZE],
     int8_t *tskip_sum_buf, int width, int col_offset, int tskip_lead,
     int tskip_lag) {
@@ -5177,7 +5177,7 @@ void av1_fill_tskip_feature_accumulator_avx2(
   // restoration unit size must be 64x64 for luma or 32x32 for chroma plane.
   if ((PC_WIENER_BLOCK_SIZE != 4) || ((width != 64) && (width != 32))) {
     // TODO(oguleryuz): Reduce the cases where we punt to c-code.
-    av1_fill_tskip_feature_accumulator_c(tskip_feature_accum, tskip_sum_buf,
+    av2_fill_tskip_feature_accumulator_c(tskip_feature_accum, tskip_sum_buf,
                                          width, col_offset, tskip_lead,
                                          tskip_lag);
     return;

@@ -12,13 +12,13 @@
 
 #include <assert.h>
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
-#include "av1/common/reconinter.h"
+#include "av2/common/reconinter.h"
 
 #define MAX_MASK_VALUE (1 << WEDGE_WEIGHT_BITS)
 
@@ -50,7 +50,7 @@
  * holds for 8 bit input, and on real input, it should hold practically always,
  * as residuals are expected to be small.
  */
-uint64_t av1_wedge_sse_from_residuals_c(const int16_t *r1, const int16_t *d,
+uint64_t av2_wedge_sse_from_residuals_c(const int16_t *r1, const int16_t *d,
                                         const uint8_t *m, int N) {
   uint64_t csse = 0;
   int i;
@@ -94,7 +94,7 @@ uint64_t av1_wedge_sse_from_residuals_c(const int16_t *r1, const int16_t *d,
  *  Note that for efficiency, ds is stored on 16 bits. Real input residuals
  *  being small, this should not cause a noticeable issue.
  */
-int8_t av1_wedge_sign_from_residuals_c(const int16_t *ds, const uint8_t *m,
+int8_t av2_wedge_sign_from_residuals_c(const int16_t *ds, const uint8_t *m,
                                        int N, int64_t limit) {
   int64_t acc = 0;
 
@@ -117,7 +117,7 @@ int8_t av1_wedge_sign_from_residuals_c(const int16_t *ds, const uint8_t *m,
  *
  * The result is saturated to signed 16 bits.
  */
-void av1_wedge_compute_delta_squares_c(int16_t *d, const int16_t *a,
+void av2_wedge_compute_delta_squares_c(int16_t *d, const int16_t *a,
                                        const int16_t *b, int N) {
   int i;
 

@@ -12,13 +12,13 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
 #include "test/acm_random.h"
 #include "test/function_equivalence_test.h"
@@ -27,15 +27,15 @@
 #define WEDGE_WEIGHT_BITS 6
 #define MAX_MASK_VALUE (1 << (WEDGE_WEIGHT_BITS))
 
-using libaom_test::ACMRandom;
-using libaom_test::FunctionEquivalenceTest;
+using libavm_test::ACMRandom;
+using libavm_test::FunctionEquivalenceTest;
 
 namespace {
 
 static const int16_t kInt13Max = (1 << 12) - 1;
 
 //////////////////////////////////////////////////////////////////////////////
-// av1_wedge_sse_from_residuals - functionality
+// av2_wedge_sse_from_residuals - functionality
 //////////////////////////////////////////////////////////////////////////////
 
 class WedgeUtilsSSEFuncTest : public testing::Test {
@@ -77,19 +77,19 @@ TEST_F(WedgeUtilsSSEFuncTest, ResidualBlendingMethod) {
     for (int i = 0; i < N; i++) r0[i] = r1[i] + d[i];
 
     const uint64_t ref_res = sse_from_residuals(r0, r1, m, N);
-    const uint64_t tst_res = av1_wedge_sse_from_residuals(r1, d, m, N);
+    const uint64_t tst_res = av2_wedge_sse_from_residuals(r1, d, m, N);
 
     ASSERT_EQ(ref_res, tst_res);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// av1_wedge_sse_from_residuals - optimizations
+// av2_wedge_sse_from_residuals - optimizations
 //////////////////////////////////////////////////////////////////////////////
 
 typedef uint64_t (*FSSE)(const int16_t *r1, const int16_t *d, const uint8_t *m,
                          int N);
-typedef libaom_test::FuncParam<FSSE> TestFuncsFSSE;
+typedef libavm_test::FuncParam<FSSE> TestFuncsFSSE;
 
 class WedgeUtilsSSEOptTest : public FunctionEquivalenceTest<FSSE> {
  protected:
@@ -150,12 +150,12 @@ TEST_P(WedgeUtilsSSEOptTest, ExtremeValues) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// av1_wedge_sign_from_residuals
+// av2_wedge_sign_from_residuals
 //////////////////////////////////////////////////////////////////////////////
 
 typedef int8_t (*FSign)(const int16_t *ds, const uint8_t *m, int N,
                         int64_t limit);
-typedef libaom_test::FuncParam<FSign> TestFuncsFSign;
+typedef libavm_test::FuncParam<FSign> TestFuncsFSign;
 
 class WedgeUtilsSignOptTest : public FunctionEquivalenceTest<FSign> {
  protected:
@@ -177,12 +177,12 @@ TEST_P(WedgeUtilsSignOptTest, RandomValues) {
       m[i] = rng_(MAX_MASK_VALUE + 1);
     }
 
-    const int maxN = AOMMIN(kMaxSize, MAX_SB_SQUARE);
+    const int maxN = AVMMIN(kMaxSize, MAX_SB_SQUARE);
     const int N = 64 * (rng_(maxN / 64 - 1) + 1);
 
     int64_t limit;
-    limit = (int64_t)aom_sum_squares_i16(r0, N);
-    limit -= (int64_t)aom_sum_squares_i16(r1, N);
+    limit = (int64_t)avm_sum_squares_i16(r0, N);
+    limit -= (int64_t)avm_sum_squares_i16(r1, N);
     limit *= (1 << WEDGE_WEIGHT_BITS) / 2;
 
     for (int i = 0; i < N; i++)
@@ -232,12 +232,12 @@ TEST_P(WedgeUtilsSignOptTest, ExtremeValues) {
 
     for (int i = 0; i < MAX_SB_SQUARE; ++i) m[i] = MAX_MASK_VALUE;
 
-    const int maxN = AOMMIN(kMaxSize, MAX_SB_SQUARE);
+    const int maxN = AVMMIN(kMaxSize, MAX_SB_SQUARE);
     const int N = 64 * (rng_(maxN / 64 - 1) + 1);
 
     int64_t limit;
-    limit = (int64_t)aom_sum_squares_i16(r0, N);
-    limit -= (int64_t)aom_sum_squares_i16(r1, N);
+    limit = (int64_t)avm_sum_squares_i16(r0, N);
+    limit -= (int64_t)avm_sum_squares_i16(r1, N);
     limit *= (1 << WEDGE_WEIGHT_BITS) / 2;
 
     for (int i = 0; i < N; i++)
@@ -252,11 +252,11 @@ TEST_P(WedgeUtilsSignOptTest, ExtremeValues) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// av1_wedge_compute_delta_squares
+// av2_wedge_compute_delta_squares
 //////////////////////////////////////////////////////////////////////////////
 
 typedef void (*FDS)(int16_t *d, const int16_t *a, const int16_t *b, int N);
-typedef libaom_test::FuncParam<FDS> TestFuncsFDS;
+typedef libavm_test::FuncParam<FDS> TestFuncsFDS;
 
 class WedgeUtilsDeltaSquaresOptTest : public FunctionEquivalenceTest<FDS> {
  protected:
@@ -291,35 +291,35 @@ TEST_P(WedgeUtilsDeltaSquaresOptTest, RandomValues) {
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, WedgeUtilsSSEOptTest,
-    ::testing::Values(TestFuncsFSSE(av1_wedge_sse_from_residuals_c,
-                                    av1_wedge_sse_from_residuals_sse2)));
+    ::testing::Values(TestFuncsFSSE(av2_wedge_sse_from_residuals_c,
+                                    av2_wedge_sse_from_residuals_sse2)));
 
 INSTANTIATE_TEST_SUITE_P(
     SSE2, WedgeUtilsSignOptTest,
-    ::testing::Values(TestFuncsFSign(av1_wedge_sign_from_residuals_c,
-                                     av1_wedge_sign_from_residuals_sse2)));
+    ::testing::Values(TestFuncsFSign(av2_wedge_sign_from_residuals_c,
+                                     av2_wedge_sign_from_residuals_sse2)));
 
 INSTANTIATE_TEST_SUITE_P(
     SSE2, WedgeUtilsDeltaSquaresOptTest,
-    ::testing::Values(TestFuncsFDS(av1_wedge_compute_delta_squares_c,
-                                   av1_wedge_compute_delta_squares_sse2)));
+    ::testing::Values(TestFuncsFDS(av2_wedge_compute_delta_squares_c,
+                                   av2_wedge_compute_delta_squares_sse2)));
 #endif  // HAVE_SSE2
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, WedgeUtilsSSEOptTest,
-    ::testing::Values(TestFuncsFSSE(av1_wedge_sse_from_residuals_sse2,
-                                    av1_wedge_sse_from_residuals_avx2)));
+    ::testing::Values(TestFuncsFSSE(av2_wedge_sse_from_residuals_sse2,
+                                    av2_wedge_sse_from_residuals_avx2)));
 
 INSTANTIATE_TEST_SUITE_P(
     AVX2, WedgeUtilsSignOptTest,
-    ::testing::Values(TestFuncsFSign(av1_wedge_sign_from_residuals_sse2,
-                                     av1_wedge_sign_from_residuals_avx2)));
+    ::testing::Values(TestFuncsFSign(av2_wedge_sign_from_residuals_sse2,
+                                     av2_wedge_sign_from_residuals_avx2)));
 
 INSTANTIATE_TEST_SUITE_P(
     AVX2, WedgeUtilsDeltaSquaresOptTest,
-    ::testing::Values(TestFuncsFDS(av1_wedge_compute_delta_squares_sse2,
-                                   av1_wedge_compute_delta_squares_avx2)));
+    ::testing::Values(TestFuncsFDS(av2_wedge_compute_delta_squares_sse2,
+                                   av2_wedge_compute_delta_squares_avx2)));
 #endif  // HAVE_AVX2
 
 }  // namespace

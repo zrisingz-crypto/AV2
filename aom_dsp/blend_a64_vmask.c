@@ -12,14 +12,14 @@
 
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/blend.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-void aom_highbd_blend_a64_vmask_c(uint16_t *dst, uint32_t dst_stride,
+void avm_highbd_blend_a64_vmask_c(uint16_t *dst, uint32_t dst_stride,
                                   const uint16_t *src0, uint32_t src0_stride,
                                   const uint16_t *src1, uint32_t src1_stride,
                                   const uint8_t *mask, int w, int h, int bd) {
@@ -39,7 +39,7 @@ void aom_highbd_blend_a64_vmask_c(uint16_t *dst, uint32_t dst_stride,
   for (i = 0; i < h; ++i) {
     const int m = mask[i];
     for (j = 0; j < w; ++j) {
-      dst[i * dst_stride + j] = AOM_BLEND_A64(m, src0[i * src0_stride + j],
+      dst[i * dst_stride + j] = AVM_BLEND_A64(m, src0[i * src0_stride + j],
                                               src1[i * src1_stride + j]);
     }
   }

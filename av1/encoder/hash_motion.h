@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_HASH_MOTION_H_
-#define AOM_AV1_ENCODER_HASH_MOTION_H_
+#ifndef AVM_AV2_ENCODER_HASH_MOTION_H_
+#define AVM_AV2_ENCODER_HASH_MOTION_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_scale/yv12config.h"
-#include "av1/encoder/hash.h"
+#include "avm/avm_integer.h"
+#include "avm_scale/yv12config.h"
+#include "av2/encoder/hash.h"
 #include "third_party/vector/vector.h"
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +43,7 @@ struct intrabc_hash_info;
 
 typedef struct intrabc_hash_info {
   // buffer for hash value calculation of a block
-  // used only in av1_get_block_hash_value()
+  // used only in av2_get_block_hash_value()
   // [first hash/second hash]
   // [two buffers used ping-pong]
   uint32_t *hash_value_buffer[2][2];
@@ -54,26 +54,26 @@ typedef struct intrabc_hash_info {
   int g_crc_initialized;
 } IntraBCHashInfo;
 
-void av1_hash_table_init(IntraBCHashInfo *intra_bc_hash_info);
-void av1_hash_table_clear_all(hash_table *p_hash_table);
-void av1_hash_table_destroy(hash_table *p_hash_table);
-void av1_hash_table_create(hash_table *p_hash_table);
-int32_t av1_hash_table_count(const hash_table *p_hash_table,
+void av2_hash_table_init(IntraBCHashInfo *intra_bc_hash_info);
+void av2_hash_table_clear_all(hash_table *p_hash_table);
+void av2_hash_table_destroy(hash_table *p_hash_table);
+void av2_hash_table_create(hash_table *p_hash_table);
+int32_t av2_hash_table_count(const hash_table *p_hash_table,
                              uint32_t hash_value);
-Iterator av1_hash_get_first_iterator(hash_table *p_hash_table,
+Iterator av2_hash_get_first_iterator(hash_table *p_hash_table,
                                      uint32_t hash_value);
-void av1_generate_block_2x2_hash_value(IntraBCHashInfo *intra_bc_hash_info,
+void av2_generate_block_2x2_hash_value(IntraBCHashInfo *intra_bc_hash_info,
                                        const YV12_BUFFER_CONFIG *picture,
                                        uint32_t *pic_block_hash[2],
                                        int8_t *pic_block_same_info[3]);
-void av1_generate_block_hash_value(IntraBCHashInfo *intra_bc_hash_info,
+void av2_generate_block_hash_value(IntraBCHashInfo *intra_bc_hash_info,
                                    const YV12_BUFFER_CONFIG *picture,
                                    int block_size,
                                    uint32_t *src_pic_block_hash[2],
                                    uint32_t *dst_pic_block_hash[2],
                                    int8_t *src_pic_block_same_info[3],
                                    int8_t *dst_pic_block_same_info[3]);
-void av1_add_to_hash_map_by_row_with_precal_data(hash_table *p_hash_table,
+void av2_add_to_hash_map_by_row_with_precal_data(hash_table *p_hash_table,
                                                  uint32_t *pic_hash[2],
                                                  int8_t *pic_is_same,
                                                  int pic_width, int pic_height,
@@ -81,14 +81,14 @@ void av1_add_to_hash_map_by_row_with_precal_data(hash_table *p_hash_table,
 
 // check whether the block starts from (x_start, y_start) with the size of
 // block_size x block_size has the same color in all rows
-int av1_hash_is_horizontal_perfect(const YV12_BUFFER_CONFIG *picture,
+int av2_hash_is_horizontal_perfect(const YV12_BUFFER_CONFIG *picture,
                                    int block_size, int x_start, int y_start);
 // check whether the block starts from (x_start, y_start) with the size of
 // block_size x block_size has the same color in all columns
-int av1_hash_is_vertical_perfect(const YV12_BUFFER_CONFIG *picture,
+int av2_hash_is_vertical_perfect(const YV12_BUFFER_CONFIG *picture,
                                  int block_size, int x_start, int y_start);
 
-void av1_get_block_hash_value(IntraBCHashInfo *intrabc_hash_info,
+void av2_get_block_hash_value(IntraBCHashInfo *intrabc_hash_info,
                               const uint16_t *y_src, int stride, int block_size,
                               uint32_t *hash_value1, uint32_t *hash_value2);
 
@@ -96,4 +96,4 @@ void av1_get_block_hash_value(IntraBCHashInfo *intrabc_hash_info,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_HASH_MOTION_H_
+#endif  // AVM_AV2_ENCODER_HASH_MOTION_H_

@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_MEM_SSE2_H_
-#define AOM_AOM_DSP_X86_MEM_SSE2_H_
+#ifndef AVM_AVM_DSP_X86_MEM_SSE2_H_
+#define AVM_AVM_DSP_X86_MEM_SSE2_H_
 
 #include <emmintrin.h>  // SSE2
 #include <string.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 static INLINE uint16_t loadu_uint16(const void *src) {
   uint16_t v;
@@ -121,4 +121,4 @@ static INLINE void storeu_8bit_16x4(const __m128i *const s, uint8_t *const d,
   _mm_storeu_si128((__m128i *)(d + 3 * stride), s[3]);
 }
 
-#endif  // AOM_AOM_DSP_X86_MEM_SSE2_H_
+#endif  // AVM_AVM_DSP_X86_MEM_SSE2_H_

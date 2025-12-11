@@ -10,24 +10,24 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_
-#define AOM_AOM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_
+#ifndef AVM_AVM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_
+#define AVM_AVM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_
 
 #include <stdlib.h>
 #include <string.h>
 #include <tmmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/blend.h"
+#include "avm_dsp/blend.h"
 
 static INLINE void comp_mask_pred_16_ssse3(const uint8_t *src0,
                                            const uint8_t *src1,
                                            const uint8_t *mask, uint8_t *dst) {
-  const __m128i alpha_max = _mm_set1_epi8(AOM_BLEND_A64_MAX_ALPHA);
+  const __m128i alpha_max = _mm_set1_epi8(AVM_BLEND_A64_MAX_ALPHA);
   const __m128i round_offset =
-      _mm_set1_epi16(1 << (15 - AOM_BLEND_A64_ROUND_BITS));
+      _mm_set1_epi16(1 << (15 - AVM_BLEND_A64_ROUND_BITS));
 
   const __m128i sA0 = _mm_lddqu_si128((const __m128i *)(src0));
   const __m128i sA1 = _mm_lddqu_si128((const __m128i *)(src1));
@@ -54,9 +54,9 @@ static INLINE void comp_mask_pred_8_ssse3(uint8_t *comp_pred, int height,
                                           const uint8_t *mask,
                                           int mask_stride) {
   int i = 0;
-  const __m128i alpha_max = _mm_set1_epi8(AOM_BLEND_A64_MAX_ALPHA);
+  const __m128i alpha_max = _mm_set1_epi8(AVM_BLEND_A64_MAX_ALPHA);
   const __m128i round_offset =
-      _mm_set1_epi16(1 << (15 - AOM_BLEND_A64_ROUND_BITS));
+      _mm_set1_epi16(1 << (15 - AVM_BLEND_A64_ROUND_BITS));
   do {
     // odd line A
     const __m128i sA0 = _mm_loadl_epi64((const __m128i *)(src0));
@@ -90,4 +90,4 @@ static INLINE void comp_mask_pred_8_ssse3(uint8_t *comp_pred, int height,
   } while (i < height);
 }
 
-#endif  // AOM_AOM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_
+#endif  // AVM_AVM_DSP_X86_MASKED_VARIANCE_INTRIN_SSSE3_H_

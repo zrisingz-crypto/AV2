@@ -10,20 +10,20 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_mem/aom_mem.h"
+#include "avm_mem/avm_mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/enums.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/scan.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/txb_common.h"
-#include "av1/encoder/mcomp.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/enums.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/scan.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/txb_common.h"
+#include "av2/encoder/mcomp.h"
 
 // Context tables for modes
 // TODO(@hegilmez): use constant macros in defining array dimensions whenever
 // available in entropy_inits_modes.h
-#include "av1/common/entropy_inits_modes.h"
+#include "av2/common/entropy_inits_modes.h"
 
 #define MAX_COLOR_CONTEXT_HASH 8
 
@@ -118,7 +118,7 @@ static INLINE int derive_color_index_ctx(uint8_t *color_order, int *color_idx,
   return color_index_ctx;
 }
 
-int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
+int av2_get_palette_color_index_context(const uint8_t *color_map, int stride,
                                         int r, int c, uint8_t *color_order,
                                         int *color_idx) {
   assert(r > 0 || c > 0);
@@ -134,159 +134,159 @@ int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
 static void init_mode_probs(FRAME_CONTEXT *fc,
                             const SequenceHeader *const seq_params) {
   (void)seq_params;
-  av1_copy(fc->palette_y_size_cdf, default_palette_y_size_cdf);
-  av1_copy(fc->palette_uv_size_cdf, default_palette_uv_size_cdf);
-  av1_copy(fc->identity_row_cdf_y, default_identity_row_cdf_y);
-  av1_copy(fc->identity_row_cdf_uv, default_identity_row_cdf_uv);
-  av1_copy(fc->palette_y_color_index_cdf, default_palette_y_color_index_cdf);
-  av1_copy(fc->comp_inter_cdf, default_comp_inter_cdf);
-  av1_copy(fc->tip_cdf, default_tip_cdf);
-  av1_copy(fc->tip_pred_mode_cdf, default_tip_pred_mode_cdf);
-  av1_copy(fc->palette_y_mode_cdf, default_palette_y_mode_cdf);
-  av1_copy(fc->palette_uv_mode_cdf, default_palette_uv_mode_cdf);
-  av1_copy(fc->single_ref_cdf, default_single_ref_cdf);
-  av1_copy(fc->comp_ref0_cdf, default_comp_ref0_cdf);
-  av1_copy(fc->comp_ref1_cdf, default_comp_ref1_cdf);
-  av1_copy(fc->txfm_do_partition_cdf, default_txfm_do_partition_cdf);
-  av1_copy(fc->txfm_2or3_way_partition_type_cdf,
+  av2_copy(fc->palette_y_size_cdf, default_palette_y_size_cdf);
+  av2_copy(fc->palette_uv_size_cdf, default_palette_uv_size_cdf);
+  av2_copy(fc->identity_row_cdf_y, default_identity_row_cdf_y);
+  av2_copy(fc->identity_row_cdf_uv, default_identity_row_cdf_uv);
+  av2_copy(fc->palette_y_color_index_cdf, default_palette_y_color_index_cdf);
+  av2_copy(fc->comp_inter_cdf, default_comp_inter_cdf);
+  av2_copy(fc->tip_cdf, default_tip_cdf);
+  av2_copy(fc->tip_pred_mode_cdf, default_tip_pred_mode_cdf);
+  av2_copy(fc->palette_y_mode_cdf, default_palette_y_mode_cdf);
+  av2_copy(fc->palette_uv_mode_cdf, default_palette_uv_mode_cdf);
+  av2_copy(fc->single_ref_cdf, default_single_ref_cdf);
+  av2_copy(fc->comp_ref0_cdf, default_comp_ref0_cdf);
+  av2_copy(fc->comp_ref1_cdf, default_comp_ref1_cdf);
+  av2_copy(fc->txfm_do_partition_cdf, default_txfm_do_partition_cdf);
+  av2_copy(fc->txfm_2or3_way_partition_type_cdf,
            default_txfm_2or3_way_partition_type_cdf);
-  av1_copy(fc->txfm_4way_partition_type_cdf,
+  av2_copy(fc->txfm_4way_partition_type_cdf,
            default_txfm_4way_partition_type_cdf);
   if (seq_params->reduced_tx_part_set) {
-    av1_copy(fc->txfm_4way_partition_type_cdf,
+    av2_copy(fc->txfm_4way_partition_type_cdf,
              default_txfm_4way_partition_type_reduced_cdf);
   }
-  av1_copy(fc->comp_group_idx_cdf, default_comp_group_idx_cdfs);
-  av1_copy(fc->inter_single_mode_cdf, default_inter_single_mode_cdf);
+  av2_copy(fc->comp_group_idx_cdf, default_comp_group_idx_cdfs);
+  av2_copy(fc->inter_single_mode_cdf, default_inter_single_mode_cdf);
 
-  av1_copy(fc->inter_warp_mode_cdf, default_inter_warp_mode_cdf);
-  av1_copy(fc->is_warpmv_or_warp_newmv_cdf,
+  av2_copy(fc->inter_warp_mode_cdf, default_inter_warp_mode_cdf);
+  av2_copy(fc->is_warpmv_or_warp_newmv_cdf,
            default_is_warpmv_or_warp_newmv_cdf);
 
-  av1_copy(fc->drl_cdf, default_drl_cdf);
+  av2_copy(fc->drl_cdf, default_drl_cdf);
 
-  av1_copy(fc->refinemv_flag_cdf, default_refinemv_flag_cdf);
-  av1_copy(fc->warp_causal_cdf, default_warp_causal_cdf);
-  av1_copy(fc->warp_ref_idx_cdf[0], default_warp_ref_idx0_cdf);
-  av1_copy(fc->warp_ref_idx_cdf[1], default_warp_ref_idx1_cdf);
-  av1_copy(fc->warp_ref_idx_cdf[2], default_warp_ref_idx2_cdf);
-  av1_copy(fc->warpmv_with_mvd_flag_cdf, default_warpmv_with_mvd_flag_cdf);
-  av1_copy(fc->warp_precision_idx_cdf, default_warp_precision_idx_cdf);
+  av2_copy(fc->refinemv_flag_cdf, default_refinemv_flag_cdf);
+  av2_copy(fc->warp_causal_cdf, default_warp_causal_cdf);
+  av2_copy(fc->warp_ref_idx_cdf[0], default_warp_ref_idx0_cdf);
+  av2_copy(fc->warp_ref_idx_cdf[1], default_warp_ref_idx1_cdf);
+  av2_copy(fc->warp_ref_idx_cdf[2], default_warp_ref_idx2_cdf);
+  av2_copy(fc->warpmv_with_mvd_flag_cdf, default_warpmv_with_mvd_flag_cdf);
+  av2_copy(fc->warp_precision_idx_cdf, default_warp_precision_idx_cdf);
 
-  av1_copy(fc->warp_delta_param_cdf, default_warp_delta_param_cdf);
-  av1_copy(fc->warp_delta_param_high_cdf, default_warp_delta_param_high_cdf);
-  av1_copy(fc->warp_param_sign_cdf, default_warp_param_sign_cdf);
-  av1_copy(fc->warp_extend_cdf, default_warp_extend_cdf);
-  av1_copy(fc->skip_drl_cdf, default_skip_drl_cdf);
-  av1_copy(fc->tip_drl_cdf, default_tip_drl_cdf);
-  av1_copy(fc->bawp_cdf[0], default_bawp_cdf[0]);
-  av1_copy(fc->bawp_cdf[1], default_bawp_cdf[1]);
-  av1_copy(fc->explicit_bawp_cdf, default_explicit_bawp_cdf);
-  av1_copy(fc->explicit_bawp_scale_cdf, default_explicit_bawp_scale_cdf);
-  av1_copy(fc->use_optflow_cdf, default_use_optflow_cdf);
+  av2_copy(fc->warp_delta_param_cdf, default_warp_delta_param_cdf);
+  av2_copy(fc->warp_delta_param_high_cdf, default_warp_delta_param_high_cdf);
+  av2_copy(fc->warp_param_sign_cdf, default_warp_param_sign_cdf);
+  av2_copy(fc->warp_extend_cdf, default_warp_extend_cdf);
+  av2_copy(fc->skip_drl_cdf, default_skip_drl_cdf);
+  av2_copy(fc->tip_drl_cdf, default_tip_drl_cdf);
+  av2_copy(fc->bawp_cdf[0], default_bawp_cdf[0]);
+  av2_copy(fc->bawp_cdf[1], default_bawp_cdf[1]);
+  av2_copy(fc->explicit_bawp_cdf, default_explicit_bawp_cdf);
+  av2_copy(fc->explicit_bawp_scale_cdf, default_explicit_bawp_scale_cdf);
+  av2_copy(fc->use_optflow_cdf, default_use_optflow_cdf);
 
-  av1_copy(fc->cwp_idx_cdf, default_cwp_idx_cdf);
-  av1_copy(fc->jmvd_scale_mode_cdf, default_jmvd_scale_mode_cdf);
-  av1_copy(fc->jmvd_amvd_scale_mode_cdf, default_jmvd_amvd_scale_mode_cdf);
+  av2_copy(fc->cwp_idx_cdf, default_cwp_idx_cdf);
+  av2_copy(fc->jmvd_scale_mode_cdf, default_jmvd_scale_mode_cdf);
+  av2_copy(fc->jmvd_amvd_scale_mode_cdf, default_jmvd_amvd_scale_mode_cdf);
 
-  av1_copy(fc->inter_compound_mode_is_joint_cdf,
+  av2_copy(fc->inter_compound_mode_is_joint_cdf,
            default_inter_compound_mode_is_joint_cdf);
-  av1_copy(fc->inter_compound_mode_non_joint_type_cdf,
+  av2_copy(fc->inter_compound_mode_non_joint_type_cdf,
            default_inter_compound_mode_non_joint_type_cdf);
 
-  av1_copy(fc->inter_compound_mode_same_refs_cdf,
+  av2_copy(fc->inter_compound_mode_same_refs_cdf,
            default_inter_compound_mode_same_refs_cdf);
-  av1_copy(fc->compound_type_cdf, default_compound_type_cdf);
-  av1_copy(fc->amvd_mode_cdf, default_amvd_mode_cdf);
-  av1_copy(fc->wedge_quad_cdf, default_wedge_quad_cdf);
-  av1_copy(fc->wedge_angle_cdf, default_wedge_angle_cdf);
-  av1_copy(fc->wedge_dist_cdf, default_wedge_dist_cdf);
-  av1_copy(fc->wedge_dist_cdf2, default_wedge_dist_cdf2);
-  av1_copy(fc->interintra_cdf, default_interintra_cdf);
-  av1_copy(fc->warp_interintra_cdf, default_warp_interintra_cdf);
-  av1_copy(fc->wedge_interintra_cdf, default_wedge_interintra_cdf);
-  av1_copy(fc->interintra_mode_cdf, default_interintra_mode_cdf);
-  av1_copy(fc->seg.pred_cdf, default_segment_pred_cdf);
-  av1_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
-  av1_copy(fc->seg.tree_cdf1, default_seg_tree_cdf1);
-  av1_copy(fc->switchable_flex_restore_cdf,
+  av2_copy(fc->compound_type_cdf, default_compound_type_cdf);
+  av2_copy(fc->amvd_mode_cdf, default_amvd_mode_cdf);
+  av2_copy(fc->wedge_quad_cdf, default_wedge_quad_cdf);
+  av2_copy(fc->wedge_angle_cdf, default_wedge_angle_cdf);
+  av2_copy(fc->wedge_dist_cdf, default_wedge_dist_cdf);
+  av2_copy(fc->wedge_dist_cdf2, default_wedge_dist_cdf2);
+  av2_copy(fc->interintra_cdf, default_interintra_cdf);
+  av2_copy(fc->warp_interintra_cdf, default_warp_interintra_cdf);
+  av2_copy(fc->wedge_interintra_cdf, default_wedge_interintra_cdf);
+  av2_copy(fc->interintra_mode_cdf, default_interintra_mode_cdf);
+  av2_copy(fc->seg.pred_cdf, default_segment_pred_cdf);
+  av2_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
+  av2_copy(fc->seg.tree_cdf1, default_seg_tree_cdf1);
+  av2_copy(fc->switchable_flex_restore_cdf,
            default_switchable_flex_restore_cdf);
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
-    av1_copy(fc->ccso_cdf[plane], default_ccso_cdf[plane]);
+    av2_copy(fc->ccso_cdf[plane], default_ccso_cdf[plane]);
   }
-  av1_copy(fc->cdef_strength_index0_cdf, default_cdef_strength_index0_cdf);
-  av1_copy(fc->cdef_cdf, default_cdef_cdf);
-  av1_copy(fc->gdf_cdf, default_gdf_cdf);
-  av1_copy(fc->wienerns_restore_cdf, default_wienerns_restore_cdf);
-  av1_copy(fc->wienerns_length_cdf, default_wienerns_length_cdf);
-  av1_copy(fc->wienerns_uv_sym_cdf, default_wienerns_uv_sym_cdf);
-  av1_copy(fc->wienerns_4part_cdf, default_wienerns_4part_cdf);
-  av1_copy(fc->pc_wiener_restore_cdf, default_pc_wiener_restore_cdf);
-  av1_copy(fc->y_mode_set_cdf, default_y_mode_set_cdf);
-  av1_copy(fc->y_mode_idx_cdf, default_y_mode_idx_cdf);
-  av1_copy(fc->y_mode_idx_offset_cdf, default_y_mode_idx_offset_cdf);
-  av1_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
-  av1_copy(fc->cfl_cdf, default_cfl_cdf);
-  av1_copy(fc->mrl_index_cdf, default_mrl_index_cdf);
-  av1_copy(fc->multi_line_mrl_cdf, default_multi_line_mrl_cdf);
-  av1_copy(fc->fsc_mode_cdf, default_fsc_mode_cdf);
-  av1_copy(fc->dpcm_cdf, default_dpcm_cdf);
-  av1_copy(fc->dpcm_vert_horz_cdf, default_dpcm_vert_horz_cdf);
-  av1_copy(fc->dpcm_uv_cdf, default_dpcm_uv_cdf);
-  av1_copy(fc->dpcm_uv_vert_horz_cdf, default_dpcm_uv_vert_horz_cdf);
-  av1_copy(fc->cfl_index_cdf, default_cfl_index_cdf);
-  av1_copy(fc->cfl_mhccp_cdf, default_cfl_mhccp_switch_cdf);
-  av1_copy(fc->filter_dir_cdf, default_filter_dir_cdf);
-  av1_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
-  av1_copy(fc->region_type_cdf, default_region_type_cdf);
-  av1_copy(fc->do_split_cdf, default_do_split_cdf);
-  av1_copy(fc->do_square_split_cdf, default_do_square_split_cdf);
-  av1_copy(fc->rect_type_cdf, default_rect_type_cdf);
-  av1_copy(fc->do_ext_partition_cdf, default_do_ext_partition_cdf);
-  av1_copy(fc->do_uneven_4way_partition_cdf,
+  av2_copy(fc->cdef_strength_index0_cdf, default_cdef_strength_index0_cdf);
+  av2_copy(fc->cdef_cdf, default_cdef_cdf);
+  av2_copy(fc->gdf_cdf, default_gdf_cdf);
+  av2_copy(fc->wienerns_restore_cdf, default_wienerns_restore_cdf);
+  av2_copy(fc->wienerns_length_cdf, default_wienerns_length_cdf);
+  av2_copy(fc->wienerns_uv_sym_cdf, default_wienerns_uv_sym_cdf);
+  av2_copy(fc->wienerns_4part_cdf, default_wienerns_4part_cdf);
+  av2_copy(fc->pc_wiener_restore_cdf, default_pc_wiener_restore_cdf);
+  av2_copy(fc->y_mode_set_cdf, default_y_mode_set_cdf);
+  av2_copy(fc->y_mode_idx_cdf, default_y_mode_idx_cdf);
+  av2_copy(fc->y_mode_idx_offset_cdf, default_y_mode_idx_offset_cdf);
+  av2_copy(fc->uv_mode_cdf, default_uv_mode_cdf);
+  av2_copy(fc->cfl_cdf, default_cfl_cdf);
+  av2_copy(fc->mrl_index_cdf, default_mrl_index_cdf);
+  av2_copy(fc->multi_line_mrl_cdf, default_multi_line_mrl_cdf);
+  av2_copy(fc->fsc_mode_cdf, default_fsc_mode_cdf);
+  av2_copy(fc->dpcm_cdf, default_dpcm_cdf);
+  av2_copy(fc->dpcm_vert_horz_cdf, default_dpcm_vert_horz_cdf);
+  av2_copy(fc->dpcm_uv_cdf, default_dpcm_uv_cdf);
+  av2_copy(fc->dpcm_uv_vert_horz_cdf, default_dpcm_uv_vert_horz_cdf);
+  av2_copy(fc->cfl_index_cdf, default_cfl_index_cdf);
+  av2_copy(fc->cfl_mhccp_cdf, default_cfl_mhccp_switch_cdf);
+  av2_copy(fc->filter_dir_cdf, default_filter_dir_cdf);
+  av2_copy(fc->switchable_interp_cdf, default_switchable_interp_cdf);
+  av2_copy(fc->region_type_cdf, default_region_type_cdf);
+  av2_copy(fc->do_split_cdf, default_do_split_cdf);
+  av2_copy(fc->do_square_split_cdf, default_do_square_split_cdf);
+  av2_copy(fc->rect_type_cdf, default_rect_type_cdf);
+  av2_copy(fc->do_ext_partition_cdf, default_do_ext_partition_cdf);
+  av2_copy(fc->do_uneven_4way_partition_cdf,
            default_do_uneven_4way_partition_cdf);
-  av1_copy(fc->intra_ext_tx_short_side_cdf,
+  av2_copy(fc->intra_ext_tx_short_side_cdf,
            default_intra_ext_tx_short_side_cdf);
-  av1_copy(fc->inter_ext_tx_short_side_cdf,
+  av2_copy(fc->inter_ext_tx_short_side_cdf,
            default_inter_ext_tx_short_side_cdf);
-  av1_copy(fc->tx_ext_32_cdf, default_tx_ext_32_cdf);
-  av1_copy(fc->lossless_tx_size_cdf, default_lossless_tx_size_cdf);
-  av1_copy(fc->lossless_inter_tx_type_cdf, default_lossless_inter_tx_type_cdf);
-  av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
-  av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
-  av1_copy(fc->inter_tx_type_set, default_inter_tx_type_set_cdf);
-  av1_copy(fc->inter_tx_type_idx, default_inter_tx_type_idx_cdf);
-  av1_copy(fc->inter_tx_type_offset_1, default_inter_tx_type_offset_1_cdf);
-  av1_copy(fc->inter_tx_type_offset_2, default_inter_tx_type_offset_2_cdf);
-  av1_copy(fc->bru_mode_cdf, default_bru_mode_cdf);
-  av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
-  av1_copy(fc->skip_txfm_cdfs, default_skip_txfm_cdfs);
-  av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
+  av2_copy(fc->tx_ext_32_cdf, default_tx_ext_32_cdf);
+  av2_copy(fc->lossless_tx_size_cdf, default_lossless_tx_size_cdf);
+  av2_copy(fc->lossless_inter_tx_type_cdf, default_lossless_inter_tx_type_cdf);
+  av2_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
+  av2_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
+  av2_copy(fc->inter_tx_type_set, default_inter_tx_type_set_cdf);
+  av2_copy(fc->inter_tx_type_idx, default_inter_tx_type_idx_cdf);
+  av2_copy(fc->inter_tx_type_offset_1, default_inter_tx_type_offset_1_cdf);
+  av2_copy(fc->inter_tx_type_offset_2, default_inter_tx_type_offset_2_cdf);
+  av2_copy(fc->bru_mode_cdf, default_bru_mode_cdf);
+  av2_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
+  av2_copy(fc->skip_txfm_cdfs, default_skip_txfm_cdfs);
+  av2_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
   for (int i = 0; i < SPATIAL_PREDICTION_PROBS; i++) {
-    av1_copy(fc->seg.spatial_pred_seg_cdf[i],
+    av2_copy(fc->seg.spatial_pred_seg_cdf[i],
              default_spatial_pred_seg_tree_cdf[i]);
-    av1_copy(fc->seg.spatial_pred_seg_cdf1[i],
+    av2_copy(fc->seg.spatial_pred_seg_cdf1[i],
              default_spatial_pred_seg_tree_cdf1[i]);
-    av1_copy(fc->seg.seg_id_ext_flag_cdf[i], default_seg_id_ext_flag_cdf[i]);
+    av2_copy(fc->seg.seg_id_ext_flag_cdf[i], default_seg_id_ext_flag_cdf[i]);
   }
-  av1_copy(fc->delta_q_cdf, default_delta_q_cdf);
-  av1_copy(fc->cfl_sign_cdf, default_cfl_sign_cdf);
-  av1_copy(fc->cfl_alpha_cdf, default_cfl_alpha_cdf);
-  av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
-  av1_copy(fc->intrabc_mode_cdf, default_intrabc_mode_cdf);
-  av1_copy(fc->intrabc_bv_precision_cdf, default_intrabc_bv_precision_cdf);
-  av1_copy(fc->morph_pred_cdf, default_morph_pred_cdf);
-  av1_copy(fc->stx_cdf, default_stx_cdf);
-  av1_copy(fc->most_probable_stx_set_cdf, default_most_probable_stx_set_cdf);
-  av1_copy(fc->most_probable_stx_set_cdf_ADST_ADST,
+  av2_copy(fc->delta_q_cdf, default_delta_q_cdf);
+  av2_copy(fc->cfl_sign_cdf, default_cfl_sign_cdf);
+  av2_copy(fc->cfl_alpha_cdf, default_cfl_alpha_cdf);
+  av2_copy(fc->intrabc_cdf, default_intrabc_cdf);
+  av2_copy(fc->intrabc_mode_cdf, default_intrabc_mode_cdf);
+  av2_copy(fc->intrabc_bv_precision_cdf, default_intrabc_bv_precision_cdf);
+  av2_copy(fc->morph_pred_cdf, default_morph_pred_cdf);
+  av2_copy(fc->stx_cdf, default_stx_cdf);
+  av2_copy(fc->most_probable_stx_set_cdf, default_most_probable_stx_set_cdf);
+  av2_copy(fc->most_probable_stx_set_cdf_ADST_ADST,
            default_most_probable_stx_set_cdf_ADST_ADST);
-  av1_copy(fc->pb_mv_precision_cdf, default_pb_mv_precision_cdf);
-  av1_copy(fc->pb_mv_mpp_flag_cdf, default_pb_mv_most_probable_precision_cdf);
-  av1_copy(fc->cctx_type_cdf, default_cctx_type_cdf);
+  av2_copy(fc->pb_mv_precision_cdf, default_pb_mv_precision_cdf);
+  av2_copy(fc->pb_mv_mpp_flag_cdf, default_pb_mv_most_probable_precision_cdf);
+  av2_copy(fc->cctx_type_cdf, default_cctx_type_cdf);
 }
 
-static AOM_INLINE void cumulative_avg_cdf_symbol(
-    aom_cdf_prob *cdf_ptr_left, aom_cdf_prob *cdf_ptr_tr, int num_cdfs,
+static AVM_INLINE void cumulative_avg_cdf_symbol(
+    avm_cdf_prob *cdf_ptr_left, avm_cdf_prob *cdf_ptr_tr, int num_cdfs,
     int cdf_stride, int nsymbs, unsigned int total_tiles_log2) {
   for (int i = 0; i < num_cdfs; i++) {
     for (int j = 0; j <= nsymbs; j++) {
@@ -302,9 +302,9 @@ static AOM_INLINE void cumulative_avg_cdf_symbol(
   CUMULATIVE_AVG_CDF_STRIDE(cname_left, cname_tr, nsymbs, CDF_SIZE(nsymbs))
 #define CUMULATIVE_AVG_CDF_STRIDE(cname_left, cname_tr, nsymbs, cdf_stride)   \
   do {                                                                        \
-    aom_cdf_prob *cdf_ptr_left = (aom_cdf_prob *)cname_left;                  \
-    aom_cdf_prob *cdf_ptr_tr = (aom_cdf_prob *)cname_tr;                      \
-    int array_size = (int)sizeof(cname_left) / sizeof(aom_cdf_prob);          \
+    avm_cdf_prob *cdf_ptr_left = (avm_cdf_prob *)cname_left;                  \
+    avm_cdf_prob *cdf_ptr_tr = (avm_cdf_prob *)cname_tr;                      \
+    int array_size = (int)sizeof(cname_left) / sizeof(avm_cdf_prob);          \
     int num_cdfs = array_size / cdf_stride;                                   \
     cumulative_avg_cdf_symbol(cdf_ptr_left, cdf_ptr_tr, num_cdfs, cdf_stride, \
                               nsymbs, total_tiles_log2);                      \
@@ -353,7 +353,7 @@ static void cumulative_avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr,
 }
 
 // This function facilitates the averaging of CDFs from different tiles.
-void av1_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
+void av2_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
                                     FRAME_CONTEXT *ctx_tr,
                                     unsigned int total_tiles_log2) {
   CUMULATIVE_AVERAGE_CDF(ctx_left->txb_skip_cdf, ctx_tr->txb_skip_cdf, 2);
@@ -657,7 +657,7 @@ void av1_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
   for (int p = MV_PRECISION_HALF_PEL; p < NUM_MV_PRECISIONS; ++p) {
     int mb_precision_set = (p == MV_PRECISION_QTR_PEL);
     const PRECISION_SET *precision_def =
-        &av1_mv_precision_sets[mb_precision_set];
+        &av2_mv_precision_sets[mb_precision_set];
     int num_precisions = precision_def->num_precisions;
     for (int j = 0; j < MV_PREC_DOWN_CONTEXTS; ++j) {
       CUMULATIVE_AVG_CDF_STRIDE(
@@ -673,7 +673,7 @@ void av1_cumulative_avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
                          CCTX_TYPES);
 }
 
-static AOM_INLINE void shift_cdf_symbol(aom_cdf_prob *cdf_ptr, int num_cdfs,
+static AVM_INLINE void shift_cdf_symbol(avm_cdf_prob *cdf_ptr, int num_cdfs,
                                         int cdf_stride, int nsymbs,
                                         unsigned int total_tiles_log2) {
   for (int i = 0; i < num_cdfs; i++) {
@@ -689,8 +689,8 @@ static AOM_INLINE void shift_cdf_symbol(aom_cdf_prob *cdf_ptr, int num_cdfs,
   SHIFT_CDF_STRIDE(cname_cdf, nsymbs, CDF_SIZE(nsymbs))
 #define SHIFT_CDF_STRIDE(cname_cdf, nsymbs, cdf_stride)                        \
   do {                                                                         \
-    aom_cdf_prob *cdf_ptr = (aom_cdf_prob *)cname_cdf;                         \
-    int array_size = (int)sizeof(cname_cdf) / sizeof(aom_cdf_prob);            \
+    avm_cdf_prob *cdf_ptr = (avm_cdf_prob *)cname_cdf;                         \
+    int array_size = (int)sizeof(cname_cdf) / sizeof(avm_cdf_prob);            \
     int num_cdfs = array_size / cdf_stride;                                    \
     shift_cdf_symbol(cdf_ptr, num_cdfs, cdf_stride, nsymbs, total_tiles_log2); \
   } while (0)
@@ -721,7 +721,7 @@ static void shift_nmv(nmv_context *nmv_ptr, int total_tiles_log2) {
 }
 
 // This function facilitates the shift of CDFs from number of tiles.
-void av1_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
+void av2_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
                            unsigned int total_tiles_log2) {
   SHIFT_CDF(ctx_ptr->txb_skip_cdf, 2);
   SHIFT_CDF(ctx_ptr->v_txb_skip_cdf, 2);
@@ -901,7 +901,7 @@ void av1_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
   for (int p = MV_PRECISION_HALF_PEL; p < NUM_MV_PRECISIONS; ++p) {
     int mb_precision_set = (p == MV_PRECISION_QTR_PEL);
     const PRECISION_SET *precision_def =
-        &av1_mv_precision_sets[mb_precision_set];
+        &av2_mv_precision_sets[mb_precision_set];
     int num_precisions = precision_def->num_precisions;
     for (int j = 0; j < MV_PREC_DOWN_CONTEXTS; ++j) {
       SHIFT_CDF_STRIDE(
@@ -914,14 +914,14 @@ void av1_shift_cdf_symbols(FRAME_CONTEXT *ctx_ptr,
   SHIFT_CDF(ctx_ptr->cctx_type_cdf, CCTX_TYPES);
 }
 
-static void avg_cdf_symbol(aom_cdf_prob *cdf_ptr_left, aom_cdf_prob *cdf_ptr_tr,
+static void avg_cdf_symbol(avm_cdf_prob *cdf_ptr_left, avm_cdf_prob *cdf_ptr_tr,
                            int num_cdfs, int cdf_stride, int nsymbs,
                            int wt_left, int wt_tr, unsigned int offset,
                            unsigned int shift) {
   for (int i = 0; i < num_cdfs; i++) {
     for (int j = 0; j <= nsymbs; j++) {
       cdf_ptr_left[i * cdf_stride + j] =
-          (aom_cdf_prob)(((int)cdf_ptr_left[i * cdf_stride + j] * wt_left +
+          (avm_cdf_prob)(((int)cdf_ptr_left[i * cdf_stride + j] * wt_left +
                           (int)cdf_ptr_tr[i * cdf_stride + j] * wt_tr +
                           offset) >>
                          shift);
@@ -935,9 +935,9 @@ static void avg_cdf_symbol(aom_cdf_prob *cdf_ptr_left, aom_cdf_prob *cdf_ptr_tr,
   AVG_CDF_STRIDE(cname_left, cname_tr, nsymbs, CDF_SIZE(nsymbs))
 #define AVG_CDF_STRIDE(cname_left, cname_tr, nsymbs, cdf_stride)           \
   do {                                                                     \
-    aom_cdf_prob *cdf_ptr_left = (aom_cdf_prob *)cname_left;               \
-    aom_cdf_prob *cdf_ptr_tr = (aom_cdf_prob *)cname_tr;                   \
-    int array_size = (int)sizeof(cname_left) / sizeof(aom_cdf_prob);       \
+    avm_cdf_prob *cdf_ptr_left = (avm_cdf_prob *)cname_left;               \
+    avm_cdf_prob *cdf_ptr_tr = (avm_cdf_prob *)cname_tr;                   \
+    int array_size = (int)sizeof(cname_left) / sizeof(avm_cdf_prob);       \
     int num_cdfs = array_size / cdf_stride;                                \
     avg_cdf_symbol(cdf_ptr_left, cdf_ptr_tr, num_cdfs, cdf_stride, nsymbs, \
                    wt_left, wt_tr, offset, shift);                         \
@@ -986,7 +986,7 @@ static void avg_nmv(nmv_context *nmv_left, nmv_context *nmv_tr, int wt_left,
 // the left SB's CDFs and use the same for current SB's encoding to
 // improve the performance. This function facilitates the averaging
 // of CDF and used only when row-mt is enabled in encoder.
-void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
+void av2_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
                          int wt_left, int wt_tr) {
   unsigned int shift = compute_log2(wt_left + wt_tr);
   assert(shift - 1 < 32);
@@ -1235,7 +1235,7 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   for (int p = MV_PRECISION_HALF_PEL; p < NUM_MV_PRECISIONS; ++p) {
     int mb_precision_set = (p == MV_PRECISION_QTR_PEL);
     const PRECISION_SET *precision_def =
-        &av1_mv_precision_sets[mb_precision_set];
+        &av2_mv_precision_sets[mb_precision_set];
     int num_precisions = precision_def->num_precisions;
     for (int j = 0; j < MV_PREC_DOWN_CONTEXTS; ++j) {
       AVG_CDF_STRIDE(
@@ -1249,38 +1249,38 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->cctx_type_cdf, ctx_tr->cctx_type_cdf, CCTX_TYPES);
 }
 
-void av1_setup_frame_contexts(AV1_COMMON *cm) {
+void av2_setup_frame_contexts(AV2_COMMON *cm) {
   // Store the frame context into a special slot (not associated with any
   // reference buffer), so that we can set up cm->pre_fc correctly later
   // This function must ONLY be called when cm->fc has been initialized with
-  // default probs, either by av1_setup_past_independence or after manually
+  // default probs, either by av2_setup_past_independence or after manually
   // initializing them
   *cm->default_frame_context = *cm->fc;
 }
 
-void av1_setup_past_independence(AV1_COMMON *cm) {
+void av2_setup_past_independence(AV2_COMMON *cm) {
   // Reset the segment feature data to the default stats:
   // Features disabled, 0, with delta coding (Default state).
-  av1_clearall_segfeatures(&cm->seg);
+  av2_clearall_segfeatures(&cm->seg);
 
   if (cm->cur_frame->seg_map) {
     memset(cm->cur_frame->seg_map, 0,
            (cm->cur_frame->mi_rows * cm->cur_frame->mi_cols));
   }
 
-  av1_default_coef_probs(cm);
+  av2_default_coef_probs(cm);
   init_mode_probs(cm->fc, &cm->seq_params);
-  av1_init_mv_probs(cm);
+  av2_init_mv_probs(cm);
   cm->fc->initialized = 1;
-  av1_setup_frame_contexts(cm);
+  av2_setup_frame_contexts(cm);
 }
 
 #if CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
-void av1_set_default_frame_contexts(AV1_COMMON *cm) {
-  av1_default_coef_probs(cm);
+void av2_set_default_frame_contexts(AV2_COMMON *cm) {
+  av2_default_coef_probs(cm);
   init_mode_probs(cm->fc, &cm->seq_params);
-  av1_init_mv_probs(cm);
+  av2_init_mv_probs(cm);
   cm->fc->initialized = 1;
-  av1_setup_frame_contexts(cm);
+  av2_setup_frame_contexts(cm);
 }
 #endif  // CONFIG_DISABLE_CROSS_FRAME_CDF_INIT

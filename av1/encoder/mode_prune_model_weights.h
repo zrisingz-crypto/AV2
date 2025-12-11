@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_
-#define AOM_AV1_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_
+#ifndef AVM_AV2_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_
+#define AVM_AV2_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +22,7 @@ extern "C" {
 #define NUM_LAYER_0_UNITS_12 24
 #define NUM_LOGITS_12 2
 
-static const float av1_intrap_hiddenlayer_0_kernel_12[] = {
+static const float av2_intrap_hiddenlayer_0_kernel_12[] = {
   7.28372f,       -1.3333898f,    -1.3180022f,   -0.007156151f, -0.40799126f,
   -0.57538104f,   -31.81647f,     6.7057495f,    6.351472f,     -0.029544508f,
   0.026801195f,   1.12863f,       -0.70769817f,  -0.24183524f,  0.0649113f,
@@ -54,14 +54,14 @@ static const float av1_intrap_hiddenlayer_0_kernel_12[] = {
   0.81836903f,    -1.0443225f,    0.4459505f,    -1.2045046f
 };
 
-static const float av1_intrap_hiddenlayer_0_bias_12[] = {
+static const float av2_intrap_hiddenlayer_0_bias_12[] = {
   -4.154915f,   14.33833f,   0.0f,       0.0f,         2.0440118f, 12.40922f,
   -16.77514f,   0.5879813f,  3.2305415f, 0.8303539f,   0.0f,       14.488708f,
   2.94393f,     1.874383f,   0.0f,       -0.53140444f, 0.0f,       1.8456234f,
   -0.55427986f, -19.856262f, 0.0f,       0.17281002f,  48.31631f,  0.0f
 };
 
-static const float av1_intrap_logits_kernel_12[] = {
+static const float av2_intrap_logits_kernel_12[] = {
   0.26843873f,   -0.09576241f,  0.34427166f,  0.09914787f,  -0.10275399f,
   0.02999484f,   -0.1467772f,   0.11594324f,  0.29200763f,  0.0067976206f,
   0.050393578f,  -0.018694371f, 0.3333476f,   0.2127221f,   0.35128218f,
@@ -74,9 +74,9 @@ static const float av1_intrap_logits_kernel_12[] = {
   -0.30020145f,  0.066221856f,  0.37213042f
 };
 
-static const float av1_intrap_logits_bias_12[] = { 0.95783f, -0.95823103f };
+static const float av2_intrap_logits_bias_12[] = { 0.95783f, -0.95823103f };
 
-static const NN_CONFIG av1_intrap_nn_config = {
+static const NN_CONFIG av2_intrap_nn_config = {
   NUM_FEATURES_12,
   NUM_LOGITS_12,
   NUM_HIDDEN_LAYERS_12,
@@ -84,12 +84,12 @@ static const NN_CONFIG av1_intrap_nn_config = {
       NUM_LAYER_0_UNITS_12,
   },
   {
-      av1_intrap_hiddenlayer_0_kernel_12,
-      av1_intrap_logits_kernel_12,
+      av2_intrap_hiddenlayer_0_kernel_12,
+      av2_intrap_logits_kernel_12,
   },
   {
-      av1_intrap_hiddenlayer_0_bias_12,
-      av1_intrap_logits_bias_12,
+      av2_intrap_hiddenlayer_0_bias_12,
+      av2_intrap_logits_bias_12,
   },
 };
 
@@ -103,7 +103,7 @@ static const NN_CONFIG av1_intrap_nn_config = {
 #define NUM_LAYER_0_UNITS_15 24
 #define NUM_LOGITS_15 2
 
-static const float av1_intraph_hiddenlayer_0_kernel_15[] = {
+static const float av2_intraph_hiddenlayer_0_kernel_15[] = {
   -0.77480125f,   0.3219551f,    -0.015702145f,   -0.5310235f,   0.5254026f,
   -1.1522819f,    2.682016f,     0.08001052f,     -0.2539285f,   0.04711023f,
   -0.81296307f,   0.2675382f,    0.1952474f,      -0.0664705f,   1.2989824f,
@@ -135,14 +135,14 @@ static const float av1_intraph_hiddenlayer_0_kernel_15[] = {
   -0.5678484f,    -0.39009875f,  -0.062105156f,   -0.13965102f
 };
 
-static const float av1_intraph_hiddenlayer_0_bias_15[] = {
+static const float av2_intraph_hiddenlayer_0_bias_15[] = {
   0.0f,       -0.2926711f, 0.0f,         -1.0303509f, -27.459345f,  12.412848f,
   0.0f,       -2.5971522f, -0.02733541f, -19.881912f, 14.391992f,   -8.249469f,
   0.0f,       0.0f,        13.676118f,   -0.6472994f, -0.07189449f, 1.1986839f,
   52.479107f, 0.0f,        0.0f,         -3.0187025f, 1.4435643f,   0.0f
 };
 
-static const float av1_intraph_logits_kernel_15[] = {
+static const float av2_intraph_logits_kernel_15[] = {
   0.05390722f,   -0.06859513f, 0.036842898f, 0.190772f,    0.13623567f,
   0.09321194f,   0.2314745f,   -0.13958375f, -0.3058229f,  -0.0104543045f,
   0.11336068f,   -0.276115f,   0.00470723f,  -0.49123898f, -0.15988174f,
@@ -155,9 +155,9 @@ static const float av1_intraph_logits_kernel_15[] = {
   -0.18334487f,  -0.42385718f, -0.08033409f
 };
 
-static const float av1_intraph_logits_bias_15[] = { 0.83619016f, -0.8340626f };
+static const float av2_intraph_logits_bias_15[] = { 0.83619016f, -0.8340626f };
 
-static const NN_CONFIG av1_intrap_hd_nn_config = {
+static const NN_CONFIG av2_intrap_hd_nn_config = {
   NUM_FEATURES_15,
   NUM_LOGITS_15,
   NUM_HIDDEN_LAYERS_15,
@@ -165,12 +165,12 @@ static const NN_CONFIG av1_intrap_hd_nn_config = {
       NUM_LAYER_0_UNITS_15,
   },
   {
-      av1_intraph_hiddenlayer_0_kernel_15,
-      av1_intraph_logits_kernel_15,
+      av2_intraph_hiddenlayer_0_kernel_15,
+      av2_intraph_logits_kernel_15,
   },
   {
-      av1_intraph_hiddenlayer_0_bias_15,
-      av1_intraph_logits_bias_15,
+      av2_intraph_hiddenlayer_0_bias_15,
+      av2_intraph_logits_bias_15,
   },
 };
 
@@ -183,4 +183,4 @@ static const NN_CONFIG av1_intrap_hd_nn_config = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_
+#endif  // AVM_AV2_ENCODER_MODE_PRUNE_MODEL_WEIGHTS_H_

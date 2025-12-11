@@ -12,15 +12,15 @@
 #include <immintrin.h> /* AVX2 */
 #include <tmmintrin.h> /* SSSE3 */
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "av1/common/intra_matrix.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "av2/common/intra_matrix.h"
 
 // Multiply 11 element feature vector with matrix to generate 8x8 prediction.
 // A - pointer to matrix
 // B - pointer to feature vector
 // C - 8x8 output prediction
 // bd - bit depth
-void av1_dip_matrix_multiplication_avx2(const uint16_t *A, const uint16_t *B,
+void av2_dip_matrix_multiplication_avx2(const uint16_t *A, const uint16_t *B,
                                         uint16_t *C, int bd) {
   static const uint16_t mask[16] = { -1, -1, -1, -1, -1, -1, -1, -1,
                                      -1, -1, -1, 0,  0,  0,  0,  0 };
@@ -132,7 +132,7 @@ void resample_output_avx2(uint16_t *dst, int dst_stride,
                           const uint16_t *above_row, const uint16_t *left_col,
                           uint16_t *ml_output, int bw_log2, int bh_log2,
                           int transpose) {
-  // AOM_SIMD_CONV_FN_W_FN
+  // AVM_SIMD_CONV_FN_W_FN
   typedef void (*resample_vert_fn)(uint16_t *dst, const uint16_t *p0_row,
                                    const uint16_t *p1_row, const int w0,
                                    const int w1, const int upy_log2);

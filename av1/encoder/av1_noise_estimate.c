@@ -14,15 +14,15 @@
 #include <limits.h>
 #include <math.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_scale/yv12config.h"
-#include "aom/aom_integer.h"
-#include "av1/encoder/context_tree.h"
-#include "av1/encoder/av1_noise_estimate.h"
-#include "av1/encoder/encoder.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_scale/yv12config.h"
+#include "avm/avm_integer.h"
+#include "av2/encoder/context_tree.h"
+#include "av2/encoder/av2_noise_estimate.h"
+#include "av2/encoder/encoder.h"
 
-void av1_noise_estimate_init(NOISE_ESTIMATE *const ne, int width, int height) {
+void av2_noise_estimate_init(NOISE_ESTIMATE *const ne, int width, int height) {
   ne->enabled = 0;
   ne->level = (width * height < 1280 * 720) ? kLowLow : kLow;
   ne->value = 0;
@@ -41,7 +41,7 @@ void av1_noise_estimate_init(NOISE_ESTIMATE *const ne, int width, int height) {
   ne->adapt_thresh = (3 * ne->thresh) >> 1;
 }
 
-static int enable_noise_estimation(AV1_COMP *const cpi) {
+static int enable_noise_estimation(AV2_COMP *const cpi) {
   ResizePendingParams *const resize_pending_params =
       &cpi->resize_pending_params;
   const int resize_pending =
@@ -53,7 +53,7 @@ static int enable_noise_estimation(AV1_COMP *const cpi) {
   /* if (cpi->common.seq_params.use_highbitdepth) */ return 0;
 }
 
-#if CONFIG_AV1_TEMPORAL_DENOISING
+#if CONFIG_AV2_TEMPORAL_DENOISING
 static void copy_frame(YV12_BUFFER_CONFIG *const dest,
                        const YV12_BUFFER_CONFIG *const src) {
   const uint8_t *srcbuf = src->y_buffer;
@@ -68,9 +68,9 @@ static void copy_frame(YV12_BUFFER_CONFIG *const dest,
     srcbuf += src->y_stride;
   }
 }
-#endif  // CONFIG_AV1_TEMPORAL_DENOISING
+#endif  // CONFIG_AV2_TEMPORAL_DENOISING
 
-NOISE_LEVEL av1_noise_estimate_extract_level(NOISE_ESTIMATE *const ne) {
+NOISE_LEVEL av2_noise_estimate_extract_level(NOISE_ESTIMATE *const ne) {
   int noise_level = kLowLow;
   if (ne->value > (ne->thresh << 1)) {
     noise_level = kHigh;
@@ -85,8 +85,8 @@ NOISE_LEVEL av1_noise_estimate_extract_level(NOISE_ESTIMATE *const ne) {
   return noise_level;
 }
 
-void av1_update_noise_estimate(AV1_COMP *const cpi) {
-  const AV1_COMMON *const cm = &cpi->common;
+void av2_update_noise_estimate(AV2_COMP *const cpi) {
+  const AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
 
   NOISE_ESTIMATE *const ne = &cpi->noise_estimate;
@@ -96,7 +96,7 @@ void av1_update_noise_estimate(AV1_COMP *const cpi) {
   int frame_counter = cm->current_frame.frame_number;
   // Estimate is between current source and last source.
   YV12_BUFFER_CONFIG *last_source = cpi->last_source;
-#if CONFIG_AV1_TEMPORAL_DENOISING
+#if CONFIG_AV2_TEMPORAL_DENOISING
   if (cpi->oxcf.noise_sensitivity > 0) {
     last_source = &cpi->denoiser.last_source;
     // Tune these thresholds for different resolutions when denoising is
@@ -110,7 +110,7 @@ void av1_update_noise_estimate(AV1_COMP *const cpi) {
   if (!ne->enabled || frame_counter % frame_period != 0 ||
       last_source == NULL ||
       ((ne->last_w != cm->width || ne->last_h != cm->height))) {
-#if CONFIG_AV1_TEMPORAL_DENOISING
+#if CONFIG_AV2_TEMPORAL_DENOISING
     if (cpi->oxcf.noise_sensitivity > 0)
       copy_frame(&cpi->denoiser.last_source, cpi->source);
 #endif
@@ -160,9 +160,9 @@ void av1_update_noise_estimate(AV1_COMP *const cpi) {
           int bl_index2 = bl_index + (mi_params->mi_cols >> 1);
           int bl_index3 = bl_index2 + 1;
           int consec_zeromv =
-              AOMMIN(cpi->consec_zero_mv[bl_index],
-                     AOMMIN(cpi->consec_zero_mv[bl_index1],
-                            AOMMIN(cpi->consec_zero_mv[bl_index2],
+              AVMMIN(cpi->consec_zero_mv[bl_index],
+                     AVMMIN(cpi->consec_zero_mv[bl_index1],
+                            AVMMIN(cpi->consec_zero_mv[bl_index2],
                                    cpi->consec_zero_mv[bl_index3])));
           // Only consider blocks that are likely steady background. i.e, have
           // been encoded as zero/low motion x (= thresh_consec_zeromv) frames
@@ -237,14 +237,14 @@ void av1_update_noise_estimate(AV1_COMP *const cpi) {
       // Reset counter and check noise level condition.
       ne->num_frames_estimate = 30;
       ne->count = 0;
-      ne->level = av1_noise_estimate_extract_level(ne);
-#if CONFIG_AV1_TEMPORAL_DENOISING
+      ne->level = av2_noise_estimate_extract_level(ne);
+#if CONFIG_AV2_TEMPORAL_DENOISING
       if (cpi->oxcf.noise_sensitivity > 0)
-        av1_denoiser_set_noise_level(cpi, ne->level);
+        av2_denoiser_set_noise_level(cpi, ne->level);
 #endif
     }
   }
-#if CONFIG_AV1_TEMPORAL_DENOISING
+#if CONFIG_AV2_TEMPORAL_DENOISING
   if (cpi->oxcf.noise_sensitivity > 0)
     copy_frame(&cpi->denoiser.last_source, cpi->source);
 #endif

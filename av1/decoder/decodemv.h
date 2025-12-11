@@ -10,38 +10,38 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_DECODER_DECODEMV_H_
-#define AOM_AV1_DECODER_DECODEMV_H_
+#ifndef AVM_AV2_DECODER_DECODEMV_H_
+#define AVM_AV2_DECODER_DECODEMV_H_
 
-#include "aom_dsp/bitreader.h"
+#include "avm_dsp/bitreader.h"
 
-#include "av1/decoder/decoder.h"
+#include "av2/decoder/decoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_read_mode_info(AV1Decoder *const pbi, DecoderCodingBlock *dcb,
-                        aom_reader *r, int x_inside_boundary,
+void av2_read_mode_info(AV2Decoder *const pbi, DecoderCodingBlock *dcb,
+                        avm_reader *r, int x_inside_boundary,
                         int y_inside_boundary);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-void av1_read_sec_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+void av2_read_sec_tx_type(const AV2_COMMON *const cm, MACROBLOCKD *xd,
                           int blk_row, int blk_col, TX_SIZE tx_size,
-                          uint16_t *eob, aom_reader *r);
+                          uint16_t *eob, avm_reader *r);
 
-void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
-                      int blk_col, TX_SIZE tx_size, aom_reader *r,
+void av2_read_tx_type(const AV2_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
+                      int blk_col, TX_SIZE tx_size, avm_reader *r,
                       const int plane, const int eob, const int dc_skip);
 
-void av1_read_cctx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
+void av2_read_cctx_type(const AV2_COMMON *const cm, MACROBLOCKD *xd,
                         int blk_row, int blk_col, TX_SIZE tx_size,
-                        aom_reader *r);
+                        avm_reader *r);
 
-void read_ccso(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd);
-void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd);
-void read_gdf(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd);
-#endif  // AOM_AV1_DECODER_DECODEMV_H_
+void read_ccso(AV2_COMMON *cm, avm_reader *r, MACROBLOCKD *const xd);
+void read_cdef(AV2_COMMON *cm, avm_reader *r, MACROBLOCKD *const xd);
+void read_gdf(AV2_COMMON *cm, avm_reader *r, MACROBLOCKD *const xd);
+#endif  // AVM_AV2_DECODER_DECODEMV_H_

@@ -10,7 +10,7 @@
 # can obtain it at aomedia.org/license/patent-license/.
 #
 ###############################################################################
-# Fuzzer for libaom decoder.
+# Fuzzer for libavm decoder.
 # ==========================
 # Requirements
 # ---------------------
@@ -26,11 +26,11 @@
 
 set -eu
 
-# Have a copy of AOM and a build directory ready.
+# Have a copy of AVM and a build directory ready.
 if [[ $# -ne 2 ]]; then
-  echo "Pass in the AOM source tree as first argument, and a build directory "
-  echo "as the second argument. The AOM source tree can be obtained via: "
-  echo "  git clone https://aomedia.googlesource.com/aom"
+  echo "Pass in the AVM source tree as first argument, and a build directory "
+  echo "as the second argument. The AVM source tree can be obtained via: "
+  echo "  git clone https://aomedia.googlesource.com/avm"
   exit 2
 fi
 if [[ -z "$CC" ]]; then
@@ -42,29 +42,29 @@ if [[ -z "$CXX" ]]; then
   exit 2
 fi
 
-AOM_DIR=$1
+AVM_DIR=$1
 BUILD_DIR=$2
 # Run CMake with address sanitizer enabled and build the codec.
 # Enable DO_RANGE_CHECK_CLAMP to suppress the noise of integer overflows
 # in the transform functions. Also set memory limits.
-EXTRA_C_FLAGS='-DDO_RANGE_CHECK_CLAMP=1 -DAOM_MAX_ALLOCABLE_MEMORY=1073741824'
+EXTRA_C_FLAGS='-DDO_RANGE_CHECK_CLAMP=1 -DAVM_MAX_ALLOCABLE_MEMORY=1073741824'
 cd "${BUILD_DIR}"
-cmake "${AOM_DIR}" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCONFIG_PIC=1 \
-  -DCONFIG_SCALABILITY=0 -DCONFIG_AV1_ENCODER=0 -DENABLE_EXAMPLES=0 \
+cmake "${AVM_DIR}" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCONFIG_PIC=1 \
+  -DCONFIG_SCALABILITY=0 -DCONFIG_AV2_ENCODER=0 -DENABLE_EXAMPLES=0 \
   -DENABLE_DOCS=0 -DENABLE_TESTS=0 -DCONFIG_SIZE_LIMIT=1 \
   -DDECODE_HEIGHT_LIMIT=12288 -DDECODE_WIDTH_LIMIT=12288 \
-  -DAOM_EXTRA_C_FLAGS="${EXTRA_C_FLAGS}" \
-  -DAOM_EXTRA_CXX_FLAGS="${EXTRA_C_FLAGS}" -DSANITIZE=fuzzer-no-link,address
+  -DAVM_EXTRA_C_FLAGS="${EXTRA_C_FLAGS}" \
+  -DAVM_EXTRA_CXX_FLAGS="${EXTRA_C_FLAGS}" -DSANITIZE=fuzzer-no-link,address
 
 # Build the codec.
 make -j$(nproc)
 
-# Build the av1 fuzzer
-$CXX -std=c++11 -DDECODER=av1 -I${AOM_DIR} -I${BUILD_DIR} \
+# Build the av2 fuzzer
+$CXX -std=c++11 -DDECODER=av2 -I${AVM_DIR} -I${BUILD_DIR} \
     -fsanitize=fuzzer,address -Wl,--start-group \
-    ${AOM_DIR}/examples/av1_dec_fuzzer.cc -o ${BUILD_DIR}/av1_dec_fuzzer \
-    ${BUILD_DIR}/libaom.a -Wl,--end-group
+    ${AVM_DIR}/examples/av2_dec_fuzzer.cc -o ${BUILD_DIR}/av2_dec_fuzzer \
+    ${BUILD_DIR}/libavm.a -Wl,--end-group
 
-echo "Fuzzer built at ${BUILD_DIR}/av1_dec_fuzzer."
+echo "Fuzzer built at ${BUILD_DIR}/av2_dec_fuzzer."
 echo "Create a corpus directory, copy IVF files in there, and run:"
-echo "  av1_dec_fuzzer CORPUS_DIR"
+echo "  av2_dec_fuzzer CORPUS_DIR"

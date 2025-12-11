@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MIPS_AOM_CONVOLVE_MSA_H_
-#define AOM_AOM_DSP_MIPS_AOM_CONVOLVE_MSA_H_
+#ifndef AVM_AVM_DSP_MIPS_AVM_CONVOLVE_MSA_H_
+#define AVM_AVM_DSP_MIPS_AVM_CONVOLVE_MSA_H_
 
-#include "aom_dsp/mips/macros_msa.h"
-#include "aom_dsp/aom_filter.h"
+#include "avm_dsp/mips/macros_msa.h"
+#include "avm_dsp/avm_filter.h"
 
 extern const uint8_t mc_filt_mask_arr[16 * 3];
 
@@ -77,4 +77,4 @@ extern const uint8_t mc_filt_mask_arr[16 * 3];
                 res7_m, out0, out1, out2, out3);                             \
   }
 
-#endif  // AOM_AOM_DSP_MIPS_AOM_CONVOLVE_MSA_H_
+#endif  // AVM_AVM_DSP_MIPS_AVM_CONVOLVE_MSA_H_

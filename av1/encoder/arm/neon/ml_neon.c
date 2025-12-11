@@ -14,8 +14,8 @@
 #include <assert.h>
 #include <arm_neon.h>
 
-#include "config/av1_rtcd.h"
-#include "av1/encoder/ml.h"
+#include "config/av2_rtcd.h"
+#include "av2/encoder/ml.h"
 
 static void nn_activate8(float32x4_t *out_h, float32x4_t *out_l,
                          const float32x4_t *zero) {
@@ -264,7 +264,7 @@ static void nn_propagate_8to4(const int num_inputs, const float *const inputs,
 // Calculate prediction based on the given input features and neural net config.
 // Assume there are no more than NN_MAX_NODES_PER_LAYER nodes in each hidden
 // layer.
-void av1_nn_predict_neon(const float *input_nodes,
+void av2_nn_predict_neon(const float *input_nodes,
                          const NN_CONFIG *const nn_config, int reduce_prec,
                          float *const output) {
   float buf[2][NN_MAX_NODES_PER_LAYER];
@@ -327,7 +327,7 @@ void av1_nn_predict_neon(const float *input_nodes,
         for (int i = 0; i < num_inputs; ++i)
           val += layer_weights[node * num_inputs + i] * input_nodes[i];
         // ReLU as activation function.
-        val = val > 0.0f ? val : 0.0f;  // Could use AOMMAX().
+        val = val > 0.0f ? val : 0.0f;  // Could use AVMMAX().
         output_nodes[node] = val;
       }
     }
@@ -335,5 +335,5 @@ void av1_nn_predict_neon(const float *input_nodes,
     num_inputs = num_outputs;
     buf_index = 1 - buf_index;
   }
-  if (reduce_prec) av1_nn_output_prec_reduce(output, nn_config->num_outputs);
+  if (reduce_prec) av2_nn_output_prec_reduce(output, nn_config->num_outputs);
 }

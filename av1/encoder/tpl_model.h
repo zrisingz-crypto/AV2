@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_TPL_MODEL_H_
-#define AOM_AV1_ENCODER_TPL_MODEL_H_
+#ifndef AVM_AV2_ENCODER_TPL_MODEL_H_
+#define AVM_AV2_ENCODER_TPL_MODEL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,11 +19,11 @@ extern "C" {
 
 /*!\cond */
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct EncodeFrameParams;
 struct EncodeFrameInput;
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
 static INLINE BLOCK_SIZE convert_length_to_bsize(int length) {
   switch (length) {
@@ -38,7 +38,7 @@ static INLINE BLOCK_SIZE convert_length_to_bsize(int length) {
   }
 }
 
-typedef struct AV1TplRowMultiThreadSync {
+typedef struct AV2TplRowMultiThreadSync {
 #if CONFIG_MULTITHREAD
   // Synchronization objects for top-right dependency.
   pthread_mutex_t *mutex_;
@@ -56,14 +56,14 @@ typedef struct AV1TplRowMultiThreadSync {
   int rows;
   // Number of threads processing the current tile.
   int num_threads_working;
-} AV1TplRowMultiThreadSync;
+} AV2TplRowMultiThreadSync;
 
-typedef struct AV1TplRowMultiThreadInfo {
+typedef struct AV2TplRowMultiThreadInfo {
   // Row synchronization related function pointers.
-  void (*sync_read_ptr)(AV1TplRowMultiThreadSync *tpl_mt_sync, int r, int c);
-  void (*sync_write_ptr)(AV1TplRowMultiThreadSync *tpl_mt_sync, int r, int c,
+  void (*sync_read_ptr)(AV2TplRowMultiThreadSync *tpl_mt_sync, int r, int c);
+  void (*sync_write_ptr)(AV2TplRowMultiThreadSync *tpl_mt_sync, int r, int c,
                          int cols);
-} AV1TplRowMultiThreadInfo;
+} AV2TplRowMultiThreadInfo;
 
 // TODO(jingning): This needs to be cleaned up next.
 
@@ -180,7 +180,7 @@ typedef struct TplParams {
    * Parameters related to synchronization for top-right dependency in row based
    * multi-threading of tpl
    */
-  AV1TplRowMultiThreadSync tpl_mt_sync;
+  AV2TplRowMultiThreadSync tpl_mt_sync;
 
   /*!
    * Frame border for tpl frame.
@@ -197,7 +197,7 @@ typedef struct TplParams {
  * \param[out]   tpl_data  tpl data structure
  */
 
-void setup_tpl_buffers(AV1_COMMON *const cm, TplParams *const tpl_data,
+void setup_tpl_buffers(AV2_COMMON *const cm, TplParams *const tpl_data,
                        int enable_tpl_model, int lag_in_frames);
 
 /*!\brief Implements temporal dependency modelling for a GOP (GF/ARF
@@ -211,26 +211,26 @@ void setup_tpl_buffers(AV1_COMMON *const cm, TplParams *const tpl_data,
  * \param[in]    frame_input   Input frame buffers
  *
  */
-void av1_tpl_setup_stats(struct AV1_COMP *cpi, int gop_eval,
+void av2_tpl_setup_stats(struct AV2_COMP *cpi, int gop_eval,
                          const struct EncodeFrameParams *const frame_params,
                          const struct EncodeFrameInput *const frame_input);
 
 /*!\cond */
 
-int av1_tpl_ptr_pos(int mi_row, int mi_col, int stride, uint8_t right_shift);
+int av2_tpl_ptr_pos(int mi_row, int mi_col, int stride, uint8_t right_shift);
 
-void av1_init_tpl_stats(TplParams *const tpl_data);
+void av2_init_tpl_stats(TplParams *const tpl_data);
 
-void av1_tpl_rdmult_setup(struct AV1_COMP *cpi);
+void av2_tpl_rdmult_setup(struct AV2_COMP *cpi);
 
-void av1_tpl_rdmult_setup_sb(struct AV1_COMP *cpi, MACROBLOCK *const x,
+void av2_tpl_rdmult_setup_sb(struct AV2_COMP *cpi, MACROBLOCK *const x,
                              BLOCK_SIZE sb_size, int mi_row, int mi_col);
 
-void av1_mc_flow_dispenser_row(struct AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
+void av2_mc_flow_dispenser_row(struct AV2_COMP *cpi, MACROBLOCK *x, int mi_row,
                                BLOCK_SIZE bsize, TX_SIZE tx_size);
 /*!\endcond */
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_TPL_MODEL_H_
+#endif  // AVM_AV2_ENCODER_TPL_MODEL_H_

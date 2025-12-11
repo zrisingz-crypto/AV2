@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_AV1_LOOPFILTER_H_
-#define AOM_AV1_COMMON_AV1_LOOPFILTER_H_
+#ifndef AVM_AV2_COMMON_AV2_LOOPFILTER_H_
+#define AVM_AV2_COMMON_AV2_LOOPFILTER_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_ports/mem.h"
-#include "av1/common/blockd.h"
-#include "av1/common/seg_common.h"
+#include "avm_ports/mem.h"
+#include "av2/common/blockd.h"
+#include "av2/common/seg_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,7 +67,7 @@ typedef struct {
 
 typedef struct LoopFilterWorkerData {
   YV12_BUFFER_CONFIG *frame_buffer;
-  struct AV1Common *cm;
+  struct AV2Common *cm;
   struct macroblockd_plane planes[MAX_MB_PLANE];
   // TODO(Ranjit): When the filter functions are modified to use xd->lossless
   // add lossless as a member here.
@@ -76,37 +76,37 @@ typedef struct LoopFilterWorkerData {
 /*!\endcond */
 
 /* assorted loopfilter functions which get used elsewhere */
-struct AV1Common;
+struct AV2Common;
 struct macroblockd;
 
-void av1_loop_filter_init(struct AV1Common *cm);
+void av2_loop_filter_init(struct AV2Common *cm);
 
-void av1_loop_filter_frame_init(struct AV1Common *cm, int plane_start,
+void av2_loop_filter_frame_init(struct AV2Common *cm, int plane_start,
                                 int plane_end);
 
-/*!\brief Apply AV1 loop filter
+/*!\brief Apply AV2 loop filter
  *
  * \ingroup in_loop_filter
  * \callgraph
  */
-void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
+void av2_loop_filter_frame(YV12_BUFFER_CONFIG *frame, struct AV2Common *cm,
                            struct macroblockd *xd, int plane_start,
                            int plane_end, int partial_frame);
-void loop_filter_tip_plane(struct AV1Common *cm, const int plane, uint16_t *dst,
+void loop_filter_tip_plane(struct AV2Common *cm, const int plane, uint16_t *dst,
                            const int dst_stride, const int plane_w,
                            const int plane_h);
-void setup_tip_dst_planes(struct AV1Common *const cm, const int plane,
+void setup_tip_dst_planes(struct AV2Common *const cm, const int plane,
                           const int tpl_row, const int tpl_col);
-void loop_filter_tip_frame(struct AV1Common *cm, int plane_start,
+void loop_filter_tip_frame(struct AV2Common *cm, int plane_start,
                            int plane_end);
-void init_tip_lf_parameter(struct AV1Common *cm, int plane_start,
+void init_tip_lf_parameter(struct AV2Common *cm, int plane_start,
                            int plane_end);
-void av1_filter_block_plane_vert(struct AV1Common *const cm,
+void av2_filter_block_plane_vert(struct AV2Common *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
                                  const uint32_t mi_row, const uint32_t mi_col);
 
-void av1_filter_block_plane_horz(struct AV1Common *const cm,
+void av2_filter_block_plane_horz(struct AV2Common *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
                                  const uint32_t mi_row, const uint32_t mi_col);
@@ -118,4 +118,4 @@ int df_side_from_qindex(int q_index, int bit_depth);
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_AV1_LOOPFILTER_H_
+#endif  // AVM_AV2_COMMON_AV2_LOOPFILTER_H_

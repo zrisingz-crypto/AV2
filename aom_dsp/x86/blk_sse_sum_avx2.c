@@ -12,7 +12,7 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 static INLINE void accumulate_sse_sum(__m256i regx_sum, __m256i regx2_sum,
                                       int *x_sum, int64_t *x2_sum) {
@@ -152,7 +152,7 @@ static INLINE void sse_sum_wd16_avx2(const int16_t *data, int stride, int bh,
   accumulate_sse_sum(regx_sum, regx2_sum, x_sum, x2_sum);
 }
 
-void aom_get_blk_sse_sum_avx2(const int16_t *data, int stride, int bw, int bh,
+void avm_get_blk_sse_sum_avx2(const int16_t *data, int stride, int bw, int bh,
                               int *x_sum, int64_t *x2_sum) {
   *x_sum = 0;
   *x2_sum = 0;
@@ -178,9 +178,9 @@ void aom_get_blk_sse_sum_avx2(const int16_t *data, int stride, int bw, int bh,
         }
         break;
 
-      default: aom_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
+      default: avm_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
     }
   } else {
-    aom_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
+    avm_get_blk_sse_sum_c(data, stride, bw, bh, x_sum, x2_sum);
   }
 }

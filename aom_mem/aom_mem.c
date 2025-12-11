@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_mem.h"
+#include "avm_mem.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/aom_mem_intrnl.h"
-#include "aom/aom_integer.h"
+#include "include/avm_mem_intrnl.h"
+#include "avm/avm_integer.h"
 
-#if defined(AOM_MAX_ALLOCABLE_MEMORY)
+#if defined(AVM_MAX_ALLOCABLE_MEMORY)
 // Returns 0 in case of overflow of nmemb * size.
 static int check_size_argument_overflow(uint64_t nmemb, uint64_t size) {
   const uint64_t total_size = nmemb * size;
   if (nmemb == 0) return 1;
-  if (size > AOM_MAX_ALLOCABLE_MEMORY / nmemb) return 0;
+  if (size > AVM_MAX_ALLOCABLE_MEMORY / nmemb) return 0;
   if (total_size != (size_t)total_size) return 0;
   return 1;
 }
@@ -47,44 +47,44 @@ static void *GetActualMallocAddress(void *const mem) {
   return (void *)(*malloc_addr_location);
 }
 
-void *aom_memalign(size_t align, size_t size) {
+void *avm_memalign(size_t align, size_t size) {
   void *x = NULL;
   const size_t aligned_size = GetAlignedMallocSize(size, align);
-#if defined(AOM_MAX_ALLOCABLE_MEMORY)
+#if defined(AVM_MAX_ALLOCABLE_MEMORY)
   if (!check_size_argument_overflow(1, aligned_size)) return NULL;
 #endif
   void *const addr = malloc(aligned_size);
   if (addr) {
-    x = aom_align_addr((unsigned char *)addr + ADDRESS_STORAGE_SIZE, align);
+    x = avm_align_addr((unsigned char *)addr + ADDRESS_STORAGE_SIZE, align);
     SetActualMallocAddress(x, addr);
   }
   return x;
 }
 
-void *aom_malloc(size_t size) { return aom_memalign(DEFAULT_ALIGNMENT, size); }
+void *avm_malloc(size_t size) { return avm_memalign(DEFAULT_ALIGNMENT, size); }
 
-void *aom_calloc(size_t num, size_t size) {
+void *avm_calloc(size_t num, size_t size) {
   const size_t total_size = num * size;
-  void *const x = aom_malloc(total_size);
+  void *const x = avm_malloc(total_size);
   if (x) memset(x, 0, total_size);
   return x;
 }
 
-void aom_free(void *memblk) {
+void avm_free(void *memblk) {
   if (memblk) {
     void *addr = GetActualMallocAddress(memblk);
     free(addr);
   }
 }
 
-void *aom_memset16(void *dest, int val, size_t length) {
+void *avm_memset16(void *dest, int val, size_t length) {
   size_t i;
   uint16_t *dest16 = (uint16_t *)dest;
   for (i = 0; i < length; i++) *dest16++ = val;
   return dest;
 }
 
-void *aom_memset_int16(void *dest, int16_t val, size_t length) {
+void *avm_memset_int16(void *dest, int16_t val, size_t length) {
   size_t i;
   int16_t *dest16 = (int16_t *)dest;
   for (i = 0; i < length; i++) *dest16++ = val;

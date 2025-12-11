@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_COMPOUND_TYPE_H_
-#define AOM_AV1_ENCODER_COMPOUND_TYPE_H_
+#ifndef AVM_AV2_ENCODER_COMPOUND_TYPE_H_
+#define AVM_AV2_ENCODER_COMPOUND_TYPE_H_
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/interp_search.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/interp_search.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,13 +32,13 @@ typedef struct {
 #define IGNORE_MODE -1
 // Searches for the best inter-intra mode. Returns IGNORE_MODE if no good mode
 // is found, 0 otherwise.
-int av1_handle_inter_intra_mode(const AV1_COMP *const cpi, MACROBLOCK *const x,
+int av2_handle_inter_intra_mode(const AV2_COMP *const cpi, MACROBLOCK *const x,
                                 BLOCK_SIZE bsize, MB_MODE_INFO *mbmi,
                                 HandleInterModeArgs *args, int64_t ref_best_rd,
                                 int *rate_mv, int *tmp_rate2,
                                 const BUFFER_SET *orig_dst);
 
-int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
+int av2_compound_type_rd(const AV2_COMP *const cpi, MACROBLOCK *x,
                          BLOCK_SIZE bsize, int_mv *cur_mv, int mode_search_mask,
                          int masked_compound_used, const BUFFER_SET *orig_dst,
                          const BUFFER_SET *tmp_dst,
@@ -51,4 +51,4 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_COMPOUND_TYPE_H_
+#endif  // AVM_AV2_ENCODER_COMPOUND_TYPE_H_

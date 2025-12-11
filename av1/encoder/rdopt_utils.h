@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RDOPT_UTILS_H_
-#define AOM_AV1_ENCODER_RDOPT_UTILS_H_
+#ifndef AVM_AV2_ENCODER_RDOPT_UTILS_H_
+#define AVM_AV2_ENCODER_RDOPT_UTILS_H_
 
-#include "aom/aom_integer.h"
-#include "av1/encoder/block.h"
-#include "av1/common/cfl.h"
-#include "av1/common/pred_common.h"
+#include "avm/avm_integer.h"
+#include "av2/encoder/block.h"
+#include "av2/common/cfl.h"
+#include "av2/common/pred_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ extern "C" {
 #define INTER_INTRA_RD_THRESH_SCALE 9
 #define INTER_INTRA_RD_THRESH_SHIFT 4
 
-static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
+static AVM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
                                        const int num_planes) {
   for (int i = 0; i < num_planes; i++) {
     xd->plane[i].dst.buf = dst.plane[i];
@@ -36,7 +36,7 @@ static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
 
 /* clang-format on */
 // Calculate rd threshold based on ref best rd and relevant scaling factors
-static AOM_INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
+static AVM_INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
                                                      int mul_factor,
                                                      int div_factor) {
   int64_t rd_thresh = ref_best_rd;
@@ -48,7 +48,7 @@ static AOM_INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
   return rd_thresh;
 }
 
-static AOM_INLINE int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
+static AVM_INLINE int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
   if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
       bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
     return -1;
@@ -57,7 +57,7 @@ static AOM_INLINE int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
 }
 
 // Get transform block visible dimensions cropped to the MI units.
-static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
+static AVM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
                                           BLOCK_SIZE plane_bsize, int blk_row,
                                           int blk_col, BLOCK_SIZE tx_bsize,
                                           int *width, int *height,
@@ -94,7 +94,7 @@ static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
   if (width) *width = txb_width;
 }
 
-static AOM_INLINE int get_visible_dimensions(const MACROBLOCKD *xd, int plane,
+static AVM_INLINE int get_visible_dimensions(const MACROBLOCKD *xd, int plane,
                                              int blk_col, int blk_row, int cols,
                                              int rows, int frame_width,
                                              int frame_height,
@@ -136,7 +136,7 @@ static AOM_INLINE int get_visible_dimensions(const MACROBLOCKD *xd, int plane,
   return (valid_cols < cols || valid_rows < rows);
 }
 
-static AOM_INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
+static AVM_INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
   int num_blk = 1 << (num_pels_log2_lookup[bsize] - 2 * MI_SIZE_LOG2);
   return num_blk;
 }
@@ -152,7 +152,7 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
   const int qslope = 2 * (!is_luma_only);
   int aggr_factor = 1;
   if (!is_luma_only) {
-    aggr_factor = AOMMAX(
+    aggr_factor = AVMMAX(
         1, ((MAXQ - x->qindex) * qslope + QINDEX_RANGE / 2) >> QINDEX_BITS);
   }
   if (best_skip_rd >
@@ -178,7 +178,7 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
 }
 
 static TX_MODE select_tx_mode(
-    const AV1_COMMON *cm, const TX_SIZE_SEARCH_METHOD tx_size_search_method) {
+    const AV2_COMMON *cm, const TX_SIZE_SEARCH_METHOD tx_size_search_method) {
   if (cm->features.coded_lossless) return ONLY_4X4;
   if (tx_size_search_method == USE_LARGESTALL) {
     return TX_MODE_LARGEST;
@@ -190,7 +190,7 @@ static TX_MODE select_tx_mode(
 }
 // Checks the conditions to enable winner mode processing
 static INLINE int is_winner_mode_processing_enabled(
-    const struct AV1_COMP *cpi, MB_MODE_INFO *const mbmi,
+    const struct AV2_COMP *cpi, MB_MODE_INFO *const mbmi,
     const PREDICTION_MODE best_mode) {
   const SPEED_FEATURES *sf = &cpi->sf;
 
@@ -218,7 +218,7 @@ static INLINE int is_winner_mode_processing_enabled(
 }
 
 static INLINE void set_tx_size_search_method(
-    const AV1_COMMON *cm, const WinnerModeParams *winner_mode_params,
+    const AV2_COMMON *cm, const WinnerModeParams *winner_mode_params,
     TxfmSearchParams *txfm_params, int enable_winner_mode_for_tx_size_srch,
     int is_winner_mode, const MACROBLOCK *x,
     bool use_largest_tx_size_for_small_bsize) {
@@ -282,10 +282,10 @@ static INLINE void set_tx_domain_dist_params(
 }
 
 // This function sets mode parameters for different mode evaluation stages
-static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
+static INLINE void set_mode_eval_params(const struct AV2_COMP *cpi,
                                         MACROBLOCK *x,
                                         MODE_EVAL_TYPE mode_eval_type) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const SPEED_FEATURES *sf = &cpi->sf;
   const WinnerModeParams *winner_mode_params = &cpi->winner_mode_params;
   TxfmSearchParams *txfm_params = &x->txfm_search_params;
@@ -394,7 +394,7 @@ static INLINE void set_mode_eval_params(const struct AV1_COMP *cpi,
 
 // Similar to store_cfl_required(), but for use during the RDO process,
 // where we haven't yet determined whether this block uses CfL.
-static INLINE CFL_ALLOWED_TYPE store_cfl_required_rdo(const AV1_COMMON *cm,
+static INLINE CFL_ALLOWED_TYPE store_cfl_required_rdo(const AV2_COMMON *cm,
                                                       const MACROBLOCK *x) {
   const MACROBLOCKD *xd = &x->e_mbd;
 
@@ -414,14 +414,14 @@ static INLINE CFL_ALLOWED_TYPE store_cfl_required_rdo(const AV1_COMMON *cm,
          is_mhccp_allowed(cm, xd);
 }
 
-static AOM_INLINE void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
+static AVM_INLINE void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->palette_mode_info.palette_size[1] = 0;
 }
 
 // Store best mode stats for winner mode processing
 static INLINE void store_winner_mode_stats(
-    const AV1_COMMON *const cm, MACROBLOCK *x, const MB_MODE_INFO *mbmi,
+    const AV2_COMMON *const cm, MACROBLOCK *x, const MB_MODE_INFO *mbmi,
     RD_STATS *rd_cost, RD_STATS *rd_cost_y, RD_STATS *rd_cost_uv,
     const MV_REFERENCE_FRAME *refs, PREDICTION_MODE mode, uint8_t *color_map,
     BLOCK_SIZE bsize, int64_t this_rd, int multi_winner_mode_type,
@@ -441,7 +441,7 @@ static INLINE void store_winner_mode_stats(
                                   ? MAX_WINNER_MODE_COUNT_INTRA
                                   : MAX_WINNER_MODE_COUNT_INTER;
   max_winner_mode_count = (multi_winner_mode_type == MULTI_WINNER_MODE_FAST)
-                              ? AOMMIN(max_winner_mode_count, 2)
+                              ? AVMMIN(max_winner_mode_count, 2)
                               : max_winner_mode_count;
   assert(x->winner_mode_count >= 0 &&
          x->winner_mode_count <= max_winner_mode_count);
@@ -471,7 +471,7 @@ static INLINE void store_winner_mode_stats(
   // Update rd stats required for inter frame
   if (!frame_is_intra_only(cm) && rd_cost && rd_cost_y && rd_cost_uv) {
     const MACROBLOCKD *xd = &x->e_mbd;
-    const int skip_ctx = av1_get_skip_txfm_context(xd);
+    const int skip_ctx = av2_get_skip_txfm_context(xd);
     const int is_intra_mode = mode < INTRA_MODE_END;
     const int skip_txfm =
         mbmi->skip_txfm[xd->tree_type == CHROMA_PART] && !is_intra_mode;
@@ -492,17 +492,17 @@ static INLINE void store_winner_mode_stats(
     // Store color_index_map for palette mode
     const MACROBLOCKD *const xd = &x->e_mbd;
     int block_width, block_height;
-    av1_get_block_dimensions(bsize, AOM_PLANE_Y, xd, &block_width,
+    av2_get_block_dimensions(bsize, AVM_PLANE_Y, xd, &block_width,
                              &block_height, NULL, NULL);
     memcpy(winner_mode_stats[mode_idx].color_index_map, color_map,
            block_width * block_height * sizeof(color_map[0]));
   }
 
   x->winner_mode_count =
-      AOMMIN(x->winner_mode_count + 1, max_winner_mode_count);
+      AVMMIN(x->winner_mode_count + 1, max_winner_mode_count);
 }
 
-unsigned int av1_high_get_sby_perpixel_variance(const struct AV1_COMP *cpi,
+unsigned int av2_high_get_sby_perpixel_variance(const struct AV2_COMP *cpi,
                                                 const struct buf_2d *ref,
                                                 BLOCK_SIZE bs, int bd);
 
@@ -510,4 +510,4 @@ unsigned int av1_high_get_sby_perpixel_variance(const struct AV1_COMP *cpi,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RDOPT_UTILS_H_
+#endif  // AVM_AV2_ENCODER_RDOPT_UTILS_H_

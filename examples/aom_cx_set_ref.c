@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-// AV1 Set Reference Frame
+// AV2 Set Reference Frame
 // ============================
 //
-// This is an example demonstrating how to overwrite the AV1 encoder's
+// This is an example demonstrating how to overwrite the AV2 encoder's
 // internal reference frame. In the sample we set the last frame to the
 // current frame. This technique could be used to bounce between two cameras.
 //
@@ -26,7 +26,7 @@
 // -----
 // This example encodes a raw video. And the last argument passed in specifies
 // the frame number to update the reference frame on. For example, run
-// examples/aom_cx_set_ref av1 352 288 in.yuv out.ivf 4 30
+// examples/avm_cx_set_ref av2 352 288 in.yuv out.ivf 4 30
 // The parameter is parsed as follows:
 //
 //
@@ -52,11 +52,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom/aom_decoder.h"
-#include "aom/aom_encoder.h"
-#include "aom/aomcx.h"
-#include "aom/aomdx.h"
-#include "aom_scale/yv12config.h"
+#include "avm/avm_decoder.h"
+#include "avm/avm_encoder.h"
+#include "avm/avmcx.h"
+#include "avm/avmdx.h"
+#include "avm_scale/yv12config.h"
 #include "common/tools_common.h"
 #include "common/video_writer.h"
 #include "examples/encoder_util.h"
@@ -71,42 +71,42 @@ void usage_exit() {
   exit(EXIT_FAILURE);
 }
 
-static void testing_decode(aom_codec_ctx_t *encoder, aom_codec_ctx_t *decoder,
+static void testing_decode(avm_codec_ctx_t *encoder, avm_codec_ctx_t *decoder,
                            unsigned int frame_out, int *mismatch_seen) {
-  aom_image_t enc_img, dec_img;
+  avm_image_t enc_img, dec_img;
 
   if (*mismatch_seen) return;
 
   /* Get the internal reference frame */
-  if (aom_codec_control(encoder, AV1_GET_NEW_FRAME_IMAGE, &enc_img))
+  if (avm_codec_control(encoder, AV2_GET_NEW_FRAME_IMAGE, &enc_img))
     die_codec(encoder, "Failed to get encoder reference frame");
-  if (aom_codec_control(decoder, AV1_GET_NEW_FRAME_IMAGE, &dec_img))
+  if (avm_codec_control(decoder, AV2_GET_NEW_FRAME_IMAGE, &dec_img))
     die_codec(decoder, "Failed to get decoder reference frame");
 
-  if ((enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) !=
-      (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH)) {
-    if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-      aom_image_t enc_hbd_img;
-      aom_img_alloc(&enc_hbd_img, enc_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
+  if ((enc_img.fmt & AVM_IMG_FMT_HIGHBITDEPTH) !=
+      (dec_img.fmt & AVM_IMG_FMT_HIGHBITDEPTH)) {
+    if (enc_img.fmt & AVM_IMG_FMT_HIGHBITDEPTH) {
+      avm_image_t enc_hbd_img;
+      avm_img_alloc(&enc_hbd_img, enc_img.fmt - AVM_IMG_FMT_HIGHBITDEPTH,
                     enc_img.d_w, enc_img.d_h, 16);
-      aom_img_truncate_16_to_8(&enc_hbd_img, &enc_img);
+      avm_img_truncate_16_to_8(&enc_hbd_img, &enc_img);
       enc_img = enc_hbd_img;
     }
-    if (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-      aom_image_t dec_hbd_img;
-      aom_img_alloc(&dec_hbd_img, dec_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
+    if (dec_img.fmt & AVM_IMG_FMT_HIGHBITDEPTH) {
+      avm_image_t dec_hbd_img;
+      avm_img_alloc(&dec_hbd_img, dec_img.fmt - AVM_IMG_FMT_HIGHBITDEPTH,
                     dec_img.d_w, dec_img.d_h, 16);
-      aom_img_truncate_16_to_8(&dec_hbd_img, &dec_img);
+      avm_img_truncate_16_to_8(&dec_hbd_img, &dec_img);
       dec_img = dec_hbd_img;
     }
   }
 
-  if (!aom_compare_img(&enc_img, &dec_img)) {
+  if (!avm_compare_img(&enc_img, &dec_img)) {
     int y[4], u[4], v[4];
-    if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-      aom_find_mismatch_high(&enc_img, &dec_img, y, u, v);
+    if (enc_img.fmt & AVM_IMG_FMT_HIGHBITDEPTH) {
+      avm_find_mismatch_high(&enc_img, &dec_img, y, u, v);
     } else {
-      aom_find_mismatch(&enc_img, &dec_img, y, u, v);
+      avm_find_mismatch(&enc_img, &dec_img, y, u, v);
     }
 
     printf(
@@ -119,33 +119,33 @@ static void testing_decode(aom_codec_ctx_t *encoder, aom_codec_ctx_t *decoder,
     *mismatch_seen = 1;
   }
 
-  aom_img_free(&enc_img);
-  aom_img_free(&dec_img);
+  avm_img_free(&enc_img);
+  avm_img_free(&dec_img);
 }
 
-static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
+static int encode_frame(avm_codec_ctx_t *ecodec, avm_image_t *img,
                         unsigned int frame_in, AvxVideoWriter *writer,
-                        int test_decode, aom_codec_ctx_t *dcodec,
+                        int test_decode, avm_codec_ctx_t *dcodec,
                         unsigned int *frame_out, int *mismatch_seen,
-                        aom_image_t *ext_ref) {
+                        avm_image_t *ext_ref) {
   int got_pkts = 0;
-  aom_codec_iter_t iter = NULL;
-  const aom_codec_cx_pkt_t *pkt = NULL;
+  avm_codec_iter_t iter = NULL;
+  const avm_codec_cx_pkt_t *pkt = NULL;
   int got_data;
-  const aom_codec_err_t res = aom_codec_encode(ecodec, img, frame_in, 1, 0);
-  if (res != AOM_CODEC_OK) die_codec(ecodec, "Failed to encode frame");
+  const avm_codec_err_t res = avm_codec_encode(ecodec, img, frame_in, 1, 0);
+  if (res != AVM_CODEC_OK) die_codec(ecodec, "Failed to encode frame");
 
   got_data = 0;
 
-  while ((pkt = aom_codec_get_cx_data(ecodec, &iter)) != NULL) {
+  while ((pkt = avm_codec_get_cx_data(ecodec, &iter)) != NULL) {
     got_pkts = 1;
 
-    if (pkt->kind == AOM_CODEC_CX_FRAME_PKT) {
-      const int keyframe = (pkt->data.frame.flags & AOM_FRAME_IS_KEY) != 0;
+    if (pkt->kind == AVM_CODEC_CX_FRAME_PKT) {
+      const int keyframe = (pkt->data.frame.flags & AVM_FRAME_IS_KEY) != 0;
 
       ++*frame_out;
 
-      if (!aom_video_writer_write_frame(writer, pkt->data.frame.buf,
+      if (!avm_video_writer_write_frame(writer, pkt->data.frame.buf,
                                         pkt->data.frame.sz,
                                         pkt->data.frame.pts)) {
         die_codec(ecodec, "Failed to write compressed frame");
@@ -156,17 +156,17 @@ static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
 
       // Decode 1 frame.
       if (test_decode) {
-        if (aom_codec_decode(dcodec, pkt->data.frame.buf,
+        if (avm_codec_decode(dcodec, pkt->data.frame.buf,
                              (unsigned int)pkt->data.frame.sz, NULL))
           die_codec(dcodec, "Failed to decode frame.");
 
         // Copy out first decoded frame, and use it as reference later.
         if (*frame_out == 1 && ext_ref != NULL)
-          if (aom_codec_control(dcodec, AV1_COPY_NEW_FRAME_IMAGE, ext_ref))
+          if (avm_codec_control(dcodec, AV2_COPY_NEW_FRAME_IMAGE, ext_ref))
             die_codec(dcodec, "Failed to get decoder new frame");
       }
-    } else if (pkt->kind == AOM_CODEC_CX_FRAME_NULL_PKT) {
-      const int keyframe = (pkt->data.frame.flags & AOM_FRAME_IS_KEY) != 0;
+    } else if (pkt->kind == AVM_CODEC_CX_FRAME_NULL_PKT) {
+      const int keyframe = (pkt->data.frame.flags & AVM_FRAME_IS_KEY) != 0;
 
       ++*frame_out;
 
@@ -176,11 +176,11 @@ static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
 
       // Decode 1 frame.
       if (test_decode) {
-        AOM_CODEC_CONTROL_TYPECHECKED(dcodec, AOMD_INCR_OUTPUT_FRAMES_OFFSET,
+        AVM_CODEC_CONTROL_TYPECHECKED(dcodec, AVMD_INCR_OUTPUT_FRAMES_OFFSET,
                                       1);
         // Copy out first decoded frame, and use it as reference later.
         if (*frame_out == 1 && ext_ref != NULL)
-          if (aom_codec_control(dcodec, AV1_COPY_NEW_FRAME_IMAGE, ext_ref))
+          if (avm_codec_control(dcodec, AV2_COPY_NEW_FRAME_IMAGE, ext_ref))
             die_codec(dcodec, "Failed to get decoder new frame");
       }
     }
@@ -197,24 +197,24 @@ static int encode_frame(aom_codec_ctx_t *ecodec, aom_image_t *img,
 int main(int argc, char **argv) {
   FILE *infile = NULL;
   // Encoder
-  aom_codec_ctx_t ecodec;
-  aom_codec_enc_cfg_t cfg;
+  avm_codec_ctx_t ecodec;
+  avm_codec_enc_cfg_t cfg;
   unsigned int frame_in = 0;
-  aom_image_t raw;
-  aom_image_t raw_shift;
-  aom_image_t ext_ref;
-  aom_codec_err_t res;
+  avm_image_t raw;
+  avm_image_t raw_shift;
+  avm_image_t ext_ref;
+  avm_codec_err_t res;
   AvxVideoInfo info;
   AvxVideoWriter *writer = NULL;
   int flags = 0;
   int allocated_raw_shift = 0;
-  aom_img_fmt_t raw_fmt = AOM_IMG_FMT_I420;
-  aom_img_fmt_t ref_fmt = AOM_IMG_FMT_I420;
+  avm_img_fmt_t raw_fmt = AVM_IMG_FMT_I420;
+  avm_img_fmt_t ref_fmt = AVM_IMG_FMT_I420;
 
   // Test encoder/decoder mismatch.
   int test_decode = 1;
   // Decoder
-  aom_codec_ctx_t dcodec;
+  avm_codec_ctx_t dcodec;
   unsigned int frame_out = 0;
 
   // The frame number to set reference frame on
@@ -248,12 +248,12 @@ int main(int argc, char **argv) {
   outfile_arg = argv[5];
   update_frame_num_arg = argv[6];
 
-  aom_codec_iface_t *encoder = get_aom_encoder_by_short_name(codec_arg);
+  avm_codec_iface_t *encoder = get_avm_encoder_by_short_name(codec_arg);
   if (!encoder) die("Unsupported codec.");
 
   update_frame_num = (unsigned int)strtoul(update_frame_num_arg, NULL, 0);
-  // In AV1, the reference buffers (cm->buffer_pool->frame_bufs[i].buf) are
-  // allocated while calling aom_codec_encode(), thus, setting reference for
+  // In AV2, the reference buffers (cm->buffer_pool->frame_bufs[i].buf) are
+  // allocated while calling avm_codec_encode(), thus, setting reference for
   // 1st frame isn't supported.
   if (update_frame_num <= 1) {
     die("Couldn't parse frame number '%s'\n", update_frame_num_arg);
@@ -265,7 +265,7 @@ int main(int argc, char **argv) {
       die("Update frame number couldn't larger than limit\n");
   }
 
-  info.codec_fourcc = get_fourcc_by_aom_encoder(encoder);
+  info.codec_fourcc = get_fourcc_by_avm_encoder(encoder);
   info.frame_width = (int)strtol(width_arg, NULL, 0);
   info.frame_height = (int)strtol(height_arg, NULL, 0);
   info.time_base.numerator = 1;
@@ -276,22 +276,22 @@ int main(int argc, char **argv) {
   }
 
   // In this test, the bit depth of input video is 8-bit, and the input format
-  // is AOM_IMG_FMT_I420.
-  if (!aom_img_alloc(&raw, raw_fmt, info.frame_width, info.frame_height, 32)) {
+  // is AVM_IMG_FMT_I420.
+  if (!avm_img_alloc(&raw, raw_fmt, info.frame_width, info.frame_height, 32)) {
     die("Failed to allocate image.");
   }
 
-  ref_fmt |= AOM_IMG_FMT_HIGHBITDEPTH;
+  ref_fmt |= AVM_IMG_FMT_HIGHBITDEPTH;
   // Allocate memory with the border so that it can be used as a reference.
-  if (!aom_img_alloc_with_border(&ext_ref, ref_fmt, info.frame_width,
+  if (!avm_img_alloc_with_border(&ext_ref, ref_fmt, info.frame_width,
                                  info.frame_height, 32, 8,
-                                 AOM_DEC_BORDER_IN_PIXELS)) {
+                                 AVM_DEC_BORDER_IN_PIXELS)) {
     die("Failed to allocate image.");
   }
 
-  printf("Using %s\n", aom_codec_iface_name(encoder));
+  printf("Using %s\n", avm_codec_iface_name(encoder));
 
-  res = aom_codec_enc_config_default(encoder, &cfg, 0);
+  res = avm_codec_enc_config_default(encoder, &cfg, 0);
   if (res) die_codec(&ecodec, "Failed to get default codec config.");
 
   cfg.g_w = info.frame_width;
@@ -300,49 +300,49 @@ int main(int argc, char **argv) {
   cfg.g_timebase.den = info.time_base.denominator;
   cfg.rc_target_bitrate = bitrate;
   cfg.g_lag_in_frames = 3;
-  cfg.g_bit_depth = AOM_BITS_8;
+  cfg.g_bit_depth = AVM_BITS_8;
 
-  writer = aom_video_writer_open(outfile_arg, kContainerIVF, &info);
+  writer = avm_video_writer_open(outfile_arg, kContainerIVF, &info);
   if (!writer) die("Failed to open %s for writing.", outfile_arg);
 
   if (!(infile = fopen(infile_arg, "rb")))
     die("Failed to open %s for reading.", infile_arg);
 
-  if (aom_codec_enc_init(&ecodec, encoder, &cfg, flags))
+  if (avm_codec_enc_init(&ecodec, encoder, &cfg, flags))
     die("Failed to initialize encoder");
 
   // Disable alt_ref.
-  if (aom_codec_control(&ecodec, AOME_SET_ENABLEAUTOALTREF, 0))
+  if (avm_codec_control(&ecodec, AVME_SET_ENABLEAUTOALTREF, 0))
     die_codec(&ecodec, "Failed to set enable auto alt ref");
 
   if (test_decode) {
-    aom_codec_iface_t *decoder = get_aom_decoder_by_short_name(codec_arg);
-    if (aom_codec_dec_init(&dcodec, decoder, NULL, 0))
+    avm_codec_iface_t *decoder = get_avm_decoder_by_short_name(codec_arg);
+    if (avm_codec_dec_init(&dcodec, decoder, NULL, 0))
       die("Failed to initialize decoder.");
   }
 
   // Encode frames.
-  while (aom_img_read(&raw, infile)) {
+  while (avm_img_read(&raw, infile)) {
     if (limit && frame_in >= limit) break;
-    aom_image_t *frame_to_encode;
+    avm_image_t *frame_to_encode;
 
     // Need to allocate larger buffer to use hbd internal.
     int input_shift = 0;
     if (!allocated_raw_shift) {
-      aom_img_alloc(&raw_shift, raw_fmt | AOM_IMG_FMT_HIGHBITDEPTH,
+      avm_img_alloc(&raw_shift, raw_fmt | AVM_IMG_FMT_HIGHBITDEPTH,
                     info.frame_width, info.frame_height, 32);
       allocated_raw_shift = 1;
     }
-    aom_img_upshift(&raw_shift, &raw, input_shift);
+    avm_img_upshift(&raw_shift, &raw, input_shift);
     frame_to_encode = &raw_shift;
 
     if (update_frame_num > 1 && frame_out + 1 == update_frame_num) {
-      av1_ref_frame_t ref;
+      av2_ref_frame_t ref;
       ref.idx = 0;
       ref.use_external_ref = 0;
       ref.img = ext_ref;
       // Set reference frame in encoder.
-      if (aom_codec_control(&ecodec, AV1_SET_REFERENCE, &ref))
+      if (avm_codec_control(&ecodec, AV2_SET_REFERENCE, &ref))
         die_codec(&ecodec, "Failed to set encoder reference frame");
       printf(" <SET_REF>");
 
@@ -350,7 +350,7 @@ int main(int argc, char **argv) {
       // would be seen.
       if (test_decode) {
         ref.use_external_ref = 1;
-        if (aom_codec_control(&dcodec, AV1_SET_REFERENCE, &ref))
+        if (avm_codec_control(&dcodec, AV2_SET_REFERENCE, &ref))
           die_codec(&dcodec, "Failed to set decoder reference frame");
       }
     }
@@ -379,16 +379,16 @@ int main(int argc, char **argv) {
   }
 
   if (test_decode)
-    if (aom_codec_destroy(&dcodec))
+    if (avm_codec_destroy(&dcodec))
       die_codec(&dcodec, "Failed to destroy decoder");
 
-  if (allocated_raw_shift) aom_img_free(&raw_shift);
-  aom_img_free(&ext_ref);
-  aom_img_free(&raw);
-  if (aom_codec_destroy(&ecodec))
+  if (allocated_raw_shift) avm_img_free(&raw_shift);
+  avm_img_free(&ext_ref);
+  avm_img_free(&raw);
+  if (avm_codec_destroy(&ecodec))
     die_codec(&ecodec, "Failed to destroy encoder.");
 
-  aom_video_writer_close(writer);
+  avm_video_writer_close(writer);
 
   return EXIT_SUCCESS;
 }

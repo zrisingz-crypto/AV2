@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_SCAN_H_
-#define AOM_AV1_COMMON_SCAN_H_
+#ifndef AVM_AV2_COMMON_SCAN_H_
+#define AVM_AV2_COMMON_SCAN_H_
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,12 +33,12 @@ enum {
   SCAN_MODES
 } UENUM1BYTE(SCAN_MODE);
 
-extern const SCAN_ORDER av1_default_scan_orders[TX_SIZES];
-extern const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES];
+extern const SCAN_ORDER av2_default_scan_orders[TX_SIZES];
+extern const SCAN_ORDER av2_scan_orders[TX_SIZES_ALL][TX_TYPES];
 
 static INLINE const SCAN_ORDER *get_default_scan(TX_SIZE tx_size,
                                                  TX_TYPE tx_type) {
-  return &av1_scan_orders[tx_size][get_primary_tx_type(tx_type)];
+  return &av2_scan_orders[tx_size][get_primary_tx_type(tx_type)];
 }
 
 static INLINE const SCAN_ORDER *get_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
@@ -49,4 +49,4 @@ static INLINE const SCAN_ORDER *get_scan(TX_SIZE tx_size, TX_TYPE tx_type) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_SCAN_H_
+#endif  // AVM_AV2_COMMON_SCAN_H_

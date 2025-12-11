@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/cfl.h"
-#include "av1/common/common_data.h"
-#include "av1/common/enums.h"
-#include "av1/common/reconintra.h"
-#include "config/av1_rtcd.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/warped_motion.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/cfl.h"
+#include "av2/common/common_data.h"
+#include "av2/common/enums.h"
+#include "av2/common/reconintra.h"
+#include "config/av2_rtcd.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/warped_motion.h"
 
 #define LOCAL_FIXED_MULT(x, y, round, bits) (((x) * (y) + round) >> bits)
 
@@ -226,12 +226,12 @@ static void get_top_bottom_offsets(int is_top_sb_boundary, int *top_offset,
   *bottom_offset = 1 - is_top_sb_boundary;
 }
 
-void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
+void cfl_implicit_fetch_neighbor_luma(const AV2_COMMON *cm,
                                       MACROBLOCKD *const xd, int row, int col,
                                       int is_top_sb_boundary, int width,
                                       int height) {
   CFL_CTX *const cfl = &xd->cfl;
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  struct macroblockd_plane *const pd = &xd->plane[AVM_PLANE_Y];
   int input_stride = pd->dst.stride;
 
   const int row_dst =
@@ -248,7 +248,7 @@ void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
   const int col_start =
       ((xd->mi[0]->chroma_ref_info.mi_col_chroma_base + col) << MI_SIZE_LOG2);
   int have_top = 0, have_left = 0;
-  set_have_top_and_left(&have_top, &have_left, xd, row, col, AOM_PLANE_U);
+  set_have_top_and_left(&have_top, &have_left, xd, row, col, AVM_PLANE_U);
 
   memset(cfl->recon_yuv_buf_above[0], 0, sizeof(cfl->recon_yuv_buf_above[0]));
   memset(cfl->recon_yuv_buf_left[0], 0, sizeof(cfl->recon_yuv_buf_left[0]));
@@ -268,15 +268,15 @@ void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
         const int bot = i + bottom_offset * input_stride;
         const int filter_type = cm->seq_params.cfl_ds_filter_index;
         if (filter_type == 1) {
-          output_q3[i >> 1] = input[AOMMAX(0, i - 1)] + 2 * input[i] +
-                              input[i + 1] + input[bot + AOMMAX(-1, -i)] +
+          output_q3[i >> 1] = input[AVMMAX(0, i - 1)] + 2 * input[i] +
+                              input[i + 1] + input[bot + AVMMAX(-1, -i)] +
                               2 * input[bot] + input[bot + 1];
         } else if (filter_type == 2) {
           const int top =
               i - (is_top_sb_boundary ? 0 : 1) *
                       input_stride;  // If this is the top sb boundary, the top
                                      // index points to the current sample
-          output_q3[i >> 1] = input[AOMMAX(0, i - 1)] + 4 * input[i] +
+          output_q3[i >> 1] = input[AVMMAX(0, i - 1)] + 4 * input[i] +
                               input[i + 1] + input[top] + input[bot];
         } else {
           output_q3[i >> 1] =
@@ -289,7 +289,7 @@ void cfl_implicit_fetch_neighbor_luma(const AV1_COMMON *cm,
         const int filter_type = cm->seq_params.cfl_ds_filter_index;
         if (filter_type == 1) {
           output_q3[i >> 1] =
-              (input[AOMMAX(0, i - 1)] + 2 * input[i] + input[i + 1]) << 1;
+              (input[AVMMAX(0, i - 1)] + 2 * input[i] + input[i + 1]) << 1;
         } else if (filter_type == 2) {
           output_q3[i >> 1] = input[i] << 3;
         } else {
@@ -389,7 +389,7 @@ void cfl_calc_luma_dc(MACROBLOCKD *const xd, int row, int col,
   const int ss_ver = height > 32 ? 2 : 1;
 
   int have_top = 0, have_left = 0;
-  set_have_top_and_left(&have_top, &have_left, xd, row, col, AOM_PLANE_U);
+  set_have_top_and_left(&have_top, &have_left, xd, row, col, AVM_PLANE_U);
 
   int count = 0;
   int sum_x = 0;
@@ -425,7 +425,7 @@ void cfl_calc_luma_dc(MACROBLOCKD *const xd, int row, int col,
   }
 }
 
-void cfl_implicit_fetch_neighbor_chroma(const AV1_COMMON *cm,
+void cfl_implicit_fetch_neighbor_chroma(const AV2_COMMON *cm,
                                         MACROBLOCKD *const xd, int plane,
                                         int row, int col, TX_SIZE tx_size) {
   (void)cm;
@@ -548,7 +548,7 @@ void cfl_derive_implicit_scaling_factor(MACROBLOCKD *const xd, int plane,
     l = cfl->recon_yuv_buf_above[0];
     c = cfl->recon_yuv_buf_above[plane];
 
-    const int step_up = AOMMAX((int)width / numb_up, 1);
+    const int step_up = AVMMAX((int)width / numb_up, 1);
     const int start_up = (step_up == 1) ? 0 : (step_up >> 1);
 
     for (int i = start_up; i < width; i += step_up) {
@@ -564,7 +564,7 @@ void cfl_derive_implicit_scaling_factor(MACROBLOCKD *const xd, int plane,
     l = cfl->recon_yuv_buf_left[0];
     c = cfl->recon_yuv_buf_left[plane];
 
-    const int step_left = AOMMAX((int)height / numb_left, 1);
+    const int step_left = AVMMAX((int)height / numb_left, 1);
     const int start_left = (step_left == 1) ? 0 : (step_left >> 1);
 
     for (int i = start_left; i < height; i += step_left) {
@@ -635,7 +635,7 @@ void cfl_predict_block(bool seq_enable_cfl_intra, bool seq_enable_mhccp,
 
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
-  if (AOMMAX(width, height) > 32) {
+  if (AVMMAX(width, height) > 32) {
     cfl_predict_hbd_c(cfl->ac_buf_q3, dst, dst_stride, alpha_q3, xd->bd, width,
                       height);
   } else
@@ -666,7 +666,7 @@ void cfl_luma_subsampling_420_hbd_colocated_c(const uint16_t *input,
     for (int i = 0; i < width; i += 2) {
       const int top = ((j & 63) == 0) ? i : (i - input_stride);
       const int bot = i + input_stride;
-      output_q3[i >> 1] = input[AOMMAX(i & (-64), i - 1)] + 4 * input[i] +
+      output_q3[i >> 1] = input[AVMMAX(i & (-64), i - 1)] + 4 * input[i] +
                           input[i + 1] + input[top] + input[bot];
     }
     input += input_stride << 1;
@@ -679,7 +679,7 @@ void cfl_luma_subsampling_420_hbd_121_c(const uint16_t *input, int input_stride,
                                         int height) {
   for (int j = 0; j < height; j += 2) {
     for (int i = 0; i < width; i += 2) {
-      const int left = AOMMAX(i & (-64), i - 1);
+      const int left = AVMMAX(i & (-64), i - 1);
       output_q3[i >> 1] = input[left] + 2 * input[i] + input[i + 1] +
                           input[left + input_stride] +
                           2 * input[i + input_stride] +
@@ -713,7 +713,7 @@ void cfl_adaptive_luma_subsampling_422_hbd_c(const uint16_t *input,
     for (int i = 0; i < width; i += 2) {
       if (filter_type == 1) {
         output_q3[i >> 1] =
-            (input[AOMMAX(i & (-64), i - 1)] + 2 * input[i] + input[i + 1])
+            (input[AVMMAX(i & (-64), i - 1)] + 2 * input[i] + input[i + 1])
             << 1;
       } else if (filter_type == 2) {
         output_q3[i >> 1] = (input[i]) << 3;
@@ -801,7 +801,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
     cfl_adaptive_luma_subsampling_422_hbd_c(input, input_stride, recon_buf_q3,
                                             width, height, filter_type);
   } else if (sub_x == 0 && sub_y == 0) {
-    if (AOMMAX(width, height) > 64) {
+    if (AVMMAX(width, height) > 64) {
       cfl_luma_subsampling_444_hbd_c(input, input_stride, recon_buf_q3, width,
                                      height);
     } else {
@@ -810,7 +810,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
     }
   } else if (filter_type == 1) {
     if (sub_x && sub_y) {
-      if (AOMMAX(width, height) > 64) {
+      if (AVMMAX(width, height) > 64) {
         cfl_luma_subsampling_420_hbd_121_c(input, input_stride, recon_buf_q3,
                                            width, height);
       } else {
@@ -818,7 +818,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
                                                       recon_buf_q3);
       }
     } else {
-      if (AOMMAX(width, height) > 64) {
+      if (AVMMAX(width, height) > 64) {
         cfl_luma_subsampling_420_hbd_c(input, input_stride, recon_buf_q3, width,
                                        height);
       } else {
@@ -828,7 +828,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
     }
   } else if (filter_type == 2) {
     if (sub_x && sub_y) {
-      if (AOMMAX(width, height) > 64) {
+      if (AVMMAX(width, height) > 64) {
         cfl_luma_subsampling_420_hbd_colocated_c(input, input_stride,
                                                  recon_buf_q3, width, height);
       } else {
@@ -836,7 +836,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
                                                             recon_buf_q3);
       }
     } else {
-      if (AOMMAX(width, height) > 64) {
+      if (AVMMAX(width, height) > 64) {
         cfl_luma_subsampling_420_hbd_c(input, input_stride, recon_buf_q3, width,
                                        height);
       } else {
@@ -845,7 +845,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
       }
     }
   } else {
-    if (AOMMAX(width, height) > 64) {
+    if (AVMMAX(width, height) > 64) {
       cfl_luma_subsampling_420_hbd_c(input, input_stride, recon_buf_q3, width,
                                      height);
     } else {
@@ -858,7 +858,7 @@ void cfl_store(MACROBLOCKD *const xd, CFL_CTX *cfl, const uint16_t *input,
 void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size,
                      int filter_type) {
   CFL_CTX *const cfl = &xd->cfl;
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  struct macroblockd_plane *const pd = &xd->plane[AVM_PLANE_Y];
   // Always store full block, even if partially outside frame boundary.
   const int width = block_size_wide[bsize];
   const int height = block_size_high[bsize];
@@ -876,7 +876,7 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size,
 #define NON_LINEAR(V, M, BD) ((V * V + M) >> BD)
 // Derives multi-parameter chroma prediction coefficients from neighboring luma
 // and chroma reference samples.
-void av1_mhccp_derive_multi_param_hv_c(MACROBLOCKD *const xd, int plane,
+void av2_mhccp_derive_multi_param_hv_c(MACROBLOCKD *const xd, int plane,
                                        int above_lines, int left_lines,
                                        int ref_width, int ref_height, int dir,
                                        int is_top_sb_boundary) {

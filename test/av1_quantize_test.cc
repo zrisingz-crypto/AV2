@@ -13,14 +13,14 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
-#include "av1/common/scan.h"
-#include "av1/encoder/av1_quantize.h"
+#include "av2/common/scan.h"
+#include "av2/encoder/av2_quantize.h"
 
 namespace {
 
@@ -40,7 +40,7 @@ struct QuantizeFuncParams {
   int coeffCount;
 };
 
-using libaom_test::ACMRandom;
+using libavm_test::ACMRandom;
 
 const int numTests = 1000;
 const int maxSize = 1024;
@@ -48,7 +48,7 @@ const int roundFactorRange = 64;
 const int dequantRange = 1048576;
 const int coeffRange = (1 << 20) - 1;
 
-class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
+class AV2QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
  public:
   void RunQuantizeTest() {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -72,7 +72,7 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
     QuantizeFpFunc quanFunc = params_.qFunc;
     QuantizeFpFunc quanFuncRef = params_.qFuncRef;
 
-    const SCAN_ORDER scanOrder = av1_default_scan_orders[txSize];
+    const SCAN_ORDER scanOrder = av2_default_scan_orders[txSize];
     for (int i = 0; i < numTests; i++) {
       int err_count = 0;
       ref_eob = eob = UINT16_MAX;
@@ -145,7 +145,7 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
     int log_scale = (txSize == TX_32X32);
     QuantizeFpFunc quanFunc = params_.qFunc;
     QuantizeFpFunc quanFuncRef = params_.qFuncRef;
-    const SCAN_ORDER scanOrder = av1_default_scan_orders[txSize];
+    const SCAN_ORDER scanOrder = av2_default_scan_orders[txSize];
 
     for (int i = 0; i < numTests; i++) {
       ref_eob = eob = UINT16_MAX;
@@ -189,9 +189,9 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
 
   virtual void SetUp() { params_ = GetParam(); }
 
-  virtual void TearDown() { libaom_test::ClearSystemState(); }
+  virtual void TearDown() { libavm_test::ClearSystemState(); }
 
-  virtual ~AV1QuantizeTest() {}
+  virtual ~AV2QuantizeTest() {}
 
  private:
   TX_SIZE getTxSize(int count) {
@@ -206,39 +206,39 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
 
   QuantizeFuncParams params_;
 };
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1QuantizeTest);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV2QuantizeTest);
 
-TEST_P(AV1QuantizeTest, BitExactCheck) { RunQuantizeTest(); }
-TEST_P(AV1QuantizeTest, EobVerify) { RunEobTest(); }
+TEST_P(AV2QuantizeTest, BitExactCheck) { RunQuantizeTest(); }
+TEST_P(AV2QuantizeTest, EobVerify) { RunEobTest(); }
 
 #if HAVE_SSE4_1
 const QuantizeFuncParams qfps[4] = {
-  QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_sse4_1, &av2_highbd_quantize_fp_c,
                      16),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_sse4_1, &av2_highbd_quantize_fp_c,
                      64),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_sse4_1, &av2_highbd_quantize_fp_c,
                      256),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_sse4_1, &av2_highbd_quantize_fp_c,
                      1024),
 };
 
-INSTANTIATE_TEST_SUITE_P(SSE4_1, AV1QuantizeTest, ::testing::ValuesIn(qfps));
+INSTANTIATE_TEST_SUITE_P(SSE4_1, AV2QuantizeTest, ::testing::ValuesIn(qfps));
 #endif  // HAVE_SSE4_1
 
 #if HAVE_AVX2
 const QuantizeFuncParams qfps_avx2[4] = {
-  QuantizeFuncParams(&av1_highbd_quantize_fp_avx2, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_avx2, &av2_highbd_quantize_fp_c,
                      16),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_avx2, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_avx2, &av2_highbd_quantize_fp_c,
                      64),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_avx2, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_avx2, &av2_highbd_quantize_fp_c,
                      256),
-  QuantizeFuncParams(&av1_highbd_quantize_fp_avx2, &av1_highbd_quantize_fp_c,
+  QuantizeFuncParams(&av2_highbd_quantize_fp_avx2, &av2_highbd_quantize_fp_c,
                      1024),
 };
 
-INSTANTIATE_TEST_SUITE_P(AVX2, AV1QuantizeTest, ::testing::ValuesIn(qfps_avx2));
+INSTANTIATE_TEST_SUITE_P(AVX2, AV2QuantizeTest, ::testing::ValuesIn(qfps_avx2));
 #endif  // HAVE_AVX2
 
 }  // namespace

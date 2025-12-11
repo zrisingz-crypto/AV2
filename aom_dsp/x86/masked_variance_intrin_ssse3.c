@@ -14,15 +14,15 @@
 #include <string.h>
 #include <tmmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_dsp/blend.h"
-#include "aom_dsp/x86/masked_variance_intrin_ssse3.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_ports/mem.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/x86/masked_variance_intrin_ssse3.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_ports/mem.h"
 
 // For width a multiple of 16
 static void bilinear_filter(const uint8_t *src, int src_stride, int xoffset,
@@ -52,7 +52,7 @@ static void masked_variance4xh(const uint8_t *src_ptr, int src_stride,
                                unsigned int *sse, int *sum_);
 
 #define MASK_SUBPIX_VAR_SSSE3(W, H)                                   \
-  unsigned int aom_masked_sub_pixel_variance##W##x##H##_ssse3(        \
+  unsigned int avm_masked_sub_pixel_variance##W##x##H##_ssse3(        \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,   \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred, \
       const uint8_t *msk, int msk_stride, int invert_mask,            \
@@ -72,7 +72,7 @@ static void masked_variance4xh(const uint8_t *src_ptr, int src_stride,
   }
 
 #define MASK_SUBPIX_VAR8XH_SSSE3(H)                                           \
-  unsigned int aom_masked_sub_pixel_variance8x##H##_ssse3(                    \
+  unsigned int avm_masked_sub_pixel_variance8x##H##_ssse3(                    \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,           \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,         \
       const uint8_t *msk, int msk_stride, int invert_mask,                    \
@@ -92,7 +92,7 @@ static void masked_variance4xh(const uint8_t *src_ptr, int src_stride,
   }
 
 #define MASK_SUBPIX_VAR4XH_SSSE3(H)                                           \
-  unsigned int aom_masked_sub_pixel_variance4x##H##_ssse3(                    \
+  unsigned int avm_masked_sub_pixel_variance4x##H##_ssse3(                    \
       const uint8_t *src, int src_stride, int xoffset, int yoffset,           \
       const uint8_t *ref, int ref_stride, const uint8_t *second_pred,         \
       const uint8_t *msk, int msk_stride, int invert_mask,                    \
@@ -404,7 +404,7 @@ static INLINE void accumulate_block(const __m128i *src, const __m128i *a,
                                     __m128i *sum, __m128i *sum_sq) {
   const __m128i zero = _mm_setzero_si128();
   const __m128i one = _mm_set1_epi16(1);
-  const __m128i mask_max = _mm_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m128i m_inv = _mm_sub_epi8(mask_max, *m);
 
   // Calculate 16 predicted pixels.
@@ -413,12 +413,12 @@ static INLINE void accumulate_block(const __m128i *src, const __m128i *a,
   const __m128i data_l = _mm_unpacklo_epi8(*a, *b);
   const __m128i mask_l = _mm_unpacklo_epi8(*m, m_inv);
   __m128i pred_l = _mm_maddubs_epi16(data_l, mask_l);
-  pred_l = xx_roundn_epu16(pred_l, AOM_BLEND_A64_ROUND_BITS);
+  pred_l = xx_roundn_epu16(pred_l, AVM_BLEND_A64_ROUND_BITS);
 
   const __m128i data_r = _mm_unpackhi_epi8(*a, *b);
   const __m128i mask_r = _mm_unpackhi_epi8(*m, m_inv);
   __m128i pred_r = _mm_maddubs_epi16(data_r, mask_r);
-  pred_r = xx_roundn_epu16(pred_r, AOM_BLEND_A64_ROUND_BITS);
+  pred_r = xx_roundn_epu16(pred_r, AVM_BLEND_A64_ROUND_BITS);
 
   const __m128i src_l = _mm_unpacklo_epi8(*src, zero);
   const __m128i src_r = _mm_unpackhi_epi8(*src, zero);
@@ -548,7 +548,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
                                       int height, uint32_t *sse, int *sum_);
 
 #define HIGHBD_MASK_SUBPIX_VAR_SSSE3(W, H)                                  \
-  unsigned int aom_highbd_8_masked_sub_pixel_variance##W##x##H##_ssse3(     \
+  unsigned int avm_highbd_8_masked_sub_pixel_variance##W##x##H##_ssse3(     \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -567,7 +567,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
     *sse = (uint32_t)sse64;                                                 \
     return *sse - (uint32_t)(((int64_t)sum * sum) / (W * H));               \
   }                                                                         \
-  unsigned int aom_highbd_10_masked_sub_pixel_variance##W##x##H##_ssse3(    \
+  unsigned int avm_highbd_10_masked_sub_pixel_variance##W##x##H##_ssse3(    \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -589,7 +589,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
     var = (int64_t)(*sse) - (((int64_t)sum * sum) / (W * H));               \
     return (var >= 0) ? (uint32_t)var : 0;                                  \
   }                                                                         \
-  unsigned int aom_highbd_12_masked_sub_pixel_variance##W##x##H##_ssse3(    \
+  unsigned int avm_highbd_12_masked_sub_pixel_variance##W##x##H##_ssse3(    \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -613,7 +613,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
   }
 
 #define HIGHBD_MASK_SUBPIX_VAR4XH_SSSE3(H)                                  \
-  unsigned int aom_highbd_8_masked_sub_pixel_variance4x##H##_ssse3(         \
+  unsigned int avm_highbd_8_masked_sub_pixel_variance4x##H##_ssse3(         \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -632,7 +632,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
     *sse = (uint32_t)sse_;                                                  \
     return *sse - (uint32_t)(((int64_t)sum * sum) / (4 * H));               \
   }                                                                         \
-  unsigned int aom_highbd_10_masked_sub_pixel_variance4x##H##_ssse3(        \
+  unsigned int avm_highbd_10_masked_sub_pixel_variance4x##H##_ssse3(        \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -654,7 +654,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
     var = (int64_t)(*sse) - (((int64_t)sum * sum) / (4 * H));               \
     return (var >= 0) ? (uint32_t)var : 0;                                  \
   }                                                                         \
-  unsigned int aom_highbd_12_masked_sub_pixel_variance4x##H##_ssse3(        \
+  unsigned int avm_highbd_12_masked_sub_pixel_variance4x##H##_ssse3(        \
       const uint16_t *src, int src_stride, int xoffset, int yoffset,        \
       const uint16_t *ref, int ref_stride, const uint16_t *second_pred,     \
       const uint8_t *msk, int msk_stride, int invert_mask, uint32_t *sse) { \
@@ -899,9 +899,9 @@ static void highbd_masked_variance(const uint16_t *src_ptr, int src_stride,
   // But the maximum value of 'sum_sq' is (2^12 - 1)^2 * 128 * 128 =~ 2^38,
   // so this must be stored as two 64-bit values.
   __m128i sum = _mm_setzero_si128(), sum_sq = _mm_setzero_si128();
-  const __m128i mask_max = _mm_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m128i round_const =
-      _mm_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m128i zero = _mm_setzero_si128();
 
   for (y = 0; y < height; y++) {
@@ -918,13 +918,13 @@ static void highbd_masked_variance(const uint16_t *src_ptr, int src_stride,
       const __m128i mask_l = _mm_unpacklo_epi16(m, m_inv);
       __m128i pred_l = _mm_madd_epi16(data_l, mask_l);
       pred_l = _mm_srai_epi32(_mm_add_epi32(pred_l, round_const),
-                              AOM_BLEND_A64_ROUND_BITS);
+                              AVM_BLEND_A64_ROUND_BITS);
 
       const __m128i data_r = _mm_unpackhi_epi16(a, b);
       const __m128i mask_r = _mm_unpackhi_epi16(m, m_inv);
       __m128i pred_r = _mm_madd_epi16(data_r, mask_r);
       pred_r = _mm_srai_epi32(_mm_add_epi32(pred_r, round_const),
-                              AOM_BLEND_A64_ROUND_BITS);
+                              AVM_BLEND_A64_ROUND_BITS);
 
       const __m128i src_l = _mm_unpacklo_epi16(src, zero);
       const __m128i src_r = _mm_unpackhi_epi16(src, zero);
@@ -971,9 +971,9 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
   // So we can safely pack sum_sq into 32-bit fields, which is slightly more
   // convenient.
   __m128i sum = _mm_setzero_si128(), sum_sq = _mm_setzero_si128();
-  const __m128i mask_max = _mm_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i mask_max = _mm_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m128i round_const =
-      _mm_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m128i zero = _mm_setzero_si128();
 
   for (y = 0; y < height; y += 2) {
@@ -993,13 +993,13 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
     const __m128i mask_l = _mm_unpacklo_epi16(m, m_inv);
     __m128i pred_l = _mm_madd_epi16(data_l, mask_l);
     pred_l = _mm_srai_epi32(_mm_add_epi32(pred_l, round_const),
-                            AOM_BLEND_A64_ROUND_BITS);
+                            AVM_BLEND_A64_ROUND_BITS);
 
     const __m128i data_r = _mm_unpackhi_epi16(a, b);
     const __m128i mask_r = _mm_unpackhi_epi16(m, m_inv);
     __m128i pred_r = _mm_madd_epi16(data_r, mask_r);
     pred_r = _mm_srai_epi32(_mm_add_epi32(pred_r, round_const),
-                            AOM_BLEND_A64_ROUND_BITS);
+                            AVM_BLEND_A64_ROUND_BITS);
 
     const __m128i src_l = _mm_unpacklo_epi16(src, zero);
     const __m128i src_r = _mm_unpackhi_epi16(src, zero);
@@ -1024,7 +1024,7 @@ static void highbd_masked_variance4xh(const uint16_t *src_ptr, int src_stride,
   *sse = (uint32_t)_mm_cvtsi128_si32(_mm_srli_si128(sum, 4));
 }
 
-void aom_comp_mask_pred_ssse3(uint8_t *comp_pred, const uint8_t *pred,
+void avm_comp_mask_pred_ssse3(uint8_t *comp_pred, const uint8_t *pred,
                               int width, int height, const uint8_t *ref,
                               int ref_stride, const uint8_t *mask,
                               int mask_stride, int invert_mask) {

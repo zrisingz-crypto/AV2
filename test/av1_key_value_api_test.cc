@@ -13,12 +13,12 @@
 #include <cstring>
 #include <tuple>
 
-#include "aom/aom_codec.h"
-#include "aom/aom_decoder.h"
-#include "aom/aom_encoder.h"
-#include "aom/aomcx.h"
-#include "aom/aomdx.h"
-#include "config/aom_config.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_decoder.h"
+#include "avm/avm_encoder.h"
+#include "avm/avmcx.h"
+#include "avm/avmdx.h"
+#include "config/avm_config.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace {
@@ -27,44 +27,44 @@ typedef std::tuple<const char *, const char *> KeyValParam;
 class BaseKeyValAPI : public testing::Test {
  public:
   void SetUp() override {
-#if CONFIG_AV1_ENCODER
-    aom_codec_iface_t *iface_cx = aom_codec_av1_cx();
-    aom_codec_enc_cfg_t enc_cfg;
+#if CONFIG_AV2_ENCODER
+    avm_codec_iface_t *iface_cx = avm_codec_av2_cx();
+    avm_codec_enc_cfg_t enc_cfg;
 
-    EXPECT_EQ(AOM_CODEC_OK,
-              aom_codec_enc_config_default(iface_cx, &enc_cfg, 0));
-    EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc_, iface_cx, &enc_cfg, 0));
+    EXPECT_EQ(AVM_CODEC_OK,
+              avm_codec_enc_config_default(iface_cx, &enc_cfg, 0));
+    EXPECT_EQ(AVM_CODEC_OK, avm_codec_enc_init(&enc_, iface_cx, &enc_cfg, 0));
 #endif
-#if CONFIG_AV1_DECODER
-    aom_codec_iface_t *iface_dx = aom_codec_av1_dx();
-    aom_codec_dec_cfg_t dec_cfg = { 0, 0, 0, NULL, NULL };
+#if CONFIG_AV2_DECODER
+    avm_codec_iface_t *iface_dx = avm_codec_av2_dx();
+    avm_codec_dec_cfg_t dec_cfg = { 0, 0, 0, NULL, NULL };
 
-    EXPECT_EQ(AOM_CODEC_OK, aom_codec_dec_init(&dec_, iface_dx, &dec_cfg, 0));
+    EXPECT_EQ(AVM_CODEC_OK, avm_codec_dec_init(&dec_, iface_dx, &dec_cfg, 0));
 #endif
   }
 
   void TearDown() override {
-#if CONFIG_AV1_ENCODER
-    EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc_));
+#if CONFIG_AV2_ENCODER
+    EXPECT_EQ(AVM_CODEC_OK, avm_codec_destroy(&enc_));
 #endif
-#if CONFIG_AV1_DECODER
-    EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&dec_));
+#if CONFIG_AV2_DECODER
+    EXPECT_EQ(AVM_CODEC_OK, avm_codec_destroy(&dec_));
 #endif
   }
 
  protected:
-#if CONFIG_AV1_ENCODER
-  aom_codec_ctx_t enc_;
+#if CONFIG_AV2_ENCODER
+  avm_codec_ctx_t enc_;
 #endif
-#if CONFIG_AV1_DECODER
-  aom_codec_ctx_t dec_;
+#if CONFIG_AV2_DECODER
+  avm_codec_ctx_t dec_;
 #endif
 };
 
 // Tests on encoder options.
 // Need to add ones for the decoder in the future if it is also supported in the
 // key & value API.
-#if CONFIG_AV1_ENCODER
+#if CONFIG_AV2_ENCODER
 class EncValidTest : public BaseKeyValAPI,
                      public testing::WithParamInterface<KeyValParam> {};
 class EncInvalidTest : public BaseKeyValAPI,
@@ -73,23 +73,23 @@ class EncInvalidTest : public BaseKeyValAPI,
 TEST_P(EncValidTest, Valid) {
   const char *key = std::get<0>(GetParam());
   const char *val = std::get<1>(GetParam());
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_set_option(&enc_, key, val));
+  EXPECT_EQ(AVM_CODEC_OK, avm_codec_set_option(&enc_, key, val));
 }
 
 TEST_P(EncInvalidTest, NullArg) {
   const char *key = std::get<0>(GetParam());
   const char *val = std::get<1>(GetParam());
-  EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_set_option(nullptr, key, val));
-  EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_set_option(&enc_, nullptr, val));
-  EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_set_option(&enc_, key, nullptr));
+  EXPECT_EQ(AVM_CODEC_INVALID_PARAM, avm_codec_set_option(nullptr, key, val));
+  EXPECT_EQ(AVM_CODEC_INVALID_PARAM, avm_codec_set_option(&enc_, nullptr, val));
+  EXPECT_EQ(AVM_CODEC_INVALID_PARAM, avm_codec_set_option(&enc_, key, nullptr));
 }
 
 TEST_P(EncInvalidTest, InvalidParam) {
   const char *key = std::get<0>(GetParam());
   const char *val = std::get<1>(GetParam());
-  EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_set_option(&enc_, key, val));
-  ASSERT_NE(aom_codec_error_detail(&enc_), nullptr);
-  EXPECT_GT(strlen(aom_codec_error_detail(&enc_)), 0u);
+  EXPECT_EQ(AVM_CODEC_INVALID_PARAM, avm_codec_set_option(&enc_, key, val));
+  ASSERT_NE(avm_codec_error_detail(&enc_), nullptr);
+  EXPECT_GT(strlen(avm_codec_error_detail(&enc_)), 0u);
 }
 
 // No test for ratio / list for now since the API does not support any of the
@@ -123,6 +123,6 @@ INSTANTIATE_TEST_SUITE_P(KeyValAPI, EncValidTest,
 
 INSTANTIATE_TEST_SUITE_P(KeyValAPI, EncInvalidTest,
                          testing::ValuesIn(enc_invalid_params));
-#endif  // CONFIG_AV1_ENCODER
+#endif  // CONFIG_AV2_ENCODER
 
 }  // namespace

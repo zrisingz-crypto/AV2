@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V64_INTRINSICS_X86_H_
-#define AOM_AOM_DSP_SIMD_V64_INTRINSICS_X86_H_
+#ifndef AVM_AVM_DSP_SIMD_V64_INTRINSICS_X86_H_
+#define AVM_AVM_DSP_SIMD_V64_INTRINSICS_X86_H_
 
 #include <emmintrin.h>
 #if defined(__SSSE3__)
@@ -497,4 +497,4 @@ SIMD_INLINE v64 v64_shr_s32(v64 a, unsigned int c) {
 #define v64_shr_n_u32(a, c) _mm_srli_epi32(a, c)
 #define v64_shr_n_s32(a, c) _mm_srai_epi32(a, c)
 
-#endif  // AOM_AOM_DSP_SIMD_V64_INTRINSICS_X86_H_
+#endif  // AVM_AVM_DSP_SIMD_V64_INTRINSICS_X86_H_

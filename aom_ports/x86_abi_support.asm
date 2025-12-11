@@ -12,7 +12,7 @@
 ;
 
 
-%include "config/aom_config.asm"
+%include "config/avm_config.asm"
 
 ; 32/64 bit compatibility macros
 ;
@@ -81,34 +81,34 @@
 %endif
 
 
-; LIBAOM_YASM_WIN64
-; Set LIBAOM_YASM_WIN64 if output is Windows 64bit so the code will work if x64
+; LIBAVM_YASM_WIN64
+; Set LIBAVM_YASM_WIN64 if output is Windows 64bit so the code will work if x64
 ; or win64 is defined on the Yasm command line.
 %ifidn __OUTPUT_FORMAT__,win64
-%define LIBAOM_YASM_WIN64 1
+%define LIBAVM_YASM_WIN64 1
 %elifidn __OUTPUT_FORMAT__,x64
-%define LIBAOM_YASM_WIN64 1
+%define LIBAVM_YASM_WIN64 1
 %else
-%define LIBAOM_YASM_WIN64 0
+%define LIBAVM_YASM_WIN64 0
 %endif
 
 ; Declare groups of platforms
 %ifidn   __OUTPUT_FORMAT__,elf32
-  %define LIBAOM_ELF 1
+  %define LIBAVM_ELF 1
 %elifidn   __OUTPUT_FORMAT__,elfx32
-  %define LIBAOM_ELF 1
+  %define LIBAVM_ELF 1
 %elifidn   __OUTPUT_FORMAT__,elf64
-  %define LIBAOM_ELF 1
+  %define LIBAVM_ELF 1
 %else
-  %define LIBAOM_ELF 0
+  %define LIBAVM_ELF 0
 %endif
 
 %ifidn __OUTPUT_FORMAT__,macho32
-  %define LIBAOM_MACHO 1
+  %define LIBAVM_MACHO 1
 %elifidn __OUTPUT_FORMAT__,macho64
-  %define LIBAOM_MACHO 1
+  %define LIBAVM_MACHO 1
 %else
-  %define LIBAOM_MACHO 0
+  %define LIBAVM_MACHO 0
 %endif
 
 ; sym()
@@ -117,7 +117,7 @@
 ; Certain ABIs, notably MS COFF and Darwin MACH-O, require that symbols
 ; with C linkage be prefixed with an underscore.
 ;
-%if LIBAOM_ELF || LIBAOM_YASM_WIN64
+%if LIBAVM_ELF || LIBAVM_YASM_WIN64
   %define sym(x) x
 %else
   ; Mach-O / COFF
@@ -146,9 +146,9 @@
     %endif
   %endif
 
-  %if LIBAOM_ELF
+  %if LIBAVM_ELF
     %define globalsym(x) global sym(x) %+ :function hidden
-  %elif LIBAOM_MACHO
+  %elif LIBAVM_MACHO
     %define globalsym(x) global sym(x) %+ :private_extern
   %else
     ; COFF / PE32+
@@ -166,7 +166,7 @@
 %else
   ; 64 bit ABI passes arguments in registers. This is a workaround to get up
   ; and running quickly. Relies on SHADOW_ARGS_TO_STACK
-  %if LIBAOM_YASM_WIN64
+  %if LIBAVM_YASM_WIN64
     %define arg(x) [rbp+16+8*x]
   %else
     %define arg(x) [rbp-8-8*x]
@@ -290,7 +290,7 @@
   %endm
   %define UNSHADOW_ARGS
 %else
-%if LIBAOM_YASM_WIN64
+%if LIBAVM_YASM_WIN64
   %macro SHADOW_ARGS_TO_STACK 1 ; argc
     %if %1 > 0
         mov arg(0),rcx
@@ -346,7 +346,7 @@
 ; Win64 ABI requires 16 byte stack alignment, but then pushes an 8 byte return
 ; value. Typically we follow this up with 'push rbp' - re-aligning the stack -
 ; but in some cases this is not done and unaligned movs must be used.
-%if LIBAOM_YASM_WIN64
+%if LIBAVM_YASM_WIN64
 %macro SAVE_XMM 1-2 a
   %if %1 < 6
     %error Only xmm registers 6-15 must be preserved

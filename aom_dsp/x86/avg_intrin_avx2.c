@@ -12,10 +12,10 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/bitdepth_conversion_avx2.h"
-#include "aom_ports/mem.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/bitdepth_conversion_avx2.h"
+#include "avm_ports/mem.h"
 
 static void highbd_hadamard_col8_avx2(__m256i *in, int iter) {
   __m256i a0 = in[0];
@@ -93,7 +93,7 @@ static void highbd_hadamard_col8_avx2(__m256i *in, int iter) {
   }
 }
 
-void aom_highbd_hadamard_8x8_avx2(const int16_t *src_diff, ptrdiff_t src_stride,
+void avm_highbd_hadamard_8x8_avx2(const int16_t *src_diff, ptrdiff_t src_stride,
                                   tran_low_t *coeff) {
   __m128i src16[8];
   __m256i src32[8];
@@ -136,14 +136,14 @@ void aom_highbd_hadamard_8x8_avx2(const int16_t *src_diff, ptrdiff_t src_stride,
   _mm256_storeu_si256((__m256i *)coeff, src32[7]);
 }
 
-void aom_highbd_hadamard_16x16_avx2(const int16_t *src_diff,
+void avm_highbd_hadamard_16x16_avx2(const int16_t *src_diff,
                                     ptrdiff_t src_stride, tran_low_t *coeff) {
   int idx;
   tran_low_t *t_coeff = coeff;
   for (idx = 0; idx < 4; ++idx) {
     const int16_t *src_ptr =
         src_diff + (idx >> 1) * 8 * src_stride + (idx & 0x01) * 8;
-    aom_highbd_hadamard_8x8_avx2(src_ptr, src_stride, t_coeff + idx * 64);
+    avm_highbd_hadamard_8x8_avx2(src_ptr, src_stride, t_coeff + idx * 64);
   }
 
   for (idx = 0; idx < 64; idx += 8) {
@@ -177,14 +177,14 @@ void aom_highbd_hadamard_16x16_avx2(const int16_t *src_diff,
   }
 }
 
-void aom_highbd_hadamard_32x32_avx2(const int16_t *src_diff,
+void avm_highbd_hadamard_32x32_avx2(const int16_t *src_diff,
                                     ptrdiff_t src_stride, tran_low_t *coeff) {
   int idx;
   tran_low_t *t_coeff = coeff;
   for (idx = 0; idx < 4; ++idx) {
     const int16_t *src_ptr =
         src_diff + (idx >> 1) * 16 * src_stride + (idx & 0x01) * 16;
-    aom_highbd_hadamard_16x16_avx2(src_ptr, src_stride, t_coeff + idx * 256);
+    avm_highbd_hadamard_16x16_avx2(src_ptr, src_stride, t_coeff + idx * 256);
   }
 
   for (idx = 0; idx < 256; idx += 8) {
@@ -218,7 +218,7 @@ void aom_highbd_hadamard_32x32_avx2(const int16_t *src_diff,
   }
 }
 
-int aom_satd_avx2(const tran_low_t *coeff, int length) {
+int avm_satd_avx2(const tran_low_t *coeff, int length) {
   __m256i accum = _mm256_setzero_si256();
   int i;
 
@@ -239,7 +239,7 @@ int aom_satd_avx2(const tran_low_t *coeff, int length) {
   }
 }
 
-int aom_satd_lp_avx2(const int16_t *coeff, int length) {
+int avm_satd_lp_avx2(const int16_t *coeff, int length) {
   const __m256i one = _mm256_set1_epi16(1);
   __m256i accum = _mm256_setzero_si256();
 

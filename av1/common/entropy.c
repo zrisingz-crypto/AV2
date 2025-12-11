@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_mem/aom_mem.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/entropy.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/scan.h"
-#include "av1/common/txb_common.h"
+#include "avm/avm_integer.h"
+#include "avm_mem/avm_mem.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/entropy.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/scan.h"
+#include "av2/common/txb_common.h"
 
 // Context tables for coefficient coding
 // TODO(hegilmez): use constant macros in defining array dimensions whenever
@@ -27,7 +27,7 @@
 // TODO(joeyoung/hegilmez): move default_intra_dip_cdf and
 // default_intra_dip_mode_n6_cdf to entropy_inits_modes.h, since they are not
 // coefficient coding elements
-#include "av1/common/entropy_inits_coeffs.h"
+#include "av2/common/entropy_inits_coeffs.h"
 
 static int get_q_ctx(int q) {
   if (q <= 90) return 0;
@@ -36,58 +36,58 @@ static int get_q_ctx(int q) {
   return 3;
 }
 
-void av1_default_coef_probs(AV1_COMMON *cm) {
+void av2_default_coef_probs(AV2_COMMON *cm) {
   const int index = get_q_ctx(cm->quant_params.base_qindex);
 #if CONFIG_ENTROPY_STATS
   cm->coef_cdf_category = index;
 #endif
 
-  av1_copy(cm->fc->txb_skip_cdf[0], av1_default_txb_skip_cdfs[index][0]);
-  av1_copy(cm->fc->txb_skip_cdf[1], av1_default_txb_skip_cdfs[index][1]);
-  av1_copy(cm->fc->v_txb_skip_cdf, av1_default_v_txb_skip_cdfs[index]);
-  av1_copy(cm->fc->eob_extra_cdf, av1_default_eob_extra_cdfs[index]);
-  av1_copy(cm->fc->dc_sign_cdf, av1_default_dc_sign_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_lf_cdf,
-           av1_default_coeff_base_lf_multi_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_lf_eob_cdf,
-           av1_default_coeff_base_lf_eob_multi_cdfs[index]);
-  av1_copy(cm->fc->coeff_br_lf_cdf, av1_default_coeff_lps_lf_multi_cdfs[index]);
-  av1_copy(cm->fc->coeff_br_cdf, av1_default_coeff_lps_multi_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_cdf, av1_default_coeff_base_multi_cdfs[index]);
-  av1_copy(cm->fc->idtx_sign_cdf, av1_default_idtx_sign_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_cdf_idtx,
-           av1_default_coeff_base_multi_cdfs_idtx[index]);
-  av1_copy(cm->fc->coeff_br_cdf_idtx,
-           av1_default_coeff_lps_multi_cdfs_idtx[index]);
-  av1_copy(cm->fc->coeff_base_eob_cdf,
-           av1_default_coeff_base_eob_multi_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_lf_uv_cdf,
-           av1_default_coeff_base_lf_multi_uv_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_lf_eob_uv_cdf,
-           av1_default_coeff_base_lf_eob_multi_uv_cdfs[index]);
-  av1_copy(cm->fc->coeff_br_uv_cdf, av1_default_coeff_lps_multi_uv_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_uv_cdf,
-           av1_default_coeff_base_multi_uv_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_eob_uv_cdf,
-           av1_default_coeff_base_eob_multi_uv_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf16, av1_default_eob_multi16_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf32, av1_default_eob_multi32_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf64, av1_default_eob_multi64_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf128, av1_default_eob_multi128_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf256, av1_default_eob_multi256_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf512, av1_default_eob_multi512_cdfs[index]);
-  av1_copy(cm->fc->eob_flag_cdf1024, av1_default_eob_multi1024_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_ph_cdf, av1_default_coeff_base_ph_cdfs[index]);
-  av1_copy(cm->fc->coeff_base_bob_cdf,
-           av1_default_coeff_base_bob_multi_cdfs[index]);
+  av2_copy(cm->fc->txb_skip_cdf[0], av2_default_txb_skip_cdfs[index][0]);
+  av2_copy(cm->fc->txb_skip_cdf[1], av2_default_txb_skip_cdfs[index][1]);
+  av2_copy(cm->fc->v_txb_skip_cdf, av2_default_v_txb_skip_cdfs[index]);
+  av2_copy(cm->fc->eob_extra_cdf, av2_default_eob_extra_cdfs[index]);
+  av2_copy(cm->fc->dc_sign_cdf, av2_default_dc_sign_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_lf_cdf,
+           av2_default_coeff_base_lf_multi_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_lf_eob_cdf,
+           av2_default_coeff_base_lf_eob_multi_cdfs[index]);
+  av2_copy(cm->fc->coeff_br_lf_cdf, av2_default_coeff_lps_lf_multi_cdfs[index]);
+  av2_copy(cm->fc->coeff_br_cdf, av2_default_coeff_lps_multi_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_cdf, av2_default_coeff_base_multi_cdfs[index]);
+  av2_copy(cm->fc->idtx_sign_cdf, av2_default_idtx_sign_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_cdf_idtx,
+           av2_default_coeff_base_multi_cdfs_idtx[index]);
+  av2_copy(cm->fc->coeff_br_cdf_idtx,
+           av2_default_coeff_lps_multi_cdfs_idtx[index]);
+  av2_copy(cm->fc->coeff_base_eob_cdf,
+           av2_default_coeff_base_eob_multi_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_lf_uv_cdf,
+           av2_default_coeff_base_lf_multi_uv_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_lf_eob_uv_cdf,
+           av2_default_coeff_base_lf_eob_multi_uv_cdfs[index]);
+  av2_copy(cm->fc->coeff_br_uv_cdf, av2_default_coeff_lps_multi_uv_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_uv_cdf,
+           av2_default_coeff_base_multi_uv_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_eob_uv_cdf,
+           av2_default_coeff_base_eob_multi_uv_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf16, av2_default_eob_multi16_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf32, av2_default_eob_multi32_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf64, av2_default_eob_multi64_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf128, av2_default_eob_multi128_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf256, av2_default_eob_multi256_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf512, av2_default_eob_multi512_cdfs[index]);
+  av2_copy(cm->fc->eob_flag_cdf1024, av2_default_eob_multi1024_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_ph_cdf, av2_default_coeff_base_ph_cdfs[index]);
+  av2_copy(cm->fc->coeff_base_bob_cdf,
+           av2_default_coeff_base_bob_multi_cdfs[index]);
   // TODO(joeyoung/hegilmez): move intra_dip_cdf and intra_dip_mode_n6_cdf to
   // the place where initializations for modes are done, since they are not part
   // of  coefficient coding.
-  av1_copy(cm->fc->intra_dip_cdf, default_intra_dip_cdf[index]);
-  av1_copy(cm->fc->intra_dip_mode_n6_cdf, default_intra_dip_mode_n6_cdf);
+  av2_copy(cm->fc->intra_dip_cdf, default_intra_dip_cdf[index]);
+  av2_copy(cm->fc->intra_dip_mode_n6_cdf, default_intra_dip_mode_n6_cdf);
 }
 
-static AOM_INLINE void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr,
+static AVM_INLINE void reset_cdf_symbol_counter(avm_cdf_prob *cdf_ptr,
                                                 int num_cdfs, int cdf_stride,
                                                 int nsymbs) {
   for (int i = 0; i < num_cdfs; i++) {
@@ -101,13 +101,13 @@ static AOM_INLINE void reset_cdf_symbol_counter(aom_cdf_prob *cdf_ptr,
 
 #define RESET_CDF_COUNTER_STRIDE(cname, nsymbs, cdf_stride)          \
   do {                                                               \
-    aom_cdf_prob *cdf_ptr = (aom_cdf_prob *)cname;                   \
-    int array_size = (int)sizeof(cname) / sizeof(aom_cdf_prob);      \
+    avm_cdf_prob *cdf_ptr = (avm_cdf_prob *)cname;                   \
+    int array_size = (int)sizeof(cname) / sizeof(avm_cdf_prob);      \
     int num_cdfs = array_size / cdf_stride;                          \
     reset_cdf_symbol_counter(cdf_ptr, num_cdfs, cdf_stride, nsymbs); \
   } while (0)
 
-static AOM_INLINE void reset_nmv_counter(nmv_context *nmv) {
+static AVM_INLINE void reset_nmv_counter(nmv_context *nmv) {
   RESET_CDF_COUNTER(nmv->joint_shell_set_cdf, 2);
   for (int prec = 0; prec < NUM_MV_PRECISIONS; prec++) {
     const int num_mv_class = get_default_num_shell_class(prec);
@@ -135,7 +135,7 @@ static AOM_INLINE void reset_nmv_counter(nmv_context *nmv) {
   }
 }
 
-void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
+void av2_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(fc->txb_skip_cdf, 2);
   RESET_CDF_COUNTER(fc->v_txb_skip_cdf, 2);
   RESET_CDF_COUNTER(fc->eob_extra_cdf, 2);

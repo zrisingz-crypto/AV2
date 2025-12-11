@@ -12,13 +12,13 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_scale/yv12config.h"
-#include "av1/common/common.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/extend.h"
-#include "av1/encoder/lookahead.h"
+#include "avm_scale/yv12config.h"
+#include "av2/common/common.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/extend.h"
+#include "av2/encoder/lookahead.h"
 
 /* Return the buffer at the given absolute index and increment the index */
 static struct lookahead_entry *pop(struct lookahead_ctx *ctx, int *idx) {
@@ -31,24 +31,24 @@ static struct lookahead_entry *pop(struct lookahead_ctx *ctx, int *idx) {
   return buf;
 }
 
-void av1_lookahead_destroy(struct lookahead_ctx *ctx) {
+void av2_lookahead_destroy(struct lookahead_ctx *ctx) {
   if (ctx) {
     if (ctx->buf) {
       int i;
 
-      for (i = 0; i < ctx->max_sz; i++) aom_free_frame_buffer(&ctx->buf[i].img);
+      for (i = 0; i < ctx->max_sz; i++) avm_free_frame_buffer(&ctx->buf[i].img);
       free(ctx->buf);
     }
     free(ctx);
   }
 }
 
-struct lookahead_ctx *av1_lookahead_init(
+struct lookahead_ctx *av2_lookahead_init(
     int width, int height, int subsampling_x, int subsampling_y, int depth,
     const int border_in_pixels, int byte_alignment, int num_lap_buffers,
     int num_extra_buffers, bool alloc_pyramid) {
   struct lookahead_ctx *ctx = NULL;
-  int lag_in_frames = AOMMAX(1, depth);
+  int lag_in_frames = AVMMAX(1, depth);
 
   // Add the lags to depth and clamp
   depth += num_lap_buffers;
@@ -73,8 +73,8 @@ struct lookahead_ctx *av1_lookahead_init(
     ctx->buf = calloc(depth, sizeof(*ctx->buf));
     if (!ctx->buf) goto fail;
     for (int i = 0; i < depth; i++) {
-      aom_free_frame_buffer(&ctx->buf[i].img);
-      if (aom_realloc_frame_buffer(&ctx->buf[i].img, width, height,
+      avm_free_frame_buffer(&ctx->buf[i].img);
+      if (avm_realloc_frame_buffer(&ctx->buf[i].img, width, height,
                                    subsampling_x, subsampling_y,
                                    border_in_pixels, byte_alignment, NULL, NULL,
                                    NULL, alloc_pyramid))
@@ -83,13 +83,13 @@ struct lookahead_ctx *av1_lookahead_init(
   }
   return ctx;
 fail:
-  av1_lookahead_destroy(ctx);
+  av2_lookahead_destroy(ctx);
   return NULL;
 }
 
-int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
+int av2_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end, int disp_order_hint,
-                       aom_enc_frame_flags_t flags, bool alloc_pyramid) {
+                       avm_enc_frame_flags_t flags, bool alloc_pyramid) {
   struct lookahead_entry *buf;
   int width = src->y_crop_width;
   int height = src->y_crop_height;
@@ -121,11 +121,11 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
   if (larger_dimensions) {
     YV12_BUFFER_CONFIG new_img;
     memset(&new_img, 0, sizeof(new_img));
-    if (aom_alloc_frame_buffer(&new_img, width, height, subsampling_x,
-                               subsampling_y, AOM_BORDER_IN_PIXELS, 0,
+    if (avm_alloc_frame_buffer(&new_img, width, height, subsampling_x,
+                               subsampling_y, AVM_BORDER_IN_PIXELS, 0,
                                alloc_pyramid))
       return 1;
-    aom_free_frame_buffer(&buf->img);
+    avm_free_frame_buffer(&buf->img);
     buf->img = new_img;
   } else if (new_dimensions) {
     buf->img.y_crop_width = src->y_crop_width;
@@ -136,18 +136,18 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
     buf->img.subsampling_y = src->subsampling_y;
   }
   // Partial copy not implemented yet
-  av1_copy_and_extend_frame(src, &buf->img);
+  av2_copy_and_extend_frame(src, &buf->img);
 
   buf->ts_start = ts_start;
   buf->ts_end = ts_end;
   buf->flags = flags;
-  aom_remove_metadata_from_frame_buffer(&buf->img);
-  aom_copy_metadata_to_frame_buffer(&buf->img, src->metadata);
+  avm_remove_metadata_from_frame_buffer(&buf->img);
+  avm_copy_metadata_to_frame_buffer(&buf->img, src->metadata);
   buf->disp_order_hint = disp_order_hint;
   return 0;
 }
 
-struct lookahead_entry *av1_lookahead_leave(struct lookahead_ctx *ctx,
+struct lookahead_entry *av2_lookahead_leave(struct lookahead_ctx *ctx,
                                             int left_disp_order_hint,
                                             COMPRESSOR_STAGE stage) {
   // order hint must be set so that the lookahead buffer can track which entry
@@ -213,7 +213,7 @@ void bru_lookahead_buf_refresh(struct lookahead_ctx *ctx,
   }
 }
 
-struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain,
+struct lookahead_entry *av2_lookahead_pop(struct lookahead_ctx *ctx, int drain,
                                           COMPRESSOR_STAGE stage) {
   struct lookahead_entry *buf = NULL;
   if (ctx) {
@@ -227,7 +227,7 @@ struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain,
   return buf;
 }
 
-struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx, int index,
+struct lookahead_entry *av2_lookahead_peek(struct lookahead_ctx *ctx, int index,
                                            COMPRESSOR_STAGE stage) {
   struct lookahead_entry *buf = NULL;
   struct read_ctx *read_ctx = NULL;
@@ -256,7 +256,7 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx, int index,
   return buf;
 }
 
-int av1_lookahead_depth(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage) {
+int av2_lookahead_depth(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage) {
   struct read_ctx *read_ctx = NULL;
   assert(ctx != NULL);
 
@@ -265,7 +265,7 @@ int av1_lookahead_depth(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage) {
   return read_ctx->sz;
 }
 
-int av1_lookahead_pop_sz(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage) {
+int av2_lookahead_pop_sz(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage) {
   struct read_ctx *read_ctx = NULL;
   assert(ctx != NULL);
 

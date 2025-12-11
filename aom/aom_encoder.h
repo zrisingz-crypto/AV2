@@ -9,8 +9,8 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AOM_AOM_ENCODER_H_
-#define AOM_AOM_AOM_ENCODER_H_
+#ifndef AVM_AVM_AVM_ENCODER_H_
+#define AVM_AVM_AVM_ENCODER_H_
 
 /*!\defgroup encoder Encoder Algorithm Interface
  * \ingroup codec
@@ -31,8 +31,8 @@
 extern "C" {
 #endif
 
-#include "config/aom_config.h"
-#include "aom/aom_codec.h"
+#include "config/avm_config.h"
+#include "avm/avm_codec.h"
 
 /*!\brief Current ABI version number
  *
@@ -42,65 +42,65 @@ extern "C" {
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
  */
-#define AOM_ENCODER_ABI_VERSION \
-  (8 + AOM_CODEC_ABI_VERSION) /**<\hideinitializer*/
+#define AVM_ENCODER_ABI_VERSION \
+  (8 + AVM_CODEC_ABI_VERSION) /**<\hideinitializer*/
 
 /*! \brief Encoder capabilities bitfield
  *
  *  Each encoder advertises the capabilities it supports as part of its
- *  ::aom_codec_iface_t interface structure. Capabilities are extra
+ *  ::avm_codec_iface_t interface structure. Capabilities are extra
  *  interfaces or functionality, and are not required to be supported
  *  by an encoder.
  *
- *  The available flags are specified by AOM_CODEC_CAP_* defines.
+ *  The available flags are specified by AVM_CODEC_CAP_* defines.
  */
-#define AOM_CODEC_CAP_PSNR 0x10000 /**< Can issue PSNR packets */
+#define AVM_CODEC_CAP_PSNR 0x10000 /**< Can issue PSNR packets */
 
 /*! \brief Initialization-time Feature Enabling
  *
  *  Certain codec features must be known at initialization time, to allow
  *  for proper memory allocation.
  *
- *  The available flags are specified by AOM_CODEC_USE_* defines.
+ *  The available flags are specified by AVM_CODEC_USE_* defines.
  */
-#define AOM_CODEC_USE_PSNR 0x10000 /**< Calculate PSNR on each frame */
+#define AVM_CODEC_USE_PSNR 0x10000 /**< Calculate PSNR on each frame */
 /*!\brief Use stream PSNR instead of input PSNR. */
-#define AOM_CODEC_USE_STREAM_PSNR 0x20000
+#define AVM_CODEC_USE_STREAM_PSNR 0x20000
 /*!\brief Print per frame stats. */
-#define AOM_CODEC_USE_PER_FRAME_STATS 0x80000 /**< Enable printing of stats */
+#define AVM_CODEC_USE_PER_FRAME_STATS 0x80000 /**< Enable printing of stats */
 
 /*!\brief Generic fixed size buffer structure
  *
  * This structure is able to hold a reference to any fixed size buffer.
  */
-typedef struct aom_fixed_buf {
+typedef struct avm_fixed_buf {
   void *buf;       /**< Pointer to the data. Does NOT own the data! */
   size_t sz;       /**< Length of the buffer, in chars */
-} aom_fixed_buf_t; /**< alias for struct aom_fixed_buf */
+} avm_fixed_buf_t; /**< alias for struct avm_fixed_buf */
 
 /*!\brief Error Resilient flags
  *
  * These flags define which error resilient features to enable in the
  * encoder. The flags are specified through the
- * aom_codec_enc_cfg::g_error_resilient variable.
+ * avm_codec_enc_cfg::g_error_resilient variable.
  */
-typedef uint32_t aom_codec_er_flags_t;
+typedef uint32_t avm_codec_er_flags_t;
 /*!\brief Improve resiliency against losses of whole frames */
-#define AOM_ERROR_RESILIENT_DEFAULT 0x1
+#define AVM_ERROR_RESILIENT_DEFAULT 0x1
 
 /*!\brief Encoder output packet variants
  *
  * This enumeration lists the different kinds of data packets that can be
- * returned by calls to aom_codec_get_cx_data(). Algorithms \ref MAY
+ * returned by calls to avm_codec_get_cx_data(). Algorithms \ref MAY
  * extend this list to provide additional functionality.
  */
-enum aom_codec_cx_pkt_kind {
-  AOM_CODEC_CX_FRAME_PKT,      /**< Compressed video frame */
-  AOM_CODEC_STATS_PKT,         /**< Two-pass statistics for this frame */
-  AOM_CODEC_FPMB_STATS_PKT,    /**< first pass mb statistics for this frame */
-  AOM_CODEC_PSNR_PKT,          /**< PSNR statistics for this frame */
-  AOM_CODEC_CX_FRAME_NULL_PKT, /**< Null show-existing frame */
-  AOM_CODEC_CUSTOM_PKT = 256   /**< Algorithm extensions  */
+enum avm_codec_cx_pkt_kind {
+  AVM_CODEC_CX_FRAME_PKT,      /**< Compressed video frame */
+  AVM_CODEC_STATS_PKT,         /**< Two-pass statistics for this frame */
+  AVM_CODEC_FPMB_STATS_PKT,    /**< first pass mb statistics for this frame */
+  AVM_CODEC_PSNR_PKT,          /**< PSNR statistics for this frame */
+  AVM_CODEC_CX_FRAME_NULL_PKT, /**< Null show-existing frame */
+  AVM_CODEC_CUSTOM_PKT = 256   /**< Algorithm extensions  */
 };
 
 /*!\brief Encoder output packet
@@ -108,17 +108,17 @@ enum aom_codec_cx_pkt_kind {
  * This structure contains the different kinds of output data the encoder
  * may produce while compressing a frame.
  */
-typedef struct aom_codec_cx_pkt {
-  enum aom_codec_cx_pkt_kind kind; /**< packet variant */
+typedef struct avm_codec_cx_pkt {
+  enum avm_codec_cx_pkt_kind kind; /**< packet variant */
   union {
     struct {
       void *buf; /**< compressed data buffer */
       size_t sz; /**< length of compressed data */
       /*!\brief time stamp to show frame (in timebase units) */
-      aom_codec_pts_t pts;
+      avm_codec_pts_t pts;
       /*!\brief duration to show frame (in timebase units) */
       unsigned long duration;
-      aom_codec_frame_flags_t flags; /**< flags for this frame */
+      avm_codec_frame_flags_t flags; /**< flags for this frame */
       /*!\brief the partition id defines the decoding order of the partitions.
        * Only applicable when "output partition" mode is enabled. First
        * partition has id 0.*/
@@ -126,9 +126,9 @@ typedef struct aom_codec_cx_pkt {
       /*!\brief size of the visible frame in this packet */
       size_t vis_frame_size;
     } frame;                            /**< data for compressed frame packet */
-    aom_fixed_buf_t twopass_stats;      /**< data for two-pass packet */
-    aom_fixed_buf_t firstpass_mb_stats; /**< first pass mb packet */
-    struct aom_psnr_pkt {
+    avm_fixed_buf_t twopass_stats;      /**< data for two-pass packet */
+    avm_fixed_buf_t firstpass_mb_stats; /**< first pass mb packet */
+    struct avm_psnr_pkt {
       unsigned int samples[4]; /**< Number of samples, total/y/u/v */
       uint64_t sse[4];         /**< sum squared error, total/y/u/v */
       double psnr[4];          /**< PSNR, total/y/u/v */
@@ -142,89 +142,89 @@ typedef struct aom_codec_cx_pkt {
        * input bit-depth < stream bit-depth.*/
       double psnr_hbd[4];
     } psnr;              /**< data for PSNR packet */
-    aom_fixed_buf_t raw; /**< data for arbitrary packets */
+    avm_fixed_buf_t raw; /**< data for arbitrary packets */
 
     /* This packet size is fixed to allow codecs to extend this
      * interface without having to manage storage for raw packets,
      * i.e., if it's smaller than 128 bytes, you can store in the
      * packet list directly.
      */
-    char pad[128 - sizeof(enum aom_codec_cx_pkt_kind)]; /**< fixed sz */
+    char pad[128 - sizeof(enum avm_codec_cx_pkt_kind)]; /**< fixed sz */
   } data;                                               /**< packet data */
-} aom_codec_cx_pkt_t; /**< alias for struct aom_codec_cx_pkt */
+} avm_codec_cx_pkt_t; /**< alias for struct avm_codec_cx_pkt */
 
 /*!\brief Rational Number
  *
  * This structure holds a fractional value.
  */
-typedef struct aom_rational {
+typedef struct avm_rational {
   int num;        /**< fraction numerator */
   int den;        /**< fraction denominator */
-} aom_rational_t; /**< alias for struct aom_rational */
+} avm_rational_t; /**< alias for struct avm_rational */
 
 /*!\brief Multi-pass Encoding Pass */
-enum aom_enc_pass {
-  AOM_RC_ONE_PASS,   /**< Single pass mode */
-  AOM_RC_FIRST_PASS, /**< First pass of multi-pass mode */
-  AOM_RC_LAST_PASS   /**< Final pass of multi-pass mode */
+enum avm_enc_pass {
+  AVM_RC_ONE_PASS,   /**< Single pass mode */
+  AVM_RC_FIRST_PASS, /**< First pass of multi-pass mode */
+  AVM_RC_LAST_PASS   /**< Final pass of multi-pass mode */
 };
 
 /*!\brief Rate control mode */
-enum aom_rc_mode {
-  AOM_VBR, /**< Variable Bit Rate (VBR) mode */
-  AOM_CBR, /**< Constant Bit Rate (CBR) mode */
-  AOM_CQ,  /**< Constrained Quality (CQ)  mode */
-  AOM_Q,   /**< Constant Quality (Q) mode */
+enum avm_rc_mode {
+  AVM_VBR, /**< Variable Bit Rate (VBR) mode */
+  AVM_CBR, /**< Constant Bit Rate (CBR) mode */
+  AVM_CQ,  /**< Constrained Quality (CQ)  mode */
+  AVM_Q,   /**< Constant Quality (Q) mode */
 };
 
 /*!\brief Keyframe placement mode.
  *
  * This enumeration determines whether keyframes are placed automatically by
  * the encoder or whether this behavior is disabled. Older releases of this
- * SDK were implemented such that AOM_KF_FIXED meant keyframes were disabled.
+ * SDK were implemented such that AVM_KF_FIXED meant keyframes were disabled.
  * This name is confusing for this behavior, so the new symbols to be used
- * are AOM_KF_AUTO and AOM_KF_DISABLED.
+ * are AVM_KF_AUTO and AVM_KF_DISABLED.
  */
-enum aom_kf_mode {
-  AOM_KF_FIXED,       /**< deprecated, implies AOM_KF_DISABLED */
-  AOM_KF_AUTO,        /**< Encoder determines optimal placement automatically */
-  AOM_KF_DISABLED = 0 /**< Encoder does not place keyframes. */
+enum avm_kf_mode {
+  AVM_KF_FIXED,       /**< deprecated, implies AVM_KF_DISABLED */
+  AVM_KF_AUTO,        /**< Encoder determines optimal placement automatically */
+  AVM_KF_DISABLED = 0 /**< Encoder does not place keyframes. */
 };
 
 /*!\brief Sequence level OPFL refine types. */
 typedef enum {
   /**< MV refinement is disabled for all frames. */
-  AOM_OPFL_REFINE_NONE,
+  AVM_OPFL_REFINE_NONE,
   /**< MV refinement is switchable per block and signaled by the encoder for all
    * frames. */
-  AOM_OPFL_REFINE_SWITCHABLE,
+  AVM_OPFL_REFINE_SWITCHABLE,
   /**< MV refinement is done for all compound average blocks for all frames. */
-  AOM_OPFL_REFINE_ALL,
+  AVM_OPFL_REFINE_ALL,
   /**< One among the three above types is automatically selected by the encoder
    * for each frame. */
-  AOM_OPFL_REFINE_AUTO,
-} aom_opfl_refine_type;
+  AVM_OPFL_REFINE_AUTO,
+} avm_opfl_refine_type;
 
 /*!\brief Decoded Frame Hash Metadata OBU writing mode.
  *
  * This enumeration determines whether one or more metadata OBUs of type
  * Decoded Frame Hash are written before each encoded frame.
  */
-enum aom_frame_hash_mode {
+enum avm_frame_hash_mode {
   /**< Encoder does not write Decoded Frame Hash Metadata OBUs. */
-  AOM_DFH_DISABLED,
+  AVM_DFH_DISABLED,
   /**< Encoder writes Decoded Frame Hash Metadata OBUs for frames as
    *   they are in reference picture buffer. */
-  AOM_DFH_RAW,
+  AVM_DFH_RAW,
   /**< Encoder writes Decoded Frame Hash Metadata OBUs for frames as
    *   they are output, which may be as they are in reference picture buffer
    *   or after Film Grain has been applied if such parameters are present. */
-  AOM_DFH_FG,
+  AVM_DFH_FG,
   /**< Encoder writes Decoded Frame Hash Metadata OBUs for frames both
    *   as they are in reference picture buffer and as they are output.
    *   The latter is only written if it differs from the former (e.g.,
    *   film grain has been applied if such parameters are present.) */
-  AOM_DFH_BOTH,
+  AVM_DFH_BOTH,
 };
 
 /*!\brief Encoder Config Options
@@ -503,7 +503,7 @@ typedef struct cfg_options {
   /*!\brief enable optical flow refinement
    *
    */
-  aom_opfl_refine_type enable_opfl_refine;
+  avm_opfl_refine_type enable_opfl_refine;
   /*!\brief enable intra edge filter
    *
    */
@@ -676,14 +676,14 @@ typedef struct cfg_options {
 
 /*!\brief Encoded Frame Flags
  *
- * This type indicates a bitfield to be passed to aom_codec_encode(), defining
+ * This type indicates a bitfield to be passed to avm_codec_encode(), defining
  * per-frame boolean values. By convention, bits common to all codecs will be
- * named AOM_EFLAG_*, and bits specific to an algorithm will be named
+ * named AVM_EFLAG_*, and bits specific to an algorithm will be named
  * /algo/_eflag_*. The lower order 16 bits are reserved for common use.
  */
-typedef long aom_enc_frame_flags_t;
+typedef long avm_enc_frame_flags_t;
 /*!\brief Force this frame to be a keyframe */
-#define AOM_EFLAG_FORCE_KF (1 << 0)
+#define AVM_EFLAG_FORCE_KF (1 << 0)
 
 /*!\brief Encoder configuration structure
  *
@@ -691,7 +691,7 @@ typedef long aom_enc_frame_flags_t;
  * across all codecs. This doesn't imply that all codecs support all features,
  * however.
  */
-typedef struct aom_codec_enc_cfg {
+typedef struct avm_codec_enc_cfg {
   /*
    * generic settings (g)
    */
@@ -764,9 +764,9 @@ typedef struct aom_codec_enc_cfg {
    *
    * This value identifies the bit_depth of the codec,
    * Only certain bit-depths are supported as identified in the
-   * aom_bit_depth_t enum.
+   * avm_bit_depth_t enum.
    */
-  aom_bit_depth_t g_bit_depth;
+  avm_bit_depth_t g_bit_depth;
 
   /*!\brief Bit-depth of the input frames
    *
@@ -788,7 +788,7 @@ typedef struct aom_codec_enc_cfg {
    * \ref RECOMMENDED method is to set the timebase to that of the parent
    * container or multimedia framework (ex: 1/1000 for ms, as in FLV).
    */
-  struct aom_rational g_timebase;
+  struct avm_rational g_timebase;
 
   /*!\brief Enable error resilient modes.
    *
@@ -796,14 +796,14 @@ typedef struct aom_codec_enc_cfg {
    * it should enable to take measures for streaming over lossy or noisy
    * links.
    */
-  aom_codec_er_flags_t g_error_resilient;
+  avm_codec_er_flags_t g_error_resilient;
 
   /*!\brief Multi-pass Encoding Mode
    *
    * This value should be set to the current phase for multi-pass encoding.
-   * For single pass, set to #AOM_RC_ONE_PASS.
+   * For single pass, set to #AVM_RC_ONE_PASS.
    */
-  enum aom_enc_pass g_pass;
+  enum avm_enc_pass g_pass;
 
   /*!\brief Allow lagged encoding
    *
@@ -831,7 +831,7 @@ typedef struct aom_codec_enc_cfg {
    * trade-off is often acceptable, but for many applications is not. It can
    * be disabled in these cases.
    *
-   * Note that not all codecs support this feature. All aom AVx codecs do.
+   * Note that not all codecs support this feature. All avm AVx codecs do.
    * For other codecs, consult the documentation for that algorithm.
    *
    * This threshold is described as a percentage of the target data buffer.
@@ -874,14 +874,14 @@ typedef struct aom_codec_enc_cfg {
    * bandwidth link, as from a local disk, where higher variations in
    * bitrate are acceptable.
    */
-  enum aom_rc_mode rc_end_usage;
+  enum avm_rc_mode rc_end_usage;
 
   /*!\brief first pass mb stats buffer.
    *
    * A buffer containing all of the first pass mb stats packets produced
    * in the first pass, concatenated.
    */
-  aom_fixed_buf_t rc_firstpass_mb_stats_in;
+  avm_fixed_buf_t rc_firstpass_mb_stats_in;
 
   /*!\brief Target data rate
    *
@@ -899,7 +899,7 @@ typedef struct aom_codec_enc_cfg {
    * encoded image. The range of valid values for the quantizer is codec
    * specific. Consult the documentation for the codec to determine the
    * values to use. To determine the range programmatically, call
-   * aom_codec_enc_config_default() with a usage value of 0.
+   * avm_codec_enc_config_default() with a usage value of 0.
    */
   int rc_min_quantizer;
 
@@ -909,7 +909,7 @@ typedef struct aom_codec_enc_cfg {
    * encoded image. The range of valid values for the quantizer is codec
    * specific. Consult the documentation for the codec to determine the
    * values to use. To determine the range programmatically, call
-   * aom_codec_enc_config_default() with a usage value of 0.
+   * avm_codec_enc_config_default() with a usage value of 0.
    */
   int rc_max_quantizer;
 
@@ -1001,7 +1001,7 @@ typedef struct aom_codec_enc_cfg {
    * fixed interval, or determine the optimal placement automatically
    * (as governed by the #kf_min_dist and #kf_max_dist parameters)
    */
-  enum aom_kf_mode kf_mode;
+  enum avm_kf_mode kf_mode;
 
   /*!\brief Keyframe minimum interval
    *
@@ -1191,7 +1191,7 @@ typedef struct aom_codec_enc_cfg {
   /*!\brief Codec control function to set what decoded frame hash metadata to
    * write
    */
-  enum aom_frame_hash_mode frame_hash_metadata;
+  enum avm_frame_hash_mode frame_hash_metadata;
 
   /*!\brief Codec control function to set if the hash values are written for
    * each plane instead of the entire frame, unsigned int parameter
@@ -1219,12 +1219,12 @@ typedef struct aom_codec_enc_cfg {
    *
    */
   cfg_options_t encoder_cfg;
-} aom_codec_enc_cfg_t; /**< alias for struct aom_codec_enc_cfg */
+} avm_codec_enc_cfg_t; /**< alias for struct avm_codec_enc_cfg */
 
 /*!\brief Initialize an encoder instance
  *
  * Initializes a encoder context using the given interface. Applications
- * should call the aom_codec_enc_init convenience macro instead of this
+ * should call the avm_codec_enc_init convenience macro instead of this
  * function directly, to ensure that the ABI version number parameter
  * is properly initialized.
  *
@@ -1235,25 +1235,25 @@ typedef struct aom_codec_enc_cfg {
  * \param[in]    ctx     Pointer to this instance's context.
  * \param[in]    iface   Pointer to the algorithm interface to use.
  * \param[in]    cfg     Configuration to use, if known.
- * \param[in]    flags   Bitfield of AOM_CODEC_USE_* flags
+ * \param[in]    flags   Bitfield of AVM_CODEC_USE_* flags
  * \param[in]    ver     ABI version number. Must be set to
- *                       AOM_ENCODER_ABI_VERSION
- * \retval #AOM_CODEC_OK
+ *                       AVM_ENCODER_ABI_VERSION
+ * \retval #AVM_CODEC_OK
  *     The decoder algorithm initialized.
- * \retval #AOM_CODEC_MEM_ERROR
+ * \retval #AVM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
-                                       aom_codec_iface_t *iface,
-                                       const aom_codec_enc_cfg_t *cfg,
-                                       aom_codec_flags_t flags, int ver);
+avm_codec_err_t avm_codec_enc_init_ver(avm_codec_ctx_t *ctx,
+                                       avm_codec_iface_t *iface,
+                                       const avm_codec_enc_cfg_t *cfg,
+                                       avm_codec_flags_t flags, int ver);
 
-/*!\brief Convenience macro for aom_codec_enc_init_ver()
+/*!\brief Convenience macro for avm_codec_enc_init_ver()
  *
  * Ensures the ABI version parameter is properly set.
  */
-#define aom_codec_enc_init(ctx, iface, cfg, flags) \
-  aom_codec_enc_init_ver(ctx, iface, cfg, flags, AOM_ENCODER_ABI_VERSION)
+#define avm_codec_enc_init(ctx, iface, cfg, flags) \
+  avm_codec_enc_init_ver(ctx, iface, cfg, flags, AVM_ENCODER_ABI_VERSION)
 
 /*!\brief Get the default configuration for a usage.
  *
@@ -1265,18 +1265,18 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
  *
  * \param[in]    iface     Pointer to the algorithm interface to use.
  * \param[out]   cfg       Configuration buffer to populate.
- * \param[in]    usage     Algorithm specific usage value. For AV1, must be
- *                         set to AOM_USAGE_GOOD_QUALITY (0).
+ * \param[in]    usage     Algorithm specific usage value. For AV2, must be
+ *                         set to AVM_USAGE_GOOD_QUALITY (0).
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The configuration was populated.
- * \retval #AOM_CODEC_INCAPABLE
+ * \retval #AVM_CODEC_INCAPABLE
  *     Interface is not an encoder interface.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     A parameter was NULL, or the usage value was not recognized.
  */
-aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
-                                             aom_codec_enc_cfg_t *cfg,
+avm_codec_err_t avm_codec_enc_config_default(avm_codec_iface_t *iface,
+                                             avm_codec_enc_cfg_t *cfg,
                                              unsigned int usage);
 
 /*!\brief Set or change configuration
@@ -1286,24 +1286,24 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
  * \param[in]    ctx     Pointer to this instance's context
  * \param[in]    cfg     Configuration buffer to use
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The configuration was populated.
- * \retval #AOM_CODEC_INCAPABLE
+ * \retval #AVM_CODEC_INCAPABLE
  *     Interface is not an encoder interface.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     A parameter was NULL, or the usage value was not recognized.
  */
-aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
-                                         const aom_codec_enc_cfg_t *cfg);
+avm_codec_err_t avm_codec_enc_config_set(avm_codec_ctx_t *ctx,
+                                         const avm_codec_enc_cfg_t *cfg);
 
 /*!\brief Get global stream headers
  *
  * Retrieves a stream level global header packet, if supported by the codec.
  * Calls to this function should be deferred until all configuration information
- * has been passed to libaom. Otherwise the global header data may be
+ * has been passed to libavm. Otherwise the global header data may be
  * invalidated by additional configuration changes.
  *
- * The AV1 implementation of this function returns an OBU. The OBU returned is
+ * The AV2 implementation of this function returns an OBU. The OBU returned is
  * in Low Overhead Bitstream Format. Specifically, the obu_has_size_field bit is
  * set, and the buffer contains the obu_size field for the returned OBU.
  *
@@ -1316,13 +1316,13 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
  * \retval Non-NULL
  *     Pointer to buffer containing global header packet. The caller owns the
  *     memory associated with this buffer, and must free the 'buf' member of the
- *     aom_fixed_buf_t as well as the aom_fixed_buf_t pointer. Memory returned
+ *     avm_fixed_buf_t as well as the avm_fixed_buf_t pointer. Memory returned
  *     must be freed via call to free().
  */
-aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
+avm_fixed_buf_t *avm_codec_get_global_headers(avm_codec_ctx_t *ctx);
 
-/*!\brief usage parameter analogous to AV1 GOOD QUALITY mode. */
-#define AOM_USAGE_GOOD_QUALITY (0)
+/*!\brief usage parameter analogous to AV2 GOOD QUALITY mode. */
+#define AVM_USAGE_GOOD_QUALITY (0)
 
 /*!\brief Encode a frame
  *
@@ -1332,8 +1332,8 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
  * When the last frame has been passed to the encoder, this function should
  * continue to be called in a loop, with the img parameter set to NULL. This
  * will signal the end-of-stream condition to the encoder and allow it to
- * encode any held buffers. Encoding is complete when aom_codec_encode() is
- * called with img set to NULL and aom_codec_get_cx_data() returns no data.
+ * encode any held buffers. Encoding is complete when avm_codec_encode() is
+ * called with img set to NULL and avm_codec_get_cx_data() returns no data.
  *
  * \param[in]    ctx       Pointer to this instance's context
  * \param[in]    img       Image data to encode, NULL to flush.
@@ -1344,22 +1344,22 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
  *                         NULL, duration is ignored.
  * \param[in]    flags     Flags to use for encoding this frame.
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The configuration was populated.
- * \retval #AOM_CODEC_INCAPABLE
+ * \retval #AVM_CODEC_INCAPABLE
  *     Interface is not an encoder interface.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     A parameter was NULL, the image format is unsupported, etc.
  */
-aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
-                                 aom_codec_pts_t pts, unsigned long duration,
-                                 aom_enc_frame_flags_t flags);
+avm_codec_err_t avm_codec_encode(avm_codec_ctx_t *ctx, const avm_image_t *img,
+                                 avm_codec_pts_t pts, unsigned long duration,
+                                 avm_enc_frame_flags_t flags);
 
 /*!\brief Set compressed data output buffer
  *
  * Sets the buffer that the codec should output the compressed data
  * into. This call effectively sets the buffer pointer returned in the
- * next AOM_CODEC_CX_FRAME_PKT packet. Subsequent packets will be
+ * next AVM_CODEC_CX_FRAME_PKT packet. Subsequent packets will be
  * appended into this buffer. The buffer is preserved across frames,
  * so applications must periodically call this function after flushing
  * the accumulated compressed data to disk or to the network to reset
@@ -1386,20 +1386,20 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
  * buffer.
  *
  * Applications \ref MUSTNOT call this function during iteration of
- * aom_codec_get_cx_data().
+ * avm_codec_get_cx_data().
  *
  * \param[in]    ctx         Pointer to this instance's context
  * \param[in]    buf         Buffer to store compressed data into
  * \param[in]    pad_before  Bytes to skip before writing compressed data
  * \param[in]    pad_after   Bytes to skip after writing compressed data
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The buffer was set successfully.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     A parameter was NULL, the image format is unsupported, etc.
  */
-aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
-                                          const aom_fixed_buf_t *buf,
+avm_codec_err_t avm_codec_set_cx_data_buf(avm_codec_ctx_t *ctx,
+                                          const avm_fixed_buf_t *buf,
                                           unsigned int pad_before,
                                           unsigned int pad_after);
 
@@ -1407,17 +1407,17 @@ aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
  *
  * Iterates over a list of data packets to be passed from the encoder to the
  * application. The different kinds of packets available are enumerated in
- * #aom_codec_cx_pkt_kind.
+ * #avm_codec_cx_pkt_kind.
  *
- * #AOM_CODEC_CX_FRAME_PKT packets should be passed to the application's
+ * #AVM_CODEC_CX_FRAME_PKT packets should be passed to the application's
  * muxer. Multiple compressed frames may be in the list.
- * #AOM_CODEC_STATS_PKT packets should be appended to a global buffer.
+ * #AVM_CODEC_STATS_PKT packets should be appended to a global buffer.
  *
  * The application \ref MUST silently ignore any packet kinds that it does
  * not recognize or support.
  *
  * The data buffers returned from this function are only guaranteed to be
- * valid until the application makes another call to any aom_codec_* function.
+ * valid until the application makes another call to any avm_codec_* function.
  *
  * \param[in]     ctx      Pointer to this instance's context
  * \param[in,out] iter     Iterator storage, initialized to NULL
@@ -1426,8 +1426,8 @@ aom_codec_err_t aom_codec_set_cx_data_buf(aom_codec_ctx_t *ctx,
  *         two-pass statistics, etc.) or NULL to signal end-of-list.
  *
  */
-const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
-                                                aom_codec_iter_t *iter);
+const avm_codec_cx_pkt_t *avm_codec_get_cx_data(avm_codec_ctx_t *ctx,
+                                                avm_codec_iter_t *iter);
 
 /*!\brief Get Preview Frame
  *
@@ -1441,10 +1441,10 @@ const aom_codec_cx_pkt_t *aom_codec_get_cx_data(aom_codec_ctx_t *ctx,
  *         available.
  *
  */
-const aom_image_t *aom_codec_get_preview_frame(aom_codec_ctx_t *ctx);
+const avm_image_t *avm_codec_get_preview_frame(avm_codec_ctx_t *ctx);
 
 /*!@} - end defgroup encoder*/
 #ifdef __cplusplus
 }
 #endif
-#endif  // AOM_AOM_AOM_ENCODER_H_
+#endif  // AVM_AVM_AVM_ENCODER_H_

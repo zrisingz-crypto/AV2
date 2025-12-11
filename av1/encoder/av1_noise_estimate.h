@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_AV1_NOISE_ESTIMATE_H_
-#define AOM_AV1_ENCODER_AV1_NOISE_ESTIMATE_H_
+#ifndef AVM_AV2_ENCODER_AV2_NOISE_ESTIMATE_H_
+#define AVM_AV2_ENCODER_AV2_NOISE_ESTIMATE_H_
 
-#include "av1/encoder/block.h"
-#include "aom_scale/yv12config.h"
+#include "av2/encoder/block.h"
+#include "avm_scale/yv12config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,16 +36,16 @@ typedef struct noise_estimate {
   int num_frames_estimate;
 } NOISE_ESTIMATE;
 
-struct AV1_COMP;
+struct AV2_COMP;
 
-void av1_noise_estimate_init(NOISE_ESTIMATE *const ne, int width, int height);
+void av2_noise_estimate_init(NOISE_ESTIMATE *const ne, int width, int height);
 
-NOISE_LEVEL av1_noise_estimate_extract_level(NOISE_ESTIMATE *const ne);
+NOISE_LEVEL av2_noise_estimate_extract_level(NOISE_ESTIMATE *const ne);
 
-void av1_update_noise_estimate(struct AV1_COMP *const cpi);
+void av2_update_noise_estimate(struct AV2_COMP *const cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_AV1_NOISE_ESTIMATE_H_
+#endif  // AVM_AV2_ENCODER_AV2_NOISE_ESTIMATE_H_

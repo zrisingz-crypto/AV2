@@ -12,11 +12,11 @@
 ;
 
 
-%include "aom_ports/x86_abi_support.asm"
+%include "avm_ports/x86_abi_support.asm"
 
 SECTION .text
 
-;unsigned int aom_highbd_calc16x16var_sse2
+;unsigned int avm_highbd_calc16x16var_sse2
 ;(
 ;    unsigned char   *  src_ptr,
 ;    int             source_stride,
@@ -25,8 +25,8 @@ SECTION .text
 ;    unsigned int    *  SSE,
 ;    int             *  Sum
 ;)
-globalsym(aom_highbd_calc16x16var_sse2)
-sym(aom_highbd_calc16x16var_sse2):
+globalsym(avm_highbd_calc16x16var_sse2)
+sym(avm_highbd_calc16x16var_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 6
@@ -169,7 +169,7 @@ sym(aom_highbd_calc16x16var_sse2):
     ret
 
 
-;unsigned int aom_highbd_calc8x8var_sse2
+;unsigned int avm_highbd_calc8x8var_sse2
 ;(
 ;    unsigned char   *  src_ptr,
 ;    int             source_stride,
@@ -178,8 +178,8 @@ sym(aom_highbd_calc16x16var_sse2):
 ;    unsigned int    *  SSE,
 ;    int             *  Sum
 ;)
-globalsym(aom_highbd_calc8x8var_sse2)
-sym(aom_highbd_calc8x8var_sse2):
+globalsym(avm_highbd_calc8x8var_sse2)
+sym(avm_highbd_calc8x8var_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 6

@@ -12,12 +12,12 @@
 
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/txfm_common.h"
-#include "av1/common/enums.h"
-#include "av1/common/av1_txfm.h"
+#include "avm_dsp/txfm_common.h"
+#include "av2/common/enums.h"
+#include "av2/common/av2_txfm.h"
 
 void fwd_stxfm_c(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
                  const uint8_t stx_idx, const int size, const int bd) {

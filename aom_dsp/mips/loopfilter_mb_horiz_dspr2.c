@@ -12,14 +12,14 @@
 
 #include <stdlib.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/mips/common_dspr2.h"
-#include "aom_dsp/mips/loopfilter_filters_dspr2.h"
-#include "aom_dsp/mips/loopfilter_macros_dspr2.h"
-#include "aom_dsp/mips/loopfilter_masks_dspr2.h"
-#include "aom_mem/aom_mem.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/mips/common_dspr2.h"
+#include "avm_dsp/mips/loopfilter_filters_dspr2.h"
+#include "avm_dsp/mips/loopfilter_macros_dspr2.h"
+#include "avm_dsp/mips/loopfilter_masks_dspr2.h"
+#include "avm_mem/avm_mem.h"
 
 #if HAVE_DSPR2
 static void mb_lpf_horizontal_edge(unsigned char *s, int pitch,
@@ -720,13 +720,13 @@ static void mb_lpf_horizontal_edge(unsigned char *s, int pitch,
   }
 }
 
-void aom_lpf_horizontal_16_dspr2(unsigned char *s, int pitch,
+void avm_lpf_horizontal_16_dspr2(unsigned char *s, int pitch,
                                  const uint8_t *blimit, const uint8_t *limit,
                                  const uint8_t *thresh) {
   mb_lpf_horizontal_edge(s, pitch, blimit, limit, thresh, 1);
 }
 
-void aom_lpf_horizontal_16_dual_dspr2(unsigned char *s, int pitch,
+void avm_lpf_horizontal_16_dual_dspr2(unsigned char *s, int pitch,
                                       const uint8_t *blimit,
                                       const uint8_t *limit,
                                       const uint8_t *thresh) {

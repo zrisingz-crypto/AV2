@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_MODEL_RD_H_
-#define AOM_AV1_ENCODER_MODEL_RD_H_
+#ifndef AVM_AV2_ENCODER_MODEL_RD_H_
+#define AVM_AV2_ENCODER_MODEL_RD_H_
 
-#include "aom/aom_integer.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/rdopt_utils.h"
-#include "aom_ports/system_state.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/rdopt_utils.h"
+#include "avm_ports/system_state.h"
+#include "config/avm_dsp_rtcd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,14 +32,14 @@ extern "C" {
 #define MODELRD_TYPE_INTRA 1
 #define MODELRD_TYPE_MOTION_MODE_RD 1
 
-typedef void (*model_rd_for_sb_type)(const AV1_COMP *const cpi,
+typedef void (*model_rd_for_sb_type)(const AV2_COMP *const cpi,
                                      BLOCK_SIZE bsize, MACROBLOCK *x,
                                      MACROBLOCKD *xd, int plane_from,
                                      int plane_to, int *out_rate_sum,
                                      int64_t *out_dist_sum, int *skip_txfm_sb,
                                      int64_t *skip_sse_sb, int *plane_rate,
                                      int64_t *plane_sse, int64_t *plane_dist);
-typedef void (*model_rd_from_sse_type)(const AV1_COMP *const cpi,
+typedef void (*model_rd_from_sse_type)(const AV2_COMP *const cpi,
                                        const MACROBLOCK *const x,
                                        BLOCK_SIZE plane_bsize, int plane,
                                        int64_t sse, int num_samples, int *rate,
@@ -51,13 +51,13 @@ static int64_t calculate_sse(MACROBLOCKD *const xd,
                              const int bh) {
   int64_t sse = 0;
   const int shift = xd->bd - 8;
-  sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
+  sse = avm_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
                        bw, bh);
   sse = ROUND_POWER_OF_TWO(sse, shift * 2);
   return sse;
 }
 
-static AOM_INLINE int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
+static AVM_INLINE int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
                                             int plane, const BLOCK_SIZE bsize) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE plane_bsize =
@@ -70,7 +70,7 @@ static AOM_INLINE int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
   return sse;
 }
 
-static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
+static AVM_INLINE void model_rd_from_sse(const AV2_COMP *const cpi,
                                          const MACROBLOCK *const x,
                                          BLOCK_SIZE plane_bsize, int plane,
                                          int64_t sse, int num_samples,
@@ -86,15 +86,15 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
     int quantizer = ROUND_POWER_OF_TWO(p->dequant_QTX[1], QUANT_TABLE_BITS) >>
                     dequant_shift;
     if (quantizer < 120)
-      *rate = (int)AOMMIN(
-          (square_error * (280 - quantizer)) >> (16 - AV1_PROB_COST_SHIFT),
+      *rate = (int)AVMMIN(
+          (square_error * (280 - quantizer)) >> (16 - AV2_PROB_COST_SHIFT),
           INT_MAX);
     else
       *rate = 0;
     assert(*rate >= 0);
     *dist = (square_error * quantizer) >> 8;
   } else {
-    av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[plane_bsize],
+    av2_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[plane_bsize],
                                  p->dequant_QTX[1] >> dequant_shift, rate,
                                  dist);
   }
@@ -103,7 +103,7 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
 
 // Fits a curve for rate and distortion using as feature:
 // log2(sse_norm/qstep^2)
-static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
+static AVM_INLINE void model_rd_with_curvfit(const AV2_COMP *const cpi,
                                              const MACROBLOCK *const x,
                                              BLOCK_SIZE plane_bsize, int plane,
                                              int64_t sse, int num_samples,
@@ -113,7 +113,7 @@ static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
   const MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const int dequant_shift = xd->bd - 5;
-  const int qstep = AOMMAX(
+  const int qstep = AVMMAX(
       ROUND_POWER_OF_TWO(p->dequant_QTX[1], QUANT_TABLE_BITS) >> dequant_shift,
       1);
 
@@ -122,18 +122,18 @@ static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
     if (dist) *dist = 0;
     return;
   }
-  aom_clear_system_state();
+  avm_clear_system_state();
   const double sse_norm = (double)sse / num_samples;
   const double qstepsqr = (double)qstep * qstep;
   const double xqr = log2(sse_norm / qstepsqr);
   double rate_f, dist_by_sse_norm_f;
-  av1_model_rd_curvfit(plane_bsize, sse_norm, xqr, &rate_f,
+  av2_model_rd_curvfit(plane_bsize, sse_norm, xqr, &rate_f,
                        &dist_by_sse_norm_f);
 
   const double dist_f = dist_by_sse_norm_f * sse_norm;
-  int rate_i = (int)(AOMMAX(0.0, rate_f * num_samples) + 0.5);
-  int64_t dist_i = (int64_t)(AOMMAX(0.0, dist_f * num_samples) + 0.5);
-  aom_clear_system_state();
+  int rate_i = (int)(AVMMAX(0.0, rate_f * num_samples) + 0.5);
+  int64_t dist_i = (int64_t)(AVMMAX(0.0, dist_f * num_samples) + 0.5);
+  avm_clear_system_state();
 
   // Check if skip is better
   if (rate_i == 0) {
@@ -148,8 +148,8 @@ static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
   if (dist) *dist = dist_i;
 }
 
-static AOM_INLINE void model_rd_for_sb(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
+static AVM_INLINE void model_rd_for_sb(
+    const AV2_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
     int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
     int64_t *plane_sse, int64_t *plane_dist) {
@@ -181,7 +181,7 @@ static AOM_INLINE void model_rd_for_sb(
     sse = calculate_sse(xd, p, pd, bw, bh);
     model_rd_from_sse(cpi, x, plane_bsize, plane, sse, bw * bh, &rate, &dist);
 
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
+    if (plane == 0) x->pred_sse[ref] = (unsigned int)AVMMIN(sse, UINT_MAX);
 
     total_sse += sse;
     rate_sum += rate;
@@ -194,13 +194,13 @@ static AOM_INLINE void model_rd_for_sb(
 
   if (skip_txfm_sb) *skip_txfm_sb = total_sse == 0;
   if (skip_sse_sb) *skip_sse_sb = total_sse << 4;
-  rate_sum = AOMMIN(rate_sum, INT_MAX);
+  rate_sum = AVMMIN(rate_sum, INT_MAX);
   *out_rate_sum = (int)rate_sum;
   *out_dist_sum = dist_sum;
 }
 
-static AOM_INLINE void model_rd_for_sb_with_curvfit(
-    const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
+static AVM_INLINE void model_rd_for_sb_with_curvfit(
+    const AV2_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
     int *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
     int64_t *plane_sse, int64_t *plane_dist) {
@@ -225,7 +225,7 @@ static AOM_INLINE void model_rd_for_sb_with_curvfit(
     int rate;
     int bw, bh;
     const struct macroblock_plane *const p = &x->plane[plane];
-    const AV1_COMMON *const cm = &cpi->common;
+    const AV2_COMMON *const cm = &cpi->common;
     const int block_width = block_size_wide[plane_bsize];
     const int block_height = block_size_high[plane_bsize];
     const int is_border_block =
@@ -233,17 +233,17 @@ static AOM_INLINE void model_rd_for_sb_with_curvfit(
                                cm->width, cm->height, &bw, &bh);
     const int shift = xd->bd - 8;
     if (!is_border_block)
-      sse = aom_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
+      sse = avm_highbd_sse(p->src.buf, p->src.stride, pd->dst.buf,
                            pd->dst.stride, bw, bh);
     else
-      sse = aom_highbd_sse_c(p->src.buf, p->src.stride, pd->dst.buf,
+      sse = avm_highbd_sse_c(p->src.buf, p->src.stride, pd->dst.buf,
                              pd->dst.stride, bw, bh);
 
     sse = ROUND_POWER_OF_TWO(sse, shift * 2);
     model_rd_with_curvfit(cpi, x, plane_bsize, plane, sse, bw * bh, &rate,
                           &dist);
 
-    if (plane == 0) x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
+    if (plane == 0) x->pred_sse[ref] = (unsigned int)AVMMIN(sse, UINT_MAX);
 
     total_sse += sse;
     rate_sum += rate;
@@ -273,4 +273,4 @@ static const model_rd_from_sse_type model_rd_sse_fn[MODELRD_TYPES] = {
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_ENCODER_MODEL_RD_H_
+#endif  // AVM_AV2_ENCODER_MODEL_RD_H_

@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#ifndef AOM_AOM_DSP_ARM_MEM_NEON_H_
-#define AOM_AOM_DSP_ARM_MEM_NEON_H_
+#ifndef AVM_AVM_DSP_ARM_MEM_NEON_H_
+#define AVM_AVM_DSP_ARM_MEM_NEON_H_
 
 #include <arm_neon.h>
 #include <string.h>
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 // Support for xN Neon intrinsics is lacking in some compilers.
 #if defined(__arm__) || defined(_M_ARM)
@@ -1272,4 +1272,4 @@ static INLINE void store_u16x4_strided_x2(uint16_t *dst, uint32_t dst_stride,
 #undef store_u16_2x1_lane
 #undef store_u16_4x1_lane
 
-#endif  // AOM_AOM_DSP_ARM_MEM_NEON_H_
+#endif  // AVM_AVM_DSP_ARM_MEM_NEON_H_

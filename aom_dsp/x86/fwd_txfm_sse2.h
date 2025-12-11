@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_FWD_TXFM_SSE2_H_
-#define AOM_AOM_DSP_X86_FWD_TXFM_SSE2_H_
+#ifndef AVM_AVM_DSP_X86_FWD_TXFM_SSE2_H_
+#define AVM_AVM_DSP_X86_FWD_TXFM_SSE2_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,4 +158,4 @@ static INLINE void storeu_output(const __m128i *poutput, tran_low_t *dst_ptr) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_X86_FWD_TXFM_SSE2_H_
+#endif  // AVM_AVM_DSP_X86_FWD_TXFM_SSE2_H_

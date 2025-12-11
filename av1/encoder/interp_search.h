@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_INTERP_FILTER_SEARCH_H_
-#define AOM_AV1_ENCODER_INTERP_FILTER_SEARCH_H_
+#ifndef AVM_AV2_ENCODER_INTERP_FILTER_SEARCH_H_
+#define AVM_AV2_ENCODER_INTERP_FILTER_SEARCH_H_
 
-#include "av1/encoder/block.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/rdopt_utils.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/rdopt_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,14 +139,14 @@ typedef struct {
 
 /*!\cond */
 
-int av1_find_interp_filter_match(
-    MB_MODE_INFO *const mbmi, const AV1_COMP *const cpi,
+int av2_find_interp_filter_match(
+    MB_MODE_INFO *const mbmi, const AV2_COMP *const cpi,
     const InterpFilter assign_filter, const int need_search,
     INTERPOLATION_FILTER_STATS *interp_filter_stats, MACROBLOCKD *xd,
     int interp_filter_stats_idx);
 
-int64_t av1_interpolation_filter_search(
-    MACROBLOCK *const x, const AV1_COMP *const cpi,
+int64_t av2_interpolation_filter_search(
+    MACROBLOCK *const x, const AV2_COMP *const cpi,
     const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     const BUFFER_SET *const tmp_dst, const BUFFER_SET *const orig_dst,
     int64_t *const rd, int *const switchable_rate, int *skip_build_pred,
@@ -157,4 +157,4 @@ int64_t av1_interpolation_filter_search(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_INTERP_FILTER_SEARCH_H_
+#endif  // AVM_AV2_ENCODER_INTERP_FILTER_SEARCH_H_

@@ -10,18 +10,18 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ERP_MODELS_H_
-#define AOM_AV1_ENCODER_ERP_MODELS_H_
+#ifndef AVM_AV2_ENCODER_ERP_MODELS_H_
+#define AVM_AV2_ENCODER_ERP_MODELS_H_
 
-#include "config/aom_config.h"
-#include "av1/encoder/ml.h"
+#include "config/avm_config.h"
+#include "av2/encoder/ml.h"
 
 #define NUM_HIDDEN_LAYERS_BLOCK_8X16 1
 #define NUM_FEATURES_BLOCK_8X16 19
 #define NUM_LAYER_0_UNITS_BLOCK_8X16 32
 #define NUM_LOGITS_BLOCK_8X16 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X16[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_8X16[] = {
   -5.265345f,      3.8984804f,      0.12618577f,     0.18102245f,
   0.44588035f,     -0.03277174f,    0.0072774366f,   0.059204906f,
   -0.0026648645f,  -0.074082844f,   0.024687385f,    -0.00063447305f,
@@ -176,7 +176,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X16[] = {
   -0.019067444f,   0.12798645f,     0.057648063f,    0.6933791f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_8X16[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_8X16[] = {
   -2.6312602f, -4.910441f,   -2.4008176f, -3.006079f,    -7.5237627f,
   -3.5329869f, -2.564794f,   0.22144695f, -4.658491f,    1.8989116f,
   -3.6034036f, -1.369984f,   -5.668405f,  -0.021684162f, 0.1932319f,
@@ -186,7 +186,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_8X16[] = {
   -7.7463813f, 0.6774573f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_8X16[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_8X16[] = {
   -0.32119504f, -1.7573389f,   -0.46852377f, 0.45090386f,   -2.0769763f,
   -0.1924327f,  -0.2686251f,   0.09597415f,  -1.9706111f,   -0.24814595f,
   0.55375093f,  0.2928284f,    -0.85358155f, 0.28434688f,   0.30905014f,
@@ -209,11 +209,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_8X16[] = {
   -0.3545935f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_8X16[] = { 0.48889303f,
+static const float av2_erp_rect_logits_bias_BLOCK_8X16[] = { 0.48889303f,
                                                              0.47239408f,
                                                              -1.4752572f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X16 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_8X16 = {
   NUM_FEATURES_BLOCK_8X16,
   NUM_LOGITS_BLOCK_8X16,
   NUM_HIDDEN_LAYERS_BLOCK_8X16,
@@ -221,12 +221,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X16 = {
       NUM_LAYER_0_UNITS_BLOCK_8X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X16,
-      av1_erp_rect_logits_kernel_BLOCK_8X16,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_8X16,
+      av2_erp_rect_logits_kernel_BLOCK_8X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_8X16,
-      av1_erp_rect_logits_bias_BLOCK_8X16,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_8X16,
+      av2_erp_rect_logits_bias_BLOCK_8X16,
   },
 };
 
@@ -240,7 +240,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X16 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X64 32
 #define NUM_LOGITS_BLOCK_32X64 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X64[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X64[] = {
   -5.371117f,      -0.96907455f,   0.8347811f,      0.4592908f,
   -0.20453018f,    -0.04886373f,   0.48860046f,     -0.06553495f,
   0.046067663f,    1.5544606f,     -0.031972535f,   1.4385275f,
@@ -395,7 +395,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X64[] = {
   -2.6563022f,     1.4023098f,     0.037913978f,    -0.014855503f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X64[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_32X64[] = {
   -0.58607376f, -4.99718f,    -1.7632886f,  -1.6591414f,  -0.73040724f,
   0.9742823f,   -0.07886549f, -0.35734823f, -2.4606304f,  -2.7640889f,
   -2.4405363f,  -0.33232787f, -3.2804868f,  0.7965512f,   -3.6777797f,
@@ -405,7 +405,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X64[] = {
   0.31037304f,  -0.74650484f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_32X64[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_32X64[] = {
   -0.033033006f, -1.3074838f,  -2.6604679f,   9.298506f,     -0.3858231f,
   0.076386906f,  -0.41698787f, 0.34741387f,   8.850649f,     2.7890859f,
   -0.3291666f,   0.5188644f,   2.8574216f,    -0.29045573f,  9.457654f,
@@ -428,11 +428,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_32X64[] = {
   -4.779596f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_32X64[] = { 0.2503071f,
+static const float av2_erp_rect_logits_bias_BLOCK_32X64[] = { 0.2503071f,
                                                               0.53325564f,
                                                               -0.84713113f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X64 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_32X64 = {
   NUM_FEATURES_BLOCK_32X64,
   NUM_LOGITS_BLOCK_32X64,
   NUM_HIDDEN_LAYERS_BLOCK_32X64,
@@ -440,12 +440,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X64 = {
       NUM_LAYER_0_UNITS_BLOCK_32X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X64,
-      av1_erp_rect_logits_kernel_BLOCK_32X64,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X64,
+      av2_erp_rect_logits_kernel_BLOCK_32X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_32X64,
-      av1_erp_rect_logits_bias_BLOCK_32X64,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_32X64,
+      av2_erp_rect_logits_bias_BLOCK_32X64,
   },
 };
 
@@ -459,7 +459,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X128 32
 #define NUM_LOGITS_BLOCK_64X128 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X128[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X128[] = {
   0.24966796f,    -2.8906717f,    -0.0560478f,    -0.010548264f,
   0.2160677f,     -0.052934002f,  -1.5258942f,    0.09361026f,
   0.031232174f,   -1.0356104f,    0.028667009f,   -1.2067556f,
@@ -614,7 +614,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X128[] = {
   -0.031875163f,  0.31695542f,    -0.24293643f,   -0.1327325f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X128[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_64X128[] = {
   -3.3414016f, 0.16510914f,  0.99619967f,  0.7189973f,  -0.25600958f,
   -2.3285253f, -1.012652f,   -0.44980487f, -2.1506116f, 0.44007516f,
   1.4736269f,  -2.4558623f,  -2.3185804f,  -2.0661328f, 0.4339462f,
@@ -624,7 +624,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X128[] = {
   0.5793212f,  0.13717508f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_64X128[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_64X128[] = {
   7.8085527f,    0.043538433f,  0.11611421f,   0.30963245f,   -0.31686765f,
   1.2018313f,    0.46342596f,   0.43165016f,   -0.30855805f,  0.35961345f,
   0.5439842f,    3.8277209f,    -2.8121355f,   -2.4707043f,   0.12592714f,
@@ -647,11 +647,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_64X128[] = {
   -1.0001038f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_64X128[] = { 0.10748988f,
+static const float av2_erp_rect_logits_bias_BLOCK_64X128[] = { 0.10748988f,
                                                                0.14715923f,
                                                                -4.197296f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X128 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_64X128 = {
   NUM_FEATURES_BLOCK_64X128,
   NUM_LOGITS_BLOCK_64X128,
   NUM_HIDDEN_LAYERS_BLOCK_64X128,
@@ -659,12 +659,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X128 = {
       NUM_LAYER_0_UNITS_BLOCK_64X128,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X128,
-      av1_erp_rect_logits_kernel_BLOCK_64X128,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X128,
+      av2_erp_rect_logits_kernel_BLOCK_64X128,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_64X128,
-      av1_erp_rect_logits_bias_BLOCK_64X128,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_64X128,
+      av2_erp_rect_logits_bias_BLOCK_64X128,
   },
 };
 
@@ -678,7 +678,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X128 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X32 32
 #define NUM_LOGITS_BLOCK_32X32 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X32[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X32[] = {
   -2.6530454f,     0.96283233f,     0.15537345f,    2.9000745f,
   -3.4149916f,     -0.010144076f,   0.5959429f,     -0.05044031f,
   -0.0053365245f,  0.024194919f,    -0.031552747f,  -0.04832399f,
@@ -833,7 +833,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X32[] = {
   0.013785408f,    0.009503114f,    0.2471637f,     -0.17898902f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X32[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_32X32[] = {
   0.4137144f,  -0.37211525f, -3.7288158f, -3.3844895f,  -2.3175817f,
   -4.723707f,  -2.529332f,   -3.2319143f, -2.7159002f,  -5.89252f,
   -3.8885617f, -3.3897326f,  -3.087129f,  -4.6327887f,  -2.208078f,
@@ -843,7 +843,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X32[] = {
   2.5263019f,  2.1948633f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_32X32[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_32X32[] = {
   -0.4049583f,   0.18097673f,    -0.15084355f,  -0.19749267f,  0.033096235f,
   7.9671593f,    -0.27787873f,   0.061045814f,  1.1915344f,    3.1497371f,
   -1.4434142f,   -1.0507398f,    -0.8158826f,   -0.7090622f,   0.50549334f,
@@ -866,11 +866,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_32X32[] = {
   -0.45895258f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_32X32[] = { 0.45036876f,
+static const float av2_erp_rect_logits_bias_BLOCK_32X32[] = { 0.45036876f,
                                                               0.6787397f,
                                                               -1.2586206f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X32 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_32X32 = {
   NUM_FEATURES_BLOCK_32X32,
   NUM_LOGITS_BLOCK_32X32,
   NUM_HIDDEN_LAYERS_BLOCK_32X32,
@@ -878,12 +878,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X32 = {
       NUM_LAYER_0_UNITS_BLOCK_32X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X32,
-      av1_erp_rect_logits_kernel_BLOCK_32X32,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X32,
+      av2_erp_rect_logits_kernel_BLOCK_32X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_32X32,
-      av1_erp_rect_logits_bias_BLOCK_32X32,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_32X32,
+      av2_erp_rect_logits_bias_BLOCK_32X32,
   },
 };
 
@@ -897,7 +897,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X8 32
 #define NUM_LOGITS_BLOCK_16X8 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X8[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X8[] = {
   0.98271483f,     -0.47112632f,   0.22600001f,     -0.13703842f,
   0.0053621666f,   -0.01546438f,   -0.05508925f,    0.15476343f,
   -0.005694094f,   -0.020561032f,  0.00097607356f,  -0.0572846f,
@@ -1052,7 +1052,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X8[] = {
   0.016600614f,    0.4347519f,     -1.2695338f,     -0.02884999f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X8[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_16X8[] = {
   2.218648f,    -2.6031795f,  0.23154762f, -3.9930723f, -3.8870635f,
   -1.6818007f,  -2.662771f,   0.82795435f, -4.3275676f, -3.012891f,
   -0.89828575f, 0.54274505f,  3.4002573f,  0.9915626f,  0.9510591f,
@@ -1062,7 +1062,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X8[] = {
   -2.998845f,   -0.84148675f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_16X8[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_16X8[] = {
   -0.48016515f, -0.7880241f,   0.30171955f,   -5.290205f,    4.393023f,
   0.9736263f,   -0.49698222f,  0.42671055f,   4.8464665f,    2.5584445f,
   0.50155693f,  0.022939097f,  0.91990125f,   0.77929693f,   0.54482394f,
@@ -1085,11 +1085,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_16X8[] = {
   0.22495818f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_16X8[] = { -0.54976773f,
+static const float av2_erp_rect_logits_bias_BLOCK_16X8[] = { -0.54976773f,
                                                              -0.5090179f,
                                                              1.1184987f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X8 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_16X8 = {
   NUM_FEATURES_BLOCK_16X8,
   NUM_LOGITS_BLOCK_16X8,
   NUM_HIDDEN_LAYERS_BLOCK_16X8,
@@ -1097,12 +1097,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X8 = {
       NUM_LAYER_0_UNITS_BLOCK_16X8,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X8,
-      av1_erp_rect_logits_kernel_BLOCK_16X8,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X8,
+      av2_erp_rect_logits_kernel_BLOCK_16X8,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_16X8,
-      av1_erp_rect_logits_bias_BLOCK_16X8,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_16X8,
+      av2_erp_rect_logits_bias_BLOCK_16X8,
   },
 };
 
@@ -1116,7 +1116,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X8 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X16 32
 #define NUM_LOGITS_BLOCK_16X16 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X16[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X16[] = {
   -4.313823f,     3.794568f,       0.36918536f,     4.5781064f,
   0.159458f,      0.45819333f,     1.0116822f,      -0.2991945f,
   0.47252315f,    -0.2914947f,     0.5059451f,      -0.2865454f,
@@ -1271,7 +1271,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X16[] = {
   -0.016744973f,  0.2194707f,      0.4634736f,      -0.11110532f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X16[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_16X16[] = {
   3.456158f,     1.6401043f,  2.4341183f,    -3.3075023f, -1.5474263f,
   2.3781931f,    -1.1263992f, -1.3909752f,   1.8831838f,  -3.1982977f,
   -0.016532658f, -2.4444153f, -2.3255386f,   -2.38211f,   -2.441067f,
@@ -1281,7 +1281,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X16[] = {
   -1.6844304f,   -0.16293882f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_16X16[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_16X16[] = {
   1.5596001f,    0.25656366f,   0.8491757f,    -2.5079534f,  0.27783263f,
   0.8685433f,    -0.52189136f,  -0.4461323f,   0.17883193f,  0.7443255f,
   -0.23259847f,  1.8086283f,    -3.2578669f,   0.61151075f,  9.077507f,
@@ -1304,11 +1304,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_16X16[] = {
   0.72547793f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_16X16[] = { -1.4412873f,
+static const float av2_erp_rect_logits_bias_BLOCK_16X16[] = { -1.4412873f,
                                                               2.4711847f,
                                                               -1.0176674f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X16 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_16X16 = {
   NUM_FEATURES_BLOCK_16X16,
   NUM_LOGITS_BLOCK_16X16,
   NUM_HIDDEN_LAYERS_BLOCK_16X16,
@@ -1316,12 +1316,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X16 = {
       NUM_LAYER_0_UNITS_BLOCK_16X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X16,
-      av1_erp_rect_logits_kernel_BLOCK_16X16,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X16,
+      av2_erp_rect_logits_kernel_BLOCK_16X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_16X16,
-      av1_erp_rect_logits_bias_BLOCK_16X16,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_16X16,
+      av2_erp_rect_logits_bias_BLOCK_16X16,
   },
 };
 
@@ -1335,7 +1335,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X16 = {
 #define NUM_LAYER_0_UNITS_BLOCK_128X64 32
 #define NUM_LOGITS_BLOCK_128X64 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X64[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_128X64[] = {
   -2.506532f,      0.28045833f,    2.5386374f,     -0.22543839f,
   -1.8109485f,     1.0371261f,     -1.1931573f,    -0.084572524f,
   -0.30307072f,    0.13980407f,    0.25740162f,    -0.031259805f,
@@ -1490,7 +1490,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X64[] = {
   2.3942802f,      4.8193793f,     0.12199968f,    -0.03734055f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_128X64[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_128X64[] = {
   -1.747886f,  -2.1865277f, -0.6352243f, 2.79527f,    2.2572293f,   0.2983602f,
   -2.6138515f, -0.4466072f, -0.6815218f, -2.2448225f, 3.9069366f,   -2.7805161f,
   -1.1144366f, -2.1800528f, -1.8819572f, -1.879211f,  -0.38282812f, 0.41722852f,
@@ -1499,7 +1499,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_128X64[] = {
   -9.3067f,    -1.2724826f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_128X64[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_128X64[] = {
   0.13278288f,  -5.5735207f,  -0.8165344f,  -1.2209895f,  -0.5935022f,
   0.8115797f,   15.754949f,   1.7555044f,   0.6167518f,   -16.654287f,
   1.6434584f,   10.733852f,   8.844905f,    -2.5933535f,  1.2393262f,
@@ -1522,11 +1522,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_128X64[] = {
   -1.4597775f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_128X64[] = { -0.69522446f,
+static const float av2_erp_rect_logits_bias_BLOCK_128X64[] = { -0.69522446f,
                                                                -4.1751566f,
                                                                0.678112f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X64 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_128X64 = {
   NUM_FEATURES_BLOCK_128X64,
   NUM_LOGITS_BLOCK_128X64,
   NUM_HIDDEN_LAYERS_BLOCK_128X64,
@@ -1534,12 +1534,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X64 = {
       NUM_LAYER_0_UNITS_BLOCK_128X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X64,
-      av1_erp_rect_logits_kernel_BLOCK_128X64,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_128X64,
+      av2_erp_rect_logits_kernel_BLOCK_128X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_128X64,
-      av1_erp_rect_logits_bias_BLOCK_128X64,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_128X64,
+      av2_erp_rect_logits_bias_BLOCK_128X64,
   },
 };
 
@@ -1553,7 +1553,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X64 32
 #define NUM_LOGITS_BLOCK_64X64 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X64[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X64[] = {
   -3.6454084f,     -0.59838617f,   0.013810501f,   0.0030246617f,
   0.035173554f,    -0.8703488f,    0.15965132f,    -0.074950814f,
   -0.6832175f,     0.5203558f,     -0.6167184f,    0.43970916f,
@@ -1708,7 +1708,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X64[] = {
   -0.081067786f,   -0.31036225f,   -0.2386384f,    -0.044787258f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X64[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_64X64[] = {
   -2.081036f,  -2.2639825f, -1.7916458f, 0.6160912f,   -2.4864252f,
   -2.0688f,    0.3142293f,  -2.3926396f, -2.8035944f,  -0.99745667f,
   -1.9839168f, -1.8546029f, 1.1367292f,  -1.9464117f,  -0.5405599f,
@@ -1718,7 +1718,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X64[] = {
   0.51896167f, -1.2804931f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_64X64[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_64X64[] = {
   -6.676704f,   -2.5035837f,  -6.7998495f,  0.15603372f,   -0.34154496f,
   -25.485825f,  0.59962076f,  -0.81840897f, -2.1124086f,   -0.4777268f,
   -1.9013139f,  6.4708967f,   -0.53433317f, 3.3173094f,    16.137726f,
@@ -1741,11 +1741,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_64X64[] = {
   -0.14720227f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_64X64[] = { 0.94261926f,
+static const float av2_erp_rect_logits_bias_BLOCK_64X64[] = { 0.94261926f,
                                                               -0.17225875f,
                                                               -0.9346471f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X64 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_64X64 = {
   NUM_FEATURES_BLOCK_64X64,
   NUM_LOGITS_BLOCK_64X64,
   NUM_HIDDEN_LAYERS_BLOCK_64X64,
@@ -1753,12 +1753,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X64 = {
       NUM_LAYER_0_UNITS_BLOCK_64X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X64,
-      av1_erp_rect_logits_kernel_BLOCK_64X64,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X64,
+      av2_erp_rect_logits_kernel_BLOCK_64X64,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_64X64,
-      av1_erp_rect_logits_bias_BLOCK_64X64,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_64X64,
+      av2_erp_rect_logits_bias_BLOCK_64X64,
   },
 };
 
@@ -1772,7 +1772,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_8X8 32
 #define NUM_LOGITS_BLOCK_8X8 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X8[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_8X8[] = {
   1.5522176f,     -1.0820197f,     -0.36238813f,    0.45912093f,
   -0.3427608f,    -0.060040824f,   -0.09655445f,    -0.03820339f,
   -0.19120963f,   -0.06939263f,    -0.03207152f,    0.011869724f,
@@ -1927,7 +1927,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X8[] = {
   -0.018133754f,  0.9716232f,      0.48299453f,     -0.4709733f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_8X8[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_8X8[] = {
   1.3818247f,   -2.3403988f,  0.11325492f, 0.06790927f,  -1.1182241f,
   -1.1565008f,  -1.3923047f,  -1.136125f,  -2.0659068f,  -1.7774676f,
   0.16192965f,  -1.440103f,   1.2196752f,  -0.86723435f, 0.10289133f,
@@ -1937,7 +1937,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_8X8[] = {
   0.50079787f,  1.1681006f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_8X8[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_8X8[] = {
   0.4571793f,    0.5406258f,   0.5008936f,     -0.43433583f, -0.20190565f,
   0.7411861f,    -0.8107729f,  0.5766094f,     -1.353764f,   0.5572274f,
   0.24266975f,   -1.6529197f,  -0.05854794f,   -0.4352511f,  -0.086071976f,
@@ -1960,11 +1960,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_8X8[] = {
   -0.12559462f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_8X8[] = { 0.80041474f,
+static const float av2_erp_rect_logits_bias_BLOCK_8X8[] = { 0.80041474f,
                                                             -0.41355598f,
                                                             -0.7514784f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X8 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_8X8 = {
   NUM_FEATURES_BLOCK_8X8,
   NUM_LOGITS_BLOCK_8X8,
   NUM_HIDDEN_LAYERS_BLOCK_8X8,
@@ -1972,12 +1972,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X8 = {
       NUM_LAYER_0_UNITS_BLOCK_8X8,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_8X8,
-      av1_erp_rect_logits_kernel_BLOCK_8X8,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_8X8,
+      av2_erp_rect_logits_kernel_BLOCK_8X8,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_8X8,
-      av1_erp_rect_logits_bias_BLOCK_8X8,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_8X8,
+      av2_erp_rect_logits_bias_BLOCK_8X8,
   },
 };
 
@@ -1991,7 +1991,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_8X8 = {
 #define NUM_LAYER_0_UNITS_BLOCK_128X128 32
 #define NUM_LOGITS_BLOCK_128X128 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X128[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_128X128[] = {
   -4.3718596f,    0.17554095f,    0.037440006f,    0.013879832f,
   -0.012224283f,  -0.4701339f,    0.3248339f,      0.14015815f,
   -0.366201f,     0.36646524f,    -0.65108585f,    0.60823774f,
@@ -2146,7 +2146,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X128[] = {
   -1.1461942f,    1.12671f,       0.32495f,        0.059575528f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_128X128[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_128X128[] = {
   -2.126633f,  -2.2314923f,  -2.7171302f,  -0.8990097f, -0.32911694f,
   1.5209557f,  -1.1093687f,  -2.7644484f,  -2.0174916f, 1.3233589f,
   -3.25995f,   -0.30137834f, -0.09342656f, -0.978852f,  -0.899651f,
@@ -2156,7 +2156,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_128X128[] = {
   -2.2773533f, -1.672775f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_128X128[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_128X128[] = {
   -7.4193335f,  -1.431314f,   -0.789587f,    2.542293f,     -0.45549515f,
   -0.3226222f,  -1.2462852f,  -0.016779276f, -9.213189f,    0.2589282f,
   18.71652f,    0.18285054f,  -0.56536925f,  -0.6229832f,   1.2150395f,
@@ -2179,11 +2179,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_128X128[] = {
   -1.0911237f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_128X128[] = { -0.5841075f,
+static const float av2_erp_rect_logits_bias_BLOCK_128X128[] = { -0.5841075f,
                                                                 0.41921073f,
                                                                 0.41557652f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X128 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_128X128 = {
   NUM_FEATURES_BLOCK_128X128,
   NUM_LOGITS_BLOCK_128X128,
   NUM_HIDDEN_LAYERS_BLOCK_128X128,
@@ -2191,12 +2191,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X128 = {
       NUM_LAYER_0_UNITS_BLOCK_128X128,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_128X128,
-      av1_erp_rect_logits_kernel_BLOCK_128X128,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_128X128,
+      av2_erp_rect_logits_kernel_BLOCK_128X128,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_128X128,
-      av1_erp_rect_logits_bias_BLOCK_128X128,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_128X128,
+      av2_erp_rect_logits_bias_BLOCK_128X128,
   },
 };
 
@@ -2210,7 +2210,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_128X128 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X32 32
 #define NUM_LOGITS_BLOCK_16X32 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X32[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X32[] = {
   1.1377243f,      -0.98603576f,    0.04479958f,     -0.92401224f,
   -0.9395095f,     0.0026378522f,   0.073810376f,    0.23600438f,
   -0.030633835f,   -0.0815632f,     -0.03552308f,    -0.008801368f,
@@ -2365,7 +2365,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X32[] = {
   0.002230779f,    -8.515869e-05f,  -0.20943488f,    0.015966602f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X32[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_16X32[] = {
   -0.81267124f, 0.22792727f,  1.2570807f,  -0.76854295f, -1.222703f,
   -0.88170785f, -1.7252703f,  -1.2992388f, -0.28581095f, 0.3100287f,
   -1.675089f,   0.8465757f,   -0.7395678f, -1.436075f,   0.99414676f,
@@ -2375,7 +2375,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_16X32[] = {
   -0.9119379f,  -1.2695972f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_16X32[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_16X32[] = {
   -0.527247f,   -1.2399143f,  -0.8699385f,  2.0716884f,    -6.922512f,
   1.6319019f,   13.610104f,   11.296508f,   0.48783585f,   0.40237254f,
   -13.17341f,   -1.0001975f,  -0.52881527f, -32.11715f,    1.097682f,
@@ -2398,11 +2398,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_16X32[] = {
   0.035338193f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_16X32[] = { -0.43812335f,
+static const float av2_erp_rect_logits_bias_BLOCK_16X32[] = { -0.43812335f,
                                                               0.7972798f,
                                                               -0.16397147f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X32 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_16X32 = {
   NUM_FEATURES_BLOCK_16X32,
   NUM_LOGITS_BLOCK_16X32,
   NUM_HIDDEN_LAYERS_BLOCK_16X32,
@@ -2410,12 +2410,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X32 = {
       NUM_LAYER_0_UNITS_BLOCK_16X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_16X32,
-      av1_erp_rect_logits_kernel_BLOCK_16X32,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_16X32,
+      av2_erp_rect_logits_kernel_BLOCK_16X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_16X32,
-      av1_erp_rect_logits_bias_BLOCK_16X32,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_16X32,
+      av2_erp_rect_logits_bias_BLOCK_16X32,
   },
 };
 
@@ -2429,7 +2429,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_16X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X32 32
 #define NUM_LOGITS_BLOCK_64X32 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X32[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X32[] = {
   0.83846223f,    -1.9711951f,     -0.28688574f,   0.67452955f,
   0.25684354f,    0.15950647f,     -2.3486798f,    -0.28397772f,
   -0.14739022f,   4.378709f,       -0.14935212f,   4.6544175f,
@@ -2584,7 +2584,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X32[] = {
   -2.6643274f,    -8.415568f,      -0.022849945f,  0.21741572f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X32[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_64X32[] = {
   2.0273762f,   -1.40202f,   -1.5311669f, -2.6238356f, 2.1920702f,
   1.9496572f,   -2.7022393f, -2.207057f,  3.0972521f,  -0.932928f,
   -0.74143887f, 1.8993483f,  -3.5033789f, 0.7283543f,  1.9012672f,
@@ -2594,7 +2594,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_64X32[] = {
   -2.3273354f,  -2.784471f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_64X32[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_64X32[] = {
   0.415681f,     11.402385f,   -0.3639273f,   -1.2944049f,   0.5819873f,
   -0.50274754f,  -3.427557f,   -0.40701526f,  -0.17542009f,  0.8619801f,
   -0.26948524f,  0.92231435f,  2.727287f,     0.69603133f,   2.1747506f,
@@ -2617,11 +2617,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_64X32[] = {
   4.107493f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_64X32[] = { -0.0862501f,
+static const float av2_erp_rect_logits_bias_BLOCK_64X32[] = { -0.0862501f,
                                                               -0.34174293f,
                                                               0.49772888f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X32 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_64X32 = {
   NUM_FEATURES_BLOCK_64X32,
   NUM_LOGITS_BLOCK_64X32,
   NUM_HIDDEN_LAYERS_BLOCK_64X32,
@@ -2629,12 +2629,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X32 = {
       NUM_LAYER_0_UNITS_BLOCK_64X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_64X32,
-      av1_erp_rect_logits_kernel_BLOCK_64X32,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_64X32,
+      av2_erp_rect_logits_kernel_BLOCK_64X32,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_64X32,
-      av1_erp_rect_logits_bias_BLOCK_64X32,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_64X32,
+      av2_erp_rect_logits_bias_BLOCK_64X32,
   },
 };
 
@@ -2648,7 +2648,7 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_64X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X16 32
 #define NUM_LOGITS_BLOCK_32X16 3
 
-static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X16[] = {
+static const float av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X16[] = {
   -0.47610626f,    2.2467394f,     -0.055145502f,   -0.1062f,
   -0.088553816f,   -0.54001725f,   0.9417372f,      0.023942977f,
   -0.5368947f,     1.467364f,      -0.298319f,      2.0086613f,
@@ -2803,7 +2803,7 @@ static const float av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X16[] = {
   0.0074354117f,   0.061442737f,   0.009291168f,    -0.24616137f
 };
 
-static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X16[] = {
+static const float av2_erp_rect_dnn_layer_0_bias_BLOCK_32X16[] = {
   -3.1130245f, -1.9392635f, -2.4438357f,  -2.8145883f,  -2.1208258f,
   -3.5985847f, -4.364839f,  -0.32143044f, -5.368895f,   -4.26794f,
   -2.6414564f, -2.0926223f, -4.0905747f,  -1.2613723f,  -2.8385034f,
@@ -2813,7 +2813,7 @@ static const float av1_erp_rect_dnn_layer_0_bias_BLOCK_32X16[] = {
   -0.6392465f, -2.0352979f
 };
 
-static const float av1_erp_rect_logits_kernel_BLOCK_32X16[] = {
+static const float av2_erp_rect_logits_kernel_BLOCK_32X16[] = {
   1.3487213f,     -0.041692056f, 0.82092017f,  -1.1945324f,   0.98765206f,
   -7.19987f,      8.98573f,      0.6672202f,   -5.6981974f,   0.38648367f,
   10.701272f,     -1.5311159f,   2.5989742f,   -0.009783731f, -1.4793888f,
@@ -2836,11 +2836,11 @@ static const float av1_erp_rect_logits_kernel_BLOCK_32X16[] = {
   0.76272666f
 };
 
-static const float av1_erp_rect_logits_bias_BLOCK_32X16[] = { 1.0705718f,
+static const float av2_erp_rect_logits_bias_BLOCK_32X16[] = { 1.0705718f,
                                                               -0.39972568f,
                                                               -0.57893425f };
 
-static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X16 = {
+static const NN_CONFIG av2_erp_rect_nn_config_BLOCK_32X16 = {
   NUM_FEATURES_BLOCK_32X16,
   NUM_LOGITS_BLOCK_32X16,
   NUM_HIDDEN_LAYERS_BLOCK_32X16,
@@ -2848,12 +2848,12 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X16 = {
       NUM_LAYER_0_UNITS_BLOCK_32X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_kernel_BLOCK_32X16,
-      av1_erp_rect_logits_kernel_BLOCK_32X16,
+      av2_erp_rect_dnn_layer_0_kernel_BLOCK_32X16,
+      av2_erp_rect_logits_kernel_BLOCK_32X16,
   },
   {
-      av1_erp_rect_dnn_layer_0_bias_BLOCK_32X16,
-      av1_erp_rect_logits_bias_BLOCK_32X16,
+      av2_erp_rect_dnn_layer_0_bias_BLOCK_32X16,
+      av2_erp_rect_logits_bias_BLOCK_32X16,
   },
 };
 
@@ -2862,35 +2862,35 @@ static const NN_CONFIG av1_erp_rect_nn_config_BLOCK_32X16 = {
 #undef NUM_LAYER_0_UNITS_BLOCK_32X16
 #undef NUM_LOGITS_BLOCK_32X16
 
-static const float av1_erp_rect_feature_mean_BLOCK_8X8[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_8X8[19] = {
   66618.195312f, 6278476.000000f, 351.715485f, 2541.013428f, 2427.998779f,
   18913.228516f, 12990.264648f,   1.000000f,   7811.130859f, 4111.401855f,
   7784.949707f,  4106.143066f,    1.000000f,   7751.323242f, 4160.452148f,
   7788.872070f,  4164.866699f,    0.141726f,   0.148103f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_8X8[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_8X8[19] = {
   144093.812500f, 9968381.000000f, 280.858856f, 2352.212646f,  2012.985718f,
   58024.632812f,  18073.621094f,   0.000001f,   34912.160156f, 6301.276855f,
   34718.816406f,  6307.957520f,    0.000001f,   34380.796875f, 6400.215332f,
   34750.636719f,  6406.672852f,    0.348769f,   0.355202f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_8X16[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_8X16[19] = {
   222179.359375f, 16349100.000000f, 405.047302f, 1012.685486f,  3468.187988f,
   32340.933594f,  23327.171875f,    1.000000f,   13900.132812f, 8058.832520f,
   13881.083984f,  8049.278320f,     1.000000f,   14219.694336f, 8848.454102f,
   14303.216797f,  8903.243164f,     0.000000f,   0.243606f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_8X16[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_8X16[19] = {
   804027.375000f, 36150872.000000f, 343.761444f, 574.453613f,   1961.527466f,
   105862.085938f, 39339.648438f,    0.000001f,   63291.882812f, 14764.810547f,
   63062.503906f,  14744.217773f,    0.000001f,   59312.175781f, 15750.481445f,
   59751.890625f,  15786.644531f,    0.000001f,   0.429258f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_64X64[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_64X64[19] = {
   6436706.000000f, 715794304.000000f, 1336.676636f,   514.541443f,
   1548.677979f,    985974.812500f,    870096.500000f, 1.000000f,
   429158.718750f,  367432.312500f,    423693.000000f, 363149.156250f,
@@ -2898,7 +2898,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_64X64[19] = {
   366061.437500f,  0.000000f,         0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_64X64[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_64X64[19] = {
   14752422.000000f, 1351132800.000000f, 795.531128f,     363.980591f,
   638.634460f,      2209139.500000f,    1582207.125000f, 0.000001f,
   1097530.750000f,  705596.187500f,     1070076.625000f, 696743.687500f,
@@ -2906,7 +2906,7 @@ static const float av1_erp_rect_feature_std_BLOCK_64X64[19] = {
   702556.125000f,   0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_64X32[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_64X32[19] = {
   3725594.750000f, 356248960.000000f, 1163.064087f,   2820.648438f,
   523.000305f,     501482.625000f,    430053.343750f, 1.000000f,
   222489.984375f,  184090.109375f,    220919.312500f, 183357.359375f,
@@ -2914,7 +2914,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_64X32[19] = {
   173908.781250f,  0.068606f,         0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_64X32[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_64X32[19] = {
   10316908.000000f, 713850624.000000f, 835.921936f,    1279.261475f,
   480.708954f,      1175760.750000f,   771187.812500f, 0.000001f,
   593959.375000f,   344758.250000f,    578854.125000f, 344078.031250f,
@@ -2922,7 +2922,7 @@ static const float av1_erp_rect_feature_std_BLOCK_64X32[19] = {
   337247.156250f,   0.252784f,         0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_64X128[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_64X128[19] = {
   8137519.000000f, 1417210624.000000f, 697.538879f,     557.973206f,
   0.000000f,       1967519.125000f,    1769284.250000f, 1.000000f,
   841838.562500f,  738895.250000f,     826301.687500f,  723618.562500f,
@@ -2930,7 +2930,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_64X128[19] = {
   0.000000f,       0.000000f,          0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_64X128[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_64X128[19] = {
   16611806.000000f, 2629986816.000000f, 531.972351f,     455.994110f,
   0.000001f,        4461607.000000f,    3254772.750000f, 0.000001f,
   2141146.000000f,  1452440.625000f,    2058362.625000f, 1404180.500000f,
@@ -2938,7 +2938,7 @@ static const float av1_erp_rect_feature_std_BLOCK_64X128[19] = {
   0.000001f,        0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_32X64[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_32X64[19] = {
   3927294.250000f, 359024224.000000f, 785.435425f,    744.367737f,
   3294.808594f,    462244.906250f,    393500.031250f, 1.000000f,
   203500.140625f,  163292.765625f,    201315.812500f, 161698.500000f,
@@ -2946,7 +2946,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_32X64[19] = {
   172597.593750f,  0.000000f,         0.244198f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_32X64[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_32X64[19] = {
   10677007.000000f, 731580288.000000f, 544.592346f,    435.106049f,
   1995.741089f,     1187138.750000f,   731867.875000f, 0.000001f,
   636490.375000f,   326220.093750f,    625055.500000f, 322619.812500f,
@@ -2954,7 +2954,7 @@ static const float av1_erp_rect_feature_std_BLOCK_32X64[19] = {
   330927.875000f,   0.000001f,         0.429610f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_32X32[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_32X32[19] = {
   2138502.000000f, 169189856.000000f, 1013.066650f,   1421.817261f,
   1934.147705f,    247725.609375f,    202899.093750f, 1.000000f,
   110220.539062f,  84250.796875f,     110578.187500f, 84497.492188f,
@@ -2962,7 +2962,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_32X32[19] = {
   84417.234375f,   0.127302f,         0.070362f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_32X32[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_32X32[19] = {
   7292817.500000f, 363187360.000000f, 676.887329f,    2035.080444f,
   1547.263672f,    668820.125000f,    369293.656250f, 0.000001f,
   358798.625000f,  163826.171875f,    359396.312500f, 164050.609375f,
@@ -2970,14 +2970,14 @@ static const float av1_erp_rect_feature_std_BLOCK_32X32[19] = {
   163628.843750f,  0.333311f,         0.255756f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_32X16[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_32X16[19] = {
   1033612.062500f, 79597768.000000f, 911.616516f, 2707.100098f,  690.049438f,
   127444.359375f,  100194.210938f,   1.000000f,   55773.695312f, 40876.351562f,
   55762.281250f,   40866.945312f,    1.000000f,   56751.199219f, 39545.156250f,
   56736.847656f,   39393.792969f,    0.146740f,   0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_32X16[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_32X16[19] = {
   4286555.500000f, 181697104.000000f, 708.792053f,    1741.364868f,
   486.679077f,     365515.156250f,    179833.453125f, 0.000001f,
   189834.437500f,  77297.953125f,     189013.328125f, 77292.789062f,
@@ -2985,28 +2985,28 @@ static const float av1_erp_rect_feature_std_BLOCK_32X16[19] = {
   77353.429688f,   0.353846f,         0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_16X8[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_16X8[19] = {
   225834.156250f, 16312555.000000f, 501.823120f, 3243.605713f,  930.018250f,
   31264.367188f,  22887.390625f,    1.000000f,   13535.174805f, 8496.252930f,
   13518.259766f,  8502.464844f,     1.000000f,   13802.790039f, 8057.849609f,
   13822.330078f,  8054.635254f,     0.169900f,   0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_16X8[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_16X8[19] = {
   806315.875000f, 35793440.000000f, 501.567627f, 1741.110596f,  598.817688f,
   100117.320312f, 38467.609375f,    0.000001f,   56360.554688f, 14994.595703f,
   56005.617188f,  15027.803711f,    0.000001f,   62928.367188f, 14797.958008f,
   63468.988281f,  14766.560547f,    0.375545f,   0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_16X32[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_16X32[19] = {
   981894.062500f, 78440672.000000f, 695.482239f, 817.426697f,   3024.901855f,
   124849.875000f, 97983.125000f,    1.000000f,   55671.730469f, 38941.242188f,
   55722.238281f,  38915.128906f,    1.000000f,   55330.972656f, 40477.222656f,
   56332.949219f,  41111.714844f,    0.000000f,   0.243802f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_16X32[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_16X32[19] = {
   3971846.500000f, 179815232.000000f, 511.999298f,    429.069366f,
   2117.474609f,    372971.062500f,    177763.796875f, 0.000001f,
   210632.125000f,  77083.554688f,     210893.218750f, 77072.867188f,
@@ -3014,21 +3014,21 @@ static const float av1_erp_rect_feature_std_BLOCK_16X32[19] = {
   78112.492188f,   0.000001f,         0.429375f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_16X16[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_16X16[19] = {
   485393.843750f, 35287364.000000f, 684.818115f, 1723.659912f,  2249.334473f,
   61448.421875f,  46006.863281f,    1.000000f,   26858.750000f, 17622.289062f,
   26852.339844f,  17654.207031f,    1.000000f,   27476.435547f, 17949.414062f,
   27654.158203f,  18019.853516f,    0.142286f,   0.113808f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_16X16[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_16X16[19] = {
   2093468.000000f, 83615312.000000f, 477.303131f, 2092.171631f,   2076.818359f,
   197777.875000f,  83698.171875f,    0.000001f,   109628.664062f, 34210.992188f,
   108900.187500f,  34242.921875f,    0.000001f,   112716.335938f, 34991.640625f,
   114420.218750f,  35036.703125f,    0.349343f,   0.317577f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_128X64[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_128X64[19] = {
   6412460.500000f, 1436180352.000000f, 1557.200317f,    0.000000f,
   305.196472f,     2437044.750000f,    2202399.000000f, 0.000000f,
   0.000000f,       0.000000f,          0.000000f,       0.000000f,
@@ -3036,7 +3036,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_128X64[19] = {
   892968.562500f,  0.000000f,          0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_128X64[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_128X64[19] = {
   14688581.000000f, 2658574080.000000f, 1188.658569f,    0.000001f,
   424.473602f,      4765188.500000f,    3692757.250000f, 0.000001f,
   0.000001f,        0.000001f,          0.000001f,       0.000001f,
@@ -3044,7 +3044,7 @@ static const float av1_erp_rect_feature_std_BLOCK_128X64[19] = {
   1617738.125000f,  0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_feature_mean_BLOCK_128X128[19] = {
+static const float av2_erp_rect_feature_mean_BLOCK_128X128[19] = {
   8407243.000000f, 2892392704.000000f, 1526.761963f,    986.988831f,
   2342.789307f,    4918087.500000f,    4532409.500000f, 1.000000f,
   2109114.250000f, 1912372.625000f,    2062958.750000f, 1871394.875000f,
@@ -3052,7 +3052,7 @@ static const float av1_erp_rect_feature_mean_BLOCK_128X128[19] = {
   1923951.000000f, 0.000000f,          0.000000f,
 };
 
-static const float av1_erp_rect_feature_std_BLOCK_128X128[19] = {
+static const float av2_erp_rect_feature_std_BLOCK_128X128[19] = {
   17023632.000000f, 5187468288.000000f, 1453.344849f,    1380.609863f,
   1055.872559f,     9505063.000000f,    7796695.500000f, 0.000001f,
   4437140.000000f,  3458259.000000f,    4275808.000000f, 3349311.000000f,
@@ -3065,7 +3065,7 @@ static const float av1_erp_rect_feature_std_BLOCK_128X128[19] = {
 #define NUM_LAYER_0_UNITS_BLOCK_8X16 32
 #define NUM_LOGITS_BLOCK_8X16 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X16[] = {
   7.109873f,      -18.803759f,     0.1473336f,      0.37224066f,
   -0.118402615f,  -0.036692027f,   0.36815274f,     0.26700476f,
   0.03724061f,    -0.15124436f,    0.0480357f,      -0.20968142f,
@@ -3220,7 +3220,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X16[] = {
   0.064250164f,   -1.2225186f,     0.005144179f,    -0.59046984f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X16[] = {
   -3.793081f,  -5.303172f,   1.8174139f,  -2.586635f,  -0.6051849f, 1.0788016f,
   -3.591107f,  -6.4780483f,  -6.028365f,  0.13365501f, 0.3454014f,  -5.084648f,
   0.21685639f, -5.5823774f,  -3.3881886f, -10.236981f, 1.1628735f,  -2.9131846f,
@@ -3229,7 +3229,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X16[] = {
   -5.1935525f, -3.779763f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_8X16[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_8X16[] = {
   0.25617248f,  0.26885536f,   0.19576679f,  0.0037711114f, 0.27647027f,
   0.2548759f,   0.06019306f,   1.0060862f,   -1.8258274f,   0.10959584f,
   0.097531356f, 1.8134094f,    0.2621822f,   -0.86024f,     -0.17294642f,
@@ -3252,11 +3252,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_8X16[] = {
   0.07084352f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_8X16[] = { 0.37294486f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_8X16[] = { 0.37294486f,
                                                                 0.08563346f,
                                                                 -1.132724f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X16 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_8X16 = {
   NUM_FEATURES_BLOCK_8X16,
   NUM_LOGITS_BLOCK_8X16,
   NUM_HIDDEN_LAYERS_BLOCK_8X16,
@@ -3264,12 +3264,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X16 = {
       NUM_LAYER_0_UNITS_BLOCK_8X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X16,
-      av1_erp_rect_hd_logits_kernel_BLOCK_8X16,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X16,
+      av2_erp_rect_hd_logits_kernel_BLOCK_8X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X16,
-      av1_erp_rect_hd_logits_bias_BLOCK_8X16,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X16,
+      av2_erp_rect_hd_logits_bias_BLOCK_8X16,
   },
 };
 
@@ -3283,7 +3283,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X16 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X64 32
 #define NUM_LOGITS_BLOCK_32X64 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X64[] = {
   0.2840852f,     -1.0062685f,    0.0282111f,     0.021485081f,
   0.07821361f,    0.09275732f,    7.8158283f,     -0.094882876f,
   0.040746752f,   -1.6043441f,    -0.03452326f,   -1.9655933f,
@@ -3438,7 +3438,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X64[] = {
   -0.0063703205f, 3.61331f,       0.111231476f,   -3.1989212f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X64[] = {
   0.33742866f, -2.3881557f,  -0.8923366f,  -3.1189883f,  -0.40712056f,
   -3.871358f,  -3.5530376f,  -5.739927f,   -3.3265367f,  1.7755668f,
   -3.7226744f, -2.6970243f,  1.1397059f,   -2.0238361f,  0.8997622f,
@@ -3448,7 +3448,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X64[] = {
   -2.233239f,  -0.95886f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X64[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_32X64[] = {
   2.0921206f,    0.94672614f,  0.34854975f,  -3.0393019f,   0.4373706f,
   1.2349025f,    10.210284f,   3.3690796f,   -3.6542766f,   0.24022526f,
   -4.9123354f,   -1.0620259f,  0.09110335f,  14.193454f,    -0.020450288f,
@@ -3471,11 +3471,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X64[] = {
   1.6746938f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_32X64[] = { 0.6436068f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_32X64[] = { 0.6436068f,
                                                                  -0.1321701f,
                                                                  -0.22594173f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X64 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_32X64 = {
   NUM_FEATURES_BLOCK_32X64,
   NUM_LOGITS_BLOCK_32X64,
   NUM_HIDDEN_LAYERS_BLOCK_32X64,
@@ -3483,12 +3483,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X64 = {
       NUM_LAYER_0_UNITS_BLOCK_32X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X64,
-      av1_erp_rect_hd_logits_kernel_BLOCK_32X64,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X64,
+      av2_erp_rect_hd_logits_kernel_BLOCK_32X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X64,
-      av1_erp_rect_hd_logits_bias_BLOCK_32X64,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X64,
+      av2_erp_rect_hd_logits_bias_BLOCK_32X64,
   },
 };
 
@@ -3502,7 +3502,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X128 32
 #define NUM_LOGITS_BLOCK_64X128 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X128[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X128[] = {
   -0.4112762f,     1.0503306f,     -0.01377343f,   -0.012071958f,
   0.13118616f,     -1.1303042f,    -3.863837f,     0.3365551f,
   -0.09542781f,    -0.47260243f,   -0.29739082f,   -0.7853819f,
@@ -3657,7 +3657,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X128[] = {
   -0.043746382f,   0.014268935f,   -0.264431f,     -0.12500793f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X128[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X128[] = {
   -2.2961273f, 0.81760234f,   -2.1311975f,  -2.2582028f, -1.3498921f,
   -0.2624327f, -2.345592f,    -0.47014493f, -1.4816942f, -1.0412747f,
   -1.5970314f, -1.697414f,    -0.6749481f,  -2.2055144f, 2.2754083f,
@@ -3667,7 +3667,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X128[] = {
   -2.3749783f, -1.9585183f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X128[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_64X128[] = {
   18.824389f,  0.69454443f, 4.8147717f,   -14.890927f,   -0.6333357f,
   0.40933582f, 5.10511f,    0.08412763f,  -0.33561808f,  1.0734102f,
   3.327954f,   -1.2401302f, 10.769021f,   -6.9769416f,   0.114691414f,
@@ -3690,11 +3690,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X128[] = {
   -0.32062522f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_64X128[] = { 0.5525181f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_64X128[] = { 0.5525181f,
                                                                   0.012060692f,
                                                                   -14.691561f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X128 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_64X128 = {
   NUM_FEATURES_BLOCK_64X128,
   NUM_LOGITS_BLOCK_64X128,
   NUM_HIDDEN_LAYERS_BLOCK_64X128,
@@ -3702,12 +3702,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X128 = {
       NUM_LAYER_0_UNITS_BLOCK_64X128,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X128,
-      av1_erp_rect_hd_logits_kernel_BLOCK_64X128,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X128,
+      av2_erp_rect_hd_logits_kernel_BLOCK_64X128,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X128,
-      av1_erp_rect_hd_logits_bias_BLOCK_64X128,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X128,
+      av2_erp_rect_hd_logits_bias_BLOCK_64X128,
   },
 };
 
@@ -3721,7 +3721,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X128 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X32 32
 #define NUM_LOGITS_BLOCK_32X32 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X32[] = {
   -3.6669192f,    2.822906f,      -0.011154503f,  0.02417565f,
   -0.019238666f,  -2.2033508f,    -0.7395399f,    -0.31270808f,
   -0.3039435f,    0.11300044f,    -4.7368183f,    -8.622129f,
@@ -3876,7 +3876,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X32[] = {
   -0.02476587f,   0.26224387f,    0.92588854f,    0.41220576f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X32[] = {
   -5.718346f,   -6.382516f,   1.2887386f,  -2.063828f,  -4.9210935f,
   -5.1151485f,  2.384746f,    -3.9828732f, -4.9784718f, -3.4224327f,
   0.038006928f, -4.860508f,   -1.7607147f, -4.944092f,  -2.0129256f,
@@ -3886,7 +3886,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X32[] = {
   0.15297756f,  -4.4412665f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X32[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_32X32[] = {
   -7.9427514f,  3.272937f,     -0.4820323f,   -0.39134473f, 12.805613f,
   -0.5027425f,  0.7243495f,    -0.48570704f,  1.0189083f,   0.6926876f,
   0.05039567f,  3.3171525f,    -0.08321164f,  -2.1789103f,  0.5777711f,
@@ -3909,11 +3909,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X32[] = {
   -0.4935125f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_32X32[] = { 1.322314f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_32X32[] = { 1.322314f,
                                                                  -0.80864245f,
                                                                  -0.83242166f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X32 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_32X32 = {
   NUM_FEATURES_BLOCK_32X32,
   NUM_LOGITS_BLOCK_32X32,
   NUM_HIDDEN_LAYERS_BLOCK_32X32,
@@ -3921,12 +3921,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X32 = {
       NUM_LAYER_0_UNITS_BLOCK_32X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X32,
-      av1_erp_rect_hd_logits_kernel_BLOCK_32X32,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X32,
+      av2_erp_rect_hd_logits_kernel_BLOCK_32X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X32,
-      av1_erp_rect_hd_logits_bias_BLOCK_32X32,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X32,
+      av2_erp_rect_hd_logits_bias_BLOCK_32X32,
   },
 };
 
@@ -3940,7 +3940,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X8 32
 #define NUM_LOGITS_BLOCK_16X8 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X8[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X8[] = {
   -7.5803347f,    2.7419562f,     -0.7598087f,     -0.8393649f,
   -0.5395929f,    0.04336363f,    0.21179679f,     -0.30840537f,
   0.026646035f,   -0.03389277f,   0.044111554f,    -0.07780469f,
@@ -4095,7 +4095,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X8[] = {
   -1.5620127f,    -2.3727968f,    0.97558117f,     0.14155376f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X8[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X8[] = {
   0.79387236f, -2.1538146f, 1.5672103f,   -1.1319805f, -3.5286803f, -3.165983f,
   0.12643273f, 2.5180764f,  -2.6238031f,  2.0105517f,  -3.6841977f, -3.0501096f,
   -2.1584253f, 2.2661192f,  0.44140738f,  -3.5160432f, 1.3128946f,  -1.193259f,
@@ -4104,7 +4104,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X8[] = {
   -5.468603f,  -4.2527604f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X8[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_16X8[] = {
   -0.10294388f,  0.46485165f,   0.38336244f,  -0.054070268f, -4.092494f,
   -3.0385745f,   -0.1450822f,   0.38247532f,  -0.090637036f, -0.42477205f,
   1.6659437f,    -0.3116036f,   -0.2748883f,  0.22222988f,   -0.14179455f,
@@ -4127,11 +4127,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X8[] = {
   -0.21068217f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_16X8[] = { -0.06237466f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_16X8[] = { -0.06237466f,
                                                                 -0.18187553f,
                                                                 0.5995163f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X8 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_16X8 = {
   NUM_FEATURES_BLOCK_16X8,
   NUM_LOGITS_BLOCK_16X8,
   NUM_HIDDEN_LAYERS_BLOCK_16X8,
@@ -4139,12 +4139,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X8 = {
       NUM_LAYER_0_UNITS_BLOCK_16X8,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X8,
-      av1_erp_rect_hd_logits_kernel_BLOCK_16X8,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X8,
+      av2_erp_rect_hd_logits_kernel_BLOCK_16X8,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X8,
-      av1_erp_rect_hd_logits_bias_BLOCK_16X8,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X8,
+      av2_erp_rect_hd_logits_bias_BLOCK_16X8,
   },
 };
 
@@ -4158,7 +4158,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X8 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X16 32
 #define NUM_LOGITS_BLOCK_16X16 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X16[] = {
   -1.0199822f,    1.714869f,      -0.043622814f,   -0.05216572f,
   -0.108139776f,  -0.06425594f,   -0.0016828274f,  -0.031501025f,
   -0.08350469f,   0.993279f,      -0.030250018f,   0.9863282f,
@@ -4313,7 +4313,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X16[] = {
   -0.07598382f,   -0.012952996f,  -1.7615626f,     -0.9665868f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X16[] = {
   -1.4366766f,  -1.0918885f,  -1.9413466f, 0.6740232f,   2.191983f,
   -0.75653017f, -1.4822361f,  -0.0627938f, -2.3019872f,  0.18756238f,
   -1.6734922f,  -0.65616673f, 0.7868822f,  -0.35155356f, -2.0297956f,
@@ -4323,7 +4323,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X16[] = {
   -1.4563012f,  1.0594084f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X16[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_16X16[] = {
   -1.3124f,     -1.4637983f,  -12.346197f,  -0.60039675f,  0.2607423f,
   0.6073671f,   2.4694731f,   -0.1445859f,  -7.8431826f,   -0.48785642f,
   1.4066893f,   1.0895706f,   0.50194293f,  -0.45465073f,  11.105596f,
@@ -4346,11 +4346,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X16[] = {
   -0.113027014f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_16X16[] = { 0.11771999f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_16X16[] = { 0.11771999f,
                                                                  0.26387632f,
                                                                  -0.5883526f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X16 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_16X16 = {
   NUM_FEATURES_BLOCK_16X16,
   NUM_LOGITS_BLOCK_16X16,
   NUM_HIDDEN_LAYERS_BLOCK_16X16,
@@ -4358,12 +4358,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X16 = {
       NUM_LAYER_0_UNITS_BLOCK_16X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X16,
-      av1_erp_rect_hd_logits_kernel_BLOCK_16X16,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X16,
+      av2_erp_rect_hd_logits_kernel_BLOCK_16X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X16,
-      av1_erp_rect_hd_logits_bias_BLOCK_16X16,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X16,
+      av2_erp_rect_hd_logits_bias_BLOCK_16X16,
   },
 };
 
@@ -4377,7 +4377,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X16 = {
 #define NUM_LAYER_0_UNITS_BLOCK_128X64 32
 #define NUM_LOGITS_BLOCK_128X64 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X64[] = {
   -0.90350825f,   -18.214277f,    -0.06684209f,   -0.33732954f,
   0.013364164f,   -0.9863208f,    5.687813f,      -0.039844006f,
   0.15588042f,    -0.021434873f,  0.33136126f,    0.29061618f,
@@ -4532,7 +4532,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X64[] = {
   -3.1112728f,    1.4965204f,     0.0751923f,     -0.17891018f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X64[] = {
   -6.979455f,   -0.21520513f, -1.3894747f, -2.555812f,  -1.268089f,
   -1.0327477f,  3.529332f,    -2.896674f,  -2.8947065f, -2.5692477f,
   -0.86798406f, 3.1713607f,   -2.6913092f, -2.9476492f, -4.586468f,
@@ -4542,7 +4542,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X64[] = {
   0.43016213f,  -3.2402225f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_128X64[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_128X64[] = {
   -0.9188518f,  1.5442879f,    0.9157711f,   -0.87386143f, 6.770991f,
   -0.21578f,    2.009379f,     1.2099907f,   1.6521305f,   -1.5167396f,
   0.7200558f,   1.0107529f,    7.85264f,     1.8911476f,   -1.4656684f,
@@ -4565,11 +4565,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_128X64[] = {
   -0.24204096f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_128X64[] = { -1.2905391f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_128X64[] = { -1.2905391f,
                                                                   -3.6790998f,
                                                                   1.9162928f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X64 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_128X64 = {
   NUM_FEATURES_BLOCK_128X64,
   NUM_LOGITS_BLOCK_128X64,
   NUM_HIDDEN_LAYERS_BLOCK_128X64,
@@ -4577,12 +4577,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X64 = {
       NUM_LAYER_0_UNITS_BLOCK_128X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X64,
-      av1_erp_rect_hd_logits_kernel_BLOCK_128X64,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X64,
+      av2_erp_rect_hd_logits_kernel_BLOCK_128X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X64,
-      av1_erp_rect_hd_logits_bias_BLOCK_128X64,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X64,
+      av2_erp_rect_hd_logits_bias_BLOCK_128X64,
   },
 };
 
@@ -4596,7 +4596,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X64 32
 #define NUM_LOGITS_BLOCK_64X64 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X64[] = {
   0.262972f,       -7.0781674f,     0.21099131f,     -0.0081922375f,
   -0.07641298f,    -0.0147499405f,  0.37743613f,     0.220117f,
   0.009175514f,    -0.11198116f,    0.009667599f,    0.08920658f,
@@ -4751,7 +4751,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X64[] = {
   0.010995648f,    -0.8851225f,     -0.1294655f,     -0.30933625f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X64[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X64[] = {
   -2.0223167f,  -1.5613328f,  -2.2547631f, -3.439947f,  1.8095862f,
   -2.7904928f,  -2.7293663f,  -2.4409063f, -2.669317f,  -0.18725194f,
   0.89104843f,  -4.5184684f,  1.8311824f,  -1.3763806f, -2.123659f,
@@ -4761,7 +4761,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X64[] = {
   0.107507706f, 0.31449276f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X64[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_64X64[] = {
   2.422015f,    0.67401135f,   1.4408162f,   -3.0162227f,   0.4910917f,
   -8.080223f,   -18.526058f,   -2.9158368f,  -2.4121406f,   0.5372781f,
   1.7382891f,   15.287f,       -0.22682652f, -0.18752144f,  -0.878028f,
@@ -4784,11 +4784,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X64[] = {
   -0.06579173f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_64X64[] = { 0.042237755f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_64X64[] = { 0.042237755f,
                                                                  0.6387714f,
                                                                  -0.5557626f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X64 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_64X64 = {
   NUM_FEATURES_BLOCK_64X64,
   NUM_LOGITS_BLOCK_64X64,
   NUM_HIDDEN_LAYERS_BLOCK_64X64,
@@ -4796,12 +4796,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X64 = {
       NUM_LAYER_0_UNITS_BLOCK_64X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X64,
-      av1_erp_rect_hd_logits_kernel_BLOCK_64X64,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X64,
+      av2_erp_rect_hd_logits_kernel_BLOCK_64X64,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X64,
-      av1_erp_rect_hd_logits_bias_BLOCK_64X64,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X64,
+      av2_erp_rect_hd_logits_bias_BLOCK_64X64,
   },
 };
 
@@ -4815,7 +4815,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X64 = {
 #define NUM_LAYER_0_UNITS_BLOCK_8X8 32
 #define NUM_LOGITS_BLOCK_8X8 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X8[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X8[] = {
   -5.1280804f,     4.0494814f,      -0.2908364f,     0.18792558f,
   0.41210946f,     -0.13088912f,    0.11305711f,     -0.07697186f,
   -0.26772174f,    0.057612814f,    -0.046286773f,   -0.030332744f,
@@ -4970,7 +4970,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X8[] = {
   -0.001265653f,   0.0043232976f,   -15.089903f,     2.8238163f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X8[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X8[] = {
   -12.449976f, -0.0064960564f, -2.791135f,   0.53983974f, -4.835037f,
   -10.636076f, -8.653005f,     -4.5506234f,  -1.6662042f, -1.458989f,
   -2.4207113f, -2.8213966f,    -7.1839724f,  -27.879007f, -0.14397956f,
@@ -4980,7 +4980,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X8[] = {
   -4.4816427f, -5.3652673f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_8X8[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_8X8[] = {
   -0.27705276f,  -0.04363136f,  0.118334666f,  0.25651377f,  -0.15076369f,
   0.45505902f,   -0.022353217f, -0.073633306f, 0.49949604f,  0.28251842f,
   0.080731414f,  0.064826965f,  1.3536496f,    -0.1186999f,  0.49743935f,
@@ -5003,11 +5003,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_8X8[] = {
   -2.5108478f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_8X8[] = { 0.9409475f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_8X8[] = { 0.9409475f,
                                                                -1.260334f,
                                                                0.06579771f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X8 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_8X8 = {
   NUM_FEATURES_BLOCK_8X8,
   NUM_LOGITS_BLOCK_8X8,
   NUM_HIDDEN_LAYERS_BLOCK_8X8,
@@ -5015,12 +5015,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X8 = {
       NUM_LAYER_0_UNITS_BLOCK_8X8,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X8,
-      av1_erp_rect_hd_logits_kernel_BLOCK_8X8,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_8X8,
+      av2_erp_rect_hd_logits_kernel_BLOCK_8X8,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X8,
-      av1_erp_rect_hd_logits_bias_BLOCK_8X8,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_8X8,
+      av2_erp_rect_hd_logits_bias_BLOCK_8X8,
   },
 };
 
@@ -5034,7 +5034,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_8X8 = {
 #define NUM_LAYER_0_UNITS_BLOCK_128X128 32
 #define NUM_LOGITS_BLOCK_128X128 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X128[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X128[] = {
   -2.1510057f,    3.8354194f,     -0.6543048f,     0.23444562f,
   -0.121217415f,  -0.040412124f,  1.4082946f,      -0.14282948f,
   0.019724602f,   -0.79261047f,   0.0058296607f,   -0.8372268f,
@@ -5189,7 +5189,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X128[] = {
   -0.33895937f,   0.16936858f,    -0.28304195f,    -0.26137424f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X128[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X128[] = {
   -0.48162925f, -0.7087901f,  -0.28573847f, -2.5790248f,   -2.7671785f,
   -1.3232864f,  0.2683793f,   -3.353067f,   2.5273664f,    -4.034781f,
   0.7983332f,   -4.113541f,   -2.6407902f,  -3.2678103f,   -1.0497166f,
@@ -5199,7 +5199,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X128[] = {
   -3.350582f,   -2.8450754f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_128X128[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_128X128[] = {
   0.7974978f,     0.10950421f,   -0.09969201f,   3.80674f,     -3.145238f,
   -0.15866332f,   -0.86596847f,  -1.8870718f,    -0.2996309f,  -2.014636f,
   1.0938464f,     0.0645045f,    -0.73093677f,   5.12881f,     5.9158573f,
@@ -5222,11 +5222,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_128X128[] = {
   0.711699f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_128X128[] = {
+static const float av2_erp_rect_hd_logits_bias_BLOCK_128X128[] = {
   0.82321763f, -0.29034528f, -0.70131093f
 };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X128 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_128X128 = {
   NUM_FEATURES_BLOCK_128X128,
   NUM_LOGITS_BLOCK_128X128,
   NUM_HIDDEN_LAYERS_BLOCK_128X128,
@@ -5234,12 +5234,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X128 = {
       NUM_LAYER_0_UNITS_BLOCK_128X128,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X128,
-      av1_erp_rect_hd_logits_kernel_BLOCK_128X128,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_128X128,
+      av2_erp_rect_hd_logits_kernel_BLOCK_128X128,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X128,
-      av1_erp_rect_hd_logits_bias_BLOCK_128X128,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_128X128,
+      av2_erp_rect_hd_logits_bias_BLOCK_128X128,
   },
 };
 
@@ -5253,7 +5253,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_128X128 = {
 #define NUM_LAYER_0_UNITS_BLOCK_16X32 32
 #define NUM_LOGITS_BLOCK_16X32 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X32[] = {
   0.7695674f,      -1.3003567f,     -1.5791082f,     0.18538372f,
   -2.1651304f,     -0.0064237094f,  0.14630456f,     -0.030549973f,
   -0.05293474f,    0.16932978f,     -0.10871035f,    0.09110603f,
@@ -5408,7 +5408,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X32[] = {
   0.02556684f,     -0.01827249f,    0.23629126f,     -0.05528103f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X32[] = {
   0.33735627f, -1.6302937f, -2.1496737f, -1.1702008f, -0.32441947f,
   1.1357404f,  1.7618095f,  -1.8105243f, 0.19274983f, -0.8858322f,
   1.877874f,   0.38282868f, 1.5694283f,  2.0302577f,  0.21624424f,
@@ -5418,7 +5418,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X32[] = {
   -2.7649136f, -1.096915f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X32[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_16X32[] = {
   0.37078083f,   3.7434354f,   19.681849f,   -0.4220538f,  -0.9773952f,
   0.18960977f,   2.5861874f,   7.4350333f,   0.38602775f,  -0.95709556f,
   2.141869f,     1.9836713f,   -2.4069507f,  0.6352646f,   -1.7539018f,
@@ -5441,11 +5441,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_16X32[] = {
   -0.49027884f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_16X32[] = { 0.19492836f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_16X32[] = { 0.19492836f,
                                                                  0.5689643f,
                                                                  -0.87680227f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X32 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_16X32 = {
   NUM_FEATURES_BLOCK_16X32,
   NUM_LOGITS_BLOCK_16X32,
   NUM_HIDDEN_LAYERS_BLOCK_16X32,
@@ -5453,12 +5453,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X32 = {
       NUM_LAYER_0_UNITS_BLOCK_16X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X32,
-      av1_erp_rect_hd_logits_kernel_BLOCK_16X32,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_16X32,
+      av2_erp_rect_hd_logits_kernel_BLOCK_16X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X32,
-      av1_erp_rect_hd_logits_bias_BLOCK_16X32,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_16X32,
+      av2_erp_rect_hd_logits_bias_BLOCK_16X32,
   },
 };
 
@@ -5472,7 +5472,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_16X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_64X32 32
 #define NUM_LOGITS_BLOCK_64X32 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X32[] = {
   -0.2407935f,     0.6257368f,     -0.092500225f,  0.010059449f,
   0.015942441f,    -0.011257638f,  -5.453125f,     -0.29597282f,
   0.017045364f,    -1.124967f,     0.004716781f,   -1.4223493f,
@@ -5627,7 +5627,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X32[] = {
   0.0022959684f,   -1.3701012f,    -0.09708837f,   0.22748289f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X32[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X32[] = {
   -2.974949f,  -2.2453427f,  -1.624042f,   -0.102730416f, -2.7676477f,
   1.4494787f,  -2.3287637f,  -1.5866127f,  -0.16958037f,  0.3500948f,
   -1.9675946f, 0.59418833f,  -3.2136812f,  -0.6730879f,   -2.1719568f,
@@ -5637,7 +5637,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X32[] = {
   -2.0558934f, -3.7545218f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X32[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_64X32[] = {
   2.1968122f,   17.325129f,   1.0813172f,    -0.13485146f, -9.049461f,
   0.4056555f,   0.17317785f,  -0.41306624f,  -0.7715028f,  -0.18104129f,
   -1.0774354f,  0.39571702f,  4.328112f,     4.4792504f,   -5.1541705f,
@@ -5660,11 +5660,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_64X32[] = {
   -7.1039934f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_64X32[] = { 0.1706894f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_64X32[] = { 0.1706894f,
                                                                  -0.6726655f,
                                                                  0.5099136f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X32 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_64X32 = {
   NUM_FEATURES_BLOCK_64X32,
   NUM_LOGITS_BLOCK_64X32,
   NUM_HIDDEN_LAYERS_BLOCK_64X32,
@@ -5672,12 +5672,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X32 = {
       NUM_LAYER_0_UNITS_BLOCK_64X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X32,
-      av1_erp_rect_hd_logits_kernel_BLOCK_64X32,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_64X32,
+      av2_erp_rect_hd_logits_kernel_BLOCK_64X32,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X32,
-      av1_erp_rect_hd_logits_bias_BLOCK_64X32,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_64X32,
+      av2_erp_rect_hd_logits_bias_BLOCK_64X32,
   },
 };
 
@@ -5691,7 +5691,7 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_64X32 = {
 #define NUM_LAYER_0_UNITS_BLOCK_32X16 32
 #define NUM_LOGITS_BLOCK_32X16 3
 
-static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X16[] = {
   -22.727846f,     0.34472448f,    0.100317575f,    -0.3250603f,
   0.26101074f,     -0.016714703f,  0.046212807f,    -0.04986486f,
   0.042245187f,    -0.06897354f,   0.06396188f,     -0.063456945f,
@@ -5846,7 +5846,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X16[] = {
   -0.05833593f,    2.0129626f,     -0.020752793f,   -0.117204115f
 };
 
-static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X16[] = {
+static const float av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X16[] = {
   -1.9007827f,  -5.611744f,  -4.457628f,  0.7139921f,  -7.0224175f, -0.3162151f,
   -3.6435616f,  -8.477408f,  0.08978692f, -3.976345f,  -4.373455f,  -4.229909f,
   -3.0909548f,  0.5425897f,  -4.9051747f, 2.0244021f,  -6.490607f,  -9.780716f,
@@ -5855,7 +5855,7 @@ static const float av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X16[] = {
   0.581944f,    -4.225051f
 };
 
-static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X16[] = {
+static const float av2_erp_rect_hd_logits_kernel_BLOCK_32X16[] = {
   -0.5527344f,   2.149121f,     8.968634f,     0.03771411f,  1.4151602f,
   0.3447223f,    3.2050328f,    3.603773f,     0.52910674f,  -1.754152f,
   0.43191642f,   -0.54112047f,  9.494254f,     -0.18121067f, -8.251565f,
@@ -5878,11 +5878,11 @@ static const float av1_erp_rect_hd_logits_kernel_BLOCK_32X16[] = {
   2.9528437f
 };
 
-static const float av1_erp_rect_hd_logits_bias_BLOCK_32X16[] = { 0.61161643f,
+static const float av2_erp_rect_hd_logits_bias_BLOCK_32X16[] = { 0.61161643f,
                                                                  -0.6660581f,
                                                                  0.17090596f };
 
-static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X16 = {
+static const NN_CONFIG av2_erp_rect_hd_nn_config_BLOCK_32X16 = {
   NUM_FEATURES_BLOCK_32X16,
   NUM_LOGITS_BLOCK_32X16,
   NUM_HIDDEN_LAYERS_BLOCK_32X16,
@@ -5890,12 +5890,12 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X16 = {
       NUM_LAYER_0_UNITS_BLOCK_32X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X16,
-      av1_erp_rect_hd_logits_kernel_BLOCK_32X16,
+      av2_erp_rect_hd_dnn_layer_0_kernel_BLOCK_32X16,
+      av2_erp_rect_hd_logits_kernel_BLOCK_32X16,
   },
   {
-      av1_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X16,
-      av1_erp_rect_hd_logits_bias_BLOCK_32X16,
+      av2_erp_rect_hd_dnn_layer_0_bias_BLOCK_32X16,
+      av2_erp_rect_hd_logits_bias_BLOCK_32X16,
   },
 };
 
@@ -5904,35 +5904,35 @@ static const NN_CONFIG av1_erp_rect_hd_nn_config_BLOCK_32X16 = {
 #undef NUM_LAYER_0_UNITS_BLOCK_32X16
 #undef NUM_LOGITS_BLOCK_32X16
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_8X8[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_8X8[19] = {
   67459.164062f, 6334382.500000f, 353.629700f, 2570.381104f, 2425.343018f,
   19600.992188f, 13370.924805f,   1.000000f,   8099.449707f, 4197.815430f,
   8073.448730f,  4195.677734f,    1.000000f,   8043.506348f, 4251.757812f,
   8085.604492f,  4256.640625f,    0.141414f,   0.148699f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_8X8[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_8X8[19] = {
   142673.203125f, 9957366.000000f, 285.661987f, 2366.545654f,  2019.091919f,
   59950.203125f,  18425.935547f,   0.000001f,   36150.085938f, 6399.508301f,
   35944.261719f,  6410.389648f,    0.000001f,   35632.843750f, 6507.467773f,
   36040.777344f,  6515.827637f,    0.348448f,   0.355792f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_8X16[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_8X16[19] = {
   192896.640625f, 14003184.000000f, 355.490692f, 1075.844360f,  3616.423096f,
   32096.775391f,  20139.529297f,    1.000000f,   15032.655273f, 6857.037109f,
   15069.629883f,  6863.117676f,     1.000000f,   14900.359375f, 7569.655762f,
   15038.057617f,  7616.273438f,     0.000000f,   0.189955f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_8X16[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_8X16[19] = {
   752257.000000f, 33487278.000000f, 326.826080f, 565.948853f,   1744.918701f,
   120502.921875f, 37313.214844f,    0.000001f,   74964.125000f, 13872.367188f,
   74948.820312f,  13876.427734f,    0.000001f,   69153.734375f, 14859.929688f,
   70105.921875f,  14898.849609f,    0.000001f,   0.392265f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_64X64[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_64X64[19] = {
   4426888.000000f, 465186720.000000f, 1218.573120f,   570.548035f,
   1463.726929f,    765686.250000f,    590417.812500f, 1.000000f,
   338702.843750f,  243857.109375f,    334098.687500f, 240792.671875f,
@@ -5940,7 +5940,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_64X64[19] = {
   241727.375000f,  0.000000f,         0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_64X64[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_64X64[19] = {
   11755530.000000f, 1091214592.000000f, 720.373535f,     374.385101f,
   542.980042f,      2391736.750000f,    1365091.875000f, 0.000001f,
   1237464.875000f,  595891.000000f,     1202313.125000f, 588839.125000f,
@@ -5948,7 +5948,7 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_64X64[19] = {
   590752.312500f,   0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_64X32[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_64X32[19] = {
   2575701.750000f, 241170400.000000f, 1024.134766f,   2703.715576f,
   559.294006f,     404596.656250f,    300928.468750f, 1.000000f,
   181543.234375f,  125616.132812f,    180285.859375f, 125439.726562f,
@@ -5956,7 +5956,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_64X32[19] = {
   118171.140625f,  0.069682f,         0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_64X32[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_64X32[19] = {
   8225951.000000f, 591738752.000000f, 751.694946f,    1277.701660f,
   428.387634f,     1289712.375000f,   672505.125000f, 0.000001f,
   671417.500000f,  293800.718750f,    657860.250000f, 293994.593750f,
@@ -5964,7 +5964,7 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_64X32[19] = {
   286266.718750f,  0.254611f,         0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_64X128[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_64X128[19] = {
   5745288.500000f, 903374080.000000f, 671.874329f,     551.200256f,
   0.000000f,       1490289.750000f,   1177944.875000f, 1.000000f,
   648885.187500f,  482723.187500f,    640484.375000f,  472361.437500f,
@@ -5972,7 +5972,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_64X128[19] = {
   0.000000f,       0.000000f,         0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_64X128[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_64X128[19] = {
   13546727.000000f, 2084928128.000000f, 502.434906f,     394.280518f,
   0.000001f,        4600446.000000f,    2741928.000000f, 0.000001f,
   2339704.000000f,  1207199.875000f,    2299998.750000f, 1168915.250000f,
@@ -5980,7 +5980,7 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_64X128[19] = {
   0.000001f,        0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_32X64[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_32X64[19] = {
   2672886.000000f, 238097248.000000f, 720.027771f,    753.265747f,
   3128.671387f,    365605.593750f,    267050.312500f, 1.000000f,
   166511.953125f,  108269.250000f,    165624.531250f, 107056.421875f,
@@ -5988,7 +5988,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_32X64[19] = {
   115072.265625f,  0.000000f,         0.218744f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_32X64[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_32X64[19] = {
   8470166.000000f, 600113664.000000f, 485.457275f,    393.467346f,
   1942.123047f,    1278501.625000f,   620668.750000f, 0.000001f,
   707957.062500f,  271352.125000f,    701490.625000f, 268034.000000f,
@@ -5996,14 +5996,14 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_32X64[19] = {
   276721.656250f,  0.000001f,         0.413394f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_32X32[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_32X32[19] = {
   1445279.000000f, 116000008.000000f, 861.978638f, 1411.550659f,  1878.681641f,
   203670.625000f,  143792.390625f,    1.000000f,   92875.476562f, 58052.128906f,
   93336.671875f,   58420.453125f,     1.000000f,   92804.507812f, 57936.164062f,
   93603.296875f,   58331.902344f,     0.110419f,   0.069475f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_32X32[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_32X32[19] = {
   5709493.500000f, 301384480.000000f, 597.726746f,    1891.759277f,
   1483.301025f,    715940.000000f,    320852.156250f, 0.000001f,
   393781.875000f,  139114.609375f,    393001.875000f, 139773.828125f,
@@ -6011,14 +6011,14 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_32X32[19] = {
   139050.015625f,  0.313412f,         0.254260f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_32X16[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_32X16[19] = {
   750605.375000f, 56956792.000000f, 755.991150f, 2700.293213f,  746.075378f,
   107694.992188f, 72911.171875f,    1.000000f,   48333.628906f, 29066.517578f,
   48390.480469f,  29154.421875f,    1.000000f,   50290.488281f, 27972.064453f,
   50511.578125f,  27923.220703f,    0.133344f,   0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_32X16[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_32X16[19] = {
   3514957.250000f, 153481152.000000f, 620.607666f,    1647.238525f,
   445.542572f,     391351.937500f,    158006.125000f, 0.000001f,
   207973.750000f,  66741.789062f,     206594.140625f, 66897.203125f,
@@ -6026,28 +6026,28 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_32X16[19] = {
   66509.062500f,   0.339946f,         0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_16X8[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_16X8[19] = {
   195769.890625f, 13956063.000000f, 438.575470f, 3447.463135f,  999.277893f,
   31160.105469f,  19776.455078f,    1.000000f,   14236.742188f, 7258.231934f,
   14275.636719f,  7267.975586f,     1.000000f,   15023.884766f, 6863.002441f,
   15045.238281f,  6862.235840f,     0.130598f,   0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_16X8[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_16X8[19] = {
   756371.812500f, 33147864.000000f, 476.559540f, 1562.904419f,  593.330383f,
   115509.976562f, 36545.062500f,    0.000001f,   66383.578125f, 14149.663086f,
   66398.820312f,  14183.795898f,    0.000001f,   75168.601562f, 13912.338867f,
   75822.164062f,  13888.356445f,    0.336961f,   0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_16X32[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_16X32[19] = {
   712888.062500f, 55821620.000000f, 599.458252f, 851.791870f,   2967.589844f,
   104689.312500f, 70606.093750f,    1.000000f,   49181.683594f, 27313.212891f,
   49439.187500f,  27358.732422f,    1.000000f,   47634.660156f, 28506.527344f,
   48510.746094f,  29077.533203f,    0.000000f,   0.216058f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_16X32[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_16X32[19] = {
   3271412.000000f, 151693712.000000f, 443.513153f,    398.037933f,
   1993.716797f,    392477.093750f,    154757.515625f, 0.000001f,
   230960.890625f,  65833.382812f,     231796.546875f, 65934.039062f,
@@ -6055,21 +6055,21 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_16X32[19] = {
   67047.101562f,   0.000001f,         0.411554f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_16X16[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_16X16[19] = {
   377796.062500f, 27120012.000000f, 570.343201f, 1712.145264f,  2184.102783f,
   55911.609375f,  35878.593750f,    1.000000f,   25732.281250f, 13457.005859f,
   25730.550781f,  13511.619141f,    1.000000f,   26340.056641f, 13712.955078f,
   26517.078125f,  13785.513672f,    0.122497f,   0.100599f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_16X16[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_16X16[19] = {
   1842239.625000f, 73429184.000000f, 443.701111f, 1933.949951f,   1922.469482f,
   216925.015625f,  75546.687500f,    0.000001f,   123904.468750f, 30479.150391f,
   123106.132812f,  30563.472656f,    0.000001f,   127122.703125f, 31142.630859f,
   128769.570312f,  31210.464844f,    0.327859f,   0.300797f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_128X64[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_128X64[19] = {
   4702639.000000f, 959450880.000000f, 1409.872803f,    0.000000f,
   299.608459f,     1935676.625000f,   1555641.625000f, 0.000000f,
   0.000000f,       0.000000f,         0.000000f,       0.000000f,
@@ -6077,7 +6077,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_128X64[19] = {
   616310.250000f,  0.000000f,         0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_128X64[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_128X64[19] = {
   12109655.000000f, 2166840832.000000f, 1048.702759f,    0.000001f,
   365.737793f,      5146486.000000f,    3257261.000000f, 0.000001f,
   0.000001f,        0.000001f,          0.000001f,       0.000001f,
@@ -6085,7 +6085,7 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_128X64[19] = {
   1406205.250000f,  0.000001f,          0.000001f,
 };
 
-static const float av1_erp_rect_hd_feature_mean_BLOCK_128X128[19] = {
+static const float av2_erp_rect_hd_feature_mean_BLOCK_128X128[19] = {
   6102436.500000f, 1869546624.000000f, 1277.999268f,    1077.719116f,
   2288.079102f,    3756531.000000f,    3115815.750000f, 1.000000f,
   1609420.125000f, 1292478.625000f,    1579651.500000f, 1267414.375000f,
@@ -6093,7 +6093,7 @@ static const float av1_erp_rect_hd_feature_mean_BLOCK_128X128[19] = {
   1293100.625000f, 0.000000f,          0.000000f,
 };
 
-static const float av1_erp_rect_hd_feature_std_BLOCK_128X128[19] = {
+static const float av2_erp_rect_hd_feature_std_BLOCK_128X128[19] = {
   14018634.000000f, 4146773760.000000f, 1320.639160f,    1340.034668f,
   1034.354248f,     9953381.000000f,    6756465.500000f, 0.000001f,
   4748910.000000f,  2965556.750000f,    4563006.500000f, 2888269.750000f,
@@ -6101,4 +6101,4 @@ static const float av1_erp_rect_hd_feature_std_BLOCK_128X128[19] = {
   2971539.750000f,  0.000001f,          0.000001f,
 };
 
-#endif  // AOM_AV1_ENCODER_ERP_MODELS_H_
+#endif  // AVM_AV2_ENCODER_ERP_MODELS_H_

@@ -10,21 +10,21 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_MEM_INCLUDE_AOM_MEM_INTRNL_H_
-#define AOM_AOM_MEM_INCLUDE_AOM_MEM_INTRNL_H_
+#ifndef AVM_AVM_MEM_INCLUDE_AVM_MEM_INTRNL_H_
+#define AVM_AVM_MEM_INCLUDE_AVM_MEM_INTRNL_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #define ADDRESS_STORAGE_SIZE sizeof(size_t)
 
 #ifndef DEFAULT_ALIGNMENT
 #if defined(VXWORKS)
-/*default addr alignment to use in calls to aom_* functions other than
-  aom_memalign*/
+/*default addr alignment to use in calls to avm_* functions other than
+  avm_memalign*/
 #define DEFAULT_ALIGNMENT 32
 #else
 #define DEFAULT_ALIGNMENT (2 * sizeof(void *)) /* NOLINT */
 #endif
 #endif
 
-#endif  // AOM_AOM_MEM_INCLUDE_AOM_MEM_INTRNL_H_
+#endif  // AVM_AVM_MEM_INCLUDE_AVM_MEM_INTRNL_H_

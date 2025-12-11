@@ -13,15 +13,15 @@
 #include <memory.h>
 #include <math.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_dsp/flow_estimation/corner_match.h"
-#include "aom_dsp/flow_estimation/disflow.h"
-#include "aom_dsp/flow_estimation/flow_estimation.h"
-#include "aom_dsp/flow_estimation/ransac.h"
-#include "aom_dsp/pyramid.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/flow_estimation/corner_detect.h"
+#include "avm_dsp/flow_estimation/corner_match.h"
+#include "avm_dsp/flow_estimation/disflow.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
+#include "avm_dsp/flow_estimation/ransac.h"
+#include "avm_dsp/pyramid.h"
+#include "avm_scale/yv12config.h"
 
 #define THRESHOLD_NCC 0.75
 
@@ -35,11 +35,11 @@
 
    Combined with the fact that we return 1/stddev rather than the standard
    deviation itself, this allows us to completely avoid divisions in
-   aom_compute_correlation, which is much hotter than this function is.
+   avm_compute_correlation, which is much hotter than this function is.
 
    Returns true if this feature point is usable, false otherwise.
 */
-bool aom_compute_mean_stddev_c(const unsigned char *frame, int stride, int x,
+bool avm_compute_mean_stddev_c(const unsigned char *frame, int stride, int x,
                                int y, double *mean, double *one_over_stddev) {
   int sum = 0;
   int sumsq = 0;
@@ -65,7 +65,7 @@ bool aom_compute_mean_stddev_c(const unsigned char *frame, int stride, int x,
    of the window in each frame are precomputed and passed into this function
    as arguments.
 */
-double aom_compute_correlation_c(const unsigned char *frame1, int stride1,
+double avm_compute_correlation_c(const unsigned char *frame1, int stride1,
                                  int x1, int y1, double mean1,
                                  double one_over_stddev1,
                                  const unsigned char *frame2, int stride2,
@@ -85,7 +85,7 @@ double aom_compute_correlation_c(const unsigned char *frame1, int stride1,
   //   covariance = cross / N^2 - mean1 * mean2
   //   correlation = covariance / (stddev1 * stddev2).
   //
-  // However, because of the scaling in aom_compute_mean_stddev, the
+  // However, because of the scaling in avm_compute_mean_stddev, the
   // lines below actually calculate
   //   covariance * N^2 = cross - (mean1 * N) * (mean2 * N)
   //   correlation = (covariance * N^2) / ((stddev1 * N) * (stddev2 * N))
@@ -130,13 +130,13 @@ static int determine_correspondence(const unsigned char *src,
   int num_correspondences = 0;
 
   src_point_info =
-      (PointInfo *)aom_calloc(num_src_corners, sizeof(*src_point_info));
+      (PointInfo *)avm_calloc(num_src_corners, sizeof(*src_point_info));
   if (!src_point_info) {
     goto finished;
   }
 
   ref_point_info =
-      (PointInfo *)aom_calloc(num_ref_corners, sizeof(*ref_point_info));
+      (PointInfo *)avm_calloc(num_ref_corners, sizeof(*ref_point_info));
   if (!ref_point_info) {
     goto finished;
   }
@@ -154,7 +154,7 @@ static int determine_correspondence(const unsigned char *src,
     point->x = src_x;
     point->y = src_y;
     point->best_match_corr = THRESHOLD_NCC;
-    if (!aom_compute_mean_stddev(src, src_stride, src_x, src_y, &point->mean,
+    if (!avm_compute_mean_stddev(src, src_stride, src_x, src_y, &point->mean,
                                  &point->one_over_stddev))
       continue;
     src_point_count++;
@@ -173,7 +173,7 @@ static int determine_correspondence(const unsigned char *src,
     point->x = ref_x;
     point->y = ref_y;
     point->best_match_corr = THRESHOLD_NCC;
-    if (!aom_compute_mean_stddev(ref, ref_stride, ref_x, ref_y, &point->mean,
+    if (!avm_compute_mean_stddev(ref, ref_stride, ref_x, ref_y, &point->mean,
                                  &point->one_over_stddev))
       continue;
     ref_point_count++;
@@ -193,7 +193,7 @@ static int determine_correspondence(const unsigned char *src,
                                 ref_point->y, width, height))
         continue;
 
-      double corr = aom_compute_correlation(
+      double corr = avm_compute_correlation(
           src, src_stride, src_point->x, src_point->y, src_point->mean,
           src_point->one_over_stddev, ref, ref_stride, ref_point->x,
           ref_point->y, ref_point->mean, ref_point->one_over_stddev);
@@ -233,7 +233,7 @@ static int determine_correspondence(const unsigned char *src,
       const int patch_tl_x = sx - DISFLOW_PATCH_CENTER;
       const int patch_tl_y = sy - DISFLOW_PATCH_CENTER;
 
-      aom_compute_flow_at_point(src, ref, patch_tl_x, patch_tl_y, width, height,
+      avm_compute_flow_at_point(src, ref, patch_tl_x, patch_tl_y, width, height,
                                 src_stride, &u, &v);
 
       Correspondence *correspondence = &correspondences[num_correspondences];
@@ -246,12 +246,12 @@ static int determine_correspondence(const unsigned char *src,
   }
 
 finished:
-  aom_free(src_point_info);
-  aom_free(ref_point_info);
+  avm_free(src_point_info);
+  avm_free(ref_point_info);
   return num_correspondences;
 }
 
-bool av1_compute_global_motion_feature_match(
+bool av2_compute_global_motion_feature_match(
     TransformationType type, YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *ref,
     int bit_depth, int downsample_level, MotionModel *motion_models,
     int num_motion_models, bool *mem_alloc_failed) {
@@ -263,19 +263,19 @@ bool av1_compute_global_motion_feature_match(
   CornerList *ref_corners = ref->corners;
 
   // Precompute information we will need about each frame
-  if (aom_compute_pyramid(src, bit_depth, 1, src_pyramid) < 0) {
+  if (avm_compute_pyramid(src, bit_depth, 1, src_pyramid) < 0) {
     *mem_alloc_failed = true;
     return false;
   }
-  if (!av1_compute_corner_list(src, bit_depth, downsample_level, src_corners)) {
+  if (!av2_compute_corner_list(src, bit_depth, downsample_level, src_corners)) {
     *mem_alloc_failed = true;
     return false;
   }
-  if (aom_compute_pyramid(ref, bit_depth, 1, ref_pyramid) < 0) {
+  if (avm_compute_pyramid(ref, bit_depth, 1, ref_pyramid) < 0) {
     *mem_alloc_failed = true;
     return false;
   }
-  if (!av1_compute_corner_list(src, bit_depth, downsample_level, ref_corners)) {
+  if (!av2_compute_corner_list(src, bit_depth, downsample_level, ref_corners)) {
     *mem_alloc_failed = true;
     return false;
   }
@@ -291,7 +291,7 @@ bool av1_compute_global_motion_feature_match(
   const int ref_stride = ref_pyramid->layers[0].stride;
 
   // find correspondences between the two images
-  correspondences = (Correspondence *)aom_malloc(src_corners->num_corners *
+  correspondences = (Correspondence *)avm_malloc(src_corners->num_corners *
                                                  sizeof(*correspondences));
   if (!correspondences) {
     *mem_alloc_failed = true;
@@ -305,6 +305,6 @@ bool av1_compute_global_motion_feature_match(
   bool result = ransac(correspondences, num_correspondences, type,
                        motion_models, num_motion_models, mem_alloc_failed);
 
-  aom_free(correspondences);
+  avm_free(correspondences);
   return result;
 }

@@ -13,14 +13,14 @@
 #include <assert.h>
 #include <math.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/intrapred_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/bitops.h"
-#include "av1/common/warped_motion.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/intrapred_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/bitops.h"
+#include "av2/common/warped_motion.h"
 
 static INLINE void v_predictor(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                                const uint8_t *above, const uint8_t *left) {
@@ -254,7 +254,7 @@ static INLINE void highbd_h_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
   (void)above;
   (void)bd;
   for (r = 0; r < bh; r++) {
-    aom_memset16(dst, left[r], bw);
+    avm_memset16(dst, left[r], bw);
     dst += stride;
   }
 }
@@ -295,12 +295,12 @@ static INLINE void highbd_smooth_predictor(uint16_t *dst, ptrdiff_t stride,
   for (int r = 0; r < bh; r++) {
     const int s_top =
         BLEND_WEIGHT_MAX >>
-        AOMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((r << 1) >> scale));
+        AVMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((r << 1) >> scale));
     const uint16_t l = left[r];
     for (int c = 0; c < bw; c++) {
       const int s_left =
           BLEND_WEIGHT_MAX >>
-          AOMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((c << 1) >> scale));
+          AVMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((c << 1) >> scale));
       const uint16_t top = above[c];
       const int blend_max_log2 = blk_size_log2[BLEND_WEIGHT_MAX];
       uint16_t predv =
@@ -336,7 +336,7 @@ static INLINE void highbd_smooth_v_predictor(uint16_t *dst, ptrdiff_t stride,
   for (int r = 0; r < bh; ++r) {
     const int s_top =
         BLEND_WEIGHT_MAX >>
-        AOMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((r << 1) >> scale));
+        AVMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((r << 1) >> scale));
     for (int c = 0; c < bw; ++c) {
       const uint16_t top = above[c];
       const int blend_max_log2 = blk_size_log2[BLEND_WEIGHT_MAX];
@@ -367,7 +367,7 @@ static INLINE void highbd_smooth_h_predictor(uint16_t *dst, ptrdiff_t stride,
     for (int c = 0; c < bw; c++) {
       const int s_left =
           BLEND_WEIGHT_MAX >>
-          AOMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((c << 1) >> scale));
+          AVMMIN(blk_size_log2[BLEND_WEIGHT_MAX << 1], ((c << 1) >> scale));
       const int blend_max_log2 = blk_size_log2[BLEND_WEIGHT_MAX];
       uint16_t predh =
           tr + divide_round(((int16_t)left[r] - (int16_t)tr) * (bw - 1 - c),
@@ -389,7 +389,7 @@ static INLINE void highbd_dc_128_predictor(uint16_t *dst, ptrdiff_t stride,
   (void)left;
 
   for (r = 0; r < bh; r++) {
-    aom_memset16(dst, 128 << (bd - 8), bw);
+    avm_memset16(dst, 128 << (bd - 8), bw);
     dst += stride;
   }
 }
@@ -406,7 +406,7 @@ static INLINE void highbd_dc_left_predictor(uint16_t *dst, ptrdiff_t stride,
   expected_dc = (sum + (bh >> 1)) / bh;
 
   for (r = 0; r < bh; r++) {
-    aom_memset16(dst, expected_dc, bw);
+    avm_memset16(dst, expected_dc, bw);
     dst += stride;
   }
 }
@@ -423,7 +423,7 @@ static INLINE void highbd_dc_top_predictor(uint16_t *dst, ptrdiff_t stride,
   expected_dc = (sum + (bw >> 1)) / bw;
 
   for (r = 0; r < bh; r++) {
-    aom_memset16(dst, expected_dc, bw);
+    avm_memset16(dst, expected_dc, bw);
     dst += stride;
   }
 }
@@ -445,7 +445,7 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
   expected_dc = (sum + (count >> 1)) / count;
 
   for (r = 0; r < bh; r++) {
-    aom_memset16(dst, expected_dc, bw);
+    avm_memset16(dst, expected_dc, bw);
     dst += stride;
   }
 }
@@ -669,128 +669,128 @@ static INLINE void highbd_dc_predictor_rect(uint16_t *dst, ptrdiff_t stride,
       clip_pixel_highbd((sum * scale + rounding) >> shift, bd);
 
   for (int r = 0; r < bh; r++) {
-    aom_memset16(dst, expected_dc, bw);
+    avm_memset16(dst, expected_dc, bw);
     dst += stride;
   }
 }
 
 #undef HIGHBD_DC_SHIFT2
 
-void aom_highbd_dc_predictor_4x8_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_4x8_c(uint16_t *dst, ptrdiff_t stride,
                                    const uint16_t *above, const uint16_t *left,
                                    int bd) {
   highbd_dc_predictor_rect(dst, stride, 4, 8, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_8x4_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_8x4_c(uint16_t *dst, ptrdiff_t stride,
                                    const uint16_t *above, const uint16_t *left,
                                    int bd) {
   highbd_dc_predictor_rect(dst, stride, 8, 4, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_4x16_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_4x16_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 4, 16, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_16x4_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_16x4_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 16, 4, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_8x16_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_8x16_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 8, 16, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_16x8_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_16x8_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 16, 8, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_8x32_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_8x32_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 8, 32, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_32x8_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_32x8_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 32, 8, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_16x32_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_16x32_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 16, 32, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_32x16_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_32x16_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 32, 16, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_16x64_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_16x64_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 16, 64, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_64x16_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_64x16_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 64, 16, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_32x64_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_32x64_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 32, 64, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_64x32_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_64x32_c(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *above,
                                      const uint16_t *left, int bd) {
   highbd_dc_predictor_rect(dst, stride, 64, 32, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_4x32_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_4x32_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 4, 32, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_32x4_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_32x4_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 32, 4, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_8x64_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_8x64_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 8, 64, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_64x8_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_64x8_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 64, 8, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_4x64_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_4x64_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 4, 64, above, left, bd);
 }
 
-void aom_highbd_dc_predictor_64x4_c(uint16_t *dst, ptrdiff_t stride,
+void avm_highbd_dc_predictor_64x4_c(uint16_t *dst, ptrdiff_t stride,
                                     const uint16_t *above, const uint16_t *left,
                                     int bd) {
   highbd_dc_predictor_rect(dst, stride, 64, 4, above, left, bd);
@@ -800,14 +800,14 @@ void aom_highbd_dc_predictor_64x4_c(uint16_t *dst, ptrdiff_t stride,
 // can be unified and accessed as a pointer array. Note that the boundary
 // above and left are not necessarily used all the time.
 #define intra_pred_sized(type, width, height)                  \
-  void aom_##type##_predictor_##width##x##height##_c(          \
+  void avm_##type##_predictor_##width##x##height##_c(          \
       uint8_t *dst, ptrdiff_t stride, const uint8_t *above,    \
       const uint8_t *left) {                                   \
     type##_predictor(dst, stride, width, height, above, left); \
   }
 
 #define intra_pred_highbd_sized(type, width, height)                        \
-  void aom_highbd_##type##_predictor_##width##x##height##_c(                \
+  void avm_highbd_##type##_predictor_##width##x##height##_c(                \
       uint16_t *dst, ptrdiff_t stride, const uint16_t *above,               \
       const uint16_t *left, int bd) {                                       \
     highbd_##type##_predictor(dst, stride, width, height, above, left, bd); \

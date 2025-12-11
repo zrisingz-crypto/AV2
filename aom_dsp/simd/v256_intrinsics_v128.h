@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V256_INTRINSICS_V128_H_
-#define AOM_AOM_DSP_SIMD_V256_INTRINSICS_V128_H_
+#ifndef AVM_AVM_DSP_SIMD_V256_INTRINSICS_V128_H_
+#define AVM_AVM_DSP_SIMD_V256_INTRINSICS_V128_H_
 
 #if HAVE_NEON
-#include "aom_dsp/simd/v128_intrinsics_arm.h"
+#include "avm_dsp/simd/v128_intrinsics_arm.h"
 #elif HAVE_SSE2
-#include "aom_dsp/simd/v128_intrinsics_x86.h"
+#include "avm_dsp/simd/v128_intrinsics_x86.h"
 #else
-#include "aom_dsp/simd/v128_intrinsics.h"
+#include "avm_dsp/simd/v128_intrinsics.h"
 #endif
 
 #if HAVE_NEON
@@ -874,4 +874,4 @@ SIMD_INLINE uint64_t v256_ssd_s16_sum(ssd256_internal_s16 s) {
   return v128_ssd_s16_sum(s.val[1]) + v128_ssd_s16_sum(s.val[0]);
 }
 
-#endif  // AOM_AOM_DSP_SIMD_V256_INTRINSICS_V128_H_
+#endif  // AVM_AVM_DSP_SIMD_V256_INTRINSICS_V128_H_

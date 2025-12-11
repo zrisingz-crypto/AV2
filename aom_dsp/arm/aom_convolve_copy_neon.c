@@ -10,9 +10,9 @@
 
 #include <arm_neon.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-void aom_convolve_copy_neon(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve_copy_neon(const uint8_t *src, ptrdiff_t src_stride,
                             uint8_t *dst, ptrdiff_t dst_stride, int w, int h) {
   const uint8_t *src1;
   uint8_t *dst1;

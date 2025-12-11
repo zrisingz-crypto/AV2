@@ -10,20 +10,20 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
-#include "av1/common/blockd.h"
-#include "av1/decoder/detokenize.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
+#include "av2/common/blockd.h"
+#include "av2/decoder/detokenize.h"
 
-#include "av1/common/common.h"
-#include "av1/common/entropy.h"
-#include "av1/common/idct.h"
+#include "av2/common/common.h"
+#include "av2/common/entropy.h"
+#include "av2/common/idct.h"
 
 // Read direction flag, then read line flags, and palette tokens one line at at
 // a time. Returns 1 for sucess.
-static int decode_color_map_tokens(Av1ColorMapParam *param, aom_reader *r) {
+static int decode_color_map_tokens(Av2ColorMapParam *param, avm_reader *r) {
   uint8_t color_order[PALETTE_MAX_SIZE];
   const int num_colors = param->n_colors;
   uint8_t *const color_map = param->color_map;
@@ -36,7 +36,7 @@ static int decode_color_map_tokens(Av1ColorMapParam *param, aom_reader *r) {
       plane_block_width < 64 && plane_block_height < 64;
   int direction;
   if (transverse_allowed) {
-    direction = aom_read_bit(r, ACCT_INFO());
+    direction = avm_read_bit(r, ACCT_INFO());
   } else {
     direction = 0;
   }
@@ -48,7 +48,7 @@ static int decode_color_map_tokens(Av1ColorMapParam *param, aom_reader *r) {
   for (int ax2 = 0; ax2 < axis2_limit; ax2++) {
     const int ctx = ax2 == 0 ? 3 : prev_identity_row_flag;
     int identity_row_flag =
-        aom_read_symbol(r, identity_row_cdf[ctx], 3, ACCT_INFO());
+        avm_read_symbol(r, identity_row_cdf[ctx], 3, ACCT_INFO());
 
     // Copying previous line cannot be done on the first line of a block.
     if (identity_row_flag == 2 && ax2 == 0) {
@@ -79,11 +79,11 @@ static int decode_color_map_tokens(Av1ColorMapParam *param, aom_reader *r) {
               color_map[y * plane_block_width + x - 1];
         }
       } else if (ax2 == 0 && ax1 == 0) {
-        color_map[0] = av1_read_uniform(r, num_colors);
+        color_map[0] = av2_read_uniform(r, num_colors);
       } else {
-        const int color_ctx = av1_get_palette_color_index_context(
+        const int color_ctx = av2_get_palette_color_index_context(
             color_map, plane_block_width, y, x, color_order, NULL);
-        const int color_idx = aom_read_symbol(
+        const int color_idx = avm_read_symbol(
             r, color_map_cdf[num_colors - PALETTE_MIN_SIZE][color_ctx],
             num_colors, ACCT_INFO());
         assert(color_idx >= 0 && color_idx < num_colors);
@@ -109,10 +109,10 @@ static int decode_color_map_tokens(Av1ColorMapParam *param, aom_reader *r) {
   return 1;
 }
 
-void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
-                               aom_reader *r) {
+void av2_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
+                               avm_reader *r) {
   assert(plane == 0 || plane == 1);
-  Av1ColorMapParam params;
+  Av2ColorMapParam params;
   params.color_map =
       xd->plane[plane].color_index_map + xd->color_index_map_offset[plane];
   params.map_cdf = xd->tile_ctx->palette_y_color_index_cdf;
@@ -120,11 +120,11 @@ void av1_decode_palette_tokens(MACROBLOCKD *const xd, int plane,
                                   : xd->tile_ctx->identity_row_cdf_y;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   params.n_colors = mbmi->palette_mode_info.palette_size[plane];
-  av1_get_block_dimensions(mbmi->sb_type[plane > 0], plane, xd,
+  av2_get_block_dimensions(mbmi->sb_type[plane > 0], plane, xd,
                            &params.plane_width, &params.plane_height,
                            &params.rows, &params.cols);
   if (!decode_color_map_tokens(&params, r)) {
-    aom_internal_error(xd->error_info, AOM_CODEC_ERROR,
+    avm_internal_error(xd->error_info, AVM_CODEC_ERROR,
                        "Error decoding palette tokens");
   }
 }

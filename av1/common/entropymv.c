@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/entropymv.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/entropymv.h"
 
 // Context tables for motion vector coding
-#include "av1/common/entropy_inits_mv.h"
+#include "av2/common/entropy_inits_mv.h"
 
-void av1_init_mv_probs(AV1_COMMON *cm) {
+void av2_init_mv_probs(AV2_COMMON *cm) {
   // NB: this sets CDFs too
   cm->fc->nmvc = default_nmv_context;
   cm->fc->ndvc = default_nmv_context;

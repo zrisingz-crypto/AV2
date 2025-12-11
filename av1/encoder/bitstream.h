@@ -10,107 +10,107 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_BITSTREAM_H_
-#define AOM_AV1_ENCODER_BITSTREAM_H_
+#ifndef AVM_AV2_ENCODER_BITSTREAM_H_
+#define AVM_AV2_ENCODER_BITSTREAM_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
-struct aom_write_bit_buffer;
+struct avm_write_bit_buffer;
 
 #if CONFIG_CROP_WIN_CWG_F220
-void av1_write_conformance_window(const SequenceHeader *seq_params,
-                                  struct aom_write_bit_buffer *wb);
+void av2_write_conformance_window(const SequenceHeader *seq_params,
+                                  struct avm_write_bit_buffer *wb);
 #endif  // CONFIG_CROP_WIN_CWG_F220
 
 #if CONFIG_F255_QMOBU
-void setup_cm_qmindex_list(AV1_COMMON *const cm);
+void setup_cm_qmindex_list(AV2_COMMON *const cm);
 #if !CONFIG_QM_REVERT
-void check_qm_is_predefined(AV1_COMP *cpi, int qmobu_pos, int num_planes);
+void check_qm_is_predefined(AV2_COMP *cpi, int qmobu_pos, int num_planes);
 #endif  // !CONFIG_QM_REVERT
-bool add_userqm_in_qmobulist(AV1_COMP *cpi);
-uint32_t write_qm_obu(AV1_COMP *cpi, int signalled_obu_pos, uint8_t *const dst);
-int write_qm_data(AV1_COMP *cpi, struct quantization_matrix_set *qm_list,
+bool add_userqm_in_qmobulist(AV2_COMP *cpi);
+uint32_t write_qm_obu(AV2_COMP *cpi, int signalled_obu_pos, uint8_t *const dst);
+int write_qm_data(AV2_COMP *cpi, struct quantization_matrix_set *qm_list,
                   int qm_pos, const int num_planes,
-                  struct aom_write_bit_buffer *wb);
+                  struct avm_write_bit_buffer *wb);
 #endif
 #if CONFIG_F153_FGM_OBU
-void set_film_grain_model(const AV1_COMP *const cpi,
+void set_film_grain_model(const AV2_COMP *const cpi,
                           struct film_grain_model *fgm_current);
 int film_grain_model_decision(int fgm_pos, struct film_grain_model *fgm_in_list,
                               struct film_grain_model *fgm);
-int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
+int write_fgm_obu(AV2_COMP *cpi, struct film_grain_model *fgm,
                   uint8_t *const dst);
 #endif  // CONFIG_F153_FGM_OBU
 
 // Writes only the OBU Sequence Header payload, and returns the size of the
 // payload written to 'dst'. This function does not write the OBU header, the
 // optional extension, or the OBU size to 'dst'.
-uint32_t av1_write_sequence_header_obu(const SequenceHeader *seq_params,
+uint32_t av2_write_sequence_header_obu(const SequenceHeader *seq_params,
                                        uint8_t *const dst);
 
 // Writes the OBU header byte, and the OBU header extension byte when
 // 'obu_extension' is non-zero. Returns number of bytes written to 'dst'.
-uint32_t av1_write_obu_header(AV1LevelParams *const level_params,
+uint32_t av2_write_obu_header(AV2LevelParams *const level_params,
                               OBU_TYPE obu_type, int obu_temporal,
                               int obu_layer, uint8_t *const dst);
 
-int av1_write_uleb_obu_size(size_t obu_header_size, size_t obu_payload_size,
+int av2_write_uleb_obu_size(size_t obu_header_size, size_t obu_payload_size,
                             uint8_t *dest);
 
-void av1_add_trailing_bits(struct aom_write_bit_buffer *wb);
+void av2_add_trailing_bits(struct avm_write_bit_buffer *wb);
 
-uint32_t av1_write_layer_configuration_record_obu(AV1_COMP *const cpi,
+uint32_t av2_write_layer_configuration_record_obu(AV2_COMP *const cpi,
                                                   int xlayer_id,
                                                   uint8_t *const dst);
-uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *const cpi,
+uint32_t av2_write_atlas_segment_info_obu(AV2_COMP *const cpi,
                                           int obu_xLayer_id,
                                           uint8_t *const dst);
-uint32_t av1_write_operating_point_set_obu(AV1_COMP *const cpi,
+uint32_t av2_write_operating_point_set_obu(AV2_COMP *const cpi,
                                            int obu_xlayer_id,
                                            uint8_t *const dst);
 
-int av1_set_lcr_params(AV1_COMP *cpi, struct LayerConfigurationRecord *lcr,
+int av2_set_lcr_params(AV2_COMP *cpi, struct LayerConfigurationRecord *lcr,
                        int global_id, int xlayer_id);
 
-int av1_set_atlas_segment_info_params(AV1_COMP *cpi,
+int av2_set_atlas_segment_info_params(AV2_COMP *cpi,
                                       struct AtlasSegmentInfo *atlas,
                                       int xlayer_id);
 
-int av1_set_ops_params(AV1_COMP *cpi, struct OperatingPointSet *ops,
+int av2_set_ops_params(AV2_COMP *cpi, struct OperatingPointSet *ops,
                        int xlayer_id);
 
-uint32_t av1_write_buffer_removal_timing_obu(
+uint32_t av2_write_buffer_removal_timing_obu(
     const BufferRemovalTimingInfo *brt_info, uint8_t *const dst);
 
-void av1_set_buffer_removal_timing_params(AV1_COMP *const cpi);
+void av2_set_buffer_removal_timing_params(AV2_COMP *const cpi);
 
 /*!\brief Pack the bitstream for one frame
  *
  * \ingroup high_level_algo
  * \callgraph
  */
-int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
+int av2_pack_bitstream(AV2_COMP *const cpi, uint8_t *dst, size_t *size,
                        int *const largest_tile_id);
 
-void av1_write_sec_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
+void av2_write_sec_tx_type(const AV2_COMMON *const cm, const MACROBLOCKD *xd,
                            TX_TYPE tx_type, TX_SIZE tx_size, uint16_t eob,
-                           aom_writer *w);
+                           avm_writer *w);
 
-void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
-                       TX_TYPE tx_type, TX_SIZE tx_size, aom_writer *w,
+void av2_write_tx_type(const AV2_COMMON *const cm, const MACROBLOCKD *xd,
+                       TX_TYPE tx_type, TX_SIZE tx_size, avm_writer *w,
                        const int plane, const int eob, const int dc_skip);
 
-void av1_write_cctx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
-                         CctxType cctx_type, TX_SIZE tx_size, aom_writer *w);
+void av2_write_cctx_type(const AV2_COMMON *const cm, const MACROBLOCKD *xd,
+                         CctxType cctx_type, TX_SIZE tx_size, avm_writer *w);
 
 #if CONFIG_CWG_F270_CI_OBU
-void av1_write_timing_info_header(const aom_timing_info_t *const timing_info,
-                                  struct aom_write_bit_buffer *wb);
-uint32_t av1_write_content_interpretation_obu(
+void av2_write_timing_info_header(const avm_timing_info_t *const timing_info,
+                                  struct avm_write_bit_buffer *wb);
+uint32_t av2_write_content_interpretation_obu(
     const ContentInterpretation *ci_params, uint8_t *const dst);
 #endif  // CONFIG_CWG_F270_CI_OBU
 
@@ -118,4 +118,4 @@ uint32_t av1_write_content_interpretation_obu(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_BITSTREAM_H_
+#endif  // AVM_AV2_ENCODER_BITSTREAM_H_

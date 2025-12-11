@@ -11,9 +11,9 @@
  */
 #include <arm_neon.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cfl.h"
+#include "av2/common/cfl.h"
 
 static INLINE void vldsubstq_s16(int16_t *dst, const uint16_t *src, int offset,
                                  int16x8_t sub) {
@@ -326,7 +326,7 @@ static INLINE int16x8x2_t predict_w16(const int16_t *pred_buf_q3,
                                       int16x8_t dc) {
   // vld2q_s16 interleaves, which is not useful for prediction. vst1q_s16_x2
   // does not interleave, but is not currently available in the compilier used
-  // by the AOM build system.
+  // by the AVM build system.
   const int16x8x2_t ac_q3 = vld2q_s16(pred_buf_q3);
   const int16x8_t ac_sign_0 = veorq_s16(alpha_sign, ac_q3.val[0]);
   const int16x8_t ac_sign_1 = veorq_s16(alpha_sign, ac_q3.val[1]);
@@ -345,7 +345,7 @@ static INLINE int16x8x4_t predict_w32(const int16_t *pred_buf_q3,
                                       int16x8_t dc) {
   // vld4q_s16 interleaves, which is not useful for prediction. vst1q_s16_x4
   // does not interleave, but is not currently available in the compilier used
-  // by the AOM build system.
+  // by the AVM build system.
   const int16x8x4_t ac_q3 = vld4q_s16(pred_buf_q3);
   const int16x8_t ac_sign_0 = veorq_s16(alpha_sign, ac_q3.val[0]);
   const int16x8_t ac_sign_1 = veorq_s16(alpha_sign, ac_q3.val[1]);

@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/encoder/part_split_prune_tflite.h"
+#include "av2/encoder/part_split_prune_tflite.h"
 
 #include <cstdio>
 #include <memory>
@@ -20,13 +20,13 @@
 
 #include "common/tf_lite_includes.h"
 
-#include "av1/encoder/simple_intrapred_tflite_model_128x128.h"
-#include "av1/encoder/simple_intrapred_tflite_model_16x16.h"
-#include "av1/encoder/simple_intrapred_tflite_model_32x32.h"
-#include "av1/encoder/simple_intrapred_tflite_model_64x64.h"
-#include "av1/encoder/sms_part_split_prune_tflite_model.h"
-#include "av1/encoder/sms_part_none_prune_tflite_model.h"
-#include "av1/encoder/sms_part_none_prune_rect_tflite_model.h"
+#include "av2/encoder/simple_intrapred_tflite_model_128x128.h"
+#include "av2/encoder/simple_intrapred_tflite_model_16x16.h"
+#include "av2/encoder/simple_intrapred_tflite_model_32x32.h"
+#include "av2/encoder/simple_intrapred_tflite_model_64x64.h"
+#include "av2/encoder/sms_part_split_prune_tflite_model.h"
+#include "av2/encoder/sms_part_none_prune_tflite_model.h"
+#include "av2/encoder/sms_part_none_prune_rect_tflite_model.h"
 
 #if HAVE_FEXCEPT
 #ifndef _GNU_SOURCE
@@ -56,7 +56,7 @@ static std::unique_ptr<tflite::Interpreter> create_interpreter(
   const int num_threads = 1;
   TfLiteXNNPackDelegateOptions xnnpack_options =
       TfLiteXNNPackDelegateOptionsDefault();
-  xnnpack_options.num_threads = AOMMAX(num_threads, 1);
+  xnnpack_options.num_threads = AVMMAX(num_threads, 1);
   TfLiteDelegateType xnnpack_delegate(
       TfLiteXNNPackDelegateCreate(&xnnpack_options),
       &TfLiteXNNPackDelegateDelete);

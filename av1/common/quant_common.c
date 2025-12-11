@@ -12,12 +12,12 @@
 
 #include <string.h>
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/common.h"
-#include "av1/common/entropy.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/seg_common.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/common.h"
+#include "av2/common/entropy.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/seg_common.h"
 
 // clang-format off
 //      64,                                              q_index = 0
@@ -60,8 +60,8 @@ static const uint16_t ac_qlookup_QTX_full[QINDEX_RANGE_8_BITS] = {
 
 // clang-format on
 
-// Coefficient scaling and quantization with AV1 TX are tailored to
-// the AV1 TX transforms.  Regardless of the bit-depth of the input,
+// Coefficient scaling and quantization with AV2 TX are tailored to
+// the AV2 TX transforms.  Regardless of the bit-depth of the input,
 // the transform stages scale the coefficient values up by a factor of
 // 8 (3 bits) over the scale of the pixel values.  Thus, for 8-bit
 // input, the coefficients have effectively 11 bits of scale depth
@@ -74,11 +74,11 @@ static const uint16_t ac_qlookup_QTX_full[QINDEX_RANGE_8_BITS] = {
 // overflow, TX blocks with > 256 pels (>16x16) are scaled only
 // 4-times unity (2 bits) over the pixel depth, and TX blocks with
 // over 1024 pixels (>32x32) are scaled up only 2x unity (1 bit).
-// This descaling is found via av1_tx_get_scale().  Thus, 16x32, 32x16
+// This descaling is found via av2_tx_get_scale().  Thus, 16x32, 32x16
 // and 32x32 transforms actually return Q2 coefficients, and 32x64,
 // 64x32 and 64x64 transforms return Q1 coefficients.  However, the
 // quantizers are de-scaled down on-the-fly by the same amount
-// (av1_tx_get_scale()) during quantization, and as such the
+// (av2_tx_get_scale()) during quantization, and as such the
 // dequantized/decoded coefficients, even for large TX blocks, are always
 // effectively Q3. Meanwhile, quantized/coded coefficients are Q0
 // because Qn quantizers are applied to Qn tx coefficients.
@@ -121,23 +121,23 @@ int tcq_next_state(const int cur_state, const int abs_level) {
 }
 
 // Clamp the qindex value to minimum and maximum allowed limit
-int av1_q_clamped(int qindex, int delta, int base_dc_delta_q,
-                  aom_bit_depth_t bit_depth) {
+int av2_q_clamped(int qindex, int delta, int base_dc_delta_q,
+                  avm_bit_depth_t bit_depth) {
   int q_clamped;
   if ((qindex == 0) && (delta + base_dc_delta_q <= 0))
     q_clamped = 0;
   else
     q_clamped = clamp(qindex + base_dc_delta_q + delta, 1,
-                      bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
-                      : bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                      bit_depth == AVM_BITS_8    ? MAXQ_8_BITS
+                      : bit_depth == AVM_BITS_10 ? MAXQ_10_BITS
                                                  : MAXQ);
   return q_clamped;
 }
 // Add the deltaq offset value
 // seg_qindex is the frame base QP + superblock delta + segment delta
-void get_qindex_with_offsets(const struct AV1Common *cm, int seg_qindex,
+void get_qindex_with_offsets(const struct AV2Common *cm, int seg_qindex,
                              int final_qindex_dc[3], int final_qindex_ac[3]) {
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const CommonQuantParams *const quant_params = &cm->quant_params;
   for (int j = 0; j < num_planes; ++j) {
     const int dc_delta_q = j == 0 ? quant_params->y_dc_delta_q
@@ -148,25 +148,25 @@ void get_qindex_with_offsets(const struct AV1Common *cm, int seg_qindex,
                                             : quant_params->v_ac_delta_q);
 
     final_qindex_dc[j] =
-        av1_q_clamped(seg_qindex, dc_delta_q,
+        av2_q_clamped(seg_qindex, dc_delta_q,
                       j == 0 ? cm->seq_params.base_y_dc_delta_q
                              : cm->seq_params.base_uv_dc_delta_q,
                       cm->seq_params.bit_depth);
-    final_qindex_ac[j] = av1_q_clamped(
+    final_qindex_ac[j] = av2_q_clamped(
         seg_qindex, ac_delta_q, j == 0 ? 0 : cm->seq_params.base_uv_ac_delta_q,
         cm->seq_params.bit_depth);
   }
 }
 
-int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
-                         aom_bit_depth_t bit_depth) {
+int32_t av2_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
+                         avm_bit_depth_t bit_depth) {
   int q_clamped;
   if ((qindex == 0) && (delta + base_dc_delta_q <= 0))
     q_clamped = 0;
   else
     q_clamped = clamp(qindex + base_dc_delta_q + delta, 1,
-                      bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
-                      : bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                      bit_depth == AVM_BITS_8    ? MAXQ_8_BITS
+                      : bit_depth == AVM_BITS_10 ? MAXQ_10_BITS
                                                  : MAXQ);
 
   if (q_clamped == 0) return (int32_t)ac_qlookup_QTX[q_clamped];
@@ -179,8 +179,8 @@ int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
   //      Q[(q_idx - 1) % 24) + 1] * 2^((q_idx-1)/24)  q_idx in [25, 255]
   if (q_clamped > MAXQ_8_BITS) {
     switch (bit_depth) {
-      case AOM_BITS_8: assert(q_clamped <= MAXQ_8_BITS);
-      case AOM_BITS_10: {
+      case AVM_BITS_8: assert(q_clamped <= MAXQ_8_BITS);
+      case AVM_BITS_10: {
         int32_t Q;
         if ((q_clamped - qindex_offset) < 25) {
           Q = ac_qlookup_QTX[q_clamped - qindex_offset];
@@ -191,7 +191,7 @@ int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
         }
         return 4 * Q;
       }
-      case AOM_BITS_12: {
+      case AVM_BITS_12: {
         int32_t Q;
         if ((q_clamped - qindex_offset) < 25) {
           Q = ac_qlookup_QTX[q_clamped - qindex_offset];
@@ -204,7 +204,7 @@ int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
       }
       default:
         assert(0 &&
-               "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+               "bit_depth should be AVM_BITS_8, AVM_BITS_10 or AVM_BITS_12");
         return -1;
     }
   } else {
@@ -219,15 +219,15 @@ int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
   }
 }
 
-int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
-                         aom_bit_depth_t bit_depth) {
+int32_t av2_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
+                         avm_bit_depth_t bit_depth) {
   int q_clamped;
   if ((qindex == 0) && (delta + base_ac_delta_q <= 0))
     q_clamped = 0;
   else
     q_clamped = clamp(qindex + base_ac_delta_q + delta, 1,
-                      bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
-                      : bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                      bit_depth == AVM_BITS_8    ? MAXQ_8_BITS
+                      : bit_depth == AVM_BITS_10 ? MAXQ_10_BITS
                                                  : MAXQ);
 
   if (q_clamped == 0) return (int32_t)ac_qlookup_QTX[q_clamped];
@@ -240,8 +240,8 @@ int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
   //      Q[(q_idx - 1) % 24) + 1] * 2^((q_idx-1)/24)  q_idx in [25, 255]
   if (q_clamped > MAXQ_8_BITS) {
     switch (bit_depth) {
-      case AOM_BITS_8: assert(q_clamped <= MAXQ_8_BITS);
-      case AOM_BITS_10: {
+      case AVM_BITS_8: assert(q_clamped <= MAXQ_8_BITS);
+      case AVM_BITS_10: {
         int32_t Q;
         if ((q_clamped - qindex_offset) < 25) {
           Q = ac_qlookup_QTX[q_clamped - qindex_offset];
@@ -252,7 +252,7 @@ int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
         }
         return 4 * Q;
       }
-      case AOM_BITS_12: {
+      case AVM_BITS_12: {
         int32_t Q;
         if ((q_clamped - qindex_offset) < 25) {
           Q = ac_qlookup_QTX[q_clamped - qindex_offset];
@@ -265,7 +265,7 @@ int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
       }
       default:
         assert(0 &&
-               "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
+               "bit_depth should be AVM_BITS_8, AVM_BITS_10 or AVM_BITS_12");
         return -1;
     }
   } else {
@@ -280,34 +280,34 @@ int32_t av1_ac_quant_QTX(int qindex, int delta, int base_ac_delta_q,
   }
 }
 
-int av1_get_qindex(const struct segmentation *seg, int segment_id,
-                   int base_qindex, aom_bit_depth_t bit_depth) {
+int av2_get_qindex(const struct segmentation *seg, int segment_id,
+                   int base_qindex, avm_bit_depth_t bit_depth) {
   if (segfeature_active(seg, segment_id, SEG_LVL_ALT_Q)) {
     const int data = get_segdata(seg, segment_id, SEG_LVL_ALT_Q);
     const int seg_qindex = base_qindex + data;
 
     return clamp(seg_qindex, 0,
-                 bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
-                 : bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                 bit_depth == AVM_BITS_8    ? MAXQ_8_BITS
+                 : bit_depth == AVM_BITS_10 ? MAXQ_10_BITS
                                             : MAXQ);
   } else {
     return base_qindex;
   }
 }
 
-bool av1_use_qmatrix(const CommonQuantParams *quant_params,
+bool av2_use_qmatrix(const CommonQuantParams *quant_params,
                      const struct macroblockd *xd, int segment_id) {
   // True if explicit Q matrix levels and this is not a lossless segment.
   return quant_params->using_qmatrix && !xd->lossless[segment_id];
 }
 
-const qm_val_t *av1_iqmatrix(const CommonQuantParams *quant_params, int qmlevel,
+const qm_val_t *av2_iqmatrix(const CommonQuantParams *quant_params, int qmlevel,
                              int plane, TX_SIZE tx_size) {
   assert(quant_params->giqmatrix[qmlevel][plane][tx_size] != NULL ||
          qmlevel == NUM_QM_LEVELS - 1);
   return quant_params->giqmatrix[qmlevel][plane][tx_size];
 }
-const qm_val_t *av1_qmatrix(const CommonQuantParams *quant_params, int qmlevel,
+const qm_val_t *av2_qmatrix(const CommonQuantParams *quant_params, int qmlevel,
                             int plane, TX_SIZE tx_size) {
   assert(quant_params->gqmatrix[qmlevel][plane][tx_size] != NULL ||
          qmlevel == NUM_QM_LEVELS - 1);
@@ -320,26 +320,26 @@ static INLINE bool is_2d_transform(TX_TYPE tx_type) {
   return (get_primary_tx_type(tx_type) < IDTX);
 }
 
-const qm_val_t *av1_get_iqmatrix(const CommonQuantParams *quant_params,
+const qm_val_t *av2_get_iqmatrix(const CommonQuantParams *quant_params,
                                  const MACROBLOCKD *xd, int plane,
                                  TX_SIZE tx_size, TX_TYPE tx_type) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int seg_id = mbmi->segment_id;
-  const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
+  const TX_SIZE qm_tx_size = av2_get_adjusted_tx_size(tx_size);
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
   return is_2d_transform(tx_type)
              ? pd->seg_iqmatrix[seg_id][qm_tx_size]
              : quant_params->giqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
 }
 
-const qm_val_t *av1_get_qmatrix(const CommonQuantParams *quant_params,
+const qm_val_t *av2_get_qmatrix(const CommonQuantParams *quant_params,
                                 const MACROBLOCKD *xd, int plane,
                                 TX_SIZE tx_size, TX_TYPE tx_type) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int seg_id = mbmi->segment_id;
-  const TX_SIZE qm_tx_size = av1_get_adjusted_tx_size(tx_size);
+  const TX_SIZE qm_tx_size = av2_get_adjusted_tx_size(tx_size);
   // Use a flat matrix (i.e. no weighting) for 1D and Identity transforms
   return is_2d_transform(tx_type)
              ? pd->seg_qmatrix[seg_id][qm_tx_size]
@@ -485,37 +485,37 @@ static void calc_wt_matrix(const int txsize, const qm_val_t *iwt_matrix,
 }
 
 #if CONFIG_F255_QMOBU
-qm_val_t ***av1_alloc_qmset() {
+qm_val_t ***av2_alloc_qmset() {
   int num_planes = 3;
   const int num_tx_size = 3;  // 8x8, 8x4, 4x8
-  qm_val_t ***mat = (qm_val_t ***)aom_malloc(num_tx_size * sizeof(qm_val_t **));
+  qm_val_t ***mat = (qm_val_t ***)avm_malloc(num_tx_size * sizeof(qm_val_t **));
   for (int q = 0; q < num_tx_size; q++) {
-    mat[q] = (qm_val_t **)aom_malloc(num_planes * sizeof(qm_val_t *));
+    mat[q] = (qm_val_t **)avm_malloc(num_planes * sizeof(qm_val_t *));
     int num_coeff = 8 * 8;
     if (q != 0) num_coeff = 32;
     for (int c = 0; c < num_planes; c++) {
-      mat[q][c] = (qm_val_t *)aom_malloc(num_coeff * sizeof(qm_val_t));
+      mat[q][c] = (qm_val_t *)avm_malloc(num_coeff * sizeof(qm_val_t));
     }
   }
   return mat;
 }
-void av1_free_qmset(qm_val_t ***mat) {
+void av2_free_qmset(qm_val_t ***mat) {
   int num_planes = 3;
   if (mat != NULL) {
     const int num_tsize = 3;  // 8x8, 8x4, 4x8
     for (int q = 0; q < num_tsize; q++) {
       if (mat[q] != NULL) {
         for (int c = 0; c < num_planes; c++) {
-          if (mat[q][c] != NULL) aom_free(mat[q][c]);
+          if (mat[q][c] != NULL) avm_free(mat[q][c]);
         }
-        aom_free(mat[q]);
+        avm_free(mat[q]);
       }
     }
-    aom_free(mat);
+    avm_free(mat);
   }
 }
 
-void av1_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
+void av2_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
                          int qm_id, qm_val_t ***matrix_set) {
   // matrix_set[tx_size(3)][color(3)][64,32,32]
   assert(qm_id != (NUM_QM_LEVELS - 1));
@@ -524,7 +524,7 @@ void av1_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
     int current = 0;
     for (int t = 0; t < TX_SIZES_ALL; ++t) {
       const int size = tx_size_2d[t];
-      const int qm_tx_size = av1_get_adjusted_tx_size(t);
+      const int qm_tx_size = av2_get_adjusted_tx_size(t);
       if (t != qm_tx_size) {  // Reuse matrices for 'qm_tx_size'
         assert(t > qm_tx_size);
         quant_params->gqmatrix[qm_id][c][t] =
@@ -564,34 +564,34 @@ void av1_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
   }  // c
 }
 #else   // CONFIG_F255_QMOBU
-qm_val_t ***av1_alloc_qm(int width, int height) {
+qm_val_t ***av2_alloc_qm(int width, int height) {
   const int num_planes = 3;  // Y, U, V planes
   qm_val_t ***mat =
-      (qm_val_t ***)aom_malloc(NUM_CUSTOM_QMS * sizeof(qm_val_t **));
+      (qm_val_t ***)avm_malloc(NUM_CUSTOM_QMS * sizeof(qm_val_t **));
   for (int q = 0; q < NUM_CUSTOM_QMS; q++) {
-    mat[q] = (qm_val_t **)aom_malloc(num_planes * sizeof(qm_val_t *));
+    mat[q] = (qm_val_t **)avm_malloc(num_planes * sizeof(qm_val_t *));
     for (int c = 0; c < num_planes; c++) {
-      mat[q][c] = (qm_val_t *)aom_malloc(width * height * sizeof(qm_val_t));
+      mat[q][c] = (qm_val_t *)avm_malloc(width * height * sizeof(qm_val_t));
     }
   }
   return mat;
 }
 
-void av1_free_qm(qm_val_t ***mat) {
+void av2_free_qm(qm_val_t ***mat) {
   const int num_planes = 3;  // Y, U, V planes
   for (int q = 0; q < NUM_CUSTOM_QMS; q++) {
     for (int c = 0; c < num_planes; c++) {
-      aom_free(mat[q][c]);
+      avm_free(mat[q][c]);
     }
-    aom_free(mat[q]);
+    avm_free(mat[q]);
   }
-  aom_free(mat);
+  avm_free(mat);
 }
 
 // Copy default matrix arrays to custom matrix arrays.
 // This initiatization also performs the expansion from 2 plane types to 3
 // planes.
-void av1_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
+void av2_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
                       qm_val_t ***qm_4x8, int num_planes) {
   for (int q = 0; q < NUM_CUSTOM_QMS; ++q) {
     for (int c = 0; c < num_planes; ++c) {
@@ -608,7 +608,7 @@ void av1_init_qmatrix(qm_val_t ***qm_8x8, qm_val_t ***qm_8x4,
 }
 #endif  // CONFIG_F255_QMOBU
 
-void av1_qm_init(CommonQuantParams *quant_params, int num_planes
+void av2_qm_init(CommonQuantParams *quant_params, int num_planes
 #if !CONFIG_F255_QMOBU
                  ,
                  qm_val_t ****fund_matrices
@@ -620,7 +620,7 @@ void av1_qm_init(CommonQuantParams *quant_params, int num_planes
       int current = 0;
       for (int t = 0; t < TX_SIZES_ALL; ++t) {
         const int size = tx_size_2d[t];
-        const int qm_tx_size = av1_get_adjusted_tx_size(t);
+        const int qm_tx_size = av2_get_adjusted_tx_size(t);
         if (q == NUM_QM_LEVELS - 1) {
           quant_params->gqmatrix[q][c][t] = NULL;
           quant_params->giqmatrix[q][c][t] = NULL;
@@ -668,7 +668,7 @@ void av1_qm_init(CommonQuantParams *quant_params, int num_planes
   }
 }
 #if !CONFIG_F255_QMOBU
-void av1_qm_init_dequant_only(CommonQuantParams *quant_params, int num_planes,
+void av2_qm_init_dequant_only(CommonQuantParams *quant_params, int num_planes,
                               qm_val_t ****fund_matrices) {
   for (int q = 0; q < NUM_QM_LEVELS; ++q) {
     for (int c = 0; c < num_planes; ++c) {
@@ -676,7 +676,7 @@ void av1_qm_init_dequant_only(CommonQuantParams *quant_params, int num_planes,
       int current = 0;
       for (int t = 0; t < TX_SIZES_ALL; ++t) {
         const int size = tx_size_2d[t];
-        const int qm_tx_size = av1_get_adjusted_tx_size(t);
+        const int qm_tx_size = av2_get_adjusted_tx_size(t);
         if (q == NUM_QM_LEVELS - 1) {
           quant_params->giqmatrix[q][c][t] = NULL;
         } else if (t != qm_tx_size) {  // Reuse matrices for 'qm_tx_size'
@@ -715,7 +715,7 @@ void av1_qm_init_dequant_only(CommonQuantParams *quant_params, int num_planes,
   }
 }
 #endif  // !CONFIG_F255_QMOBU
-void av1_qm_replace_level(CommonQuantParams *quant_params, int level,
+void av2_qm_replace_level(CommonQuantParams *quant_params, int level,
 #if CONFIG_F255_QMOBU
                           int num_planes, qm_val_t ***fund_matrices
 #else
@@ -729,7 +729,7 @@ void av1_qm_replace_level(CommonQuantParams *quant_params, int level,
     int current = 0;
     for (int t = 0; t < TX_SIZES_ALL; ++t) {
       const int size = tx_size_2d[t];
-      const int qm_tx_size = av1_get_adjusted_tx_size(t);
+      const int qm_tx_size = av2_get_adjusted_tx_size(t);
       if (q == NUM_QM_LEVELS - 1) {
         assert(quant_params->gqmatrix[q][c][t] == NULL);
         assert(quant_params->giqmatrix[q][c][t] == NULL);
@@ -783,7 +783,7 @@ void av1_qm_replace_level(CommonQuantParams *quant_params, int level,
 /*
   Base matrices for QM levels 0-13 can be generated from a parametric
   equation. With the parameters below.
-  QM indices 14 and 15 use the original AV1 8x8 matrices as a base due
+  QM indices 14 and 15 use the original AV2 8x8 matrices as a base due
   to those being a step functions.
 
   // Generate base matrices

@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/enums.h"
-#include "av1/common/av1_txfm.h"
-#include "av1/common/idct.h"
+#include "av2/common/enums.h"
+#include "av2/common/av2_txfm.h"
+#include "av2/common/idct.h"
 #include <immintrin.h>
 
 static INLINE __m256i load_4x4_s16_avx2(const int16_t *src, int stride) {
@@ -95,11 +95,11 @@ static INLINE void store_4x4_s16_s32_avx2(__m256i data_s16, int32_t *dst,
   _mm_storeu_si128((__m128i *)(dst_bytes + 3 * stride_bytes), row3_data);
 }
 
-void av1_lossless_fwd_idtx_avx2(const int16_t *src_diff, tran_low_t *coeff,
+void av2_lossless_fwd_idtx_avx2(const int16_t *src_diff, tran_low_t *coeff,
                                 int diff_stride, TxfmParam *txfm_param) {
   const int txw = tx_size_wide[txfm_param->tx_size];
   const int txh = tx_size_high[txfm_param->tx_size];
-  int scale_bits = 3 - av1_get_tx_scale(txfm_param->tx_size);
+  int scale_bits = 3 - av2_get_tx_scale(txfm_param->tx_size);
 
   for (int i = 0; i < txh; i += MI_SIZE) {
     for (int j = 0; j < txw; j += MI_SIZE) {

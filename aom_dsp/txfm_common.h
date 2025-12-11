@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_TXFM_COMMON_H_
-#define AOM_AOM_DSP_TXFM_COMMON_H_
+#ifndef AVM_AVM_DSP_TXFM_COMMON_H_
+#define AVM_AVM_DSP_TXFM_COMMON_H_
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "av1/common/enums.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "av2/common/enums.h"
 
 // Constants and Macros used by all idct/dct functions
 #define DCT_CONST_BITS 14
@@ -101,4 +101,4 @@ static INLINE tran_high_t fdct_round_shift(tran_high_t input) {
   return rv;
 }
 
-#endif  // AOM_AOM_DSP_TXFM_COMMON_H_
+#endif  // AVM_AVM_DSP_TXFM_COMMON_H_

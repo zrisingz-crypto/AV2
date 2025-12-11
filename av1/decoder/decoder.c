@@ -14,50 +14,50 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include "config/av1_rtcd.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/aom_scale_rtcd.h"
+#include "config/av2_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/system_state.h"
-#include "aom_ports/aom_once.h"
-#include "aom_ports/aom_timer.h"
-#include "aom_scale/aom_scale.h"
-#include "aom_util/aom_thread.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/system_state.h"
+#include "avm_ports/avm_once.h"
+#include "avm_ports/avm_timer.h"
+#include "avm_scale/avm_scale.h"
+#include "avm_util/avm_thread.h"
 #if CONFIG_MISMATCH_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_MISMATCH_DEBUG
 
-#include "av1/common/alloccommon.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/av1_loopfilter.h"
-#include "av1/common/bru.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/reconintra.h"
+#include "av2/common/alloccommon.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/av2_loopfilter.h"
+#include "av2/common/bru.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/reconintra.h"
 
-#include "av1/decoder/decodeframe.h"
-#include "av1/decoder/decoder.h"
-#include "av1/decoder/detokenize.h"
-#include "av1/decoder/obu.h"
+#include "av2/decoder/decodeframe.h"
+#include "av2/decoder/decoder.h"
+#include "av2/decoder/detokenize.h"
+#include "av2/decoder/obu.h"
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-#include "av1/common/entropy_sideinfo.h"
+#include "av2/common/entropy_sideinfo.h"
 int beginningFrameFlag[MAX_NUMBER_CONTEXTS][MAX_DIMS_CONTEXT3]
                       [MAX_DIMS_CONTEXT2][MAX_DIMS_CONTEXT1][MAX_DIMS_CONTEXT0];
 #endif
 
 static void initialize_dec(void) {
-  av1_rtcd();
-  aom_dsp_rtcd();
-  aom_scale_rtcd();
-  av1_init_intra_predictors();
-  av1_init_stxfm_kernels();
+  av2_rtcd();
+  avm_dsp_rtcd();
+  avm_scale_rtcd();
+  av2_init_intra_predictors();
+  av2_init_stxfm_kernels();
 }
 
-static void update_subgop_stats(const AV1_COMMON *const cm,
+static void update_subgop_stats(const AV2_COMMON *const cm,
                                 SubGOPStatsDec *const subgop_stats,
                                 unsigned int display_order_hint,
                                 unsigned int enable_subgop_stats) {
@@ -117,95 +117,95 @@ static void dec_setup_mi(CommonModeInfoParams *mi_params) {
          mi_grid_size * sizeof(*mi_params->submi_grid_base));
   memset(mi_params->cctx_type_map, 0,
          mi_grid_size * sizeof(*mi_params->cctx_type_map));
-  av1_reset_txk_skip_array_using_mi_params(mi_params);
+  av2_reset_txk_skip_array_using_mi_params(mi_params);
 }
 
 static void dec_free_mi(CommonModeInfoParams *mi_params) {
-  aom_free(mi_params->mi_alloc);
+  avm_free(mi_params->mi_alloc);
   mi_params->mi_alloc = NULL;
-  aom_free(mi_params->mi_grid_base);
+  avm_free(mi_params->mi_grid_base);
   mi_params->mi_grid_base = NULL;
-  aom_free(mi_params->mi_alloc_sub);
+  avm_free(mi_params->mi_alloc_sub);
   mi_params->mi_alloc_sub = NULL;
-  aom_free(mi_params->submi_grid_base);
+  avm_free(mi_params->submi_grid_base);
   mi_params->submi_grid_base = NULL;
   mi_params->mi_alloc_size = 0;
-  aom_free(mi_params->tx_type_map);
+  avm_free(mi_params->tx_type_map);
   mi_params->tx_type_map = NULL;
-  aom_free(mi_params->cctx_type_map);
+  avm_free(mi_params->cctx_type_map);
   mi_params->cctx_type_map = NULL;
-  av1_dealloc_class_id_array(mi_params);
-  av1_dealloc_txk_skip_array(mi_params);
+  av2_dealloc_class_id_array(mi_params);
+  av2_dealloc_txk_skip_array(mi_params);
 }
 
-static INLINE void dec_init_tip_ref_frame(AV1_COMMON *const cm) {
+static INLINE void dec_init_tip_ref_frame(AV2_COMMON *const cm) {
   TIP *tip_ref = &cm->tip_ref;
-  tip_ref->tip_frame = aom_calloc(1, sizeof(*tip_ref->tip_frame));
-  tip_ref->tmp_tip_frame = aom_calloc(1, sizeof(*tip_ref->tmp_tip_frame));
+  tip_ref->tip_frame = avm_calloc(1, sizeof(*tip_ref->tip_frame));
+  tip_ref->tmp_tip_frame = avm_calloc(1, sizeof(*tip_ref->tmp_tip_frame));
 }
 
-static INLINE void dec_free_tip_ref_frame(AV1_COMMON *const cm) {
-  aom_free_frame_buffer(&cm->tip_ref.tip_frame->buf);
-  aom_free(cm->tip_ref.tip_frame);
+static INLINE void dec_free_tip_ref_frame(AV2_COMMON *const cm) {
+  avm_free_frame_buffer(&cm->tip_ref.tip_frame->buf);
+  avm_free(cm->tip_ref.tip_frame);
   cm->tip_ref.tip_frame = NULL;
 
-  aom_free_frame_buffer(&cm->tip_ref.tmp_tip_frame->buf);
-  aom_free(cm->tip_ref.tmp_tip_frame);
+  avm_free_frame_buffer(&cm->tip_ref.tmp_tip_frame->buf);
+  avm_free(cm->tip_ref.tmp_tip_frame);
   cm->tip_ref.tmp_tip_frame = NULL;
 }
 
-static INLINE void dec_init_optflow_bufs(AV1_COMMON *const cm) {
-  cm->dst0_16_tip = aom_memalign(32, 8 * 8 * sizeof(uint16_t));
-  cm->dst1_16_tip = aom_memalign(32, 8 * 8 * sizeof(uint16_t));
-  cm->gx0 = aom_memalign(32, 2 * 8 * 8 * sizeof(*cm->gx0));
-  cm->gx1 = aom_memalign(32, 2 * 8 * 8 * sizeof(*cm->gx1));
+static INLINE void dec_init_optflow_bufs(AV2_COMMON *const cm) {
+  cm->dst0_16_tip = avm_memalign(32, 8 * 8 * sizeof(uint16_t));
+  cm->dst1_16_tip = avm_memalign(32, 8 * 8 * sizeof(uint16_t));
+  cm->gx0 = avm_memalign(32, 2 * 8 * 8 * sizeof(*cm->gx0));
+  cm->gx1 = avm_memalign(32, 2 * 8 * 8 * sizeof(*cm->gx1));
   cm->gy0 = cm->gx0 + (8 * 8);
   cm->gy1 = cm->gx1 + (8 * 8);
 }
 
-static INLINE void dec_free_optflow_bufs(AV1_COMMON *const cm) {
-  aom_free(cm->dst0_16_tip);
-  aom_free(cm->dst1_16_tip);
-  aom_free(cm->gx0);
-  aom_free(cm->gx1);
+static INLINE void dec_free_optflow_bufs(AV2_COMMON *const cm) {
+  avm_free(cm->dst0_16_tip);
+  avm_free(cm->dst1_16_tip);
+  avm_free(cm->gx0);
+  avm_free(cm->gx1);
 }
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-AV1Decoder *av1_decoder_create(BufferPool *const pool, const char *path,
+AV2Decoder *av2_decoder_create(BufferPool *const pool, const char *path,
                                const char *suffix) {
 #else
-AV1Decoder *av1_decoder_create(BufferPool *const pool) {
+AV2Decoder *av2_decoder_create(BufferPool *const pool) {
 #endif
-  AV1Decoder *volatile const pbi = aom_memalign(32, sizeof(*pbi));
+  AV2Decoder *volatile const pbi = avm_memalign(32, sizeof(*pbi));
   if (!pbi) return NULL;
-  av1_zero(*pbi);
+  av2_zero(*pbi);
 
-  AV1_COMMON *volatile const cm = &pbi->common;
+  AV2_COMMON *volatile const cm = &pbi->common;
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
   // before it returns.
   if (setjmp(cm->error.jmp)) {
     cm->error.setjmp = 0;
-    av1_decoder_remove(pbi);
+    av2_decoder_remove(pbi);
     return NULL;
   }
 
   cm->error.setjmp = 1;
 
   CHECK_MEM_ERROR(cm, cm->fc,
-                  (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->fc)));
+                  (FRAME_CONTEXT *)avm_memalign(32, sizeof(*cm->fc)));
   CHECK_MEM_ERROR(
       cm, cm->default_frame_context,
-      (FRAME_CONTEXT *)aom_memalign(32, sizeof(*cm->default_frame_context)));
+      (FRAME_CONTEXT *)avm_memalign(32, sizeof(*cm->default_frame_context)));
   memset(cm->fc, 0, sizeof(*cm->fc));
   memset(cm->default_frame_context, 0, sizeof(*cm->default_frame_context));
 
   pbi->need_resync = 1;
-  aom_once(initialize_dec);
+  avm_once(initialize_dec);
 
   // Initialize the references to not point to any frame buffers.
-  for (int i = 0; i < AOM_MAX_NUM_STREAMS; i++) {
+  for (int i = 0; i < AVM_MAX_NUM_STREAMS; i++) {
     for (int j = 0; j < REF_FRAMES; j++) {
       pbi->ref_frame_map_buf[i][j] = NULL;
     }
@@ -218,15 +218,15 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   pbi->decoding_first_frame = 1;
   pbi->common.buffer_pool = pool;
 
-  cm->seq_params.bit_depth = AOM_BITS_8;
+  cm->seq_params.bit_depth = AVM_BITS_8;
 #if CONFIG_CWG_F270_CI_OBU
   cm->ci_params.ci_chroma_sample_position_present_flag = 0;
   if (!cm->ci_params.ci_chroma_sample_position_present_flag) {
-    cm->ci_params.ci_chroma_sample_position[0] = AOM_CSP_UNSPECIFIED;
-    cm->ci_params.ci_chroma_sample_position[1] = AOM_CSP_UNSPECIFIED;
+    cm->ci_params.ci_chroma_sample_position[0] = AVM_CSP_UNSPECIFIED;
+    cm->ci_params.ci_chroma_sample_position[1] = AVM_CSP_UNSPECIFIED;
   }
 #else
-  cm->seq_params.chroma_sample_position = AOM_CSP_UNSPECIFIED;
+  cm->seq_params.chroma_sample_position = AVM_CSP_UNSPECIFIED;
 #endif  // CONFIG_CWG_F270_CI_OBU
 
   cm->mi_params.free_mi = dec_free_mi;
@@ -238,7 +238,7 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   cm->translated_pcwiener_filters = NULL;
   cm->num_ref_filters = NULL;
 
-  av1_loop_filter_init(cm);
+  av2_loop_filter_init(cm);
 #if CONFIG_F255_QMOBU
   for (int i = 0; i < NUM_CUSTOM_QMS; ++i) {
     pbi->qm_protected[i] = 0;
@@ -269,7 +269,7 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
 #if CONFIG_ACCOUNTING
   pbi->acct_enabled = 1;
-  aom_accounting_init(&pbi->accounting);
+  avm_accounting_init(&pbi->accounting);
 #endif
 
   dec_init_tip_ref_frame(cm);
@@ -277,22 +277,22 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
   cm->error.setjmp = 0;
 
-  aom_get_worker_interface()->init(&pbi->lf_worker);
-  pbi->lf_worker.thread_name = "aom lf worker";
+  avm_get_worker_interface()->init(&pbi->lf_worker);
+  pbi->lf_worker.thread_name = "avm lf worker";
 
 #if CONFIG_CWG_F270_CI_OBU
   // Initialize the Content Interpretation parameters
   pbi->ci_params_received = 0;
   cm->ci_params.color_info.color_description_idc = 0;
-  cm->ci_params.color_info.color_primaries = AOM_CICP_CP_UNSPECIFIED;
-  cm->ci_params.color_info.matrix_coefficients = AOM_CICP_MC_UNSPECIFIED;
-  cm->ci_params.color_info.transfer_characteristics = AOM_CICP_TC_UNSPECIFIED;
+  cm->ci_params.color_info.color_primaries = AVM_CICP_CP_UNSPECIFIED;
+  cm->ci_params.color_info.matrix_coefficients = AVM_CICP_MC_UNSPECIFIED;
+  cm->ci_params.color_info.transfer_characteristics = AVM_CICP_TC_UNSPECIFIED;
   cm->ci_params.color_info.full_range_flag = 0;
 
-  cm->ci_params.ci_chroma_sample_position[0] = AOM_CSP_UNSPECIFIED;
-  cm->ci_params.ci_chroma_sample_position[1] = AOM_CSP_UNSPECIFIED;
+  cm->ci_params.ci_chroma_sample_position[0] = AVM_CSP_UNSPECIFIED;
+  cm->ci_params.ci_chroma_sample_position[1] = AVM_CSP_UNSPECIFIED;
 
-  cm->ci_params.ci_scan_type_idc = AOM_SCAN_TYPE_UNSPECIFIED;
+  cm->ci_params.ci_scan_type_idc = AVM_SCAN_TYPE_UNSPECIFIED;
   cm->ci_params.ci_color_description_present_flag = 0;
   cm->ci_params.ci_chroma_sample_position_present_flag = 0;
   cm->ci_params.ci_aspect_ratio_info_present_flag = 0;
@@ -305,22 +305,22 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 #endif
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-#include "av1/common/entropy_inits_coeffs.h"
-#include "av1/common/entropy_inits_modes.h"
-#include "av1/common/entropy_inits_mv.h"
+#include "av2/common/entropy_inits_coeffs.h"
+#include "av2/common/entropy_inits_modes.h"
+#include "av2/common/entropy_inits_mv.h"
 
   // @ParaKit: add side information needed in array of prob_models structure to
   // be used in collecting data
   cm->prob_models[EOB_FLAG_CDF16] =
       (ProbModelInfo){ .ctx_group_name = "eob_flag_cdf16",
-                       .prob = (aom_cdf_prob *)av1_default_eob_multi16_cdfs,
+                       .prob = (avm_cdf_prob *)av2_default_eob_multi16_cdfs,
                        .cdf_stride = 0,
                        .num_symb = 5,
                        .num_dim = 2,
                        .num_idx = { 0, 0, 4, 3 } };
   cm->prob_models[EOB_FLAG_CDF32] =
       (ProbModelInfo){ .ctx_group_name = "eob_flag_cdf32",
-                       .prob = (aom_cdf_prob *)av1_default_eob_multi32_cdfs,
+                       .prob = (avm_cdf_prob *)av2_default_eob_multi32_cdfs,
                        .cdf_stride = 0,
                        .num_symb = 6,
                        .num_dim = 2,
@@ -358,7 +358,7 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
     }
     fprintf(fData, "\n");
 
-    aom_cdf_prob *prob_ptr;
+    avm_cdf_prob *prob_ptr;
     prob_ptr = cm->prob_models[f].prob;
     int ctx_group_counter = 0;
     for (int d0 = 0; d0 < (num_idx0 == 0 ? 1 : num_idx0); d0++)
@@ -377,7 +377,7 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
                   (d2 * num_idx3 * CDF_SIZE(cdf_stride)) +
                   (d3 * CDF_SIZE(cdf_stride)) + sym;
               if (sym < num_sym)
-                fprintf(fData, "%d", (int)AOM_ICDF(*(prob_ptr + offset)));
+                fprintf(fData, "%d", (int)AVM_ICDF(*(prob_ptr + offset)));
               else
                 fprintf(fData, "%d", (int)*(prob_ptr + offset));
               if (sym < CDF_SIZE(num_sym - 1)) {
@@ -404,84 +404,84 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
   return pbi;
 }
 
-void av1_dealloc_dec_jobs(struct AV1DecTileMTData *tile_mt_info) {
+void av2_dealloc_dec_jobs(struct AV2DecTileMTData *tile_mt_info) {
   if (tile_mt_info != NULL) {
 #if CONFIG_MULTITHREAD
     if (tile_mt_info->job_mutex != NULL) {
       pthread_mutex_destroy(tile_mt_info->job_mutex);
-      aom_free(tile_mt_info->job_mutex);
+      avm_free(tile_mt_info->job_mutex);
     }
 #endif
-    aom_free(tile_mt_info->job_queue);
+    avm_free(tile_mt_info->job_queue);
     // clear the structure as the source of this call may be a resize in which
     // case this call will be followed by an _alloc() which may fail.
-    av1_zero(*tile_mt_info);
+    av2_zero(*tile_mt_info);
   }
 }
 
-void av1_dec_free_cb_buf(AV1Decoder *pbi) {
-  aom_free(pbi->cb_buffer_base);
+void av2_dec_free_cb_buf(AV2Decoder *pbi) {
+  avm_free(pbi->cb_buffer_base);
   pbi->cb_buffer_base = NULL;
   pbi->cb_buffer_alloc_size = 0;
 }
 
-void av1_decoder_remove(AV1Decoder *pbi) {
+void av2_decoder_remove(AV2Decoder *pbi) {
   int i;
 
   if (!pbi) return;
 
-  aom_get_worker_interface()->end(&pbi->lf_worker);
-  aom_free(pbi->lf_worker.data1);
+  avm_get_worker_interface()->end(&pbi->lf_worker);
+  avm_free(pbi->lf_worker.data1);
 
   if (pbi->thread_data) {
     for (int worker_idx = 0; worker_idx < pbi->max_threads - 1; worker_idx++) {
       DecWorkerData *const thread_data = pbi->thread_data + worker_idx;
-      av1_free_mc_tmp_buf(thread_data->td);
-      av1_free_opfl_tmp_bufs(thread_data->td);
-      aom_free(thread_data->td);
+      av2_free_mc_tmp_buf(thread_data->td);
+      av2_free_opfl_tmp_bufs(thread_data->td);
+      avm_free(thread_data->td);
     }
-    aom_free(pbi->thread_data);
+    avm_free(pbi->thread_data);
   }
 
   for (i = 0; i < pbi->num_workers; ++i) {
     AVxWorker *const worker = &pbi->tile_workers[i];
-    aom_get_worker_interface()->end(worker);
+    avm_get_worker_interface()->end(worker);
   }
 #if CONFIG_MULTITHREAD
   if (pbi->row_mt_mutex_ != NULL) {
     pthread_mutex_destroy(pbi->row_mt_mutex_);
-    aom_free(pbi->row_mt_mutex_);
+    avm_free(pbi->row_mt_mutex_);
   }
   if (pbi->row_mt_cond_ != NULL) {
     pthread_cond_destroy(pbi->row_mt_cond_);
-    aom_free(pbi->row_mt_cond_);
+    avm_free(pbi->row_mt_cond_);
   }
 #endif
   for (i = 0; i < pbi->allocated_tiles; i++) {
     TileDataDec *const tile_data = pbi->tile_data + i;
-    av1_dec_row_mt_dealloc(&tile_data->dec_row_mt_sync);
+    av2_dec_row_mt_dealloc(&tile_data->dec_row_mt_sync);
   }
-  aom_free(pbi->tile_data);
-  aom_free(pbi->tile_workers);
+  avm_free(pbi->tile_data);
+  avm_free(pbi->tile_workers);
 
   if (pbi->num_workers > 0) {
-    av1_loop_filter_dealloc(&pbi->lf_row_sync);
-    av1_ccso_filter_dealloc(&pbi->ccso_sync);
-    av1_loop_restoration_dealloc(&pbi->lr_row_sync, pbi->num_workers);
-    av1_dealloc_dec_jobs(&pbi->tile_mt_info);
+    av2_loop_filter_dealloc(&pbi->lf_row_sync);
+    av2_ccso_filter_dealloc(&pbi->ccso_sync);
+    av2_loop_restoration_dealloc(&pbi->lr_row_sync, pbi->num_workers);
+    av2_dealloc_dec_jobs(&pbi->tile_mt_info);
   }
 
   dec_free_tip_ref_frame(&pbi->common);
   dec_free_optflow_bufs(&pbi->common);
 
   free_bru_info(&pbi->common);
-  av1_dec_free_cb_buf(pbi);
+  av2_dec_free_cb_buf(pbi);
 #if CONFIG_ACCOUNTING
-  aom_accounting_clear(&pbi->accounting);
+  avm_accounting_clear(&pbi->accounting);
 #endif
-  av1_free_mc_tmp_buf(&pbi->td);
-  av1_free_opfl_tmp_bufs(&pbi->td);
-  aom_img_metadata_array_free(pbi->metadata);
+  av2_free_mc_tmp_buf(&pbi->td);
+  av2_free_opfl_tmp_bufs(&pbi->td);
+  avm_img_metadata_array_free(pbi->metadata);
 
 #if DEBUG_EXTQUANT
   if (pbi->common.fDecCoeffLog != NULL) {
@@ -499,24 +499,24 @@ void av1_decoder_remove(AV1Decoder *pbi) {
 #if CONFIG_F255_QMOBU
   for (int qm_pos = 0; qm_pos < NUM_CUSTOM_QMS; qm_pos++) {
     if (pbi->qm_list[qm_pos].quantizer_matrix != NULL)
-      av1_free_qmset(pbi->qm_list[qm_pos].quantizer_matrix);
+      av2_free_qmset(pbi->qm_list[qm_pos].quantizer_matrix);
   }
 #else
   if (pbi->common.quant_params.qmatrix_allocated) {
-    av1_free_qm(pbi->common.seq_params.quantizer_matrix_8x8);
-    av1_free_qm(pbi->common.seq_params.quantizer_matrix_8x4);
-    av1_free_qm(pbi->common.seq_params.quantizer_matrix_4x8);
+    av2_free_qm(pbi->common.seq_params.quantizer_matrix_8x8);
+    av2_free_qm(pbi->common.seq_params.quantizer_matrix_8x4);
+    av2_free_qm(pbi->common.seq_params.quantizer_matrix_4x8);
   }
 #endif  // CONFIG_F255_QMOBU
-  aom_free(pbi);
+  avm_free(pbi);
 }
 
-void av1_visit_palette(AV1Decoder *const pbi, MACROBLOCKD *const xd,
-                       aom_reader *r, palette_visitor_fn_t visit) {
+void av2_visit_palette(AV2Decoder *const pbi, MACROBLOCKD *const xd,
+                       avm_reader *r, palette_visitor_fn_t visit) {
   if (!is_inter_block(xd->mi[0], xd->tree_type)) {
     const int plane_start = get_partition_plane_start(xd->tree_type);
     const int plane_end = get_partition_plane_end(
-        xd->tree_type, AOMMIN(2, av1_num_planes(&pbi->common)));
+        xd->tree_type, AVMMIN(2, av2_num_planes(&pbi->common)));
     for (int plane = plane_start; plane < plane_end; ++plane) {
       if (plane == 0 || xd->is_chroma_ref) {
         if (xd->mi[0]->palette_mode_info.palette_size[plane])
@@ -534,21 +534,21 @@ static int equal_dimensions(const YV12_BUFFER_CONFIG *a,
          a->uv_height == b->uv_height && a->uv_width == b->uv_width;
 }
 
-aom_codec_err_t av1_copy_reference_dec(AV1Decoder *pbi, int idx,
+avm_codec_err_t av2_copy_reference_dec(AV2Decoder *pbi, int idx,
                                        YV12_BUFFER_CONFIG *sd) {
-  AV1_COMMON *cm = &pbi->common;
-  const int num_planes = av1_num_planes(cm);
+  AV2_COMMON *cm = &pbi->common;
+  const int num_planes = av2_num_planes(cm);
 
   const YV12_BUFFER_CONFIG *const cfg = get_ref_frame(cm, idx);
   if (cfg == NULL) {
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR, "No reference frame");
-    return AOM_CODEC_ERROR;
+    avm_internal_error(&cm->error, AVM_CODEC_ERROR, "No reference frame");
+    return AVM_CODEC_ERROR;
   }
   if (!equal_dimensions(cfg, sd))
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+    avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                        "Incorrect buffer dimensions");
   else
-    aom_yv12_copy_frame(cfg, sd, num_planes);
+    avm_yv12_copy_frame(cfg, sd, num_planes);
 
   return cm->error.error_code;
 }
@@ -561,31 +561,31 @@ static int equal_dimensions_and_border(const YV12_BUFFER_CONFIG *a,
          a->border == b->border;
 }
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
+avm_codec_err_t av2_set_reference_dec(AV2_COMMON *cm, int idx,
                                       int use_external_ref,
                                       YV12_BUFFER_CONFIG *sd) {
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   YV12_BUFFER_CONFIG *ref_buf = NULL;
 
   // Get the destination reference buffer.
   ref_buf = get_ref_frame(cm, idx);
 
   if (ref_buf == NULL) {
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR, "No reference frame");
-    return AOM_CODEC_ERROR;
+    avm_internal_error(&cm->error, AVM_CODEC_ERROR, "No reference frame");
+    return AVM_CODEC_ERROR;
   }
 
   if (!use_external_ref) {
     if (!equal_dimensions(ref_buf, sd)) {
-      aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+      avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                          "Incorrect buffer dimensions");
     } else {
       // Overwrite the reference frame buffer.
-      aom_yv12_copy_frame(sd, ref_buf, num_planes);
+      avm_yv12_copy_frame(sd, ref_buf, num_planes);
     }
   } else {
     if (!equal_dimensions_and_border(ref_buf, sd)) {
-      aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+      avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                          "Incorrect buffer dimensions");
     } else {
       // Overwrite the reference frame buffer pointers.
@@ -604,22 +604,22 @@ aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
   return cm->error.error_code;
 }
 
-aom_codec_err_t av1_copy_new_frame_dec(AV1_COMMON *cm,
+avm_codec_err_t av2_copy_new_frame_dec(AV2_COMMON *cm,
                                        YV12_BUFFER_CONFIG *new_frame,
                                        YV12_BUFFER_CONFIG *sd) {
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
 
   if (!equal_dimensions_and_border(new_frame, sd))
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+    avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                        "Incorrect buffer dimensions");
   else
-    aom_yv12_copy_frame(new_frame, sd, num_planes);
+    avm_yv12_copy_frame(new_frame, sd, num_planes);
 
   return cm->error.error_code;
 }
 
-static void release_current_frame(AV1Decoder *pbi) {
-  AV1_COMMON *const cm = &pbi->common;
+static void release_current_frame(AV2Decoder *pbi) {
+  AV2_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
 
   cm->cur_frame->buf.corrupted = 1;
@@ -630,9 +630,9 @@ static void release_current_frame(AV1Decoder *pbi) {
 }
 #if CONFIG_F024_KEYOBU
 // This function flushes out the DPB, all the slots in the dpb is free to use
-aom_codec_err_t flush_remaining_frames(struct AV1Decoder *pbi) {
-  aom_codec_err_t res = AOM_CODEC_OK;
-  AV1_COMMON *const cm = &pbi->common;
+avm_codec_err_t flush_remaining_frames(struct AV2Decoder *pbi) {
+  avm_codec_err_t res = AVM_CODEC_OK;
+  AV2_COMMON *const cm = &pbi->common;
   RefCntBuffer *output_candidate = NULL;
   do {
     output_candidate = NULL;
@@ -661,8 +661,8 @@ aom_codec_err_t flush_remaining_frames(struct AV1Decoder *pbi) {
 // the frame to be flushed out from the ref_frame_map slot.
 // ref_idx == -1 indicates the output process is trigged by
 // decoding the current frame.
-void output_frame_buffers(AV1Decoder *pbi, int ref_idx) {
-  AV1_COMMON *const cm = &pbi->common;
+void output_frame_buffers(AV2Decoder *pbi, int ref_idx) {
+  AV2_COMMON *const cm = &pbi->common;
   RefCntBuffer *trigger_frame = NULL;
   RefCntBuffer *output_candidate = NULL;
 
@@ -691,10 +691,10 @@ void output_frame_buffers(AV1Decoder *pbi, int ref_idx) {
       output_candidate->frame_output_done = 1;
 #if CONFIG_BITSTREAM_DEBUG
 #if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-      aom_bitstream_queue_set_frame_read(
+      avm_bitstream_queue_set_frame_read(
           derive_output_order_idx(cm, output_candidate) * 2 + 1);
 #else   // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-      aom_bitstream_queue_set_frame_read(output_candidate->order_hint * 2 + 1);
+      avm_bitstream_queue_set_frame_read(output_candidate->order_hint * 2 + 1);
 #endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 #endif  // CONFIG_BITSTREAM_DEBUG
 #if CONFIG_MISMATCH_DEBUG
@@ -722,10 +722,10 @@ void output_frame_buffers(AV1Decoder *pbi, int ref_idx) {
 #if CONFIG_BITSTREAM_DEBUG
   if (trigger_frame->order_hint != cm->cur_frame->order_hint) {
 #if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-    aom_bitstream_queue_set_frame_read(
+    avm_bitstream_queue_set_frame_read(
         derive_output_order_idx(cm, trigger_frame) * 2 + 1);
 #else   // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-    aom_bitstream_queue_set_frame_read(trigger_frame->order_hint * 2 + 1);
+    avm_bitstream_queue_set_frame_read(trigger_frame->order_hint * 2 + 1);
 #endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
   }
 #endif  // CONFIG_BITSTREAM_DEBUG
@@ -771,10 +771,10 @@ void output_frame_buffers(AV1Decoder *pbi, int ref_idx) {
         successive_output++;
 #if CONFIG_BITSTREAM_DEBUG
 #if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-        aom_bitstream_queue_set_frame_read(
+        avm_bitstream_queue_set_frame_read(
             derive_output_order_idx(cm, cm->ref_frame_map[i]) * 2 + 1);
 #else   // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-        aom_bitstream_queue_set_frame_read(next_disp_order * 2 + 1);
+        avm_bitstream_queue_set_frame_read(next_disp_order * 2 + 1);
 #endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 #endif  // CONFIG_BITSTREAM_DEBUG
 #if CONFIG_MISMATCH_DEBUG
@@ -786,8 +786,8 @@ void output_frame_buffers(AV1Decoder *pbi, int ref_idx) {
 }
 // This function outputs all frames from the frame buffers that are showable but
 // have not yet been output in the previous CVS.
-void output_trailing_frames(AV1Decoder *pbi) {
-  AV1_COMMON *const cm = &pbi->common;
+void output_trailing_frames(AV2Decoder *pbi) {
+  AV2_COMMON *const cm = &pbi->common;
   RefCntBuffer *output_candidate = NULL;
   do {
     output_candidate = NULL;
@@ -812,9 +812,9 @@ void output_trailing_frames(AV1Decoder *pbi) {
 //
 // This functions returns void. It reports failure by setting
 // cm->error.error_code.
-static void update_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
+static void update_frame_buffers(AV2Decoder *pbi, int frame_decoded) {
   int ref_index = 0;
-  AV1_COMMON *const cm = &pbi->common;
+  AV2_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
 
   pbi->output_frames_offset = 0;
@@ -885,8 +885,8 @@ static void update_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 // If the refresh_frame_flags bitmask is set, update long-term frame id values
 // and mark frames as valid for reference.
-static AOM_INLINE void update_long_term_frame_id(AV1Decoder *const pbi) {
-  AV1_COMMON *const cm = &pbi->common;
+static AVM_INLINE void update_long_term_frame_id(AV2Decoder *const pbi) {
+  AV2_COMMON *const cm = &pbi->common;
   int refresh_frame_flags = cm->current_frame.refresh_frame_flags;
   for (int i = 0; i < cm->seq_params.ref_frames; i++) {
     if ((refresh_frame_flags >> i) & 1) {
@@ -906,11 +906,11 @@ static AOM_INLINE void update_long_term_frame_id(AV1Decoder *const pbi) {
 }
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 
-int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
+int av2_receive_compressed_data(AV2Decoder *pbi, size_t size,
                                 const uint8_t **psource) {
-  AV1_COMMON *volatile const cm = &pbi->common;
+  AV2_COMMON *volatile const cm = &pbi->common;
   const uint8_t *source = *psource;
-  cm->error.error_code = AOM_CODEC_OK;
+  cm->error.error_code = AVM_CODEC_OK;
   cm->error.has_detail = 0;
   cm->decoding = 1;
 
@@ -931,13 +931,13 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   // Flush the DPB before CLK and before OLK
   // This should be done before new fb is assigned to current frame to make all
   // the DPB available
-  if (av1_is_random_accessed_temporal_unit(source, size)) {
+  if (av2_is_random_accessed_temporal_unit(source, size)) {
     if (pbi->is_first_layer_decoded) flush_remaining_frames(pbi);
   }
 #endif
   check_ref_count_status_dec(pbi);
   if (assign_cur_frame_new_fb(cm) == NULL) {
-    cm->error.error_code = AOM_CODEC_MEM_ERROR;
+    cm->error.error_code = AVM_CODEC_MEM_ERROR;
     return 1;
   }
 
@@ -945,7 +945,7 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
   // before it returns.
   if (setjmp(cm->error.jmp)) {
-    const AVxWorkerInterface *const winterface = aom_get_worker_interface();
+    const AVxWorkerInterface *const winterface = avm_get_worker_interface();
     int i;
 
     cm->error.setjmp = 0;
@@ -958,14 +958,14 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     }
 
     release_current_frame(pbi);
-    aom_clear_system_state();
+    avm_clear_system_state();
     return -1;
   }
 
   cm->error.setjmp = 1;
 
   int frame_decoded =
-      aom_decode_frame_from_obus(pbi, source, source + size, psource);
+      avm_decode_frame_from_obus(pbi, source, source + size, psource);
 #if CONFIG_INSPECTION
   if (cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
     if (pbi->inspect_tip_cb != NULL) {
@@ -974,7 +974,7 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
   }
 #endif
   if (frame_decoded < 0) {
-    assert(cm->error.error_code != AOM_CODEC_OK);
+    assert(cm->error.error_code != AVM_CODEC_OK);
     release_current_frame(pbi);
     cm->error.setjmp = 0;
     return 1;
@@ -1005,12 +1005,12 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     pbi->decoding_first_frame = 0;
   }
 
-  if (cm->error.error_code != AOM_CODEC_OK) {
+  if (cm->error.error_code != AVM_CODEC_OK) {
     cm->error.setjmp = 0;
     return 1;
   }
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 #if !CONFIG_F024_KEYOBU
   if (!cm->show_existing_frame) {
 #endif
@@ -1034,18 +1034,18 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
 }
 
 // Get the frame at a particular index in the output queue
-int av1_get_raw_frame(AV1Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
-                      aom_film_grain_t **grain_params) {
+int av2_get_raw_frame(AV2Decoder *pbi, size_t index, YV12_BUFFER_CONFIG **sd,
+                      avm_film_grain_t **grain_params) {
   if (index >= pbi->num_output_frames) return -1;
   *sd = &pbi->output_frames[index]->buf;
   *grain_params = &pbi->output_frames[index]->film_grain_params;
-  aom_clear_system_state();
+  avm_clear_system_state();
   return 0;
 }
 
 // Get the highest-spatial-layer output
 // TODO(rachelbarker): What should this do?
-int av1_get_frame_to_show(AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
+int av2_get_frame_to_show(AV2Decoder *pbi, YV12_BUFFER_CONFIG *frame) {
   if (pbi->num_output_frames == 0) return -1;
   const size_t out_frame_idx = pbi->output_frames_offset;
   if (pbi->num_output_frames <= out_frame_idx) return -1;

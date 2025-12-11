@@ -12,11 +12,11 @@
 
 #include <arm_neon.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
-void aom_subtract_block_neon(int rows, int cols, int16_t *diff,
+void avm_subtract_block_neon(int rows, int cols, int16_t *diff,
                              ptrdiff_t diff_stride, const uint8_t *src,
                              ptrdiff_t src_stride, const uint8_t *pred,
                              ptrdiff_t pred_stride) {

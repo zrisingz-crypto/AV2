@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_SCALE_H_
-#define AOM_AV1_COMMON_SCALE_H_
+#ifndef AVM_AV2_COMMON_SCALE_H_
+#define AVM_AV2_COMMON_SCALE_H_
 
-#include "av1/common/convolve.h"
-#include "av1/common/mv.h"
+#include "av2/common/convolve.h"
+#include "av2/common/mv.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,20 +38,20 @@ struct scale_factors {
   int64_t (*scale_value_warp_y)(int64_t val, const struct scale_factors *sf);
 };
 
-MV32 av1_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf);
+MV32 av2_scale_mv(const MV *mv, int x, int y, const struct scale_factors *sf);
 
-void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
+void av2_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
                                        int other_h, int this_w, int this_h);
 
-static INLINE int av1_is_valid_scale(const struct scale_factors *sf) {
+static INLINE int av2_is_valid_scale(const struct scale_factors *sf) {
   assert(sf != NULL);
   return sf->x_scale_fp != REF_INVALID_SCALE &&
          sf->y_scale_fp != REF_INVALID_SCALE;
 }
 
-static INLINE int av1_is_scaled(const struct scale_factors *sf) {
+static INLINE int av2_is_scaled(const struct scale_factors *sf) {
   assert(sf != NULL);
-  return av1_is_valid_scale(sf) &&
+  return av2_is_valid_scale(sf) &&
          (sf->x_scale_fp != REF_NO_SCALE || sf->y_scale_fp != REF_NO_SCALE);
 }
 
@@ -65,4 +65,4 @@ static INLINE int valid_ref_frame_size(int ref_width, int ref_height,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_SCALE_H_
+#endif  // AVM_AV2_COMMON_SCALE_H_

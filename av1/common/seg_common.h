@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_SEG_COMMON_H_
-#define AOM_AV1_COMMON_SEG_COMMON_H_
+#ifndef AVM_AV2_COMMON_SEG_COMMON_H_
+#define AVM_AV2_COMMON_SEG_COMMON_H_
 
-#include "aom_dsp/prob.h"
+#include "avm_dsp/prob.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,16 +61,16 @@ typedef struct SegmentationInfoSyntax {
 #endif  // CONFIG_MULTI_LEVEL_SEGMENTATION
 
 struct segmentation_probs {
-  aom_cdf_prob pred_cdf[SEG_TEMPORAL_PRED_CTXS][CDF_SIZE(2)];
+  avm_cdf_prob pred_cdf[SEG_TEMPORAL_PRED_CTXS][CDF_SIZE(2)];
   // *_cdf[]  : seg_id 0 ~ 7, before post-processing
   // *_cdf1[] : seg_id 8 ~ 15, before post-processing
-  aom_cdf_prob tree_cdf[CDF_SIZE(MAX_SEGMENTS_8)];
-  aom_cdf_prob tree_cdf1[CDF_SIZE(MAX_SEGMENTS_8)];
-  aom_cdf_prob spatial_pred_seg_cdf[SPATIAL_PREDICTION_PROBS]
+  avm_cdf_prob tree_cdf[CDF_SIZE(MAX_SEGMENTS_8)];
+  avm_cdf_prob tree_cdf1[CDF_SIZE(MAX_SEGMENTS_8)];
+  avm_cdf_prob spatial_pred_seg_cdf[SPATIAL_PREDICTION_PROBS]
                                    [CDF_SIZE(MAX_SEGMENTS_8)];
-  aom_cdf_prob spatial_pred_seg_cdf1[SPATIAL_PREDICTION_PROBS]
+  avm_cdf_prob spatial_pred_seg_cdf1[SPATIAL_PREDICTION_PROBS]
                                     [CDF_SIZE(MAX_SEGMENTS_8)];
-  aom_cdf_prob seg_id_ext_flag_cdf[SPATIAL_PREDICTION_PROBS][CDF_SIZE(2)];
+  avm_cdf_prob seg_id_ext_flag_cdf[SPATIAL_PREDICTION_PROBS][CDF_SIZE(2)];
 };
 
 static INLINE int segfeature_active(const struct segmentation *seg,
@@ -95,29 +95,29 @@ static INLINE void segfeatures_copy(struct segmentation *dst,
   dst->enable_ext_seg = src->enable_ext_seg;
 }
 
-void av1_clearall_segfeatures(struct segmentation *seg);
+void av2_clearall_segfeatures(struct segmentation *seg);
 
-void av1_enable_segfeature(struct segmentation *seg, int segment_id,
+void av2_enable_segfeature(struct segmentation *seg, int segment_id,
                            SEG_LVL_FEATURES feature_id);
 
 #if CONFIG_MULTI_LEVEL_SEGMENTATION
-int av1_check_seg_equivalence(const struct SegmentationInfoSyntax *seg_params,
+int av2_check_seg_equivalence(const struct SegmentationInfoSyntax *seg_params,
                               const struct segmentation *seg);
 
-void av1_reconstruct_seg_params(const struct SegmentationInfoSyntax *seg_params,
+void av2_reconstruct_seg_params(const struct SegmentationInfoSyntax *seg_params,
                                 struct segmentation *seg);
 
-void av1_calculate_segdata_from_syntax(
+void av2_calculate_segdata_from_syntax(
     struct SegmentationInfoSyntax *seg_params);
 #endif  // CONFIG_MULTI_LEVEL_SEGMENTATION
 
-void av1_calculate_segdata(struct segmentation *seg);
+void av2_calculate_segdata(struct segmentation *seg);
 
-int av1_seg_feature_data_max(SEG_LVL_FEATURES feature_id);
+int av2_seg_feature_data_max(SEG_LVL_FEATURES feature_id);
 
-int av1_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
+int av2_is_segfeature_signed(SEG_LVL_FEATURES feature_id);
 
-void av1_set_segdata(struct segmentation *seg, int segment_id,
+void av2_set_segdata(struct segmentation *seg, int segment_id,
                      SEG_LVL_FEATURES feature_id, int seg_data);
 
 static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
@@ -129,4 +129,4 @@ static INLINE int get_segdata(const struct segmentation *seg, int segment_id,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_SEG_COMMON_H_
+#endif  // AVM_AV2_COMMON_SEG_COMMON_H_

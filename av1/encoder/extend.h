@@ -10,21 +10,21 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_EXTEND_H_
-#define AOM_AV1_ENCODER_EXTEND_H_
+#ifndef AVM_AV2_ENCODER_EXTEND_H_
+#define AVM_AV2_ENCODER_EXTEND_H_
 
-#include "aom_scale/yv12config.h"
-#include "aom/aom_integer.h"
+#include "avm_scale/yv12config.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
+void av2_copy_and_extend_frame(const YV12_BUFFER_CONFIG *src,
                                YV12_BUFFER_CONFIG *dst);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_EXTEND_H_
+#endif  // AVM_AV2_ENCODER_EXTEND_H_

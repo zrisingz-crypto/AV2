@@ -12,9 +12,9 @@
 
 #include <immintrin.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/reconinter.h"
+#include "av2/common/reconinter.h"
 
 static INLINE void sign_extend_16bit_to_32bit(__m256i in, __m256i zero,
                                               __m256i *out_lo,
@@ -990,12 +990,12 @@ static INLINE void avg_pool_pdiff_grad_256xbh_avx2(
   }
 }
 
-void av1_avg_pooling_pdiff_gradients_avx2(int16_t *pdiff, const int pstride,
+void av2_avg_pooling_pdiff_gradients_avx2(int16_t *pdiff, const int pstride,
                                           int16_t *gx, int16_t *gy,
                                           const int gstride, const int bw,
                                           const int bh, const int n) {
-  const int bh_low = AOMMIN(bh, n);
-  const int bw_low = AOMMIN(bw, n);
+  const int bh_low = AVMMIN(bh, n);
+  const int bw_low = AVMMIN(bw, n);
   if (bh == bh_low && bw == bw_low) return;
   const int step_h = bh / bh_low;
   const int step_w = bw / bw_low;
@@ -1018,7 +1018,7 @@ void av1_avg_pooling_pdiff_gradients_avx2(int16_t *pdiff, const int pstride,
     avg_pool_pdiff_grad_256xbh_avx2(pdiff, pstride, gx, gy, gstride, bh, step_w,
                                     step_h);
   } else {
-    av1_avg_pooling_pdiff_gradients_c(pdiff, pstride, gx, gy, gstride, bw, bh,
+    av2_avg_pooling_pdiff_gradients_c(pdiff, pstride, gx, gy, gstride, bw, bh,
                                       n);
   }
 }
@@ -1045,7 +1045,7 @@ DECLARE_ALIGNED(32, static const uint8_t, next2_pixel_mask[32]) = {
   8, 9, 10, 11, 12, 13, 14, 15, 12, 13, 14, 15, 12, 13, 14, 15
 };
 
-static AOM_INLINE void sub_mul_add(const __m256i *id_next,
+static AVM_INLINE void sub_mul_add(const __m256i *id_next,
                                    const __m256i *id_prev,
                                    const __m256i *id_next2,
                                    const __m256i *id_prev2,
@@ -1058,14 +1058,14 @@ static AOM_INLINE void sub_mul_add(const __m256i *id_next,
   *temp_reg = round_power_of_two_signed_epi32(temp, bicubic_bits);
 }
 
-static AOM_INLINE __m256i clamp_epi16(__m256i val, const int min_val,
+static AVM_INLINE __m256i clamp_epi16(__m256i val, const int min_val,
                                       const int max_val) {
   const __m256i min = _mm256_set1_epi16(min_val);
   const __m256i max = _mm256_set1_epi16(max_val);
   return _mm256_min_epi16(_mm256_max_epi16(val, min), max);
 }
 
-void av1_bicubic_grad_interpolation_highbd_avx2(const int16_t *pred_src,
+void av2_bicubic_grad_interpolation_highbd_avx2(const int16_t *pred_src,
                                                 int16_t *x_grad,
                                                 int16_t *y_grad,
                                                 const int stride, const int bw,
@@ -1665,7 +1665,7 @@ void av1_bicubic_grad_interpolation_highbd_avx2(const int16_t *pred_src,
 #endif  // OPFL_BICUBIC_GRAD
 }
 
-static AOM_FORCE_INLINE void multiply(const __m256i a, const __m256i b,
+static AVM_FORCE_INLINE void multiply(const __m256i a, const __m256i b,
                                       __m256i *t1, __m256i *t2) {
   const __m256i lo = _mm256_mullo_epi16(a, b);
   const __m256i hi = _mm256_mulhi_epi16(a, b);
@@ -1673,7 +1673,7 @@ static AOM_FORCE_INLINE void multiply(const __m256i a, const __m256i b,
   *t2 = _mm256_unpackhi_epi16(lo, hi);
 }
 
-static AOM_FORCE_INLINE void xx256_storel_32(int32_t *store_lo,
+static AVM_FORCE_INLINE void xx256_storel_32(int32_t *store_lo,
                                              int32_t *store_hi, const __m256i a,
                                              const __m256i b) {
   __m256i sum = _mm256_add_epi32(a, b);
@@ -1683,7 +1683,7 @@ static AOM_FORCE_INLINE void xx256_storel_32(int32_t *store_lo,
   *store_hi = _mm256_extract_epi32(sum, 4);
 }
 
-static AOM_FORCE_INLINE __m256i round_power_of_two_signed_avx2(
+static AVM_FORCE_INLINE __m256i round_power_of_two_signed_avx2(
     const __m256i in, const __m256i rounding_offset, const __m256i round_bits) {
   // Create a mask for the sign bits of the input vector
   const __m256i sign_mask = _mm256_srai_epi32(in, 31);
@@ -1698,7 +1698,7 @@ static AOM_FORCE_INLINE __m256i round_power_of_two_signed_avx2(
   return rounded_vec;
 }
 
-static AOM_FORCE_INLINE void multiply_and_round(const __m256i a,
+static AVM_FORCE_INLINE void multiply_and_round(const __m256i a,
                                                 const __m256i b,
                                                 __m256i rounding_offset,
                                                 __m256i round_bits, __m256i *t1,
@@ -1795,7 +1795,7 @@ static void opfl_mv_refinement_16x8_avx2(const int16_t *pdiff, int pstride,
                   rls_alpha, vx0 + 1, vy0 + 1, vx1 + 1, vy1 + 1);
 }
 
-int av1_opfl_mv_refinement_nxn_avx2(
+int av2_opfl_mv_refinement_nxn_avx2(
     const int16_t *pdiff, int pstride, const int16_t *gx, const int16_t *gy,
     int gstride, int bw, int bh, int n, int d0, int d1, int grad_prec_bits,
     int mv_prec_bits, int mi_x, int mi_y, int mi_cols, int mi_rows,
@@ -1804,7 +1804,7 @@ int av1_opfl_mv_refinement_nxn_avx2(
   // Invoke SSE4_1 implementation for blocks with width < 16 and for other block
   // sizes use AVX2 by processing two 8x8 blocks parallelly.
   if (bw < 16) {
-    n_blocks = av1_opfl_mv_refinement_nxn_sse4_1(
+    n_blocks = av2_opfl_mv_refinement_nxn_sse4_1(
         pdiff, pstride, gx, gy, gstride, bw, bh, n, d0, d1, grad_prec_bits,
         mv_prec_bits, mi_x, mi_y, mi_cols, mi_rows, build_for_decode, vx0, vy0,
         vx1, vy1);
@@ -1842,7 +1842,7 @@ static INLINE __m256i round_power_of_two_signed_epi16(__m256i temp1,
   return _mm256_mullo_epi16(reg, v_sign_d);
 }
 
-static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bw8_avx2(
+static AVM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bw8_avx2(
     const uint16_t *src1, const uint16_t *src2, int src_stride, int16_t *dst1,
     int16_t *dst2, int bw, int bh, int d0, int d1, int bd, int centered) {
   assert(bw == 8);
@@ -1900,7 +1900,7 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bw8_avx2(
   }
 }
 
-static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bwlt8_avx2(
+static AVM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bwlt8_avx2(
     const uint16_t *src1, const uint16_t *src2, int src_stride, int16_t *dst1,
     int16_t *dst2, int dst_stride, int bw, int bh, int d0, int d1, int bd,
     int centered) {
@@ -1943,7 +1943,7 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_bwlt8_avx2(
   }
 }
 
-static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_avx2(
+static AVM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_avx2(
     const uint16_t *src1, const uint16_t *src2, int src_stride, int16_t *dst1,
     int16_t *dst2, int bw, int bh, int d0, int d1, int bd, int centered) {
   const int h_size = bh >= 16 ? 16 : bh;
@@ -1959,7 +1959,7 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_avx2(
   }
 }
 
-void av1_copy_pred_array_highbd_avx2(const uint16_t *src1, const uint16_t *src2,
+void av2_copy_pred_array_highbd_avx2(const uint16_t *src1, const uint16_t *src2,
                                      int src_stride, int16_t *dst1,
                                      int16_t *dst2, int bw, int bh, int d0,
                                      int d1, int bd, int centered) {
@@ -1972,7 +1972,7 @@ void av1_copy_pred_array_highbd_avx2(const uint16_t *src1, const uint16_t *src2,
   } else {
     // Using avx2 with bw > 16 results in neutral or even slower performance
     // than SSE4. May need further improvements here.
-    av1_copy_pred_array_highbd_sse4_1(src1, src2, src_stride, dst1, dst2, bw,
+    av2_copy_pred_array_highbd_sse4_1(src1, src2, src_stride, dst1, dst2, bw,
                                       bh, d0, d1, bd, centered);
   }
 }

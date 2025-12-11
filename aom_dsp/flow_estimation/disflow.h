@@ -9,13 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AOM_DSP_FLOW_ESTIMATION_DISFLOW_H_
-#define AOM_AOM_DSP_FLOW_ESTIMATION_DISFLOW_H_
+#ifndef AVM_AVM_DSP_FLOW_ESTIMATION_DISFLOW_H_
+#define AVM_AVM_DSP_FLOW_ESTIMATION_DISFLOW_H_
 
 #include <stdbool.h>
 
-#include "aom_dsp/flow_estimation/flow_estimation.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
+#include "avm_scale/yv12config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,7 +91,7 @@ typedef struct {
   int stride;
 } FlowField;
 
-bool av1_compute_global_motion_disflow(
+bool av2_compute_global_motion_disflow(
     TransformationType type, YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *ref,
     int bit_depth, int downsample_level, MotionModel *motion_models,
     int num_motion_models, bool *mem_alloc_failed);
@@ -100,4 +100,4 @@ bool av1_compute_global_motion_disflow(
 }
 #endif
 
-#endif  // AOM_AOM_DSP_FLOW_ESTIMATION_DISFLOW_H_
+#endif  // AVM_AVM_DSP_FLOW_ESTIMATION_DISFLOW_H_

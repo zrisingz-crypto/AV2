@@ -10,29 +10,29 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_AQ_COMPLEXITY_H_
-#define AOM_AV1_ENCODER_AQ_COMPLEXITY_H_
+#ifndef AVM_AV2_ENCODER_AQ_COMPLEXITY_H_
+#define AVM_AV2_ENCODER_AQ_COMPLEXITY_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct macroblock;
 
 // Select a segment for the current Block.
-void av1_caq_select_segment(const struct AV1_COMP *cpi, struct macroblock *,
+void av2_caq_select_segment(const struct AV2_COMP *cpi, struct macroblock *,
                             BLOCK_SIZE bs, int mi_row, int mi_col,
                             int projected_rate);
 
 // This function sets up a set of segments with delta Q values around
 // the baseline frame quantizer.
-void av1_setup_in_frame_q_adj(struct AV1_COMP *cpi);
+void av2_setup_in_frame_q_adj(struct AV2_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_AQ_COMPLEXITY_H_
+#endif  // AVM_AV2_ENCODER_AQ_COMPLEXITY_H_

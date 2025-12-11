@@ -10,39 +10,39 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_BITWRITER_H_
-#define AOM_AOM_DSP_BITWRITER_H_
+#ifndef AVM_AVM_DSP_BITWRITER_H_
+#define AVM_AVM_DSP_BITWRITER_H_
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/entenc.h"
-#include "aom_dsp/prob.h"
-#include "aom_dsp_common.h"
-#include "aom_dsp/recenter.h"
+#include "avm_dsp/entenc.h"
+#include "avm_dsp/prob.h"
+#include "avm_dsp_common.h"
+#include "avm_dsp/recenter.h"
 
 #if CONFIG_RD_DEBUG
-#include "av1/common/blockd.h"
-#include "av1/common/cost.h"
+#include "av2/common/blockd.h"
+#include "av2/common/cost.h"
 #endif
 
 #if CONFIG_BITSTREAM_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct aom_writer {
+struct avm_writer {
   unsigned int pos;
   uint8_t *buffer;
   od_ec_enc ec;
   uint8_t allow_update_cdf;
 };
 
-typedef struct aom_writer aom_writer;
+typedef struct avm_writer avm_writer;
 
 typedef struct TOKEN_STATS {
   int cost;
@@ -63,40 +63,40 @@ static INLINE void init_token_stats(TOKEN_STATS *token_stats) {
   token_stats->cost = 0;
 }
 
-void aom_start_encode(aom_writer *w, uint8_t *buffer);
+void avm_start_encode(avm_writer *w, uint8_t *buffer);
 
-int aom_stop_encode(aom_writer *w);
+int avm_stop_encode(avm_writer *w);
 
 #if CONFIG_BITSTREAM_DEBUG
 // Push a literal (one or more equi-probably symbols) into
 // the bitstream debug queue, in the same order it is
 // encoded into the stream (msb to lsb).
 static INLINE void bitstream_queue_push_literal(int data, int bits) {
-  aom_cdf_prob cdf[2] = { 128, 32767 };
+  avm_cdf_prob cdf[2] = { 128, 32767 };
   for (int bit = bits - 1; bit >= 0; bit--) {
     bitstream_queue_push(1 & (data >> bit), cdf, 2);
   }
 }
 #endif  // CONFIG_BITSTREAM_DEBUG
 
-static INLINE void aom_write(aom_writer *w, int bit, int probability) {
+static INLINE void avm_write(avm_writer *w, int bit, int probability) {
   int p = (0x7FFFFF - (probability << 15) + probability) >> 8;
 #if CONFIG_BITSTREAM_DEBUG
-  aom_cdf_prob cdf[2] = { (aom_cdf_prob)p, 32767 };
+  avm_cdf_prob cdf[2] = { (avm_cdf_prob)p, 32767 };
   bitstream_queue_push(bit, cdf, 2);
 #endif  // CONFIG_BITSTREAM_DEBUG
 
   od_ec_encode_bool_q15(&w->ec, bit, p);
 }
 
-static INLINE void aom_write_bit(aom_writer *w, int bit) {
+static INLINE void avm_write_bit(avm_writer *w, int bit) {
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_push_literal(bit, 1);
 #endif  // CONFIG_BITSTREAM_DEBUG
   od_ec_encode_literal_bypass(&w->ec, bit, 1);
 }
 
-static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
+static INLINE void avm_write_literal(avm_writer *w, int data, int bits) {
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_push_literal(data, bits);
 #endif  // CONFIG_BITSTREAM_DEBUG
@@ -109,8 +109,8 @@ static INLINE void aom_write_literal(aom_writer *w, int data, int bits) {
   }
 }
 
-static INLINE void aom_write_cdf(aom_writer *w, int symb,
-                                 const aom_cdf_prob *cdf, int nsymbs) {
+static INLINE void avm_write_cdf(avm_writer *w, int symb,
+                                 const avm_cdf_prob *cdf, int nsymbs) {
 #if CONFIG_BITSTREAM_DEBUG
   bitstream_queue_push(symb, cdf, nsymbs);
 #endif  // CONFIG_BITSTREAM_DEBUG
@@ -118,9 +118,9 @@ static INLINE void aom_write_cdf(aom_writer *w, int symb,
   od_ec_encode_cdf_q15(&w->ec, symb, cdf, nsymbs);
 }
 
-static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
+static INLINE void avm_write_symbol(avm_writer *w, int symb, avm_cdf_prob *cdf,
                                     int nsymbs) {
-  aom_write_cdf(w, symb, cdf, nsymbs);
+  avm_write_cdf(w, symb, cdf, nsymbs);
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
 }
 
@@ -146,7 +146,7 @@ static INLINE int symb_to_part(int symb, int nsymb_bits) {
     return 3;
 }
 
-static INLINE void aom_write_4part(aom_writer *w, int symb, aom_cdf_prob *cdf,
+static INLINE void avm_write_4part(avm_writer *w, int symb, avm_cdf_prob *cdf,
                                    int nsymb_bits) {
   assert(nsymb_bits >= 3);
   int part;
@@ -162,20 +162,20 @@ static INLINE void aom_write_4part(aom_writer *w, int symb, aom_cdf_prob *cdf,
     part = 2;
   else
     part = 3;
-  aom_write_symbol(w, part, cdf, 4);
-  aom_write_literal(w, symb - part_offs[part], part_bits[part]);
+  avm_write_symbol(w, part, cdf, 4);
+  avm_write_literal(w, symb - part_offs[part], part_bits[part]);
 }
 
 // Implements a nsymb_bits bit 4-part code that codes a symbol symb given a
 // reference ref_symb after recentering symb around ref_symb.
-static INLINE void aom_write_4part_wref(aom_writer *w, int ref_symb, int symb,
-                                        aom_cdf_prob *cdf, int nsymb_bits) {
+static INLINE void avm_write_4part_wref(avm_writer *w, int ref_symb, int symb,
+                                        avm_cdf_prob *cdf, int nsymb_bits) {
   const int recentered_symb =
       recenter_finite_nonneg(1 << nsymb_bits, ref_symb, symb);
-  aom_write_4part(w, recentered_symb, cdf, nsymb_bits);
+  avm_write_4part(w, recentered_symb, cdf, nsymb_bits);
 }
 
-static INLINE int64_t aom_count_4part(int symb, const int *part_cost,
+static INLINE int64_t avm_count_4part(int symb, const int *part_cost,
                                       int nsymb_bits, int scale_shift) {
   assert(nsymb_bits >= 3);
   int part_bits[4] = { (nsymb_bits - 3), (nsymb_bits - 3), (nsymb_bits - 2),
@@ -192,16 +192,16 @@ static INLINE int64_t aom_count_4part(int symb, const int *part_cost,
     return part_cost[3] + (part_bits[3] << scale_shift);
 }
 
-static INLINE int64_t aom_count_4part_wref(int ref_symb, int symb,
+static INLINE int64_t avm_count_4part_wref(int ref_symb, int symb,
                                            const int *part_cost, int nsymb_bits,
                                            int scale_shift) {
   const int recentered_symb =
       recenter_finite_nonneg(1 << nsymb_bits, ref_symb, symb);
-  return aom_count_4part(recentered_symb, part_cost, nsymb_bits, scale_shift);
+  return avm_count_4part(recentered_symb, part_cost, nsymb_bits, scale_shift);
 }
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_BITWRITER_H_
+#endif  // AVM_AVM_DSP_BITWRITER_H_

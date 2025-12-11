@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_SECONDARY_TX_H_
-#define AOM_AV1_COMMON_SECONDARY_TX_H_
+#ifndef AVM_AV2_COMMON_SECONDARY_TX_H_
+#define AVM_AV2_COMMON_SECONDARY_TX_H_
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -5250,4 +5250,4 @@ static const int16_t
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_SECONDARY_TX_H_
+#endif  // AVM_AV2_COMMON_SECONDARY_TX_H_

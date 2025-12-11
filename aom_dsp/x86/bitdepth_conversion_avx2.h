@@ -12,9 +12,9 @@
 
 #include <immintrin.h>
 
-#include "config/aom_config.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "config/avm_config.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 static INLINE __m256i load_tran_low(const tran_low_t *a) {
   const __m256i a_low = _mm256_loadu_si256((const __m256i *)a);

@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_MSVC_H_
-#define AOM_AOM_PORTS_MSVC_H_
+#ifndef AVM_AVM_PORTS_MSVC_H_
+#define AVM_AVM_PORTS_MSVC_H_
 #ifdef _MSC_VER
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #if _MSC_VER < 1900  // VS2015 provides snprintf
 #define snprintf _snprintf
@@ -73,4 +73,4 @@ static INLINE __m256i _mm256_insert_epi32(__m256i a, int b, const int i) {
 #endif  // _MSC_VER <= 1900
 #endif  // HAVE_AVX
 #endif  // _MSC_VER
-#endif  // AOM_AOM_PORTS_MSVC_H_
+#endif  // AVM_AVM_PORTS_MSVC_H_

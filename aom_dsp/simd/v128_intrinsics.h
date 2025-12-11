@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V128_INTRINSICS_H_
-#define AOM_AOM_DSP_SIMD_V128_INTRINSICS_H_
+#ifndef AVM_AVM_DSP_SIMD_V128_INTRINSICS_H_
+#define AVM_AVM_DSP_SIMD_V128_INTRINSICS_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom_dsp/simd/v128_intrinsics_c.h"
-#include "aom_dsp/simd/v64_intrinsics.h"
+#include "avm_dsp/simd/v128_intrinsics_c.h"
+#include "avm_dsp/simd/v64_intrinsics.h"
 
 /* Fallback to plain, unoptimised C. */
 
@@ -344,4 +344,4 @@ SIMD_INLINE uint64_t v128_ssd_s16_sum(ssd128_internal_s16 s) {
   return c_v128_ssd_s16_sum(s);
 }
 
-#endif  // AOM_AOM_DSP_SIMD_V128_INTRINSICS_H_
+#endif  // AVM_AVM_DSP_SIMD_V128_INTRINSICS_H_

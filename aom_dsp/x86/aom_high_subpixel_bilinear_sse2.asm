@@ -11,7 +11,7 @@
 
 ;
 
-%include "aom_ports/x86_abi_support.asm"
+%include "avm_ports/x86_abi_support.asm"
 
 %macro HIGH_GET_PARAM_4 0
     mov         rdx, arg(5)                 ;filter ptr
@@ -177,8 +177,8 @@
 
 SECTION .text
 
-globalsym(aom_highbd_filter_block1d4_v2_sse2)
-sym(aom_highbd_filter_block1d4_v2_sse2):
+globalsym(avm_highbd_filter_block1d4_v2_sse2)
+sym(avm_highbd_filter_block1d4_v2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -201,8 +201,8 @@ sym(aom_highbd_filter_block1d4_v2_sse2):
     pop         rbp
     ret
 
-globalsym(aom_highbd_filter_block1d8_v2_sse2)
-sym(aom_highbd_filter_block1d8_v2_sse2):
+globalsym(avm_highbd_filter_block1d8_v2_sse2)
+sym(avm_highbd_filter_block1d8_v2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -235,8 +235,8 @@ sym(aom_highbd_filter_block1d8_v2_sse2):
     pop         rbp
     ret
 
-globalsym(aom_highbd_filter_block1d16_v2_sse2)
-sym(aom_highbd_filter_block1d16_v2_sse2):
+globalsym(avm_highbd_filter_block1d16_v2_sse2)
+sym(avm_highbd_filter_block1d16_v2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -271,8 +271,8 @@ sym(aom_highbd_filter_block1d16_v2_sse2):
     pop         rbp
     ret
 
-globalsym(aom_highbd_filter_block1d4_h2_sse2)
-sym(aom_highbd_filter_block1d4_h2_sse2):
+globalsym(avm_highbd_filter_block1d4_h2_sse2)
+sym(avm_highbd_filter_block1d4_h2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -296,8 +296,8 @@ sym(aom_highbd_filter_block1d4_h2_sse2):
     pop         rbp
     ret
 
-globalsym(aom_highbd_filter_block1d8_h2_sse2)
-sym(aom_highbd_filter_block1d8_h2_sse2):
+globalsym(avm_highbd_filter_block1d8_h2_sse2)
+sym(avm_highbd_filter_block1d8_h2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7
@@ -330,8 +330,8 @@ sym(aom_highbd_filter_block1d8_h2_sse2):
     pop         rbp
     ret
 
-globalsym(aom_highbd_filter_block1d16_h2_sse2)
-sym(aom_highbd_filter_block1d16_h2_sse2):
+globalsym(avm_highbd_filter_block1d16_h2_sse2)
+sym(avm_highbd_filter_block1d16_h2_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 7

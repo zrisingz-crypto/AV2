@@ -9,31 +9,31 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/encoder/erp_ml.h"
-#include "av1/encoder/erp_models.h"
-#include "av1/encoder/ml.h"
+#include "av2/encoder/erp_ml.h"
+#include "av2/encoder/erp_models.h"
+#include "av2/encoder/ml.h"
 
 #define MAKE_ERP_MODEL_SWITCH_CASE(bsize)           \
   case bsize:                                       \
-    return is_hd ? av1_erp_rect_hd_##bsize##_tflite \
-                 : av1_erp_rect_##bsize##_tflite;
+    return is_hd ? av2_erp_rect_hd_##bsize##_tflite \
+                 : av2_erp_rect_##bsize##_tflite;
 
 #define MAKE_ERP_DNN_MODEL_SWITCH_CASE(bsize)         \
   case bsize:                                         \
-    return is_hd ? &av1_erp_rect_hd_nn_config_##bsize \
-                 : &av1_erp_rect_nn_config_##bsize;
+    return is_hd ? &av2_erp_rect_hd_nn_config_##bsize \
+                 : &av2_erp_rect_nn_config_##bsize;
 
 #define MAKE_ERP_MEAN_SWITCH_CASE(bsize)                \
   case bsize:                                           \
-    return is_hd ? av1_erp_rect_hd_feature_mean_##bsize \
-                 : av1_erp_rect_feature_mean_##bsize;
+    return is_hd ? av2_erp_rect_hd_feature_mean_##bsize \
+                 : av2_erp_rect_feature_mean_##bsize;
 
 #define MAKE_ERP_STD_SWITCH_CASE(bsize)                \
   case bsize:                                          \
-    return is_hd ? av1_erp_rect_hd_feature_std_##bsize \
-                 : av1_erp_rect_feature_std_##bsize;
+    return is_hd ? av2_erp_rect_hd_feature_std_##bsize \
+                 : av2_erp_rect_feature_std_##bsize;
 
 static const NN_CONFIG *get_dnn_model(BLOCK_SIZE bsize, bool is_hd) {
   switch (bsize) {
@@ -123,7 +123,7 @@ static inline void normalize(float *features_dst, const float *features_src,
 #undef EPSILON
 }
 
-int av1_erp_prune_rect(BLOCK_SIZE bsize, bool is_hd, const float *features,
+int av2_erp_prune_rect(BLOCK_SIZE bsize, bool is_hd, const float *features,
                        bool *prune_horz, bool *prune_vert) {
   // Prepare input.
   float input[19];
@@ -134,10 +134,10 @@ int av1_erp_prune_rect(BLOCK_SIZE bsize, bool is_hd, const float *features,
   // Call nn config
   float output[3];
   const NN_CONFIG *nn_config = get_dnn_model(bsize, is_hd);
-  av1_nn_predict(input, nn_config, 1, output);
+  av2_nn_predict(input, nn_config, 1, output);
 
   float probs[3];
-  av1_nn_softmax(output, probs, 3);
+  av2_nn_softmax(output, probs, 3);
 
   static const float threshes[2][5] = {
     // Non-hd

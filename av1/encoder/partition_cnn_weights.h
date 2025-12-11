@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_PARTITION_CNN_WEIGHTS_H_
-#define AOM_AV1_ENCODER_PARTITION_CNN_WEIGHTS_H_
+#ifndef AVM_AV2_ENCODER_PARTITION_CNN_WEIGHTS_H_
+#define AVM_AV2_ENCODER_PARTITION_CNN_WEIGHTS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/encoder/cnn.h"
-#include "av1/encoder/ml.h"
+#include "av2/encoder/cnn.h"
+#include "av2/encoder/ml.h"
 
 #define CNN_BRANCH_0_OUT_CH 20
 #define CNN_BRANCH_1_OUT_CH 4
@@ -88,7 +88,7 @@ extern "C" {
 #define BRANCH_3_NUM_DNN_LAYER_1_UNITS 24
 #define BRANCH_3_NUM_LOGITS 1
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_0_kernel[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_0_kernel[] = {
   0.131894f,    -0.593536f,  -0.212935f,  -0.00220011f, -0.396949f,
   0.287753f,    -0.91875f,   -0.0095057f, 0.804197f,    -0.395239f,
   0.516604f,    1.16439f,    0.445784f,   -0.163349f,   0.746488f,
@@ -191,14 +191,14 @@ static const float av1_intra_mode_cnn_partition_cnn_layer_0_kernel[] = {
   0.649049f,    0.094957f,   -0.167706f,  -0.258342f,   0.59269f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_0_bias[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_0_bias[] = {
   0.00475215f,  -0.00362332f, -0.00317542f, 0.190083f,    0.0488147f,
   -0.0268093f,  -0.00432231f, 0.0112229f,   0.0626653f,   -0.0025698f,
   0.0018675f,   -0.00368139f, -0.00159125f, -0.00034354f, 0.311437f,
   0.000136436f, 0.0667295f,   0.0251274f,   0.00226553f,  -0.000638344f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_1_kernel[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_1_kernel[] = {
   0.228403f,    0.241933f,     0.181079f,    0.101728f,    0.278455f,
   -0.222078f,   0.387578f,     0.0847356f,   -0.0737012f,  0.26518f,
   -1.0817f,     0.0404161f,    -0.805199f,   0.336576f,    -0.541494f,
@@ -521,14 +521,14 @@ static const float av1_intra_mode_cnn_partition_cnn_layer_1_kernel[] = {
   0.993267f,    0.256555f,     0.0822743f,   0.0411971f,   0.139388f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_1_bias[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_1_bias[] = {
   0.00447951f,  0.0202534f,  0.00970833f, -0.00460874f,  0.0942288f,
   -0.0534704f,  0.00829869f, -0.0255174f, -0.0809143f,   0.00169117f,
   0.0177427f,   0.0259387f,  0.0291077f,  -0.0267599f,   0.100275f,
   -0.00389366f, 0.0315499f,  0.0265846f,  -0.000206604f, 0.0302221f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_2_kernel[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_2_kernel[] = {
   0.153048f,    0.0725422f,   0.068901f,     -0.475608f,   0.0736706f,
   -0.134076f,   0.229289f,    0.0217921f,    0.0449205f,   -1.00002f,
   0.149133f,    0.0497258f,   0.118988f,     0.0741764f,   0.0385486f,
@@ -851,14 +851,14 @@ static const float av1_intra_mode_cnn_partition_cnn_layer_2_kernel[] = {
   -0.00581233f, -0.272292f,   -0.250393f,    0.024511f,    -0.184891f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_2_bias[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_2_bias[] = {
   0.182474f,  0.0223202f,  0.204111f, 0.0573683f,  0.111143f,
   0.0800926f, -0.0364215f, 0.192371f, 0.00498262f, 0.302543f,
   0.0133081f, 0.119719f,   0.237522f, -0.266705f,  0.129427f,
   0.0695857f, 0.22068f,    0.231667f, 0.405829f,   -0.0972567f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_3_kernel[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_3_kernel[] = {
   -0.0393876f,  -0.269924f,   -0.0703231f,   -0.0236484f,  0.170478f,
   0.245566f,    0.175963f,    0.104194f,     -0.0490501f,  -0.157605f,
   -0.0275165f,  -0.0169499f,  -0.250725f,    0.215203f,    -0.00733655f,
@@ -925,11 +925,11 @@ static const float av1_intra_mode_cnn_partition_cnn_layer_3_kernel[] = {
   -0.0761368f,  -0.0755881f,  -0.0384827f,   -0.0554777f,  -0.0750048f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_3_bias[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_3_bias[] = {
   0.0106809f, 0.136699f, 0.285316f, 0.395746f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_4_kernel[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_4_kernel[] = {
   -0.0161019f,  -0.088871f,  0.0463358f,   -0.198037f,   0.038122f,
   0.0135483f,   -0.196641f,  -0.433531f,   0.527972f,    -0.143716f,
   0.558627f,    0.459889f,   0.322864f,    -0.491514f,   -0.190915f,
@@ -996,14 +996,14 @@ static const float av1_intra_mode_cnn_partition_cnn_layer_4_kernel[] = {
   -0.0271108f,  -0.616878f,  -0.604984f,   0.517269f,    -0.293573f
 };
 
-static const float av1_intra_mode_cnn_partition_cnn_layer_4_bias[] = {
+static const float av2_intra_mode_cnn_partition_cnn_layer_4_bias[] = {
   -0.290371f, -0.0560272f,  -0.118144f,  -0.270583f,  0.401388f,
   -0.308677f, 0.150729f,    -0.0324442f, -0.135937f,  0.0875581f,
   0.0206493f, -0.212682f,   -0.0266535f, -0.326656f,  0.0185105f,
   -1.01429f,  -0.00315052f, -0.0273938f, -0.0263379f, -0.171702f
 };
 
-static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
+static const CNN_CONFIG av2_intra_mode_cnn_partition_cnn_config = {
   NUM_CNN_LAYERS,  // num_layers
   0,               // is_residue
   0,               // ext_width
@@ -1018,8 +1018,8 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
           CNN_LAYER_0_HORZ_STRIDE,                          // skip_width
           CNN_LAYER_0_VERT_STRIDE,                          // skip_height
           0,                                                // maxpool
-          av1_intra_mode_cnn_partition_cnn_layer_0_kernel,  // weights
-          av1_intra_mode_cnn_partition_cnn_layer_0_bias,    // bias
+          av2_intra_mode_cnn_partition_cnn_layer_0_kernel,  // weights
+          av2_intra_mode_cnn_partition_cnn_layer_0_bias,    // bias
           PADDING_VALID,                                    // pad
           RELU,                                             // activation
           0,                                                // deconvolve
@@ -1038,8 +1038,8 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
           CNN_LAYER_1_HORZ_STRIDE,                          // skip_width
           CNN_LAYER_1_VERT_STRIDE,                          // skip_height
           0,                                                // maxpool
-          av1_intra_mode_cnn_partition_cnn_layer_1_kernel,  // weights
-          av1_intra_mode_cnn_partition_cnn_layer_1_bias,    // bias
+          av2_intra_mode_cnn_partition_cnn_layer_1_kernel,  // weights
+          av2_intra_mode_cnn_partition_cnn_layer_1_bias,    // bias
           PADDING_VALID,                                    // pad
           RELU,                                             // activation
           0,                                                // deconvolve
@@ -1058,8 +1058,8 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
           CNN_LAYER_2_HORZ_STRIDE,                          // skip_width
           CNN_LAYER_2_VERT_STRIDE,                          // skip_height
           0,                                                // maxpool
-          av1_intra_mode_cnn_partition_cnn_layer_2_kernel,  // weights
-          av1_intra_mode_cnn_partition_cnn_layer_2_bias,    // bias
+          av2_intra_mode_cnn_partition_cnn_layer_2_kernel,  // weights
+          av2_intra_mode_cnn_partition_cnn_layer_2_bias,    // bias
           PADDING_VALID,                                    // pad
           RELU,                                             // activation
           0,                                                // deconvolve
@@ -1078,8 +1078,8 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
           CNN_LAYER_3_HORZ_STRIDE,                          // skip_width
           CNN_LAYER_3_VERT_STRIDE,                          // skip_height
           0,                                                // maxpool
-          av1_intra_mode_cnn_partition_cnn_layer_3_kernel,  // weights
-          av1_intra_mode_cnn_partition_cnn_layer_3_bias,    // bias
+          av2_intra_mode_cnn_partition_cnn_layer_3_kernel,  // weights
+          av2_intra_mode_cnn_partition_cnn_layer_3_bias,    // bias
           PADDING_VALID,                                    // pad
           RELU,                                             // activation
           0,                                                // deconvolve
@@ -1098,8 +1098,8 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
           CNN_LAYER_4_HORZ_STRIDE,                          // skip_width
           CNN_LAYER_4_VERT_STRIDE,                          // skip_height
           0,                                                // maxpool
-          av1_intra_mode_cnn_partition_cnn_layer_4_kernel,  // weights
-          av1_intra_mode_cnn_partition_cnn_layer_4_bias,    // bias
+          av2_intra_mode_cnn_partition_cnn_layer_4_kernel,  // weights
+          av2_intra_mode_cnn_partition_cnn_layer_4_bias,    // bias
           PADDING_VALID,                                    // pad
           RELU,                                             // activation
           0,                                                // deconvolve
@@ -1114,7 +1114,7 @@ static const CNN_CONFIG av1_intra_mode_cnn_partition_cnn_config = {
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_0_dnn_layer_0_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_0_dnn_layer_0_kernel[] = {
       0.604356f,    -0.236007f,   0.342172f,   0.531397f,     -0.635698f,
       -0.591573f,   0.833872f,    0.492814f,   -0.100308f,    0.186385f,
       0.202779f,    0.263578f,    0.330001f,   -0.15531f,     0.879584f,
@@ -1236,14 +1236,14 @@ static const float
       0.0146821f,   0.475679f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_0_dnn_layer_0_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_0_dnn_layer_0_bias[] = {
   0.477356f,   0.385222f,  0.389122f, 0.539506f,   -0.0272558f, 0.581605f,
   -0.800961f,  0.142229f,  0.117549f, -0.0724944f, 0.102095f,   -0.71319f,
   -0.0162434f, -0.132858f, 0.543411f, -0.626599f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_0_dnn_layer_1_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_0_dnn_layer_1_kernel[] = {
       0.195436f,   -0.623354f,  1.27907f,    0.270071f,   -0.677612f,
       0.0266141f,  0.272991f,   -0.425446f,  0.891889f,   -0.299836f,
       -0.611825f,  -0.0322273f, 0.185276f,   0.238639f,   -0.150954f,
@@ -1323,26 +1323,26 @@ static const float
       0.741187f,   0.42019f,    0.0676459f,  -0.230008f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_0_dnn_layer_1_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_0_dnn_layer_1_bias[] = {
   -0.48603f,  -0.578556f,  0.257639f, 0.459915f, 0.178156f,  -1.16663f,
   0.828891f,  0.620291f,   0.413257f, -1.00508f, -0.574179f, -1.20623f,
   -0.377837f, -0.0360333f, 0.681536f, 0.137189f, -0.458718f, 0.387131f,
   0.0233112f, 0.126045f,   0.361304f, 0.655317f, 0.413134f,  0.769947f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_0_logits_kernel[] = {
+static const float av2_intra_mode_cnn_partition_branch_0_logits_kernel[] = {
   0.67244f,   -2.59179f, 0.50425f,  -1.86481f,  1.15891f,   -1.26447f,
   0.761081f,  0.645117f, -1.78594f, -0.872703f, -0.192054f, -1.82359f,
   -0.560935f, 0.838959f, 0.502264f, -1.28958f,  -0.205551f, 0.635671f,
   -1.12619f,  -1.68277f, 0.83361f,  1.57235f,   1.15839f,   0.35345f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_0_logits_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_0_logits_bias[] = {
   1.14463f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_1_dnn_layer_0_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_1_dnn_layer_0_kernel[] = {
       0.364612f,    0.237868f,    -0.192821f,   0.12364f,      0.522205f,
       -0.205785f,   -0.503288f,   -0.426503f,   -0.083073f,    0.0164429f,
       0.184278f,    -0.426055f,   0.0717997f,   -0.261968f,    0.176412f,
@@ -1425,14 +1425,14 @@ static const float
       -0.111634f,   -0.271523f,   0.712093f,    0.684904f,     -0.572331f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_1_dnn_layer_0_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_1_dnn_layer_0_bias[] = {
   0.583367f,  -0.202004f, -0.207626f, 0.412451f,  -0.258311f, 0.0304954f,
   -0.102458f, 0.450087f,  -0.376851f, -0.338702f, 0.335226f,  0.889072f,
   0.502411f,  0.649282f,  0.15345f,   -0.0109896f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_1_dnn_layer_1_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_1_dnn_layer_1_kernel[] = {
       0.0214882f,    -0.934339f,  -0.173335f,  0.8362f,      -0.764234f,
       0.525163f,     0.409749f,   0.821539f,   -0.784157f,   -0.455593f,
       0.446099f,     0.406756f,   0.479242f,   -0.814038f,   -0.419332f,
@@ -1512,26 +1512,26 @@ static const float
       0.395875f,     -0.171812f,  0.253794f,   0.432799f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_1_dnn_layer_1_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_1_dnn_layer_1_bias[] = {
   -0.152159f, 0.552347f,   -0.806068f, 0.227901f,  0.335896f,  0.180785f,
   0.75277f,   0.982208f,   0.409823f,  -0.17755f,  -0.125365f, 0.738114f,
   0.202331f,  0.751737f,   -0.360511f, 0.149254f,  0.085073f,  -0.214542f,
   0.529727f,  -0.0348777f, -2.13162f,  -0.893332f, -0.136952f, -0.71258f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_1_logits_kernel[] = {
+static const float av2_intra_mode_cnn_partition_branch_1_logits_kernel[] = {
   -0.632145f, 0.738727f, -0.750737f, -0.931571f, -1.79763f,  -2.31153f,
   0.912733f,  0.879995f, -1.00602f,  -1.02467f,  0.0536835f, 1.76011f,
   -0.898546f, 1.06959f,  1.60471f,   -1.7312f,   -0.877168f, -0.681185f,
   -1.57286f,  -1.16038f, -4.11303f,  -3.06351f,  -3.02536f,  -2.92186f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_1_logits_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_1_logits_bias[] = {
   1.33207f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_2_dnn_layer_0_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_2_dnn_layer_0_kernel[] = {
       0.0419551f,  0.0924078f,   -0.153084f,   0.191642f,    0.069586f,
       -0.530661f,  0.431968f,    0.000453838f, 0.793047f,    0.0161817f,
       -0.476075f,  -0.156638f,   -0.219066f,   0.372716f,    -0.0642299f,
@@ -1614,14 +1614,14 @@ static const float
       -0.0276895f, -0.21955f,    -0.479179f,   -0.689545f,   0.152799f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_2_dnn_layer_0_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_2_dnn_layer_0_bias[] = {
   -0.296575f, 0.101072f,  -0.208429f, 0.111585f, 0.699552f,   -0.379484f,
   0.313244f,  -0.746369f, 0.867757f,  0.457318f, -0.0190943f, -0.290745f,
   0.45592f,   -0.160465f, -0.634243f, 0.0829737f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_2_dnn_layer_1_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_2_dnn_layer_1_kernel[] = {
       0.27511f,    -2.14172f,   1.25755f,    -0.554772f,  0.589508f,
       0.228307f,   0.0754914f,  1.07061f,    0.293323f,   0.65162f,
       -0.272016f,  -1.33519f,   -0.606759f,  -0.57827f,   0.368807f,
@@ -1701,26 +1701,26 @@ static const float
       -0.863307f,  -0.452033f,  -0.278151f,  1.86233f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_2_dnn_layer_1_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_2_dnn_layer_1_bias[] = {
   -0.103218f, -0.359587f, 0.619666f,  -0.473497f,  -0.649803f, 0.86992f,
   -0.115561f, 0.335114f,  -0.285044f, -0.59295f,   0.24497f,   0.611583f,
   0.38568f,   0.137913f,  -0.281191f, -0.0107777f, 0.487236f,  -0.262363f,
   0.696962f,  0.121565f,  0.312511f,  0.430916f,   0.694134f,  0.393632f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_2_logits_kernel[] = {
+static const float av2_intra_mode_cnn_partition_branch_2_logits_kernel[] = {
   -2.42496f,  -1.239f,   0.832673f, 1.56923f,   -2.6175f,  -1.42492f,
   -0.311387f, -1.94237f, 0.54071f,  -2.50391f,  0.352205f, -0.96572f,
   1.47144f,   -2.04702f, -1.12372f, -0.709186f, 0.812238f, 0.310389f,
   0.789163f,  -0.65236f, 1.77018f,  0.273867f,  1.19506f,  1.07022f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_2_logits_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_2_logits_bias[] = {
   0.953424f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_3_dnn_layer_0_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_3_dnn_layer_0_kernel[] = {
       0.0485154f,    0.0496279f,    0.0268229f,    -0.0584843f,   -0.166928f,
       0.0316731f,    -0.0895094f,   -0.0433243f,   -0.00893639f,  -0.0886265f,
       -0.0345622f,   -0.235395f,    -0.213754f,    -0.00212398f,  0.0218857f,
@@ -1855,14 +1855,14 @@ static const float
       0.511906f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_3_dnn_layer_0_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_3_dnn_layer_0_bias[] = {
   -0.485545f, 0.131552f,   0.796833f,   -0.157582f, -0.0948124f, 0.00818613f,
   -0.485562f, 0.3826f,     -0.0839326f, 0.170998f,  0.279545f,   -0.287143f,
   0.184986f,  -0.0719864f, 0.19748f,    0.404145f
 };
 
 static const float
-    av1_intra_mode_cnn_partition_branch_3_dnn_layer_1_kernel[] = {
+    av2_intra_mode_cnn_partition_branch_3_dnn_layer_1_kernel[] = {
       1.30172f,     0.720189f,   0.261675f,   -0.466201f,   1.21773f,
       0.495525f,    0.62398f,    0.44567f,    -0.330993f,   -0.269798f,
       0.835161f,    -0.294874f,  0.186981f,   0.0162467f,   0.367654f,
@@ -1942,25 +1942,25 @@ static const float
       -1.16424f,    0.270405f,   0.219033f,   -4.91105f
     };
 
-static const float av1_intra_mode_cnn_partition_branch_3_dnn_layer_1_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_3_dnn_layer_1_bias[] = {
   -0.40114f,  -0.372342f, -0.216186f, -0.240014f,  -0.341773f, -0.344489f,
   -0.113037f, 0.198479f,  0.482958f,  -0.630072f,  -0.728704f, -0.171963f,
   0.519883f,  0.253003f,  -0.121618f, -0.0569875f, -0.485568f, -0.147577f,
   0.533305f,  -0.587251f, -0.120837f, -0.483953f,  0.445641f,  -0.125136f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_3_logits_kernel[] = {
+static const float av2_intra_mode_cnn_partition_branch_3_logits_kernel[] = {
   -1.57431f,  -1.09069f,  1.67996f,   -0.669702f, 0.499807f, -3.03145f,
   -0.878135f, 0.637818f,  -1.58419f,  -3.79756f,  0.62755f,  -0.446646f,
   0.653269f,  -0.667854f, -2.19774f,  -3.53349f,  2.6107f,   -0.685892f,
   -1.2603f,   -0.89707f,  -0.715551f, 0.382202f,  2.09574f,  0.469386f
 };
 
-static const float av1_intra_mode_cnn_partition_branch_3_logits_bias[] = {
+static const float av2_intra_mode_cnn_partition_branch_3_logits_bias[] = {
   -0.022787f
 };
 
-static const NN_CONFIG av1_intra_mode_cnn_partition_branch_0_dnn_config = {
+static const NN_CONFIG av2_intra_mode_cnn_partition_branch_0_dnn_config = {
   BRANCH_0_NUM_DNN_FEATURES,
   BRANCH_0_NUM_LOGITS,
   BRANCH_0_NUM_DNN_LAYERS,
@@ -1969,17 +1969,17 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_0_dnn_config = {
       BRANCH_0_NUM_DNN_LAYER_1_UNITS,
   },
   {
-      av1_intra_mode_cnn_partition_branch_0_dnn_layer_0_kernel,
-      av1_intra_mode_cnn_partition_branch_0_dnn_layer_1_kernel,
-      av1_intra_mode_cnn_partition_branch_0_logits_kernel,
+      av2_intra_mode_cnn_partition_branch_0_dnn_layer_0_kernel,
+      av2_intra_mode_cnn_partition_branch_0_dnn_layer_1_kernel,
+      av2_intra_mode_cnn_partition_branch_0_logits_kernel,
   },
   {
-      av1_intra_mode_cnn_partition_branch_0_dnn_layer_0_bias,
-      av1_intra_mode_cnn_partition_branch_0_dnn_layer_1_bias,
-      av1_intra_mode_cnn_partition_branch_0_logits_bias,
+      av2_intra_mode_cnn_partition_branch_0_dnn_layer_0_bias,
+      av2_intra_mode_cnn_partition_branch_0_dnn_layer_1_bias,
+      av2_intra_mode_cnn_partition_branch_0_logits_bias,
   },
 };
-static const NN_CONFIG av1_intra_mode_cnn_partition_branch_1_dnn_config = {
+static const NN_CONFIG av2_intra_mode_cnn_partition_branch_1_dnn_config = {
   BRANCH_1_NUM_DNN_FEATURES,
   BRANCH_1_NUM_LOGITS,
   BRANCH_1_NUM_DNN_LAYERS,
@@ -1988,17 +1988,17 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_1_dnn_config = {
       BRANCH_1_NUM_DNN_LAYER_1_UNITS,
   },
   {
-      av1_intra_mode_cnn_partition_branch_1_dnn_layer_0_kernel,
-      av1_intra_mode_cnn_partition_branch_1_dnn_layer_1_kernel,
-      av1_intra_mode_cnn_partition_branch_1_logits_kernel,
+      av2_intra_mode_cnn_partition_branch_1_dnn_layer_0_kernel,
+      av2_intra_mode_cnn_partition_branch_1_dnn_layer_1_kernel,
+      av2_intra_mode_cnn_partition_branch_1_logits_kernel,
   },
   {
-      av1_intra_mode_cnn_partition_branch_1_dnn_layer_0_bias,
-      av1_intra_mode_cnn_partition_branch_1_dnn_layer_1_bias,
-      av1_intra_mode_cnn_partition_branch_1_logits_bias,
+      av2_intra_mode_cnn_partition_branch_1_dnn_layer_0_bias,
+      av2_intra_mode_cnn_partition_branch_1_dnn_layer_1_bias,
+      av2_intra_mode_cnn_partition_branch_1_logits_bias,
   },
 };
-static const NN_CONFIG av1_intra_mode_cnn_partition_branch_2_dnn_config = {
+static const NN_CONFIG av2_intra_mode_cnn_partition_branch_2_dnn_config = {
   BRANCH_2_NUM_DNN_FEATURES,
   BRANCH_2_NUM_LOGITS,
   BRANCH_2_NUM_DNN_LAYERS,
@@ -2007,17 +2007,17 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_2_dnn_config = {
       BRANCH_2_NUM_DNN_LAYER_1_UNITS,
   },
   {
-      av1_intra_mode_cnn_partition_branch_2_dnn_layer_0_kernel,
-      av1_intra_mode_cnn_partition_branch_2_dnn_layer_1_kernel,
-      av1_intra_mode_cnn_partition_branch_2_logits_kernel,
+      av2_intra_mode_cnn_partition_branch_2_dnn_layer_0_kernel,
+      av2_intra_mode_cnn_partition_branch_2_dnn_layer_1_kernel,
+      av2_intra_mode_cnn_partition_branch_2_logits_kernel,
   },
   {
-      av1_intra_mode_cnn_partition_branch_2_dnn_layer_0_bias,
-      av1_intra_mode_cnn_partition_branch_2_dnn_layer_1_bias,
-      av1_intra_mode_cnn_partition_branch_2_logits_bias,
+      av2_intra_mode_cnn_partition_branch_2_dnn_layer_0_bias,
+      av2_intra_mode_cnn_partition_branch_2_dnn_layer_1_bias,
+      av2_intra_mode_cnn_partition_branch_2_logits_bias,
   },
 };
-static const NN_CONFIG av1_intra_mode_cnn_partition_branch_3_dnn_config = {
+static const NN_CONFIG av2_intra_mode_cnn_partition_branch_3_dnn_config = {
   BRANCH_3_NUM_DNN_FEATURES,
   BRANCH_3_NUM_LOGITS,
   BRANCH_3_NUM_DNN_LAYERS,
@@ -2026,14 +2026,14 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_3_dnn_config = {
       BRANCH_3_NUM_DNN_LAYER_1_UNITS,
   },
   {
-      av1_intra_mode_cnn_partition_branch_3_dnn_layer_0_kernel,
-      av1_intra_mode_cnn_partition_branch_3_dnn_layer_1_kernel,
-      av1_intra_mode_cnn_partition_branch_3_logits_kernel,
+      av2_intra_mode_cnn_partition_branch_3_dnn_layer_0_kernel,
+      av2_intra_mode_cnn_partition_branch_3_dnn_layer_1_kernel,
+      av2_intra_mode_cnn_partition_branch_3_logits_kernel,
   },
   {
-      av1_intra_mode_cnn_partition_branch_3_dnn_layer_0_bias,
-      av1_intra_mode_cnn_partition_branch_3_dnn_layer_1_bias,
-      av1_intra_mode_cnn_partition_branch_3_logits_bias,
+      av2_intra_mode_cnn_partition_branch_3_dnn_layer_0_bias,
+      av2_intra_mode_cnn_partition_branch_3_dnn_layer_1_bias,
+      av2_intra_mode_cnn_partition_branch_3_logits_bias,
   },
 };
 
@@ -2090,35 +2090,35 @@ static const NN_CONFIG av1_intra_mode_cnn_partition_branch_3_dnn_config = {
 #undef BRANCH_3_NUM_DNN_LAYER_1_UNITS
 #undef BRANCH_3_NUM_LOGITS
 
-static const float av1_intra_mode_cnn_partition_split_thresh_hdres[5] = {
+static const float av2_intra_mode_cnn_partition_split_thresh_hdres[5] = {
   100.000000f, 4.750139f, 1.655964f, 3.711212f, 0.963839f,
 };
 
-static const float av1_intra_mode_cnn_partition_no_split_thresh_hdres[5] = {
+static const float av2_intra_mode_cnn_partition_no_split_thresh_hdres[5] = {
   -100.000000f, -2.404842f, -3.858223f, -2.041206f, -1.573735f,
 };
 
-static const float av1_intra_mode_cnn_partition_split_thresh_midres[5] = {
+static const float av2_intra_mode_cnn_partition_split_thresh_midres[5] = {
   100.000000f, 3.218737f, 2.657764f, 0.868458f, 2.454447f,
 };
 
-static const float av1_intra_mode_cnn_partition_no_split_thresh_midres[5] = {
+static const float av2_intra_mode_cnn_partition_no_split_thresh_midres[5] = {
   -100.000000f, -3.842426f, -4.005076f, -3.642994f, -2.467197f,
 };
 
-static const float av1_intra_mode_cnn_partition_split_thresh_lowres[5] = {
+static const float av2_intra_mode_cnn_partition_split_thresh_lowres[5] = {
   100.000000f, 1.890757f, 2.658417f, 1.450626f, 1.833180f,
 };
 
-static const float av1_intra_mode_cnn_partition_no_split_thresh_lowres[5] = {
+static const float av2_intra_mode_cnn_partition_no_split_thresh_lowres[5] = {
   -100.000000f, -4.100921f, -4.564202f, -5.695176f, -1.483546f,
 };
 
-static const float av1_intra_mode_cnn_partition_mean[1] = {
+static const float av2_intra_mode_cnn_partition_mean[1] = {
   1.191922f,
 };
 
-static const float av1_intra_mode_cnn_partition_std[1] = {
+static const float av2_intra_mode_cnn_partition_std[1] = {
   1.730044f,
 };
 
@@ -2137,4 +2137,4 @@ static const int quad_to_linear_3[64] = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_PARTITION_CNN_WEIGHTS_H_
+#endif  // AVM_AV2_ENCODER_PARTITION_CNN_WEIGHTS_H_

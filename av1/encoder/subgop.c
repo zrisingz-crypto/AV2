@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include "av1/encoder/subgop.h"
+#include "av2/encoder/subgop.h"
 
 static char *my_strtok_r(char *str, const char *delim, char **saveptr) {
   if (str == NULL) return NULL;
@@ -66,7 +66,7 @@ static bool readline(char *buf, int size, FILE *fp) {
   return true;
 }
 
-void av1_init_subgop_config_set(SubGOPSetCfg *config_set) {
+void av2_init_subgop_config_set(SubGOPSetCfg *config_set) {
   memset(config_set, 0, sizeof(*config_set));
   config_set->num_configs = 0;
   for (int i = 0; i < MAX_SUBGOP_CONFIGS; ++i) {
@@ -243,11 +243,11 @@ static int check_subgop_config(SubGOPCfg *config) {
   return 1;
 }
 
-int av1_process_subgop_config_set(const char *param, SubGOPSetCfg *config_set) {
+int av2_process_subgop_config_set(const char *param, SubGOPSetCfg *config_set) {
   if (!param) return 1;
   if (!strlen(param)) return 1;
   const int bufsize = (int)((strlen(param) + 1) * sizeof(*param));
-  char *buf = (char *)aom_malloc(bufsize);
+  char *buf = (char *)avm_malloc(bufsize);
   memcpy(buf, param, bufsize);
   char delim[] = ",";
 
@@ -275,7 +275,7 @@ int av1_process_subgop_config_set(const char *param, SubGOPSetCfg *config_set) {
       return 0;
     }
   }
-  aom_free(buf);
+  avm_free(buf);
   return 1;
 }
 
@@ -373,7 +373,7 @@ static int process_subgop_config_fromfile(FILE *fp, SubGOPCfg *config) {
   return 1;
 }
 
-int av1_process_subgop_config_set_fromfile(const char *paramfile,
+int av2_process_subgop_config_set_fromfile(const char *paramfile,
                                            SubGOPSetCfg *config_set) {
   if (!paramfile) return 1;
   if (!strlen(paramfile)) return 1;
@@ -412,7 +412,7 @@ int av1_process_subgop_config_set_fromfile(const char *paramfile,
   return 1;
 }
 
-void av1_print_subgop_config_set(SubGOPSetCfg *config_set) {
+void av2_print_subgop_config_set(SubGOPSetCfg *config_set) {
   if (!config_set->num_configs) return;
   printf("#SUBGOP CONFIG SET\n");
   printf("##################\n");
@@ -444,7 +444,7 @@ void av1_print_subgop_config_set(SubGOPSetCfg *config_set) {
   printf("\n");
 }
 
-const SubGOPCfg *av1_find_subgop_config(SubGOPSetCfg *config_set,
+const SubGOPCfg *av2_find_subgop_config(SubGOPSetCfg *config_set,
                                         int num_frames, int is_last_subgop,
                                         int is_first_subgop) {
   SubGOPCfg *cfg = NULL;
@@ -467,7 +467,7 @@ const SubGOPCfg *av1_find_subgop_config(SubGOPSetCfg *config_set,
   return cfg;
 }
 
-const SubGOPCfg *av1_find_subgop_config_exact(
+const SubGOPCfg *av2_find_subgop_config_exact(
     SubGOPSetCfg *config_set, int num_frames,
     SUBGOP_IN_GOP_CODE subgop_in_gop_code) {
   for (int i = 0; i < config_set->num_configs; ++i) {

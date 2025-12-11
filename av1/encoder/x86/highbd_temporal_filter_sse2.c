@@ -13,9 +13,9 @@
 #include <assert.h>
 #include <emmintrin.h>
 
-#include "config/av1_rtcd.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/temporal_filter.h"
+#include "config/av2_rtcd.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/temporal_filter.h"
 
 // For the squared error buffer, keep a padding for 4 samples
 #define SSE_STRIDE (BW + 4)
@@ -226,11 +226,11 @@ static void highbd_apply_temporal_filter(
       const MV mv = subblock_mvs[subblock_idx];
       const double distance = sqrt(pow(mv.row, 2) + pow(mv.col, 2));
       const double distance_threshold =
-          (double)AOMMAX(min_frame_size * TF_SEARCH_DISTANCE_THRESHOLD, 1);
-      const double d_factor = AOMMAX(distance / distance_threshold, 1);
+          (double)AVMMAX(min_frame_size * TF_SEARCH_DISTANCE_THRESHOLD, 1);
+      const double d_factor = AVMMAX(distance / distance_threshold, 1);
 
       const double scaled_error =
-          AOMMIN(combined_error * d_factor / n_decay / q_decay / s_decay, 7);
+          AVMMIN(combined_error * d_factor / n_decay / q_decay / s_decay, 7);
       const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
 
       count[k] += weight;
@@ -239,7 +239,7 @@ static void highbd_apply_temporal_filter(
   }
 }
 
-void av1_highbd_apply_temporal_filter_sse2(
+void av2_highbd_apply_temporal_filter_sse2(
     const YV12_BUFFER_CONFIG *frame_to_filter, const MACROBLOCKD *mbd,
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
     const int num_planes, const double *noise_levels, const MV *subblock_mvs,
@@ -254,11 +254,11 @@ void av1_highbd_apply_temporal_filter_sse2(
   const int mb_pels = mb_height * mb_width;
   const int frame_height = frame_to_filter->y_crop_height;
   const int frame_width = frame_to_filter->y_crop_width;
-  const int min_frame_size = AOMMIN(frame_height, frame_width);
+  const int min_frame_size = AVMMIN(frame_height, frame_width);
   uint32_t luma_sq_error[SSE_STRIDE * BH];
   uint32_t *chroma_sq_error =
       (num_planes > 0)
-          ? (uint32_t *)aom_malloc(SSE_STRIDE * BH * sizeof(uint32_t))
+          ? (uint32_t *)avm_malloc(SSE_STRIDE * BH * sizeof(uint32_t))
           : NULL;
   for (int plane = 0; plane < num_planes; ++plane) {
     const uint32_t plane_h = mb_height >> mbd->plane[plane].subsampling_y;
@@ -279,5 +279,5 @@ void av1_highbd_apply_temporal_filter_sse2(
         count + mb_pels * plane, luma_sq_error, chroma_sq_error, plane,
         ss_x_shift, ss_y_shift, mbd->bd);
   }
-  if (chroma_sq_error != NULL) aom_free(chroma_sq_error);
+  if (chroma_sq_error != NULL) avm_free(chroma_sq_error);
 }

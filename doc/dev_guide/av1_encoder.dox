@@ -1,10 +1,10 @@
-/*!\page encoder_guide AV1 ENCODER GUIDE
+/*!\page encoder_guide AV2 ENCODER GUIDE
 
 \tableofcontents
 
 \section architecture_introduction Introduction
 
-This document provides an architectural overview of the libaom AV1 encoder.
+This document provides an architectural overview of the libavm AV2 encoder.
 
 It is intended as a high level starting point for anyone wishing to contribute
 to the project, that will help them to more quickly understand the structure
@@ -15,7 +15,7 @@ level documents.
 
 \subsection  architecture_gencodecs Generic Block Transform Based Codecs
 
-Most modern video encoders including VP8, H.264, VP9, HEVC and AV1
+Most modern video encoders including VP8, H.264, VP9, HEVC and AV2
 (in increasing order of complexity) share a common basic paradigm. This
 comprises separating a stream of raw video frames into a series of discrete
 blocks (of one or more sizes), then computing a prediction signal and a
@@ -35,25 +35,25 @@ loop filtering.
 
 \image html genericcodecflow.png "" width=70%
 
-\subsection architecture_av1_structure AV1 Structure and Complexity
+\subsection architecture_av2_structure AV2 Structure and Complexity
 
-As previously stated, AV1 adopts the same underlying paradigm as other block
+As previously stated, AV2 adopts the same underlying paradigm as other block
 transform based codecs. However, it is much more complicated than previous
 generation codecs and supports many more block partitioning, prediction and
 transform options.
 
-AV1 supports block partitions of various sizes from 128x128 pixels down to 4x4
+AV2 supports block partitions of various sizes from 128x128 pixels down to 4x4
 pixels using a multi-layer recursive tree structure as illustrated in figure 2
 below.
 
-\image html av1partitions.png "" width=70%
+\image html av2partitions.png "" width=70%
 
-AV1 also provides 71 basic intra prediction modes, 56 single frame inter prediction
+AV2 also provides 71 basic intra prediction modes, 56 single frame inter prediction
 modes (7 reference frames x 4 modes x 2 for OBMC (overlapped block motion
 compensation)), 12768 compound inter prediction modes (that combine inter
 predictors from two reference frames) and 36708 compound inter / intra
 prediction modes. Furthermore, in addition to simple inter motion estimation,
-AV1 also supports warped motion prediction using affine transforms.
+AV2 also supports warped motion prediction using affine transforms.
 
 In terms of transform coding, it has 16 separable 2-D transform kernels
 \f$(DCT, ADST, fADST, IDTX)^2\f$ that can be applied at up to 19 different
@@ -63,7 +63,7 @@ When combined together, this means that for any one 8x8 pixel block in a
 source frame, there are approximately 45,000,000 different ways that it can
 be encoded.
 
-Consequently, AV1 requires complex control processes. While not necessarily
+Consequently, AV2 requires complex control processes. While not necessarily
 a normative part of the bitstream, these are the algorithms that turn a set
 of compression tools and a bitstream format specification, into a coherent
 and useful codec implementation. These may include but are not limited to
@@ -77,13 +77,13 @@ things like :-
 - Features such as two pass encoding or optimization for low delay
   encoding.
 
-For a more detailed overview of AV1's encoding tools and a discussion of some
+For a more detailed overview of AV2's encoding tools and a discussion of some
 of the design considerations and hardware constraints that had to be
-accommodated, please refer to (TODO REF) <b>A Technical Overview of the AV1
-Standard</b> (TODO add link to Jingning's AV1 overview paper).
+accommodated, please refer to (TODO REF) <b>A Technical Overview of the AV2
+Standard</b> (TODO add link to Jingning's AV2 overview paper).
 
 Figure 3 provides a slightly expanded but still simplistic view of the
-AV1 encoder architecture with blocks that relate to some of the subsequent
+AV2 encoder architecture with blocks that relate to some of the subsequent
 sections of this document. In this diagram, the raw uncompressed frame buffers
 are shown in dark green and the reconstructed frame buffers used for
 prediction in light green. Red indicates those parts of the codec that are
@@ -92,32 +92,32 @@ efficiency, whilst light blue shows algorithms or coding tools that are
 lossless. The yellow blocks represent non-bitstream normative configuration
 and control algorithms.
 
-\image html av1encoderflow.png "" width=70%
+\image html av2encoderflow.png "" width=70%
 
-\section architecture_command_line The Libaom Command Line Interface
+\section architecture_command_line The Libavm Command Line Interface
 
  Add details or links here: TODO ? elliotk@
 
 \section architecture_enc_data_structures Main Encoder Data Structures
 
-The following are the main high level data structures used by the libaom AV1
+The following are the main high level data structures used by the libavm AV2
 encoder and referenced elsewhere in this overview document:
 
-- \ref AV1_COMP
-    - \ref AV1_COMP.oxcf (\ref AV1EncoderConfig)
-    - \ref AV1_COMP.alt_ref_buffer (\ref yv12_buffer_config)
-    - \ref AV1_COMP.rc (\ref RATE_CONTROL)
-    - \ref AV1_COMP.twopass (\ref TWO_PASS)
-    - \ref AV1_COMP.gf_group (\ref GF_GROUP)
-    - \ref AV1_COMP.speed
-    - \ref AV1_COMP.sf (\ref SPEED_FEATURES)
-    - \ref AV1_COMP.lap_enabled
+- \ref AV2_COMP
+    - \ref AV2_COMP.oxcf (\ref AV2EncoderConfig)
+    - \ref AV2_COMP.alt_ref_buffer (\ref yv12_buffer_config)
+    - \ref AV2_COMP.rc (\ref RATE_CONTROL)
+    - \ref AV2_COMP.twopass (\ref TWO_PASS)
+    - \ref AV2_COMP.gf_group (\ref GF_GROUP)
+    - \ref AV2_COMP.speed
+    - \ref AV2_COMP.sf (\ref SPEED_FEATURES)
+    - \ref AV2_COMP.lap_enabled
 
-- \ref AV1EncoderConfig (Encoder configuration parameters)
-    - \ref AV1EncoderConfig.pass
-    - \ref AV1EncoderConfig.algo_cfg (\ref AlgoCfg)
-    - \ref AV1EncoderConfig.kf_cfg (\ref KeyFrameCfg)
-    - \ref AV1EncoderConfig.rc_cfg (\ref RateControlCfg)
+- \ref AV2EncoderConfig (Encoder configuration parameters)
+    - \ref AV2EncoderConfig.pass
+    - \ref AV2EncoderConfig.algo_cfg (\ref AlgoCfg)
+    - \ref AV2EncoderConfig.kf_cfg (\ref KeyFrameCfg)
+    - \ref AV2EncoderConfig.rc_cfg (\ref RateControlCfg)
 
 - \ref AlgoCfg (Algorithm related configuration parameters)
     - \ref AlgoCfg.arnr_max_frames
@@ -165,7 +165,7 @@ encoder and referenced elsewhere in this overview document:
 
 \section architecture_enc_use_cases Encoder Use Cases
 
-The libaom AV1 encoder is configurable to support a number of different use
+The libavm AV2 encoder is configurable to support a number of different use
 cases and rate control strategies.
 
 The principle use cases for which it is optimised are as follows:
@@ -214,7 +214,7 @@ be desirable to have very high quality and data rate but also very frequent
 key frames or indeed to encode the video exclusively as key frames. Lossless
 video encoding may also be required in this use case.
 
-<b>VOD / Streaming:</b> One of the most important and common use cases for AV1
+<b>VOD / Streaming:</b> One of the most important and common use cases for AV2
 is video on demand or streaming, for services such as YouTube and Netflix. In
 this use case it is possible to do two or even multi-pass encoding to improve
 compression efficiency. Streaming services will often store many encoded
@@ -241,10 +241,10 @@ the encoder can try to align key frames with real scene cuts.
 
 Whilst encoder speed may not seem to be as critical in this use case, for
 services such as YouTube, where millions of new videos have to be encoded
-every day, encoder speed is still important, so libaom allows command line
+every day, encoder speed is still important, so libavm allows command line
 control of the encode speed vs quality trade off.
 
-<b>Fixed Quality / Testing Mode:</b> Libaom also has a fixed quality encoder
+<b>Fixed Quality / Testing Mode:</b> Libavm also has a fixed quality encoder
 pathway designed for testing under highly constrained conditions.
 
 \section architecture_enc_speed_quality Speed vs Quality Trade Off
@@ -268,15 +268,15 @@ current block.
 
 The speed settings depend both on the use case (e.g. Real Time encoding) and
 an explicit speed control passed in on the command line as <b>--cpu-used</b>
-and stored in the \ref AV1_COMP.speed field of the main compressor instance
+and stored in the \ref AV2_COMP.speed field of the main compressor instance
 data structure (<b>cpi</b>).
 
-The control flags for the speed trade off are stored the \ref AV1_COMP.sf
+The control flags for the speed trade off are stored the \ref AV2_COMP.sf
 field of the compressor instancve and are set in the following functions:-
 
-- \ref av1_set_speed_features_framesize_independent()
-- \ref av1_set_speed_features_framesize_dependent()
-- \ref av1_set_speed_features_qindex_dependent()
+- \ref av2_set_speed_features_framesize_independent()
+- \ref av2_set_speed_features_framesize_dependent()
+- \ref av2_set_speed_features_qindex_dependent()
 
 A second factor impacting the speed of encode is rate distortion optimisation
 (<b>rd vs non-rd</b> encoding).
@@ -311,7 +311,7 @@ and rate is a valid approximation.
 
 Doing a rate distortion test on each candidate prediction / transform
 combination is expensive in terms of cpu cycles. Hence, for cases where encode
-speed is critical, libaom implements a non-rd pathway where the <b>RD</b>
+speed is critical, libavm implements a non-rd pathway where the <b>RD</b>
 value is estimated based on the prediction error and quantizer setting.
 
 \section architecture_enc_src_proc Source Frame Processing
@@ -321,13 +321,13 @@ value is estimated based on the prediction error and quantizer setting.
 The following are the main data structures referenced in this section
 (see also \ref architecture_enc_data_structures):
 
-- \ref AV1_COMP cpi (the main compressor instance data structure)
-    - \ref AV1_COMP.oxcf (\ref AV1EncoderConfig)
-    - \ref AV1_COMP.alt_ref_buffer (\ref yv12_buffer_config)
+- \ref AV2_COMP cpi (the main compressor instance data structure)
+    - \ref AV2_COMP.oxcf (\ref AV2EncoderConfig)
+    - \ref AV2_COMP.alt_ref_buffer (\ref yv12_buffer_config)
 
-- \ref AV1EncoderConfig (Encoder configuration parameters)
-    - \ref AV1EncoderConfig.algo_cfg (\ref AlgoCfg)
-    - \ref AV1EncoderConfig.kf_cfg (\ref KeyFrameCfg)
+- \ref AV2EncoderConfig (Encoder configuration parameters)
+    - \ref AV2EncoderConfig.algo_cfg (\ref AlgoCfg)
+    - \ref AV2EncoderConfig.kf_cfg (\ref KeyFrameCfg)
 
 - \ref AlgoCfg (Algorithm related configuration parameters)
     - \ref AlgoCfg.arnr_max_frames
@@ -338,12 +338,12 @@ The following are the main data structures referenced in this section
 
 \subsection architecture_enc_frame_proc_ingest Frame Ingest / Coding Pipeline
 
- To encode a frame, first call \ref av1_receive_raw_frame() to obtain the raw
- frame data. Then call \ref av1_get_compressed_data() to encode raw frame data
- into compressed frame data. The main body of \ref av1_get_compressed_data()
- is \ref av1_encode_strategy(), which determines high-level encode strategy
+ To encode a frame, first call \ref av2_receive_raw_frame() to obtain the raw
+ frame data. Then call \ref av2_get_compressed_data() to encode raw frame data
+ into compressed frame data. The main body of \ref av2_get_compressed_data()
+ is \ref av2_encode_strategy(), which determines high-level encode strategy
  (frame type, frame placement, etc.) and then encodes the frame by calling
- \ref av1_encode(). In \ref av1_encode(), \ref av1_first_pass() will execute
+ \ref av2_encode(). In \ref av2_encode(), \ref av2_first_pass() will execute
  the first_pass of two-pass encoding, while \ref encode_frame_to_data_rate()
  will perform the final pass for either one-pass or two-pass encoding.
 
@@ -355,7 +355,7 @@ The following are the main data structures referenced in this section
  restoration filters \ref cdef_restoration_frame()).
 
  Except for rate/quality control, both \ref encode_with_recode_loop() and
- \ref encode_without_recode() call \ref av1_encode_frame() to manage the
+ \ref encode_without_recode() call \ref av2_encode_frame() to manage the
  reference frame buffers and \ref encode_frame_internal() to perform the
  rest of encoding that does not require access to external frames.
  \ref encode_frame_internal() is the starting point for the partition search
@@ -378,7 +378,7 @@ tracked along the motion trajectory of moving objects. Motion estimation is
 applied to neighboring frames to find similar patches or blocks of pixels that
 can be combined to create a temporally filtered output.
 
-AV1, in common with VP8 and VP9, uses an in-loop motion compensated temporal
+AV2, in common with VP8 and VP9, uses an in-loop motion compensated temporal
 filter to generate what are referred to as alternate reference frames (or ARF
 frames). These can be encoded in the bitstream and stored as frame buffers for
 use in the prediction of subsequent frames, but are not usually directly
@@ -393,7 +393,7 @@ frames.
 - <b>--enable-keyframe-filtering</b>
   (\ref KeyFrameCfg.enable_keyframe_filtering)
 
-Note that in AV1, the temporal filtering scheme is designed around the
+Note that in AV2, the temporal filtering scheme is designed around the
 hierarchical ARF based pyramid coding structure. We typically apply denoising
 only on key frame and ARF frames at the highest (and sometimes the second
 highest) layer in the hierarchical coding structure.
@@ -442,16 +442,16 @@ It is recommended that the reader refers to the code for more details.
 
 \subsubsection architecture_enc_frame_proc_tf_funcs Temporal Filter Functions
 
-The main entry point for temporal filtering is \ref av1_temporal_filter().
+The main entry point for temporal filtering is \ref av2_temporal_filter().
 This function returns 1 if temporal filtering is successful, otherwise 0.
 When temporal filtering is applied, the filtered frame will be held in
-the frame buffer \ref AV1_COMP.alt_ref_buffer, which is the frame to be
+the frame buffer \ref AV2_COMP.alt_ref_buffer, which is the frame to be
 encoded in the following encoding process.
 
-Almost all temporal filter related code is in av1/encoder/temporal_filter.c
-and av1/encoder/temporal_filter.h.
+Almost all temporal filter related code is in av2/encoder/temporal_filter.c
+and av2/encoder/temporal_filter.h.
 
-Inside \ref av1_temporal_filter(), the reader's attention is directed to
+Inside \ref av2_temporal_filter(), the reader's attention is directed to
 \ref tf_setup_filtering_buffer() and \ref tf_do_filtering().
 
 - \ref tf_setup_filtering_buffer(): sets up the frame buffer for
@@ -462,12 +462,12 @@ Inside \ref av1_temporal_filter(), the reader's attention is directed to
   filtering algorithm. It breaks each frame into "MxM" blocks. For each
   block a motion search \ref tf_motion_search() is applied to find
   the motion vector from one neighboring frame. tf_build_predictor() is then
-  called to build the matching patch and \ref av1_highbd_apply_temporal_filter_c()
+  called to build the matching patch and \ref av2_highbd_apply_temporal_filter_c()
   (see also optimised SIMD versions) to apply temporal filtering. The weighted
   average over each pixel is accumulated and finally normalized in
   \ref tf_normalize_filtered_frame() to generate the final filtered frame.
 
-- \ref av1_highbd_apply_temporal_filter_c(): the core function of our temporal
+- \ref av2_highbd_apply_temporal_filter_c(): the core function of our temporal
   filtering algorithm (see also optimised SIMD versions).
 
 \subsection architecture_enc_frame_proc_film Film Grain Modelling
@@ -481,14 +481,14 @@ Inside \ref av1_temporal_filter(), the reader's attention is directed to
 The following are the main data structures referenced in this section
 (see also \ref architecture_enc_data_structures):
 
- - \ref AV1_COMP cpi (the main compressor instance data structure)
-    - \ref AV1_COMP.oxcf (\ref AV1EncoderConfig)
-    - \ref AV1_COMP.rc (\ref RATE_CONTROL)
-    - \ref AV1_COMP.twopass (\ref TWO_PASS)
-    - \ref AV1_COMP.sf (\ref SPEED_FEATURES)
+ - \ref AV2_COMP cpi (the main compressor instance data structure)
+    - \ref AV2_COMP.oxcf (\ref AV2EncoderConfig)
+    - \ref AV2_COMP.rc (\ref RATE_CONTROL)
+    - \ref AV2_COMP.twopass (\ref TWO_PASS)
+    - \ref AV2_COMP.sf (\ref SPEED_FEATURES)
 
- - \ref AV1EncoderConfig (Encoder configuration parameters)
-    - \ref AV1EncoderConfig.rc_cfg (\ref RateControlCfg)
+ - \ref AV2EncoderConfig (Encoder configuration parameters)
+    - \ref AV2EncoderConfig.rc_cfg (\ref RateControlCfg)
 
  - \ref FIRSTPASS_STATS *frame_stats_buf (used to store per frame first
    pass stats)
@@ -503,7 +503,7 @@ requirements in terms of data rate control.
 
 The broad rate control strategy is selected using the <b>--end-usage</b>
 parameter on the command line, which maps onto the field
-\ref aom_codec_enc_cfg_t.rc_end_usage in \ref aom_encoder.h.
+\ref avm_codec_enc_cfg_t.rc_end_usage in \ref avm_encoder.h.
 
 The four supported options are:-
 
@@ -512,7 +512,7 @@ The four supported options are:-
 - <b>CQ</b> (Constrained Quality mode ; A constrained variant of VBR)
 - <b>Fixed Q</b> (Constant quality of Q mode)
 
-The value of \ref aom_codec_enc_cfg_t.rc_end_usage is in turn copied over
+The value of \ref avm_codec_enc_cfg_t.rc_end_usage is in turn copied over
 into the encoder rate control configuration data structure as
 \ref RateControlCfg.mode.
 
@@ -523,7 +523,7 @@ streaming and Fixed Q is only used in testing.
 The behaviour of each of these modes is regulated by a series of secondary
 command line rate control options but also depends somewhat on the selected
 use case, whether 2-pass coding is enabled and the selected encode speed vs
-quality trade offs (\ref AV1_COMP.speed and \ref AV1_COMP.sf).
+quality trade offs (\ref AV2_COMP.speed and \ref AV2_COMP.sf).
 
 The list below gives the names of the main rate control command line
 options together with the names of the corresponding fields in the rate
@@ -572,12 +572,12 @@ a particular video format (corpus VBR).
 
 \subsubsection architecture_enc_1pass_vbr 1 Pass VBR Encoding
 
-The command line for libaom does allow 1 Pass VBR, but this has not been
+The command line for libavm does allow 1 Pass VBR, but this has not been
 properly optimised and behaves much like 1 pass CBR in most regards, with bits
 allocated to frames by the following functions:
 
-- av1_calc_iframe_target_size_one_pass_vbr()
-- av1_calc_pframe_target_size_one_pass_vbr()
+- av2_calc_iframe_target_size_one_pass_vbr()
+- av2_calc_pframe_target_size_one_pass_vbr()
 
 \subsubsection architecture_enc_2pass_vbr 2 Pass VBR Encoding
 
@@ -594,24 +594,24 @@ to optimize the output during the second pass.  In essence the first pass is a
 fact finding mission to establish the complexity and variability of the video,
 in order to allow a better allocation of bits in the second pass.
 
-The libaom 2-pass algorithm is unusual in that the first pass is not a full
+The libavm 2-pass algorithm is unusual in that the first pass is not a full
 encode of the video. Rather it uses a limited set of prediction and transform
 options and a fixed quantizer,  to generate statistics about each frame. No
 output bitstream is created and the per frame first pass statistics are stored
 entirely in volatile memory. This has some disadvantages when compared to a
 full first pass encode, but avoids the need for file I/O and improves speed.
 
-For two pass encoding, the function \ref av1_encode() will first be called
-for each frame in the video with the value \ref AV1EncoderConfig.pass = 1.
-This will result in calls to \ref av1_first_pass().
+For two pass encoding, the function \ref av2_encode() will first be called
+for each frame in the video with the value \ref AV2EncoderConfig.pass = 1.
+This will result in calls to \ref av2_first_pass().
 
 Statistics for each frame are stored in \ref FIRSTPASS_STATS frame_stats_buf.
 
-After completion of the first pass, \ref av1_encode() will be called again for
-each frame with \ref AV1EncoderConfig.pass = 2.  The frames are then encoded in
+After completion of the first pass, \ref av2_encode() will be called again for
+each frame with \ref AV2EncoderConfig.pass = 2.  The frames are then encoded in
 accordance with the statistics gathered during the first pass by calls to
 \ref encode_frame_to_data_rate() which in turn calls
- \ref av1_get_second_pass_params().
+ \ref av2_get_second_pass_params().
 
 In summary the second pass code :-
 
@@ -633,9 +633,9 @@ The main two pass functions in regard to the above include:-
 - \ref define_gf_group()
 - \ref calculate_total_gf_group_bits()
 - \ref get_twopass_worst_quality()
-- \ref av1_gop_setup_structure()
-- \ref av1_gop_bit_allocation()
-- \ref av1_twopass_postencode_update()
+- \ref av2_gop_setup_structure()
+- \ref av2_gop_bit_allocation()
+- \ref av2_twopass_postencode_update()
 
 For each frame, the two pass algorithm defines a target number of bits
 \ref RATE_CONTROL.base_frame_target,  which is then adjusted if necessary to
@@ -660,7 +660,7 @@ first pass starts encoding the clip and the second pass lags behind it by a
 few frames.  When using this method, full sequence level statistics are not
 available, but it is possible to collect and use frame or group of frame level
 data to help in the allocation of bits and in defining ARF/GF coding
-hierarchies.  The reader is referred to the \ref AV1_COMP.lap_enabled field
+hierarchies.  The reader is referred to the \ref AV2_COMP.lap_enabled field
 in the main compressor instance (where <b>lap</b> stands for
 <b>look ahead processing</b>). This encoding mode for the most part uses the
 same rate control pathways as two pass VBR encoding.
@@ -690,12 +690,12 @@ time, for the two pass encoding pipeline are:
 
 - \ref rc_pick_q_and_bounds()
     - \ref get_q()
-        - av1_rc_regulate_q()
+        - av2_rc_regulate_q()
         - \ref get_rate_correction_factor()
         - \ref set_rate_correction_factor()
         - \ref find_closest_qindex_by_rate()
-- \ref av1_twopass_postencode_update()
-    - \ref av1_rc_update_rate_correction_factors()
+- \ref av2_twopass_postencode_update()
+    - \ref av2_rc_update_rate_correction_factors()
 
 A second mechanism for control comes into play if there is a large rate miss
 for the current frame (much too big or too small). This is a recode mechanism
@@ -705,11 +705,11 @@ and in the case of RTC latency (hence it is not used for the RTC pathway).
 
 Whether or not a recode is allowed for a given frame depends on the selected
 encode speed vs quality trade off. This is set on the command line using the
---cpu-used parameter which maps onto the \ref AV1_COMP.speed field in the main
+--cpu-used parameter which maps onto the \ref AV2_COMP.speed field in the main
 compressor instance data structure.
 
-The value of \ref AV1_COMP.speed, combined with the use case, is used to
-populate the speed features data structure AV1_COMP.sf. In particular
+The value of \ref AV2_COMP.speed, combined with the use case, is used to
+populate the speed features data structure AV2_COMP.sf. In particular
 \ref HIGH_LEVEL_SPEED_FEATURES.recode_loop determines the types of frames that
 may be recoded and \ref HIGH_LEVEL_SPEED_FEATURES.recode_tolerance is a rate
 error trigger threshold.
@@ -720,8 +720,8 @@ For more information the reader is directed to the following functions:
 - \ref encode_without_recode()
 - \ref recode_loop_update_q()
 - \ref recode_loop_test()
-- \ref av1_set_speed_features_framesize_independent()
-- \ref av1_set_speed_features_framesize_dependent()
+- \ref av2_set_speed_features_framesize_independent()
+- \ref av2_set_speed_features_framesize_dependent()
 
 \subsection architecture_enc_fixed_q Fixed Q Mode
 
@@ -732,7 +732,7 @@ There are two main fixed Q cases:
    each pyramid level. (see \ref get_q_using_fixed_offsets()).
 
 The reader is also refered to the following functions:
-- av1_rc_pick_q_and_bounds()
+- av2_rc_pick_q_and_bounds()
 - \ref rc_pick_q_and_bounds_no_stats_cbr()
 - \ref rc_pick_q_and_bounds_no_stats()
 - \ref rc_pick_q_and_bounds()
@@ -744,8 +744,8 @@ The reader is also refered to the following functions:
 The following are the main data structures referenced in this section
 (see also \ref architecture_enc_data_structures):
 
-- \ref AV1_COMP cpi (the main compressor instance data structure)
-    - \ref AV1_COMP.rc (\ref RATE_CONTROL)
+- \ref AV2_COMP cpi (the main compressor instance data structure)
+    - \ref AV2_COMP.rc (\ref RATE_CONTROL)
 
 - \ref FIRSTPASS_STATS *frame_stats_buf (used to store per frame first pass
 stats)
@@ -754,7 +754,7 @@ stats)
 
 To process a sequence/stream of video frames, the encoder divides the frames
 into groups and encodes them sequentially (possibly dependent on previous
-groups). In AV1 such a group is usually referred to as a golden frame group
+groups). In AV2 such a group is usually referred to as a golden frame group
 (GF group) or sometimes an Alt-Ref (ARF) group or a group of pictures (GOP).
 A GF group determines and stores the coding structure of the frames (for
 example, frame type, usage of the hierarchical structure, usage of overlay
@@ -768,7 +768,7 @@ Note that the GF group is always a group of consecutive frames, which means
 the start and end of the group (so again, the length of it) determines which
 frames are included in it and hence determines the characteristics of the GF
 group. Therefore, in this document we will first discuss the GF group length
-decision in Libaom, followed by frame structure decisions when defining a GF
+decision in Libavm, followed by frame structure decisions when defining a GF
 group with a certain length.
 
 \subsection architecture_enc_gf_length GF / ARF Group Length Determination
@@ -788,7 +788,7 @@ calculate_gf_length(). The following encoder use cases are supported:
   current and the following GF groups (a total number of MAX_NUM_GF_INTERVALS
   groups) to be the maximum value allowed.</li>
 
-  <li><b>Single pass with look-ahead enabled (\ref AV1_COMP.lap_enabled):</b>
+  <li><b>Single pass with look-ahead enabled (\ref AV2_COMP.lap_enabled):</b>
   look-ahead processing is enabled for single pass, therefore there is a
   limited amount of information available regarding future frames. In this
   case the function will determine the length based on \ref FIRSTPASS_STATS
@@ -838,7 +838,7 @@ When the maximum GF group length is larger or equal to 32, the encoder will
 enforce an extra layer to determine whether to use maximum GF length of 32
 or 16 for every GF group. In such a case, \ref calculate_gf_length() is
 first called with the original maximum length (>=32). Afterwards,
-\ref av1_tpl_setup_stats() is called to analyze the determined GF group
+\ref av2_tpl_setup_stats() is called to analyze the determined GF group
 and compare the reference to the last frame and the middle frame. If it is
 decided that we should use a maximum GF length of 16, the function
 \ref calculate_gf_length() is called again with the updated maximum
@@ -869,7 +869,7 @@ properties of the GF group. The values of \ref RATE_CONTROL.cur_gf_index,
 \ref RATE_CONTROL.intervals_till_gf_calculate_due and
 \ref RATE_CONTROL.frames_till_gf_update_due are also updated accordingly.
 
-The function \ref av1_gop_setup_structure() is called at the end to
+The function \ref av2_gop_setup_structure() is called at the end to
 determine the frame layers and reference maps in the GF group, as shown in
 [TODO BohalLi@]. The (TODO REF) construct_multi_layer_gf_structure()
 function sets the frame update types for each frame and the group structure.
@@ -897,7 +897,7 @@ essence a trial). This special case is indicated by the setting parameter
 <b>is_final_pass</b> for to zero.
 
 For single pass encodes where look-ahead processing is disabled
-(\ref AV1_COMP.lap_enabled = 0), \ref define_gf_group_pass0() is used
+(\ref AV2_COMP.lap_enabled = 0), \ref define_gf_group_pass0() is used
 instead of \ref define_gf_group().
 
 \subsection architecture_enc_kf_groups Key Frame Groups
@@ -943,8 +943,8 @@ rate-distortion optimization framework.
 \subsection architecture_enc_tpl_config Configurations
 
 The temporal dependency model and its applications are by default turned on in
-libaom encoder for the VoD use case. To disable it, use --tpl-model=0 in the
-aomenc configuration.
+libavm encoder for the VoD use case. To disable it, use --tpl-model=0 in the
+avmenc configuration.
 
 \subsection architecture_enc_tpl_algoritms Algorithms
 
@@ -1026,25 +1026,25 @@ frame, a propagation step is run for each MB. it operates as follows:
 The reader is also refered to the following functions and data structures:
 
 - \ref TplParams
-- \ref av1_tpl_setup_stats() builds the TPL model.
+- \ref av2_tpl_setup_stats() builds the TPL model.
 - \ref setup_delta_q() Assign different quantization parameters to each super
   block based on its TPL weight.
 
 \section architecture_enc_partitions Block Partition Search
 
  A frame is first split into tiles in \ref encode_tiles(), with each tile
- compressed by av1_encode_tile(). Then a tile is processed in superblock rows
- via \ref av1_encode_sb_row() and then \ref encode_sb_row().
+ compressed by av2_encode_tile(). Then a tile is processed in superblock rows
+ via \ref av2_encode_sb_row() and then \ref encode_sb_row().
 
  The partition search processes superblocks sequentially in \ref
  encode_sb_row().
 
  Partition search over the recursive quad-tree space is implemented by
  recursive calls to
- \ref av1_rd_use_partition(), or av1_rd_pick_partition() and returning best
+ \ref av2_rd_use_partition(), or av2_rd_pick_partition() and returning best
  options for sub-trees to their parent partitions.
 
- In libaom, the partition search lays on top of the mode search (predictor,
+ In libavm, the partition search lays on top of the mode search (predictor,
  transform, etc.), instead of being a separate module. The interface of mode
  search is \ref pick_sb_modes(), which connects the partition_search with
  \ref architecture_enc_inter_modes and \ref architecture_enc_intra_modes. To
@@ -1056,7 +1056,7 @@ The reader is also refered to the following functions and data structures:
 
 \section architecture_enc_intra_modes Intra Mode Search
 
-AV1 also provides 71 different intra prediction modes, i.e. modes that predict
+AV2 also provides 71 different intra prediction modes, i.e. modes that predict
 only based upon information in the current frame with no dependency on
 previous or future frames. For key frames, where this independence from any
 other frame is a defining requirement and for other cases where intra only
@@ -1069,14 +1069,14 @@ tree is necessary.
 
 For the Rate distortion optimized case, the main top level function
 responsible for selecting the intra prediction mode for a given block is
-\ref av1_rd_pick_intra_mode_sb(). Further fine control of the speed vs quality
-trade off is provided by means of fields in \ref AV1_COMP.sf (which has type
+\ref av2_rd_pick_intra_mode_sb(). Further fine control of the speed vs quality
+trade off is provided by means of fields in \ref AV2_COMP.sf (which has type
 \ref SPEED_FEATURES).
 
 Note that some intra modes are only considered for specific use cases or
 types of video. For example the palette based prediction modes are often
 valueable for graphics or screen share content but not for natural video.
-(See \ref av1_search_palette_mode())
+(See \ref av2_search_palette_mode())
 
 See also \ref intra_mode_search for more details.
 
@@ -1096,7 +1096,7 @@ frame inter prediction modes (7 reference frames x 4 modes x 2 for OBMC
 
 Various heuristics and predictive strategies are used to prune the search tree
 with fine control provided through the speed features parameter in the main
-compressor instance data structure \ref AV1_COMP.sf.
+compressor instance data structure \ref AV2_COMP.sf.
 
 It is worth noting, that some prediction modes incurr a much larger rate cost
 than others (ignoring for now the cost of coding the error residual). For
@@ -1112,7 +1112,7 @@ See also \ref inter_mode_search for more details.
 
 \section architecture_enc_tx_search Transform Search
 
-AV1 implements the transform stage using 4 seperable 1-d transforms (DCT,
+AV2 implements the transform stage using 4 seperable 1-d transforms (DCT,
 ADST, FLIPADST and IDTX, where FLIPADST is the reversed version of ADST
 and IDTX is the identity transform) which can be combined to give 16 2-d
 combinations.
@@ -1123,12 +1123,12 @@ down to 4x4 pixels.
 This gives rise to a large number of possible candidate transform options
 for coding the residual error after prediction. An exhaustive rate-distortion
 based evaluation of all candidates would not be practical from a speed
-perspective in a production encoder implementation. Hence libaom addopts a
+perspective in a production encoder implementation. Hence libavm addopts a
 number of strategies to prune the selection of both the transform size and
 transform type.
 
 There are a number of strategies that have been tested and implememnted in
-libaom including:
+libavm including:
 
 - A statistics based approach that looks at the frequency with which certain
   combinations are used in a given context and prunes out very unlikely
@@ -1152,7 +1152,7 @@ See also \ref transform_search for more details.
 
 \section architecture_post_enc_filt Post Encode Loop Filtering
 
-AV1 supports three types of post encode <b>in loop</b> filtering to improve
+AV2 supports three types of post encode <b>in loop</b> filtering to improve
 the quality of the reconstructed video.
 
 - <b>Deblocking Filter</b> The first of these is a farily traditional boundary
@@ -1164,16 +1164,16 @@ the quality of the reconstructed video.
   (potentially oblique) directions. A primary filter is applied along the
   selected direction, whilst a secondary filter is applied at 45 degrees to
   the primary direction. (See also \ref in_loop_cdef and (TODO REF)
-  <b>A Technical Overview of the AV1 Standard</b> (TODO add link to
-  Jingning's AV1 overview paper).
+  <b>A Technical Overview of the AV2 Standard</b> (TODO add link to
+  Jingning's AV2 overview paper).
 
 - <b>Loop Restoration Filter</b> The loop restoration filter is applied after
   any prior post filtering stages. It acts on units of either 64 x 64,
   128 x 128, or 256 x 256 pixel blocks, refered to as loop restoration units.
   Each unit can independently select either to bypass filtering, use a Wiener
   filter, or use a self-guided filter. (See also \ref in_loop_restoration and
-  (TODO REF) <b>A Technical Overview of the AV1 Standard</b> (TODO add link
-  to Jingning's AV1 overview paper).
+  (TODO REF) <b>A Technical Overview of the AV2 Standard</b> (TODO add link
+  to Jingning's AV2 overview paper).
 
 \section architecture_entropy Entropy Coding
 
@@ -1188,10 +1188,10 @@ and decoder based on the observed frequency of different outcomes in the
 previous frame. VP9 also supported seperate context models for different types
 of frame (e.g. inter coded frames and key frames).
 
-In contrast, AV1 uses an M-ary symbol arithmetic coder to compress the syntax
+In contrast, AV2 uses an M-ary symbol arithmetic coder to compress the syntax
 elements, where integer \f$M\in[2, 14]\f$. This approach is based upon the entropy
 coding strategy used in the Daala video codec and allows for some bit-level
-parallelism in its implementation. AV1 also has an extended context model and
+parallelism in its implementation. AV2 also has an extended context model and
 allows for updates to the probabilities on a per symbol basis as opposed to
 the per frame strategy in VP9.
 
@@ -1200,11 +1200,11 @@ in hardware implementations, the probability model is updated and maintained
 at 15-bit precision, but the arithmetic encoder only uses the most significant
 9 bits when encoding a symbol. A more detailed discussion of the algorithm
 and design constraints can be found in (TODO REF) <b>A Technical Overview of
-the AV1 Standard</b> (TODO add link to Jingning's AV1 overview paper).
+the AV2 Standard</b> (TODO add link to Jingning's AV2 overview paper).
 
 TODO add references to key functions / files.
 
-As with VP9, a mechanism exists in AV1 to encode some elements into the
+As with VP9, a mechanism exists in AV2 to encode some elements into the
 bitstream as uncrompresed bits or literal values, without using the arithmetic
 coder. For example, some frame and sequence header values, where it is
 beneficial to be able to read the values directly.
@@ -1225,7 +1225,7 @@ See also \ref coefficient_coding for more details.
 
 /*!\defgroup high_level_algo High-level Algorithm
  * \ingroup encoder_algo
- * This module describes sequence level/frame level algorithm in AV1.
+ * This module describes sequence level/frame level algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1239,7 +1239,7 @@ See also \ref coefficient_coding for more details.
 
 /*!\defgroup src_frame_proc Source Frame Processing
  * \ingroup high_level_algo
- * This module describes algorithms in AV1 assosciated with the
+ * This module describes algorithms in AV2 assosciated with the
  * pre-processing of source frames. See also \ref architecture_enc_src_proc
  *
  * @{
@@ -1248,7 +1248,7 @@ See also \ref coefficient_coding for more details.
 
 /*!\defgroup rate_control Rate Control
  * \ingroup high_level_algo
- * This module describes rate control algorithm in AV1.
+ * This module describes rate control algorithm in AV2.
  *  See also \ref architecture_enc_rate_ctrl
  * @{
  */
@@ -1287,13 +1287,13 @@ See also \ref coefficient_coding for more details.
 // For simplicity, assume that there is enough memory in the stats buffer.
 // Actual code will want to use a resizable array. stats_len represents
 // the length of data already present in the buffer.
-void get_stats_data(aom_codec_ctx_t *encoder, char *stats,
+void get_stats_data(avm_codec_ctx_t *encoder, char *stats,
                     size_t *stats_len, bool *got_data) {
-  const aom_codec_cx_pkt_t *pkt;
-  aom_codec_iter_t iter = NULL;
-  while ((pkt = aom_codec_get_cx_data(encoder, &iter))) {
+  const avm_codec_cx_pkt_t *pkt;
+  avm_codec_iter_t iter = NULL;
+  while ((pkt = avm_codec_get_cx_data(encoder, &iter))) {
     *got_data = true;
-    if (pkt->kind != AOM_CODEC_STATS_PKT) continue;
+    if (pkt->kind != AVM_CODEC_STATS_PKT) continue;
     memcpy(stats + *stats_len, pkt->data.twopass_stats.buf,
            pkt->data.twopass_stats.sz);
     *stats_len += pkt->data.twopass_stats.sz;
@@ -1301,29 +1301,29 @@ void get_stats_data(aom_codec_ctx_t *encoder, char *stats,
 }
 
 void first_pass(char *stats, size_t *stats_len) {
-  struct aom_codec_enc_cfg first_pass_cfg;
+  struct avm_codec_enc_cfg first_pass_cfg;
   ... // Initialize the config as needed.
-  first_pass_cfg.g_pass = AOM_RC_FIRST_PASS;
-  aom_codec_ctx_t first_pass_encoder;
+  first_pass_cfg.g_pass = AVM_RC_FIRST_PASS;
+  avm_codec_ctx_t first_pass_encoder;
   ... // Initialize the encoder.
 
   while (frame_available) {
     // Read in the uncompressed frame, update frame_available
-    aom_image_t *frame_to_encode = ...;
-    aom_codec_encode(&first_pass_encoder, img, pts, duration, flags);
+    avm_image_t *frame_to_encode = ...;
+    avm_codec_encode(&first_pass_encoder, img, pts, duration, flags);
     get_stats_data(&first_pass_encoder, stats, stats_len);
   }
-  // After all frames have been processed, call aom_codec_encode with
+  // After all frames have been processed, call avm_codec_encode with
   // a NULL ptr repeatedly, until no more data is returned. The NULL
   // ptr tells the encoder that no more frames are available.
   bool got_data;
   do {
     got_data = false;
-    aom_codec_encode(&first_pass_encoder, NULL, pts, duration, flags);
+    avm_codec_encode(&first_pass_encoder, NULL, pts, duration, flags);
     get_stats_data(&first_pass_encoder, stats, stats_len, &got_data);
   } while (got_data);
 
-  aom_codec_destroy(&first_pass_encoder);
+  avm_codec_destroy(&first_pass_encoder);
 }
 ~~~~~~~~~~~~~~~
 
@@ -1332,42 +1332,42 @@ void first_pass(char *stats, size_t *stats_len) {
 
 ~~~~~~~~~~~~~~~{.c}
 // Write out each encoded frame to the file.
-void get_cx_data(aom_codec_ctx_t *encoder, FILE *file,
+void get_cx_data(avm_codec_ctx_t *encoder, FILE *file,
                  bool *got_data) {
-  const aom_codec_cx_pkt_t *pkt;
-  aom_codec_iter_t iter = NULL;
-  while ((pkt = aom_codec_get_cx_data(encoder, &iter))) {
+  const avm_codec_cx_pkt_t *pkt;
+  avm_codec_iter_t iter = NULL;
+  while ((pkt = avm_codec_get_cx_data(encoder, &iter))) {
    *got_data = true;
-   if (pkt->kind != AOM_CODEC_CX_FRAME_PKT) continue;
+   if (pkt->kind != AVM_CODEC_CX_FRAME_PKT) continue;
    fwrite(pkt->data.frame.buf, 1, pkt->data.frame.sz, file);
   }
 }
 
 void second_pass(char *stats, size_t stats_len) {
-  struct aom_codec_enc_cfg second_pass_cfg;
+  struct avm_codec_enc_cfg second_pass_cfg;
   ... // Initialize the config file as needed.
-  second_pass_cfg.g_pass = AOM_RC_LAST_PASS;
+  second_pass_cfg.g_pass = AVM_RC_LAST_PASS;
   cfg.rc_twopass_stats_in.buf = stats;
   cfg.rc_twopass_stats_in.sz = stats_len;
-  aom_codec_ctx_t second_pass_encoder;
+  avm_codec_ctx_t second_pass_encoder;
   ... // Initialize the encoder from the config.
 
   FILE *output = fopen("output.obu", "wb");
   while (frame_available) {
     // Read in the uncompressed frame, update frame_available
-    aom_image_t *frame_to_encode = ...;
-    aom_codec_encode(&second_pass_encoder, img, pts, duration, flags);
+    avm_image_t *frame_to_encode = ...;
+    avm_codec_encode(&second_pass_encoder, img, pts, duration, flags);
     get_cx_data(&second_pass_encoder, output);
   }
   // Pass in NULL to flush the encoder.
   bool got_data;
   do {
     got_data = false;
-    aom_codec_encode(&second_pass_encoder, NULL, pts, duration, flags);
+    avm_codec_encode(&second_pass_encoder, NULL, pts, duration, flags);
     get_cx_data(&second_pass_encoder, output, &got_data);
   } while (got_data);
 
-  aom_codec_destroy(&second_pass_encoder);
+  avm_codec_destroy(&second_pass_encoder);
 }
 ~~~~~~~~~~~~~~~
  */
@@ -1375,40 +1375,40 @@ void second_pass(char *stats, size_t stats_len) {
  /*!\defgroup look_ahead_buffer The Look-Ahead Buffer
     \ingroup high_level_algo
 
- A program should call \ref aom_codec_encode() for each frame that needs
+ A program should call \ref avm_codec_encode() for each frame that needs
  processing. These frames are internally copied and stored in a fixed-size
  circular buffer, known as the look-ahead buffer. Other parts of the code
  will use future frame information to inform current frame decisions;
  examples include the first-pass algorithm, TPL model, and temporal filter.
  Note that this buffer also keeps a reference to the last source frame.
 
- The look-ahead buffer is defined in \ref av1/encoder/lookahead.h. It acts as an
+ The look-ahead buffer is defined in \ref av2/encoder/lookahead.h. It acts as an
  opaque structure, with an interface to create and free memory associated with
  it. It supports pushing and popping frames onto the structure in a FIFO
- fashion. It also allows look-ahead when using the \ref av1_lookahead_peek()
+ fashion. It also allows look-ahead when using the \ref av2_lookahead_peek()
  function with a non-negative number, and look-behind when -1 is passed in (for
  the last source frame; e.g., firstpass will use this for motion estimation).
- The \ref av1_lookahead_depth() function returns the current number of frames
- stored in it. Note that \ref av1_lookahead_pop() is a bit of a misnomer - it
+ The \ref av2_lookahead_depth() function returns the current number of frames
+ stored in it. Note that \ref av2_lookahead_pop() is a bit of a misnomer - it
  only pops if either the "flush" variable is set, or the buffer is at maximum
  capacity.
 
- The buffer is stored in the \ref AV1_COMP::lookahead field.
- It is initialized in the first call to \ref aom_codec_encode(), in the
- \ref av1_receive_raw_frame() sub-routine. The buffer size is defined by
+ The buffer is stored in the \ref AV2_COMP::lookahead field.
+ It is initialized in the first call to \ref avm_codec_encode(), in the
+ \ref av2_receive_raw_frame() sub-routine. The buffer size is defined by
  the g_lag_in_frames parameter set in the
- \ref aom_codec_enc_cfg_t::g_lag_in_frames struct.
+ \ref avm_codec_enc_cfg_t::g_lag_in_frames struct.
  This can be modified manually but should only be set once. On the command
  line, the flag "--lag-in-frames" controls it. The default size is 19.
  Note that a maximum value of 35 is enforced.
 
  A frame will stay in the buffer as long as possible. As mentioned above,
- the \ref av1_lookahead_pop() only removes a frame when either flush is set,
- or the buffer is full. Note that each call to \ref aom_codec_encode() inserts
+ the \ref av2_lookahead_pop() only removes a frame when either flush is set,
+ or the buffer is full. Note that each call to \ref avm_codec_encode() inserts
  another frame into the buffer, and pop is called by the sub-function
- \ref av1_encode_strategy(). The buffer is told to flush when
- \ref aom_codec_encode() is passed a NULL image pointer. Note that the caller
- must repeatedly call \ref aom_codec_encode() with a NULL image pointer, until
+ \ref av2_encode_strategy(). The buffer is told to flush when
+ \ref avm_codec_encode() is passed a NULL image pointer. Note that the caller
+ must repeatedly call \ref avm_codec_encode() with a NULL image pointer, until
  no more packets are available, in order to fully flush the buffer.
 
  */
@@ -1425,7 +1425,7 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup intra_mode_search Intra Mode Search
  * \ingroup encoder_algo
- * This module describes intra mode search algorithm in AV1.
+ * This module describes intra mode search algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1433,7 +1433,7 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup inter_mode_search Inter Mode Search
  * \ingroup encoder_algo
- * This module describes inter mode search algorithm in AV1.
+ * This module describes inter mode search algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1441,7 +1441,7 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup palette_mode_search Palette Mode Search
  * \ingroup intra_mode_search
- * This module describes palette mode search algorithm in AV1.
+ * This module describes palette mode search algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1449,14 +1449,14 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup transform_search Transform Search
  * \ingroup encoder_algo
- * This module describes transform search algorithm in AV1.
+ * This module describes transform search algorithm in AV2.
  * @{
  */
 /*! @} - end defgroup transform_search */
 
 /*!\defgroup coefficient_coding Transform Coefficient Coding and Optimization
  * \ingroup encoder_algo
- * This module describes the algorithms of transform coefficient coding and optimization in AV1.
+ * This module describes the algorithms of transform coefficient coding and optimization in AV2.
  * More details will be added.
  * @{
  */
@@ -1464,7 +1464,7 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup in_loop_filter In-loop Filter
  * \ingroup encoder_algo
- * This module describes in-loop filter algorithm in AV1.
+ * This module describes in-loop filter algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1473,7 +1473,7 @@ void second_pass(char *stats, size_t stats_len) {
 /*!\defgroup in_loop_cdef CDEF
  * \ingroup encoder_algo
  * This module describes the CDEF parameter search algorithm
- * in AV1. More details will be added.
+ * in AV2. More details will be added.
  * @{
  */
 /*! @} - end defgroup in_loop_restoration */
@@ -1481,7 +1481,7 @@ void second_pass(char *stats, size_t stats_len) {
 /*!\defgroup in_loop_restoration Loop Restoration
  * \ingroup encoder_algo
  * This module describes the loop restoration search
- * and estimation algorithm in AV1.
+ * and estimation algorithm in AV2.
  * More details will be added.
  * @{
  */
@@ -1489,7 +1489,7 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup cyclic_refresh Cyclic Refresh
  * \ingroup encoder_algo
- * This module describes the cyclic refresh (aq-mode=3) in AV1.
+ * This module describes the cyclic refresh (aq-mode=3) in AV2.
  * More details will be added.
  * @{
  */
@@ -1497,14 +1497,14 @@ void second_pass(char *stats, size_t stats_len) {
 
 /*!\defgroup SVC Scalable Video Coding
  * \ingroup encoder_algo
- * This module describes scalable video coding algorithm in AV1.
+ * This module describes scalable video coding algorithm in AV2.
  * More details will be added.
  * @{
  */
 /*! @} - end defgroup SVC */
 /*!\defgroup variance_partition Variance Partition
  * \ingroup encoder_algo
- * This module describes variance partition algorithm in AV1.
+ * This module describes variance partition algorithm in AV2.
  * More details will be added.
  * @{
  */

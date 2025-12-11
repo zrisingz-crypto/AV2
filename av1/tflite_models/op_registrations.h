@@ -9,13 +9,13 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AV1_TFLITE_MODELS_OP_REGISTRATIONS_H_
-#define AOM_AV1_TFLITE_MODELS_OP_REGISTRATIONS_H_
+#ifndef AVM_AV2_TFLITE_MODELS_OP_REGISTRATIONS_H_
+#define AVM_AV2_TFLITE_MODELS_OP_REGISTRATIONS_H_
 
 #include <assert.h>
 
 // TensorFlow Lite has several unused parameters that are
-// exposed as part of the API. In the AOM build process, this
+// exposed as part of the API. In the AVM build process, this
 // will cause failures when -Wunused-parameter is set.
 // Since TF Lite is external code, instruct the compiler to
 // ignore this warning when including it.
@@ -44,4 +44,4 @@
 // Returns super-set of TF-lite ops required by CNN models for all QPs.
 void RegisterSelectedOpsAllQps(::tflite::MutableOpResolver *resolver);
 
-#endif  // AOM_AV1_TFLITE_MODELS_OP_REGISTRATIONS_H_
+#endif  // AVM_AV2_TFLITE_MODELS_OP_REGISTRATIONS_H_

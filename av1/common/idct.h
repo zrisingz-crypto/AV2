@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_IDCT_H_
-#define AOM_AV1_COMMON_IDCT_H_
+#ifndef AVM_AV2_COMMON_IDCT_H_
+#define AVM_AV2_COMMON_IDCT_H_
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/blockd.h"
-#include "av1/common/common.h"
-#include "av1/common/enums.h"
-#include "aom_dsp/txfm_common.h"
+#include "av2/common/blockd.h"
+#include "av2/common/common.h"
+#include "av2/common/enums.h"
+#include "avm_dsp/txfm_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,30 +31,30 @@ void inv_txfm_c(const tran_low_t *input, uint16_t *dest, int stride,
                 const TxfmParam *txfm_param);
 
 #define MAX_TX_SCALE 1
-int av1_get_tx_scale(const TX_SIZE tx_size);
+int av2_get_tx_scale(const TX_SIZE tx_size);
 
-void av1_inv_cross_chroma_tx_block(tran_low_t *dqcoeff_c1,
+void av2_inv_cross_chroma_tx_block(tran_low_t *dqcoeff_c1,
                                    tran_low_t *dqcoeff_c2, TX_SIZE tx_size,
                                    CctxType cctx_type, const int bd);
 
-void av1_inverse_transform_block(const MACROBLOCKD *xd,
+void av2_inverse_transform_block(const MACROBLOCKD *xd,
                                  const tran_low_t *dqcoeff, int plane,
                                  TX_TYPE tx_type, TX_SIZE tx_size,
                                  uint16_t *dst, int stride, int eob,
                                  int use_ddt, int reduced_tx_set);
-void av1_highbd_iwht4x4_add(const tran_low_t *input, uint16_t *dest, int stride,
+void av2_highbd_iwht4x4_add(const tran_low_t *input, uint16_t *dest, int stride,
                             int eob, int bd);
 
-void av1_highbd_iwht4x4_horz_add(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_iwht4x4_horz_add(const tran_low_t *input, uint16_t *dest,
                                  int stride, int eob, int bd);
 
-void av1_highbd_iwht4x4_vert_add(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_iwht4x4_vert_add(const tran_low_t *input, uint16_t *dest,
                                  int stride, int eob, int bd);
 
-void av1_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param);
+void av2_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_IDCT_H_
+#endif  // AVM_AV2_COMMON_IDCT_H_

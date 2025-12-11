@@ -9,16 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AOM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_
-#define AOM_AOM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_
+#ifndef AVM_AVM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_
+#define AVM_AVM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <memory.h>
 
-#include "aom_dsp/pyramid.h"
-#include "aom_util/aom_thread.h"
+#include "avm_dsp/pyramid.h"
+#include "avm_util/avm_thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,11 +53,11 @@ typedef struct corner_list {
   int corners[2 * MAX_CORNERS];
 } CornerList;
 
-size_t av1_get_corner_list_size(void);
+size_t av2_get_corner_list_size(void);
 
-CornerList *av1_alloc_corner_list(void);
+CornerList *av2_alloc_corner_list(void);
 
-bool av1_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
+bool av2_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                              int downsample_level, CornerList *corners);
 
 #ifndef NDEBUG
@@ -66,16 +66,16 @@ bool av1_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 // while reading the valid flag, we cannot just write:
 //   assert(corners->valid);
 // This function allows the check to be correctly written as:
-//   assert(aom_is_corner_list_valid(corners));
-bool aom_is_corner_list_valid(CornerList *corners);
+//   assert(avm_is_corner_list_valid(corners));
+bool avm_is_corner_list_valid(CornerList *corners);
 #endif
 
-void av1_invalidate_corner_list(CornerList *corners);
+void av2_invalidate_corner_list(CornerList *corners);
 
-void av1_free_corner_list(CornerList *corners);
+void av2_free_corner_list(CornerList *corners);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // AOM_AOM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_
+#endif  // AVM_AVM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_

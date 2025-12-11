@@ -12,10 +12,10 @@
 
 #include <assert.h>
 #include <emmintrin.h>
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms.h"
 
-#include "config/av1_rtcd.h"
-#include "av1/common/restoration.h"
-#include "av1/encoder/pickrst.h"
+#include "config/av2_rtcd.h"
+#include "av2/common/restoration.h"
+#include "av2/encoder/pickrst.h"
 
 /* This is a placeholder file for encoder side optimizations */

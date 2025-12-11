@@ -9,33 +9,33 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "aom_dsp/pyramid.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/bitops.h"
-#include "aom_util/aom_thread.h"
+#include "avm_dsp/pyramid.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/bitops.h"
+#include "avm_util/avm_thread.h"
 
-// TODO(rachelbarker): Move needed code from av1/ to aom_dsp/
-#include "av1/common/resize.h"
+// TODO(rachelbarker): Move needed code from av2/ to avm_dsp/
+#include "av2/common/resize.h"
 
 #include <assert.h>
 #include <string.h>
 
 // Lifecycle:
-// * Frame buffer alloc code calls aom_get_pyramid_alloc_size()
+// * Frame buffer alloc code calls avm_get_pyramid_alloc_size()
 //   to work out how much space is needed for a given number of pyramid
 //   levels. This is counted in the size checked against the max allocation
 //   limit
-// * Then calls aom_alloc_pyramid() to actually create the pyramid
+// * Then calls avm_alloc_pyramid() to actually create the pyramid
 // * Pyramid is initially marked as containing no valid data
 // * Each pyramid layer is computed on-demand, the first time it is requested
 // * Whenever frame buffer is reused, reset the counter of filled levels.
 //   This invalidates all of the existing pyramid levels.
 // * Whenever frame buffer is resized, reallocate pyramid
 
-size_t aom_get_pyramid_alloc_size(int width, int height) {
+size_t avm_get_pyramid_alloc_size(int width, int height) {
   // Allocate the maximum possible number of layers for this width and height
-  const int msb = get_msb(AOMMIN(width, height));
-  const int n_levels = AOMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
+  const int msb = get_msb(AVMMIN(width, height));
+  const int n_levels = AVMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
 
   size_t alloc_size = 0;
   alloc_size += sizeof(ImagePyramid);
@@ -45,7 +45,7 @@ size_t aom_get_pyramid_alloc_size(int width, int height) {
   size_t buffer_size = 0;
 
   // Work out if we need to allocate a few extra bytes for alignment.
-  // aom_memalign() will ensure that the start of the allocation is aligned
+  // avm_memalign() will ensure that the start of the allocation is aligned
   // to a multiple of PYRAMID_ALIGNMENT. But we want the first image pixel
   // to be aligned, not the first byte of the allocation.
   //
@@ -98,19 +98,19 @@ size_t aom_get_pyramid_alloc_size(int width, int height) {
   return alloc_size;
 }
 
-ImagePyramid *aom_alloc_pyramid(int width, int height) {
+ImagePyramid *avm_alloc_pyramid(int width, int height) {
   // Allocate the maximum possible number of layers for this width and height
-  const int msb = get_msb(AOMMIN(width, height));
-  const int n_levels = AOMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
+  const int msb = get_msb(AVMMIN(width, height));
+  const int n_levels = AVMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
 
-  ImagePyramid *pyr = aom_calloc(1, sizeof(*pyr));
+  ImagePyramid *pyr = avm_calloc(1, sizeof(*pyr));
   if (!pyr) {
     return NULL;
   }
 
-  pyr->layers = aom_calloc(n_levels, sizeof(*pyr->layers));
+  pyr->layers = avm_calloc(n_levels, sizeof(*pyr->layers));
   if (!pyr->layers) {
-    aom_free(pyr);
+    avm_free(pyr);
     return NULL;
   }
 
@@ -121,15 +121,15 @@ ImagePyramid *aom_alloc_pyramid(int width, int height) {
   // These are gathered up first, so that we can allocate all pyramid levels
   // in a single buffer
   size_t buffer_size = 0;
-  size_t *layer_offsets = aom_calloc(n_levels, sizeof(*layer_offsets));
+  size_t *layer_offsets = avm_calloc(n_levels, sizeof(*layer_offsets));
   if (!layer_offsets) {
-    aom_free(pyr->layers);
-    aom_free(pyr);
+    avm_free(pyr->layers);
+    avm_free(pyr);
     return NULL;
   }
 
   // Work out if we need to allocate a few extra bytes for alignment.
-  // aom_memalign() will ensure that the start of the allocation is aligned
+  // avm_memalign() will ensure that the start of the allocation is aligned
   // to a multiple of PYRAMID_ALIGNMENT. But we want the first image pixel
   // to be aligned, not the first byte of the allocation.
   //
@@ -189,11 +189,11 @@ ImagePyramid *aom_alloc_pyramid(int width, int height) {
   }
 
   pyr->buffer_alloc =
-      aom_memalign(PYRAMID_ALIGNMENT, buffer_size * sizeof(*pyr->buffer_alloc));
+      avm_memalign(PYRAMID_ALIGNMENT, buffer_size * sizeof(*pyr->buffer_alloc));
   if (!pyr->buffer_alloc) {
-    aom_free(pyr->layers);
-    aom_free(pyr);
-    aom_free(layer_offsets);
+    avm_free(pyr->layers);
+    avm_free(pyr);
+    avm_free(layer_offsets);
     return NULL;
   }
 
@@ -209,7 +209,7 @@ ImagePyramid *aom_alloc_pyramid(int width, int height) {
   pthread_mutex_init(&pyr->mutex, NULL);
 #endif  // CONFIG_MULTITHREAD
 
-  aom_free(layer_offsets);
+  avm_free(layer_offsets);
   return pyr;
 }
 
@@ -258,7 +258,7 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                                int n_levels, ImagePyramid *frame_pyr) {
   int already_filled_levels = frame_pyr->filled_levels;
 
-  // This condition should already be enforced by aom_compute_pyramid
+  // This condition should already be enforced by avm_compute_pyramid
   assert(n_levels <= frame_pyr->max_levels);
 
   if (already_filled_levels >= n_levels) {
@@ -321,7 +321,7 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
     // 2) Up/downsampling by a factor of 2 can be implemented much more
     //    efficiently than up/downsampling by a generic ratio.
     //    TODO(rachelbarker): Use optimized downsample-by-2 function
-    if (!av1_resize_plane(prev_buffer, this_height << 1, this_width << 1,
+    if (!av2_resize_plane(prev_buffer, this_height << 1, this_width << 1,
                           prev_stride, this_buffer, this_height, this_width,
                           this_stride)) {
       // If we can't allocate memory, we'll have to terminate early
@@ -349,7 +349,7 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 //
 // Returns the actual number of levels filled, capped at n_levels,
 // or -1 on error.
-int aom_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
+int avm_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                         int n_levels, ImagePyramid *pyr) {
   assert(pyr);
 
@@ -361,7 +361,7 @@ int aom_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
   pthread_mutex_lock(&pyr->mutex);
 #endif  // CONFIG_MULTITHREAD
 
-  n_levels = AOMMIN(n_levels, pyr->max_levels);
+  n_levels = AVMMIN(n_levels, pyr->max_levels);
   int result = n_levels;
   if (pyr->filled_levels < n_levels) {
     // Compute any missing levels that we need
@@ -384,13 +384,13 @@ int aom_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 // while reading the number of already-computed levels, we cannot just write:
 //   assert(pyr->filled_levels >= n_levels);
 // This function allows the check to be correctly written as:
-//   assert(aom_is_pyramid_valid(pyr, n_levels));
+//   assert(avm_is_pyramid_valid(pyr, n_levels));
 //
 // Note: This deliberately does not restrict n_levels based on the maximum
 // number of permitted levels for the frame size. This allows the check to
 // catch cases where the caller forgets to handle the case where
 // max_levels is less than the requested number of levels
-bool aom_is_pyramid_valid(ImagePyramid *pyr, int n_levels) {
+bool avm_is_pyramid_valid(ImagePyramid *pyr, int n_levels) {
   assert(pyr);
 
   // Per the comments in the ImagePyramid struct, we must take this mutex
@@ -412,7 +412,7 @@ bool aom_is_pyramid_valid(ImagePyramid *pyr, int n_levels) {
 
 // Mark a pyramid as no longer containing valid data.
 // This must be done whenever the corresponding frame buffer is reused
-void aom_invalidate_pyramid(ImagePyramid *pyr) {
+void avm_invalidate_pyramid(ImagePyramid *pyr) {
   if (pyr) {
 #if CONFIG_MULTITHREAD
     pthread_mutex_lock(&pyr->mutex);
@@ -425,13 +425,13 @@ void aom_invalidate_pyramid(ImagePyramid *pyr) {
 }
 
 // Release the memory associated with a pyramid
-void aom_free_pyramid(ImagePyramid *pyr) {
+void avm_free_pyramid(ImagePyramid *pyr) {
   if (pyr) {
 #if CONFIG_MULTITHREAD
     pthread_mutex_destroy(&pyr->mutex);
 #endif  // CONFIG_MULTITHREAD
-    aom_free(pyr->buffer_alloc);
-    aom_free(pyr->layers);
-    aom_free(pyr);
+    avm_free(pyr->buffer_alloc);
+    avm_free(pyr->layers);
+    avm_free(pyr);
   }
 }

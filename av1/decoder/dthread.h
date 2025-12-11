@@ -10,32 +10,32 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_DECODER_DTHREAD_H_
-#define AOM_AV1_DECODER_DTHREAD_H_
+#ifndef AVM_AV2_DECODER_DTHREAD_H_
+#define AVM_AV2_DECODER_DTHREAD_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_util/aom_thread.h"
-#include "aom/internal/aom_codec_internal.h"
+#include "avm_util/avm_thread.h"
+#include "avm/internal/avm_codec_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1Common;
-struct AV1Decoder;
+struct AV2Common;
+struct AV2Decoder;
 struct ThreadData;
 
 typedef struct DecWorkerData {
   struct ThreadData *td;
   const uint8_t *data_end;
-  struct aom_internal_error_info error_info;
+  struct avm_internal_error_info error_info;
 } DecWorkerData;
 
 // WorkerData for the FrameWorker thread. It contains all the information of
 // the worker and decode structures for decoding a frame.
 typedef struct FrameWorkerData {
-  struct AV1Decoder *pbi;
+  struct AV2Decoder *pbi;
   const uint8_t *data;
   const uint8_t *data_end;
   size_t data_size;
@@ -47,4 +47,4 @@ typedef struct FrameWorkerData {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_DECODER_DTHREAD_H_
+#endif  // AVM_AV2_DECODER_DTHREAD_H_

@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V64_INTRINSICS_H_
-#define AOM_AOM_DSP_SIMD_V64_INTRINSICS_H_
+#ifndef AVM_AVM_DSP_SIMD_V64_INTRINSICS_H_
+#define AVM_AVM_DSP_SIMD_V64_INTRINSICS_H_
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "aom_dsp/simd/v64_intrinsics_c.h"
+#include "avm_dsp/simd/v64_intrinsics_c.h"
 
 /* Fallback to plain, unoptimised C. */
 
@@ -232,4 +232,4 @@ SIMD_INLINE v64 v64_shr_n_s32(v64 a, unsigned int c) {
   return c_v64_shr_n_s32(a, c);
 }
 
-#endif  // AOM_AOM_DSP_SIMD_V64_INTRINSICS_H_
+#endif  // AVM_AVM_DSP_SIMD_V64_INTRINSICS_H_

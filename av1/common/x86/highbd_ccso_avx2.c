@@ -11,9 +11,9 @@
  */
 #include <immintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/ccso.h"
+#include "av2/common/ccso.h"
 
 __m256i cal_filter_support_edge0_avx2(__m256i d, __m256i cmp_thr1,
                                       __m256i cmp_thr2, __m256i all1,

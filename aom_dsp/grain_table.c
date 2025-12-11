@@ -33,21 +33,21 @@
  */
 #include <string.h>
 #include <stdio.h>
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/grain_table.h"
-#include "aom_mem/aom_mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/grain_table.h"
+#include "avm_mem/avm_mem.h"
 static const char kFileMagic[8] = "filmgrn2";
 static void grain_table_entry_read(FILE *file,
-                                   struct aom_internal_error_info *error_info,
-                                   aom_film_grain_table_entry_t *entry) {
-  aom_film_grain_t *pars = &entry->params;
+                                   struct avm_internal_error_info *error_info,
+                                   avm_film_grain_table_entry_t *entry) {
+  avm_film_grain_t *pars = &entry->params;
   int num_read =
       fscanf(file, "E %" PRId64 " %" PRId64 " %d %hd %d\n", &entry->start_time,
              &entry->end_time, &pars->apply_grain, &pars->random_seed,
              &pars->update_parameters);
   if (num_read == 0 && feof(file)) return;
   if (num_read != 5) {
-    aom_internal_error(error_info, AOM_CODEC_ERROR,
+    avm_internal_error(error_info, AVM_CODEC_ERROR,
                        "Unable to read entry header. Read %d != 5", num_read);
     return;
   }
@@ -60,46 +60,46 @@ static void grain_table_entry_read(FILE *file,
         &pars->cb_mult, &pars->cb_luma_mult, &pars->cb_offset, &pars->cr_mult,
         &pars->cr_luma_mult, &pars->cr_offset, &pars->block_size);
     if (num_read != 13) {
-      aom_internal_error(error_info, AOM_CODEC_ERROR,
+      avm_internal_error(error_info, AVM_CODEC_ERROR,
                          "Unable to read entry params. Read %d != 13",
                          num_read);
       return;
     }
     if (!fscanf(file, "\tsY %d ", &pars->fgm_points[0])) {
-      aom_internal_error(error_info, AOM_CODEC_ERROR,
+      avm_internal_error(error_info, AVM_CODEC_ERROR,
                          "Unable to read num y points");
       return;
     }
     for (int i = 0; i < pars->fgm_points[0]; ++i) {
       if (2 != fscanf(file, "%d %d", &pars->fgm_scaling_points_0[i][0],
                       &pars->fgm_scaling_points_0[i][1])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read y scaling points");
         return;
       }
     }
     if (!fscanf(file, "\n\tsCb %d", &pars->fgm_points[1])) {
-      aom_internal_error(error_info, AOM_CODEC_ERROR,
+      avm_internal_error(error_info, AVM_CODEC_ERROR,
                          "Unable to read num cb points");
       return;
     }
     for (int i = 0; i < pars->fgm_points[1]; ++i) {
       if (2 != fscanf(file, "%d %d", &pars->fgm_scaling_points_1[i][0],
                       &pars->fgm_scaling_points_1[i][1])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read cb scaling points");
         return;
       }
     }
     if (!fscanf(file, "\n\tsCr %d", &pars->fgm_points[2])) {
-      aom_internal_error(error_info, AOM_CODEC_ERROR,
+      avm_internal_error(error_info, AVM_CODEC_ERROR,
                          "Unable to read num cr points");
       return;
     }
     for (int i = 0; i < pars->fgm_points[2]; ++i) {
       if (2 != fscanf(file, "%d %d", &pars->fgm_scaling_points_2[i][0],
                       &pars->fgm_scaling_points_2[i][1])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read cr scaling points");
         return;
       }
@@ -109,7 +109,7 @@ static void grain_table_entry_read(FILE *file,
     const int n = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
     for (int i = 0; i < n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_y[i])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read Y coeffs");
         return;
       }
@@ -117,7 +117,7 @@ static void grain_table_entry_read(FILE *file,
     fscanf(file, "\n\tcCb");
     for (int i = 0; i <= n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_cb[i])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read Cb coeffs");
         return;
       }
@@ -125,7 +125,7 @@ static void grain_table_entry_read(FILE *file,
     fscanf(file, "\n\tcCr");
     for (int i = 0; i <= n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_cr[i])) {
-        aom_internal_error(error_info, AOM_CODEC_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_ERROR,
                            "Unable to read Cr coeffs");
         return;
       }
@@ -135,8 +135,8 @@ static void grain_table_entry_read(FILE *file,
 }
 
 static void grain_table_entry_write(FILE *file,
-                                    aom_film_grain_table_entry_t *entry) {
-  const aom_film_grain_t *pars = &entry->params;
+                                    avm_film_grain_table_entry_t *entry) {
+  const avm_film_grain_t *pars = &entry->params;
   fprintf(file, "E %" PRId64 " %" PRId64 " %d %d %d\n", entry->start_time,
           entry->end_time, pars->apply_grain, pars->random_seed,
           pars->update_parameters);
@@ -180,11 +180,11 @@ static void grain_table_entry_write(FILE *file,
   }
 }
 
-void aom_film_grain_table_append(aom_film_grain_table_t *t, int64_t time_stamp,
+void avm_film_grain_table_append(avm_film_grain_table_t *t, int64_t time_stamp,
                                  int64_t end_time,
-                                 const aom_film_grain_t *grain) {
+                                 const avm_film_grain_t *grain) {
   if (!t->tail || memcmp(grain, &t->tail->params, sizeof(*grain))) {
-    aom_film_grain_table_entry_t *new_tail = aom_malloc(sizeof(*new_tail));
+    avm_film_grain_table_entry_t *new_tail = avm_malloc(sizeof(*new_tail));
     memset(new_tail, 0, sizeof(*new_tail));
     if (t->tail) t->tail->next = new_tail;
     if (!t->head) t->head = new_tail;
@@ -194,21 +194,21 @@ void aom_film_grain_table_append(aom_film_grain_table_t *t, int64_t time_stamp,
     new_tail->end_time = end_time;
     new_tail->params = *grain;
   } else {
-    t->tail->end_time = AOMMAX(t->tail->end_time, end_time);
-    t->tail->start_time = AOMMIN(t->tail->start_time, time_stamp);
+    t->tail->end_time = AVMMAX(t->tail->end_time, end_time);
+    t->tail->start_time = AVMMIN(t->tail->start_time, time_stamp);
   }
 }
 
-int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
+int avm_film_grain_table_lookup(avm_film_grain_table_t *t, int64_t time_stamp,
                                 int64_t end_time, int erase,
-                                aom_film_grain_t *grain) {
-  aom_film_grain_table_entry_t *entry = t->head;
-  aom_film_grain_table_entry_t *prev_entry = 0;
+                                avm_film_grain_t *grain) {
+  avm_film_grain_table_entry_t *entry = t->head;
+  avm_film_grain_table_entry_t *prev_entry = 0;
   uint16_t random_seed = grain ? grain->random_seed : 0;
   if (grain) memset(grain, 0, sizeof(*grain));
 
   while (entry) {
-    aom_film_grain_table_entry_t *next = entry->next;
+    avm_film_grain_table_entry_t *next = entry->next;
     if (time_stamp >= entry->start_time && time_stamp < entry->end_time) {
       if (grain) {
         *grain = entry->params;
@@ -224,7 +224,7 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
         } else {
           t->head = entry->next;
         }
-        aom_free(entry);
+        avm_free(entry);
       } else if (time_stamp <= entry->start_time &&
                  end_time < entry->end_time) {
         entry->start_time = end_time;
@@ -232,8 +232,8 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
                  end_time >= entry->end_time) {
         entry->end_time = time_stamp;
       } else {
-        aom_film_grain_table_entry_t *new_entry =
-            aom_malloc(sizeof(*new_entry));
+        avm_film_grain_table_entry_t *new_entry =
+            avm_malloc(sizeof(*new_entry));
         new_entry->next = entry->next;
         new_entry->start_time = end_time;
         new_entry->end_time = entry->end_time;
@@ -245,7 +245,7 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
       // If segments aren't aligned, delete from the beggining of subsequent
       // segments
       if (end_time > entry_end_time) {
-        aom_film_grain_table_lookup(t, entry->end_time, end_time, 1, 0);
+        avm_film_grain_table_lookup(t, entry->end_time, end_time, 1, 0);
       }
       return 1;
     }
@@ -255,30 +255,30 @@ int aom_film_grain_table_lookup(aom_film_grain_table_t *t, int64_t time_stamp,
   return 0;
 }
 
-aom_codec_err_t aom_film_grain_table_read(
-    aom_film_grain_table_t *t, const char *filename,
-    struct aom_internal_error_info *error_info) {
+avm_codec_err_t avm_film_grain_table_read(
+    avm_film_grain_table_t *t, const char *filename,
+    struct avm_internal_error_info *error_info) {
   FILE *file = fopen(filename, "rb");
   if (!file) {
-    aom_internal_error(error_info, AOM_CODEC_ERROR, "Unable to open %s",
+    avm_internal_error(error_info, AVM_CODEC_ERROR, "Unable to open %s",
                        filename);
     return error_info->error_code;
   }
-  error_info->error_code = AOM_CODEC_OK;
+  error_info->error_code = AVM_CODEC_OK;
 
   // Read in one extra character as there should be white space after
   // the header.
   char magic[9];
   if (!fread(magic, 9, 1, file) || memcmp(magic, kFileMagic, 8)) {
-    aom_internal_error(error_info, AOM_CODEC_ERROR,
+    avm_internal_error(error_info, AVM_CODEC_ERROR,
                        "Unable to read (or invalid) file magic");
     fclose(file);
     return error_info->error_code;
   }
 
-  aom_film_grain_table_entry_t *prev_entry = 0;
+  avm_film_grain_table_entry_t *prev_entry = 0;
   while (!feof(file)) {
-    aom_film_grain_table_entry_t *entry = aom_malloc(sizeof(*entry));
+    avm_film_grain_table_entry_t *entry = avm_malloc(sizeof(*entry));
     memset(entry, 0, sizeof(*entry));
     grain_table_entry_read(file, error_info, entry);
     entry->next = 0;
@@ -288,34 +288,34 @@ aom_codec_err_t aom_film_grain_table_read(
     t->tail = entry;
     prev_entry = entry;
 
-    if (error_info->error_code != AOM_CODEC_OK) break;
+    if (error_info->error_code != AVM_CODEC_OK) break;
   }
 
   fclose(file);
   return error_info->error_code;
 }
 
-aom_codec_err_t aom_film_grain_table_write(
-    const aom_film_grain_table_t *t, const char *filename,
-    struct aom_internal_error_info *error_info) {
-  error_info->error_code = AOM_CODEC_OK;
+avm_codec_err_t avm_film_grain_table_write(
+    const avm_film_grain_table_t *t, const char *filename,
+    struct avm_internal_error_info *error_info) {
+  error_info->error_code = AVM_CODEC_OK;
 
   FILE *file = fopen(filename, "wb");
   if (!file) {
-    aom_internal_error(error_info, AOM_CODEC_ERROR, "Unable to open file %s",
+    avm_internal_error(error_info, AVM_CODEC_ERROR, "Unable to open file %s",
                        filename);
     return error_info->error_code;
   }
 
   if (!fwrite(kFileMagic, 8, 1, file)) {
-    aom_internal_error(error_info, AOM_CODEC_ERROR,
+    avm_internal_error(error_info, AVM_CODEC_ERROR,
                        "Unable to write file magic");
     fclose(file);
     return error_info->error_code;
   }
 
   fprintf(file, "\n");
-  aom_film_grain_table_entry_t *entry = t->head;
+  avm_film_grain_table_entry_t *entry = t->head;
   while (entry) {
     grain_table_entry_write(file, entry);
     entry = entry->next;
@@ -324,11 +324,11 @@ aom_codec_err_t aom_film_grain_table_write(
   return error_info->error_code;
 }
 
-void aom_film_grain_table_free(aom_film_grain_table_t *t) {
-  aom_film_grain_table_entry_t *entry = t->head;
+void avm_film_grain_table_free(avm_film_grain_table_t *t) {
+  avm_film_grain_table_entry_t *entry = t->head;
   while (entry) {
-    aom_film_grain_table_entry_t *next = entry->next;
-    aom_free(entry);
+    avm_film_grain_table_entry_t *next = entry->next;
+    avm_free(entry);
     entry = next;
   }
   memset(t, 0, sizeof(*t));

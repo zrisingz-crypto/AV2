@@ -9,7 +9,7 @@
 ; can obtain it at aomedia.org/license/patent-license/.
 ;
 
-%define private_prefix av1
+%define private_prefix av2
 
 %include "third_party/x86inc/x86inc.asm"
 

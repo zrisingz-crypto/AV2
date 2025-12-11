@@ -12,13 +12,13 @@
 
 #include <immintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/blend.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
-#include "av1/common/blockd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
+#include "av2/common/blockd.h"
 
 static INLINE __m256i calc_mask_d16_avx2(const __m256i *data_src0,
                                          const __m256i *data_src1,
@@ -60,7 +60,7 @@ static INLINE void build_compound_diffwtd_mask_d16_avx2(
   const int mask_base = 38;
   const __m256i _r = _mm256_set1_epi16((1 << shift) >> 1);
   const __m256i y38 = _mm256_set1_epi16(mask_base);
-  const __m256i y64 = _mm256_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m256i y64 = _mm256_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
   int i = 0;
   if (w == 4) {
     do {
@@ -275,7 +275,7 @@ static INLINE void build_compound_diffwtd_mask_d16_inv_avx2(
   const int mask_base = 38;
   const __m256i _r = _mm256_set1_epi16((1 << shift) >> 1);
   const __m256i y38 = _mm256_set1_epi16(mask_base);
-  const __m256i y64 = _mm256_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m256i y64 = _mm256_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
   int i = 0;
   if (w == 4) {
     do {
@@ -485,7 +485,7 @@ static INLINE void build_compound_diffwtd_mask_d16_inv_avx2(
   }
 }
 
-void av1_build_compound_diffwtd_mask_d16_avx2(
+void av2_build_compound_diffwtd_mask_d16_avx2(
     uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const CONV_BUF_TYPE *src0,
     int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride, int h, int w,
     ConvolveParams *conv_params, int bd) {
@@ -493,10 +493,10 @@ void av1_build_compound_diffwtd_mask_d16_avx2(
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1 + (bd - 8);
   // When rounding constant is added, there is a possibility of overflow.
   // However that much precision is not required. Code should very well work for
-  // other values of DIFF_FACTOR_LOG2 and AOM_BLEND_A64_MAX_ALPHA as well. But
+  // other values of DIFF_FACTOR_LOG2 and AVM_BLEND_A64_MAX_ALPHA as well. But
   // there is a possibility of corner case bugs.
   assert(DIFF_FACTOR_LOG2 == 4);
-  assert(AOM_BLEND_A64_MAX_ALPHA == 64);
+  assert(AVM_BLEND_A64_MAX_ALPHA == 64);
 
   if (mask_type == DIFFWTD_38) {
     build_compound_diffwtd_mask_d16_avx2(mask, src0, src0_stride, src1,
@@ -507,20 +507,20 @@ void av1_build_compound_diffwtd_mask_d16_avx2(
   }
 }
 
-void av1_build_compound_diffwtd_mask_highbd_avx2(
+void av2_build_compound_diffwtd_mask_highbd_avx2(
     uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const uint16_t *ssrc0,
     int src0_stride, const uint16_t *ssrc1, int src1_stride, int h, int w,
     int bd) {
   if (w < 16) {
-    av1_build_compound_diffwtd_mask_highbd_ssse3(
+    av2_build_compound_diffwtd_mask_highbd_ssse3(
         mask, mask_type, ssrc0, src0_stride, ssrc1, src1_stride, h, w, bd);
   } else {
     assert(mask_type == DIFFWTD_38 || mask_type == DIFFWTD_38_INV);
     assert(bd >= 8);
     assert((w % 16) == 0);
     const __m256i y0 = _mm256_setzero_si256();
-    const __m256i yAOM_BLEND_A64_MAX_ALPHA =
-        _mm256_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+    const __m256i yAVM_BLEND_A64_MAX_ALPHA =
+        _mm256_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
     const int mask_base = 38;
     const __m256i ymask_base = _mm256_set1_epi16(mask_base);
     if (bd == 8) {
@@ -533,8 +533,8 @@ void av1_build_compound_diffwtd_mask_highbd_avx2(
                 _mm256_abs_epi16(_mm256_sub_epi16(s0, s1)), DIFF_FACTOR_LOG2);
             __m256i m = _mm256_min_epi16(
                 _mm256_max_epi16(y0, _mm256_add_epi16(diff, ymask_base)),
-                yAOM_BLEND_A64_MAX_ALPHA);
-            m = _mm256_sub_epi16(yAOM_BLEND_A64_MAX_ALPHA, m);
+                yAVM_BLEND_A64_MAX_ALPHA);
+            m = _mm256_sub_epi16(yAVM_BLEND_A64_MAX_ALPHA, m);
             m = _mm256_packus_epi16(m, m);
             m = _mm256_permute4x64_epi64(m, _MM_SHUFFLE(0, 0, 2, 0));
             __m128i m0 = _mm256_castsi256_si128(m);
@@ -553,7 +553,7 @@ void av1_build_compound_diffwtd_mask_highbd_avx2(
                 _mm256_abs_epi16(_mm256_sub_epi16(s0, s1)), DIFF_FACTOR_LOG2);
             __m256i m = _mm256_min_epi16(
                 _mm256_max_epi16(y0, _mm256_add_epi16(diff, ymask_base)),
-                yAOM_BLEND_A64_MAX_ALPHA);
+                yAVM_BLEND_A64_MAX_ALPHA);
             m = _mm256_packus_epi16(m, m);
             m = _mm256_permute4x64_epi64(m, _MM_SHUFFLE(0, 0, 2, 0));
             __m128i m0 = _mm256_castsi256_si128(m);
@@ -575,8 +575,8 @@ void av1_build_compound_diffwtd_mask_highbd_avx2(
                 _mm256_abs_epi16(_mm256_sub_epi16(s0, s1)), xshift);
             __m256i m = _mm256_min_epi16(
                 _mm256_max_epi16(y0, _mm256_add_epi16(diff, ymask_base)),
-                yAOM_BLEND_A64_MAX_ALPHA);
-            m = _mm256_sub_epi16(yAOM_BLEND_A64_MAX_ALPHA, m);
+                yAVM_BLEND_A64_MAX_ALPHA);
+            m = _mm256_sub_epi16(yAVM_BLEND_A64_MAX_ALPHA, m);
             m = _mm256_packus_epi16(m, m);
             m = _mm256_permute4x64_epi64(m, _MM_SHUFFLE(0, 0, 2, 0));
             __m128i m0 = _mm256_castsi256_si128(m);
@@ -595,7 +595,7 @@ void av1_build_compound_diffwtd_mask_highbd_avx2(
                 _mm256_abs_epi16(_mm256_sub_epi16(s0, s1)), xshift);
             __m256i m = _mm256_min_epi16(
                 _mm256_max_epi16(y0, _mm256_add_epi16(diff, ymask_base)),
-                yAOM_BLEND_A64_MAX_ALPHA);
+                yAVM_BLEND_A64_MAX_ALPHA);
             m = _mm256_packus_epi16(m, m);
             m = _mm256_permute4x64_epi64(m, _MM_SHUFFLE(0, 0, 2, 0));
             __m128i m0 = _mm256_castsi256_si128(m);

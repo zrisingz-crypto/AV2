@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SSIM_H_
-#define AOM_AOM_DSP_SSIM_H_
+#ifndef AVM_AVM_DSP_SSIM_H_
+#define AVM_AVM_DSP_SSIM_H_
 
 #define MAX_SSIM_DB 100.0;
 
@@ -19,9 +19,9 @@
 extern "C" {
 #endif
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_scale/yv12config.h"
+#include "avm_scale/yv12config.h"
 
 // metrics used for calculating ssim, ssim2, dssim, and ssimc
 typedef struct {
@@ -65,12 +65,12 @@ typedef struct {
   double ssimcd;
 } Metrics;
 
-double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
+double avm_calc_fastssim(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *dest, double *ssim_y,
                          double *ssim_u, double *ssim_v, uint32_t bd,
                          uint32_t in_bd);
 
-double aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
+double avm_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
                             const YV12_BUFFER_CONFIG *dest, double *weight,
                             uint32_t bd, uint32_t in_bd);
 
@@ -78,4 +78,4 @@ double aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_SSIM_H_
+#endif  // AVM_AVM_DSP_SSIM_H_

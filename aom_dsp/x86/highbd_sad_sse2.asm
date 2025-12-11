@@ -64,7 +64,7 @@ cglobal highbd_sad_skip_%1x%2, 4, %3, 7, src, src_stride, ref, ref_stride, \
 %endif ; %3 == 7
 %endmacro
 
-; unsigned int aom_highbd_sad64x{16,32,64}_sse2(uint8_t *src, int src_stride,
+; unsigned int avm_highbd_sad64x{16,32,64}_sse2(uint8_t *src, int src_stride,
 ;                                    uint8_t *ref, int ref_stride);
 %macro HIGH_SAD64XN 1-2 0
   HIGH_SAD_FN 64, %1, 5, %2
@@ -189,7 +189,7 @@ HIGH_SAD64XN 4 ; highbd_sad_64x4_sse2
 HIGH_SAD64XN 4, 1 ; highbd_sad_64x4_avg_sse2
 HIGH_SAD64XN 4, 2 ; highbd_sad_skip_64x4_sse2
 
-; unsigned int aom_highbd_sad32x{16,32,64}_sse2(uint8_t *src, int src_stride,
+; unsigned int avm_highbd_sad32x{16,32,64}_sse2(uint8_t *src, int src_stride,
 ;                                    uint8_t *ref, int ref_stride);
 %macro HIGH_SAD32XN 1-2 0
   HIGH_SAD_FN 32, %1, 5, %2
@@ -273,7 +273,7 @@ HIGH_SAD32XN 4 ; highbd_sad_32x4_sse2
 HIGH_SAD32XN 4, 1 ; highbd_sad_32x4_avg_sse2
 HIGH_SAD32XN 4, 2 ; highbd_sad_skip_32x4_sse2
 
-; unsigned int aom_highbd_sad16x{8,16,32}_sse2(uint8_t *src, int src_stride,
+; unsigned int avm_highbd_sad16x{8,16,32}_sse2(uint8_t *src, int src_stride,
 ;                                    uint8_t *ref, int ref_stride);
 %macro HIGH_SAD16XN 1-2 0
   HIGH_SAD_FN 16, %1, 5, %2
@@ -358,7 +358,7 @@ HIGH_SAD16XN  8, 2 ; highbd_sad_skip_16x8_sse2
 ; Current code fails there are only 2 rows
 ; HIGH_SAD16XN  4, 2 ; highbd_sad_skip_16x4_sse2
 
-; unsigned int aom_highbd_sad8x{4,8,16}_sse2(uint8_t *src, int src_stride,
+; unsigned int avm_highbd_sad8x{4,8,16}_sse2(uint8_t *src, int src_stride,
 ;                                    uint8_t *ref, int ref_stride);
 %macro HIGH_SAD8XN 1-2 0
   HIGH_SAD_FN 8, %1, 7, %2, 8
@@ -452,7 +452,7 @@ HIGH_SAD8XN 64 ; highbd_sad_8x64_sse2
 HIGH_SAD8XN 64, 1 ; highbd_sad_8x64_avg_sse2
 HIGH_SAD8XN 64, 2 ; highbd_sad_skip_8x64_sse2
 
-; unsigned int aom_highbd_sad4x{4,8,16}_sse2(uint8_t *src, int src_stride,
+; unsigned int avm_highbd_sad4x{4,8,16}_sse2(uint8_t *src, int src_stride,
 ;                                    uint8_t *ref, int ref_stride);
 %macro HIGH_SAD4XN 1-2 0
   HIGH_SAD_FN 4, %1, 7, %2

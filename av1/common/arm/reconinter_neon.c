@@ -14,14 +14,14 @@
 #include <arm_neon.h>
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/blend.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "av1/common/blockd.h"
-#include "config/av1_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/blend.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "av2/common/blockd.h"
+#include "config/av2_rtcd.h"
 
-void av1_build_compound_diffwtd_mask_d16_neon(
+void av2_build_compound_diffwtd_mask_d16_neon(
     uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const CONV_BUF_TYPE *src0,
     int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride, int h, int w,
     ConvolveParams *conv_params, int bd) {
@@ -35,7 +35,7 @@ void av1_build_compound_diffwtd_mask_d16_neon(
   const CONV_BUF_TYPE *src0_1, *src1_1;
   const int16x8_t dup_round = vdupq_n_s16((int16_t)(-round));
   const uint8x8_t dup_38 = vdup_n_u8(38);
-  const uint8x8_t dup_64 = vdup_n_u8(AOM_BLEND_A64_MAX_ALPHA);
+  const uint8x8_t dup_64 = vdup_n_u8(AVM_BLEND_A64_MAX_ALPHA);
   if (mask_type == DIFFWTD_38) {
     diff_select = vdup_n_u8(255);
   } else {

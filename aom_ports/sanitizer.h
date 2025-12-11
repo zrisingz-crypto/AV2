@@ -10,30 +10,30 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_SANITIZER_H_
-#define AOM_AOM_PORTS_SANITIZER_H_
+#ifndef AVM_AVM_PORTS_SANITIZER_H_
+#define AVM_AVM_PORTS_SANITIZER_H_
 
 // AddressSanitizer support.
 
-// Define AOM_ADDRESS_SANITIZER if AddressSanitizer is used.
+// Define AVM_ADDRESS_SANITIZER if AddressSanitizer is used.
 // Clang.
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
-#define AOM_ADDRESS_SANITIZER 1
+#define AVM_ADDRESS_SANITIZER 1
 #endif
 #endif  // defined(__has_feature)
 // GCC.
 #if defined(__SANITIZE_ADDRESS__)
-#define AOM_ADDRESS_SANITIZER 1
+#define AVM_ADDRESS_SANITIZER 1
 #endif  // defined(__SANITIZE_ADDRESS__)
 
 // Define the macros for AddressSanitizer manual memory poisoning. See
 // https://github.com/google/sanitizers/wiki/AddressSanitizerManualPoisoning.
-#if defined(AOM_ADDRESS_SANITIZER)
+#if defined(AVM_ADDRESS_SANITIZER)
 #include <sanitizer/asan_interface.h>
 #else
 #define ASAN_POISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
 #define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
 #endif
 
-#endif  // AOM_AOM_PORTS_SANITIZER_H_
+#endif  // AVM_AVM_PORTS_SANITIZER_H_

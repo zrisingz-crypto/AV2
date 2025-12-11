@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENCODEFRAME_UTILS_H_
-#define AOM_AV1_ENCODER_ENCODEFRAME_UTILS_H_
+#ifndef AVM_AV2_ENCODER_ENCODEFRAME_UTILS_H_
+#define AVM_AV2_ENCODER_ENCODEFRAME_UTILS_H_
 
-#include "aom_ports/system_state.h"
+#include "avm_ports/system_state.h"
 
-#include "av1/common/reconinter.h"
+#include "av2/common/reconinter.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/partition_strategy.h"
-#include "av1/encoder/rdopt.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/partition_strategy.h"
+#include "av2/encoder/rdopt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -166,7 +166,7 @@ typedef struct PartitionSearchState {
   bool found_best_partition;
 } PartitionSearchState;
 
-static AOM_INLINE void update_wedge_mode_cdf(FRAME_CONTEXT *fc,
+static AVM_INLINE void update_wedge_mode_cdf(FRAME_CONTEXT *fc,
                                              const BLOCK_SIZE bsize,
                                              const int8_t wedge_index
 #if CONFIG_ENTROPY_STATS
@@ -203,24 +203,24 @@ static AOM_INLINE void update_wedge_mode_cdf(FRAME_CONTEXT *fc,
   }
 }
 
-static AOM_INLINE void update_filter_type_cdf(const MACROBLOCKD *xd,
+static AVM_INLINE void update_filter_type_cdf(const MACROBLOCKD *xd,
                                               const MB_MODE_INFO *mbmi) {
-  const int ctx = av1_get_pred_context_switchable_interp(xd, 0);
+  const int ctx = av2_get_pred_context_switchable_interp(xd, 0);
   update_cdf(xd->tile_ctx->switchable_interp_cdf[ctx], mbmi->interp_fltr,
              SWITCHABLE_FILTERS);
 }
 
-static AOM_INLINE int set_segment_rdmult(const AV1_COMP *const cpi,
+static AVM_INLINE int set_segment_rdmult(const AV2_COMP *const cpi,
                                          MACROBLOCK *const x,
                                          int8_t segment_id) {
-  const AV1_COMMON *const cm = &cpi->common;
-  av1_init_plane_quantizers(cpi, x, segment_id);
-  aom_clear_system_state();
+  const AV2_COMMON *const cm = &cpi->common;
+  av2_init_plane_quantizers(cpi, x, segment_id);
+  avm_clear_system_state();
 
   int segment_qindex =
-      av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex,
+      av2_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex,
                      cm->seq_params.bit_depth);
-  return av1_compute_rd_mult(cpi,
+  return av2_compute_rd_mult(cpi,
                              segment_qindex + cm->quant_params.y_dc_delta_q);
 }
 
@@ -237,29 +237,29 @@ static BLOCK_SIZE dim_to_size(int dim) {
   }
 }
 
-static AOM_INLINE void set_max_min_partition_size(SuperBlockEnc *sb_enc,
-                                                  AV1_COMP *cpi, MACROBLOCK *x,
+static AVM_INLINE void set_max_min_partition_size(SuperBlockEnc *sb_enc,
+                                                  AV2_COMP *cpi, MACROBLOCK *x,
                                                   const SPEED_FEATURES *sf,
                                                   BLOCK_SIZE sb_size,
                                                   int mi_row, int mi_col) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
 
   sb_enc->max_partition_size =
-      AOMMIN(sf->part_sf.default_max_partition_size,
+      AVMMIN(sf->part_sf.default_max_partition_size,
              dim_to_size(cpi->oxcf.part_cfg.max_partition_size));
   sb_enc->min_partition_size =
-      AOMMAX(sf->part_sf.default_min_partition_size,
+      AVMMAX(sf->part_sf.default_min_partition_size,
              dim_to_size(cpi->oxcf.part_cfg.min_partition_size));
-  sb_enc->max_partition_size = AOMMIN(sb_enc->max_partition_size, cm->sb_size);
-  sb_enc->min_partition_size = AOMMIN(sb_enc->min_partition_size, cm->sb_size);
+  sb_enc->max_partition_size = AVMMIN(sb_enc->max_partition_size, cm->sb_size);
+  sb_enc->min_partition_size = AVMMIN(sb_enc->min_partition_size, cm->sb_size);
   if (!bru_is_sb_active(cm, mi_col, mi_row)) return;
 
   if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
     float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
 
-    av1_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
+    av2_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
     sb_enc->max_partition_size =
-        AOMMAX(AOMMIN(av1_predict_max_partition(cpi, x, features),
+        AVMMAX(AVMMIN(av2_predict_max_partition(cpi, x, features),
                       sb_enc->max_partition_size),
                sb_enc->min_partition_size);
   }
@@ -268,88 +268,88 @@ static AOM_INLINE void set_max_min_partition_size(SuperBlockEnc *sb_enc,
 // Allocates memory for 'InterModesInfo' buffer, which is used during the
 // evaluation of inter modes. The allocation is avoided for intra frames as
 // this buffer is required only for inter frames.
-static AOM_INLINE void alloc_inter_modes_info_data(AV1_COMMON *const cm,
+static AVM_INLINE void alloc_inter_modes_info_data(AV2_COMMON *const cm,
                                                    struct macroblock *mb) {
   if (frame_is_intra_only(cm)) return;
   CHECK_MEM_ERROR(cm, mb->inter_modes_info,
-                  (InterModesInfo *)aom_malloc(sizeof(*mb->inter_modes_info)));
+                  (InterModesInfo *)avm_malloc(sizeof(*mb->inter_modes_info)));
 }
 
 // Free the memory corresponding to 'InterModesInfo' buffer.
-static AOM_INLINE void dealloc_inter_modes_info_data(struct macroblock *mb) {
-  aom_free(mb->inter_modes_info);
+static AVM_INLINE void dealloc_inter_modes_info_data(struct macroblock *mb) {
+  avm_free(mb->inter_modes_info);
   mb->inter_modes_info = NULL;
 }
 
-int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
+int av2_get_rdmult_delta(AV2_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                          int mi_col, int orig_rdmult);
 
-int av1_active_h_edge(const AV1_COMP *cpi, int mi_row, int mi_step);
+int av2_active_h_edge(const AV2_COMP *cpi, int mi_row, int mi_step);
 
-int av1_active_v_edge(const AV1_COMP *cpi, int mi_col, int mi_step);
+int av2_active_v_edge(const AV2_COMP *cpi, int mi_col, int mi_step);
 
-void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
+void av2_get_tpl_stats_sb(AV2_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                           int mi_col, SuperBlockEnc *sb_enc);
 
-int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
+int av2_get_q_for_deltaq_objective(AV2_COMP *const cpi, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col);
 
-void av1_set_ssim_rdmult(const AV1_COMP *const cpi, MvCosts *const mv_costs,
+void av2_set_ssim_rdmult(const AV2_COMP *const cpi, MvCosts *const mv_costs,
                          const BLOCK_SIZE bsize, const int mi_row,
                          const int mi_col, int *const rdmult);
 
-int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
+int av2_get_hier_tpl_rdmult(const AV2_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, const int mi_row,
                             const int mi_col, int orig_rdmult);
 
-void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
+void av2_update_state(const AV2_COMP *const cpi, ThreadData *td,
                       const PICK_MODE_CONTEXT *const ctx, int mi_row,
                       int mi_col, BLOCK_SIZE bsize, RUN_TYPE dry_run);
 
-void av1_update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
+void av2_update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
                                  PREDICTION_MODE mode, int16_t mode_context,
-                                 const AV1_COMMON *const cm,
+                                 const AV2_COMMON *const cm,
                                  const MACROBLOCKD *xd,
                                  const MB_MODE_INFO *mbmi, BLOCK_SIZE bsize);
 
-void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
+void av2_sum_intra_stats(const AV2_COMMON *const cm, FRAME_COUNTS *counts,
                          MACROBLOCKD *xd, const MB_MODE_INFO *const mbmi);
 
-void av1_restore_context(const AV1_COMMON *cm, MACROBLOCK *x,
+void av2_restore_context(const AV2_COMMON *cm, MACROBLOCK *x,
                          const RD_SEARCH_MACROBLOCK_CONTEXT *ctx, int mi_row,
                          int mi_col, BLOCK_SIZE bsize, const int num_planes);
 
-void av1_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
+void av2_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
                       int mi_row, int mi_col, BLOCK_SIZE bsize,
                       const int num_planes);
 
-void av1_set_fixed_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
+void av2_set_fixed_partitioning(AV2_COMP *cpi, const TileInfo *const tile,
                                 MB_MODE_INFO **mib, int mi_row, int mi_col,
                                 BLOCK_SIZE bsize);
 
-void av1_reset_simple_motion_tree_partition(SIMPLE_MOTION_DATA_TREE *sms_tree,
+void av2_reset_simple_motion_tree_partition(SIMPLE_MOTION_DATA_TREE *sms_tree,
                                             BLOCK_SIZE bsize);
 
-void av1_update_picked_ref_frames_mask(MACROBLOCK *const x, int ref_type,
+void av2_update_picked_ref_frames_mask(MACROBLOCK *const x, int ref_type,
                                        BLOCK_SIZE bsize, int mib_size,
                                        int mi_row, int mi_col);
-void av1_reset_mbmi(const CommonModeInfoParams *const mi_params,
+void av2_reset_mbmi(const CommonModeInfoParams *const mi_params,
                     BLOCK_SIZE sb_size, int mi_row, int mi_col);
 
-void av1_backup_sb_state(SB_FIRST_PASS_STATS *sb_fp_stats, const AV1_COMP *cpi,
+void av2_backup_sb_state(SB_FIRST_PASS_STATS *sb_fp_stats, const AV2_COMP *cpi,
                          ThreadData *td, const TileDataEnc *tile_data,
                          int mi_row, int mi_col);
 
-void av1_restore_sb_state(const SB_FIRST_PASS_STATS *sb_fp_stats, AV1_COMP *cpi,
+void av2_restore_sb_state(const SB_FIRST_PASS_STATS *sb_fp_stats, AV2_COMP *cpi,
                           ThreadData *td, TileDataEnc *tile_data, int mi_row,
                           int mi_col);
 
-void av1_set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
+void av2_set_cost_upd_freq(AV2_COMP *cpi, ThreadData *td,
                            const TileInfo *const tile_info, const int mi_row,
                            const int mi_col);
 
 #ifndef NDEBUG
-static AOM_INLINE int is_bsize_square(BLOCK_SIZE bsize) {
+static AVM_INLINE int is_bsize_square(BLOCK_SIZE bsize) {
   return block_size_wide[bsize] == block_size_high[bsize];
 }
 #endif  // NDEBUG
@@ -358,4 +358,4 @@ static AOM_INLINE int is_bsize_square(BLOCK_SIZE bsize) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODEFRAME_UTILS_H_
+#endif  // AVM_AV2_ENCODER_ENCODEFRAME_UTILS_H_

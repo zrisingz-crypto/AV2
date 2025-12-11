@@ -10,18 +10,18 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_ports/system_state.h"
+#include "avm_ports/system_state.h"
 
-#include "av1/encoder/encodemv.h"
-#include "av1/encoder/misc_model_weights.h"
-#include "av1/encoder/mv_prec.h"
-#include "av1/common/reconinter.h"
+#include "av2/encoder/encodemv.h"
+#include "av2/encoder/misc_model_weights.h"
+#include "av2/encoder/mv_prec.h"
+#include "av2/common/reconinter.h"
 
-#include "av1/common/reconinter.h"
+#include "av2/common/reconinter.h"
 
-static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
+static AVM_INLINE int_mv get_ref_mv_for_mv_stats(
     const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
     int ref_idx) {
   const int ref_mv_idx = get_ref_mv_idx(mbmi, ref_idx);
@@ -29,7 +29,7 @@ static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
                  has_second_ref(mbmi)));
 
   const MV_REFERENCE_FRAME *ref_frames = mbmi->ref_frame;
-  const int8_t ref_frame_type = av1_ref_frame_type(ref_frames);
+  const int8_t ref_frame_type = av2_ref_frame_type(ref_frames);
   const CANDIDATE_MV *curr_ref_mv_stack =
       has_second_drl(mbmi) ? mbmi_ext_frame->ref_mv_stack[ref_idx]
                            : mbmi_ext_frame->ref_mv_stack[0];
@@ -53,12 +53,12 @@ static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
   }
 }
 
-static AOM_INLINE int get_symbol_cost(const aom_cdf_prob *cdf, int symbol) {
-  const aom_cdf_prob cur_cdf = AOM_ICDF(cdf[symbol]);
-  const aom_cdf_prob prev_cdf = symbol ? AOM_ICDF(cdf[symbol - 1]) : 0;
-  const aom_cdf_prob p15 = AOMMAX(cur_cdf - prev_cdf, EC_MIN_PROB);
+static AVM_INLINE int get_symbol_cost(const avm_cdf_prob *cdf, int symbol) {
+  const avm_cdf_prob cur_cdf = AVM_ICDF(cdf[symbol]);
+  const avm_cdf_prob prev_cdf = symbol ? AVM_ICDF(cdf[symbol - 1]) : 0;
+  const avm_cdf_prob p15 = AVMMAX(cur_cdf - prev_cdf, EC_MIN_PROB);
 
-  return av1_cost_symbol(p15);
+  return av2_cost_symbol(p15);
 }
 
 // MVCost for quasi-uniform code
@@ -71,13 +71,13 @@ static INLINE int get_quniform_costs(uint16_t n, uint16_t v) {
   if (v >= m) {
     total_bits++;
   }
-  return av1_cost_literal(total_bits);
+  return av2_cost_literal(total_bits);
 }
-static AOM_INLINE int get_vq_col_mvd_rate(nmv_context *mvctx,
+static AVM_INLINE int get_vq_col_mvd_rate(nmv_context *mvctx,
                                           const int max_coded_value, int col,
                                           int max_trunc_unary_value) {
   int total_rate = 0;
-  int max_idx_bits = AOMMIN(max_coded_value, max_trunc_unary_value);
+  int max_idx_bits = AVMMIN(max_coded_value, max_trunc_unary_value);
   const int coded_col =
       col > max_trunc_unary_value ? max_trunc_unary_value : col;
   for (int bit_idx = 0; bit_idx < max_idx_bits; ++bit_idx) {
@@ -99,7 +99,7 @@ static AOM_INLINE int get_vq_col_mvd_rate(nmv_context *mvctx,
 
   return total_rate;
 }
-static AOM_INLINE int get_truncated_unary_rate(nmv_context *mvctx,
+static AVM_INLINE int get_truncated_unary_rate(nmv_context *mvctx,
                                                const int max_coded_value,
                                                int coded_value, int num_of_ctx,
                                                int low_shell_class) {
@@ -109,9 +109,9 @@ static AOM_INLINE int get_truncated_unary_rate(nmv_context *mvctx,
   int max_idx_bits = max_coded_value;
   for (int bit_idx = 0; bit_idx < max_idx_bits; ++bit_idx) {
     if (bit_idx) {
-      total_rate += av1_cost_literal(1);
+      total_rate += av2_cost_literal(1);
     } else {
-      aom_cdf_prob *cdf = mvctx->shell_offset_class2_cdf;
+      avm_cdf_prob *cdf = mvctx->shell_offset_class2_cdf;
       total_rate += get_symbol_cost(cdf, coded_value != bit_idx);
       update_cdf(cdf, coded_value != bit_idx, 2);
     }
@@ -120,7 +120,7 @@ static AOM_INLINE int get_truncated_unary_rate(nmv_context *mvctx,
   return total_rate;
 }
 
-static AOM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
+static AVM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
                                       MvSubpelPrecision pb_mv_precision) {
   int total_rate = 0;
   int start_lsb = (MV_PRECISION_ONE_EIGHTH_PEL - pb_mv_precision);
@@ -210,7 +210,7 @@ static AOM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
     assert(
         IMPLIES(skip_coding_col_bit, scaled_mv_diff.col == maximum_pair_index));
     if (!skip_coding_col_bit) {
-      // aom_write_literal(w, scaled_mv_diff.col > maximum_pair_index, 1);
+      // avm_write_literal(w, scaled_mv_diff.col > maximum_pair_index, 1);
       int context_index = shell_class < NUM_CTX_COL_MV_INDEX
                               ? shell_class
                               : NUM_CTX_COL_MV_INDEX - 1;
@@ -226,14 +226,14 @@ static AOM_INLINE int get_vq_mvd_rate(nmv_context *mvctx, const MV mv_diff,
   for (int component = 0; component < 2; component++) {
     int value = component == 0 ? mv_diff.row : mv_diff.col;
     if (value) {
-      total_rate += av1_cost_literal(1);
+      total_rate += av2_cost_literal(1);
     }
   }
   return total_rate;
 }
 
-static AOM_INLINE void keep_vq_one_mv_stat(
-    MV_STATS *mv_stats, const MV *ref_mv, const MV *cur_mv, const AV1_COMP *cpi,
+static AVM_INLINE void keep_vq_one_mv_stat(
+    MV_STATS *mv_stats, const MV *ref_mv, const MV *cur_mv, const AV2_COMP *cpi,
     const MvSubpelPrecision max_mv_precision, const int allow_pb_mv_precision,
     const MvSubpelPrecision pb_mv_precision,
     const int most_probable_pb_mv_precision, const MB_MODE_INFO *mbmi) {
@@ -241,12 +241,12 @@ static AOM_INLINE void keep_vq_one_mv_stat(
   const MACROBLOCKD *const xd = &x->e_mbd;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   nmv_context *nmvc = &ec_ctx->nmvc;
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const int use_hp = pb_mv_precision > MV_PRECISION_QTR_PEL;
   const int is_adaptive_mvd = enable_adaptive_mvd_resolution(cm, mbmi);
   const int pb_mv_precision_ctx =
-      av1_get_pb_mv_precision_down_context(&cpi->common, xd);
-  aom_cdf_prob *pb_mv_precision_cdf =
+      av2_get_pb_mv_precision_down_context(&cpi->common, xd);
+  avm_cdf_prob *pb_mv_precision_cdf =
       xd->tile_ctx
           ->pb_mv_precision_cdf[pb_mv_precision_ctx]
                                [max_mv_precision - MV_PRECISION_HALF_PEL];
@@ -257,25 +257,25 @@ static AOM_INLINE void keep_vq_one_mv_stat(
   const MV diff = { cur_mv->row - low_prec_ref_mv.row,
                     cur_mv->col - low_prec_ref_mv.col };
 
-  const int mv_joint = av1_get_mv_joint(&diff);
+  const int mv_joint = av2_get_mv_joint(&diff);
 
   const MV hp_diff = diff;
   const MV truncated_diff = { (diff.row / 2) * 2, (diff.col / 2) * 2 };
   const MV lp_diff = use_hp ? truncated_diff : diff;
 
-  aom_clear_system_state();
+  avm_clear_system_state();
   int flex_mv_rate = 0;
   if (allow_pb_mv_precision) {
     const int mpp_flag = (pb_mv_precision == most_probable_pb_mv_precision);
-    const int mpp_flag_context = av1_get_mpp_flag_context(&cpi->common, xd);
-    aom_cdf_prob *pb_mv_mpp_flag_cdf =
+    const int mpp_flag_context = av2_get_mpp_flag_context(&cpi->common, xd);
+    avm_cdf_prob *pb_mv_mpp_flag_cdf =
         xd->tile_ctx->pb_mv_mpp_flag_cdf[mpp_flag_context];
     flex_mv_rate += get_symbol_cost(pb_mv_mpp_flag_cdf, mpp_flag);
     update_cdf(pb_mv_mpp_flag_cdf, mpp_flag, 2);
     if (!mpp_flag) {
       const PRECISION_SET *precision_def =
-          &av1_mv_precision_sets[mbmi->mb_precision_set];
-      int down = av1_get_pb_mv_precision_index(mbmi);
+          &av2_mv_precision_sets[mbmi->mb_precision_set];
+      int down = av2_get_pb_mv_precision_index(mbmi);
       int nsymbs = precision_def->num_precisions - 1;
       flex_mv_rate += get_symbol_cost(pb_mv_precision_cdf, down);
       update_cdf(pb_mv_precision_cdf, down, nsymbs);
@@ -301,10 +301,10 @@ static AOM_INLINE void keep_vq_one_mv_stat(
   }
 }
 
-static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
-                                          const AV1_COMP *cpi, int mi_row,
+static AVM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
+                                          const AV2_COMP *cpi, int mi_row,
                                           int mi_col) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
 
   if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) {
@@ -386,12 +386,12 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
 }
 
 // Split block
-static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
-                                           const AV1_COMP *cpi, int mi_row,
+static AVM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
+                                           const AV2_COMP *cpi, int mi_row,
                                            int mi_col, BLOCK_SIZE bsize,
                                            PARTITION_TREE *ptree) {
   assert(bsize < BLOCK_SIZES_ALL);
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
 
   if (mi_row >= cm->mi_params.mi_rows || mi_col >= cm->mi_params.mi_cols)
     return;
@@ -508,10 +508,10 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
   }
 }
 
-static AOM_INLINE void collect_mv_stats_tile(MV_STATS *mv_stats,
-                                             const AV1_COMP *cpi,
+static AVM_INLINE void collect_mv_stats_tile(MV_STATS *mv_stats,
+                                             const AV2_COMP *cpi,
                                              const TileInfo *tile_info) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const int mi_row_start = tile_info->mi_row_start;
   const int mi_row_end = tile_info->mi_row_end;
   const int mi_col_start = tile_info->mi_col_start;
@@ -520,25 +520,25 @@ static AOM_INLINE void collect_mv_stats_tile(MV_STATS *mv_stats,
   BLOCK_SIZE sb_size = cm->sb_size;
   for (int mi_row = mi_row_start; mi_row < mi_row_end; mi_row += sb_size_mi) {
     for (int mi_col = mi_col_start; mi_col < mi_col_end; mi_col += sb_size_mi) {
-      const SB_INFO *sb_info = av1_get_sb_info(cm, mi_row, mi_col);
+      const SB_INFO *sb_info = av2_get_sb_info(cm, mi_row, mi_col);
       collect_mv_stats_sb(mv_stats, cpi, mi_row, mi_col, sb_size,
                           sb_info->ptree_root[0]);
     }
   }
 }
 
-void av1_collect_mv_stats(AV1_COMP *cpi, int current_q) {
+void av2_collect_mv_stats(AV2_COMP *cpi, int current_q) {
   MV_STATS *mv_stats = &cpi->mv_stats;
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
 
   for (int tile_row = 0; tile_row < tile_rows; tile_row++) {
     TileInfo tile_info;
-    av1_tile_set_row(&tile_info, cm, tile_row);
+    av2_tile_set_row(&tile_info, cm, tile_row);
     for (int tile_col = 0; tile_col < tile_cols; tile_col++) {
       const int tile_idx = tile_row * tile_cols + tile_col;
-      av1_tile_set_col(&tile_info, cm, tile_col);
+      av2_tile_set_col(&tile_info, cm, tile_col);
       cpi->tile_data[tile_idx].tctx = *cm->fc;
       cpi->td.mb.e_mbd.tile_ctx = &cpi->tile_data[tile_idx].tctx;
       collect_mv_stats_tile(mv_stats, cpi, &tile_info);
@@ -550,12 +550,12 @@ void av1_collect_mv_stats(AV1_COMP *cpi, int current_q) {
   mv_stats->valid = 1;
 }
 
-static AOM_INLINE int get_smart_mv_prec(AV1_COMP *cpi, const MV_STATS *mv_stats,
+static AVM_INLINE int get_smart_mv_prec(AV2_COMP *cpi, const MV_STATS *mv_stats,
                                         int current_q) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const int order_hint = cpi->common.current_frame.display_order_hint;
   const int order_diff = order_hint - mv_stats->order;
-  aom_clear_system_state();
+  avm_clear_system_state();
   const float area = (float)(cm->width * cm->height);
   float features[MV_PREC_FEATURE_SIZE] = {
     (float)current_q,
@@ -580,23 +580,23 @@ static AOM_INLINE int get_smart_mv_prec(AV1_COMP *cpi, const MV_STATS *mv_stats,
 
   for (int f_idx = 0; f_idx < MV_PREC_FEATURE_SIZE; f_idx++) {
     features[f_idx] =
-        (features[f_idx] - av1_mv_prec_mean[f_idx]) / av1_mv_prec_std[f_idx];
+        (features[f_idx] - av2_mv_prec_mean[f_idx]) / av2_mv_prec_std[f_idx];
   }
   float score = 0.0f;
 
-  av1_nn_predict(features, &av1_mv_prec_dnn_config, 1, &score);
+  av2_nn_predict(features, &av2_mv_prec_dnn_config, 1, &score);
 
   const int use_high_hp = score >= 0.0f;
   return use_high_hp;
 }
 
-void av1_pick_and_set_high_precision_mv(AV1_COMP *cpi, int qindex) {
+void av2_pick_and_set_high_precision_mv(AV2_COMP *cpi, int qindex) {
   int use_hp = qindex < HIGH_PRECISION_MV_QTHRESH;
 
   if (cpi->sf.hl_sf.high_precision_mv_usage == QTR_ONLY) {
     use_hp = 0;
   } else if (cpi->sf.hl_sf.high_precision_mv_usage == LAST_MV_DATA &&
-             av1_frame_allows_smart_mv(cpi) && cpi->mv_stats.valid) {
+             av2_frame_allows_smart_mv(cpi) && cpi->mv_stats.valid) {
     use_hp = get_smart_mv_prec(cpi, &cpi->mv_stats, qindex);
   }
 
@@ -604,7 +604,7 @@ void av1_pick_and_set_high_precision_mv(AV1_COMP *cpi, int qindex) {
   if (cpi->common.features.cur_frame_force_integer_mv) {
     prec = MV_PRECISION_ONE_PEL;
   }
-  av1_set_high_precision_mv(cpi, prec);
+  av2_set_high_precision_mv(cpi, prec);
   if (cpi->common.features.cur_frame_force_integer_mv) {
     cpi->common.features.use_pb_mv_precision = 0;
   } else {

@@ -9,7 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "av1/tflite_models/op_registrations.h"
+#include "av2/tflite_models/op_registrations.h"
 #include "tensorflow/lite/kernels/builtin_op_kernels.h"
 
 void RegisterSelectedOpsAllQps(::tflite::MutableOpResolver *resolver) {

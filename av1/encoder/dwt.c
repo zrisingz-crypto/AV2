@@ -14,8 +14,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "config/av1_rtcd.h"
-#include "av1/encoder/dwt.h"
+#include "config/av2_rtcd.h"
+#include "av2/encoder/dwt.h"
 
 // Note: block length must be even for this implementation
 static void analysis_53_row(int length, tran_low_t *x, tran_low_t *lowpass,
@@ -101,12 +101,12 @@ static void dyadic_analyze_53_uint8_input(int levels, int width, int height,
   }
 }
 
-void av1_fdwt8x8_uint8_input_c(uint16_t *input, tran_low_t *output,
+void av2_fdwt8x8_uint8_input_c(uint16_t *input, tran_low_t *output,
                                int stride) {
   dyadic_analyze_53_uint8_input(4, 8, 8, input, stride, output, 8, 2);
 }
 
-int av1_haar_ac_sad(tran_low_t *output, int bw, int bh, int stride) {
+int av2_haar_ac_sad(tran_low_t *output, int bw, int bh, int stride) {
   int acsad = 0;
 
   for (int r = 0; r < bh; ++r)
@@ -116,9 +116,9 @@ int av1_haar_ac_sad(tran_low_t *output, int bw, int bh, int stride) {
   return acsad;
 }
 
-int av1_haar_ac_sad_8x8_uint8_input(uint16_t *input, int stride) {
+int av2_haar_ac_sad_8x8_uint8_input(uint16_t *input, int stride) {
   tran_low_t output[64];
 
-  av1_fdwt8x8_uint8_input_c(input, output, stride);
-  return av1_haar_ac_sad(output, 8, 8, 8);
+  av2_fdwt8x8_uint8_input_c(input, output, stride);
+  return av2_haar_ac_sad(output, 8, 8, 8);
 }

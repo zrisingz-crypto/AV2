@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_INTRAPRED_X86_H_
-#define AOM_AOM_DSP_X86_INTRAPRED_X86_H_
+#ifndef AVM_AVM_DSP_X86_INTRAPRED_X86_H_
+#define AVM_AVM_DSP_X86_INTRAPRED_X86_H_
 
 #include <emmintrin.h>  // SSE2
-#include "aom/aom_integer.h"
-#include "config/aom_config.h"
+#include "avm/avm_integer.h"
+#include "config/avm_config.h"
 
 static INLINE __m128i dc_sum_16_sse2(const uint8_t *ref) {
   __m128i x = _mm_loadu_si128((__m128i const *)ref);
@@ -36,4 +36,4 @@ static INLINE __m128i dc_sum_32_sse2(const uint8_t *ref) {
   return _mm_add_epi16(x0, high);
 }
 
-#endif  // AOM_AOM_DSP_X86_INTRAPRED_X86_H_
+#endif  // AVM_AVM_DSP_X86_INTRAPRED_X86_H_

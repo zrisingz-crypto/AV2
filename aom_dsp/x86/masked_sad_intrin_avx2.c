@@ -12,13 +12,13 @@
 
 #include <tmmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/blend.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/masked_sad_intrin_ssse3.h"
+#include "avm_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/masked_sad_intrin_ssse3.h"
 
 static INLINE unsigned int masked_sad32xh_avx2(
     const uint8_t *src_ptr, int src_stride, const uint8_t *a_ptr, int a_stride,
@@ -26,9 +26,9 @@ static INLINE unsigned int masked_sad32xh_avx2(
     int width, int height) {
   int x, y;
   __m256i res = _mm256_setzero_si256();
-  const __m256i mask_max = _mm256_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m256i mask_max = _mm256_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m256i round_scale =
-      _mm256_set1_epi16(1 << (15 - AOM_BLEND_A64_ROUND_BITS));
+      _mm256_set1_epi16(1 << (15 - AVM_BLEND_A64_ROUND_BITS));
   for (y = 0; y < height; y++) {
     for (x = 0; x < width; x += 32) {
       const __m256i src = _mm256_lddqu_si256((const __m256i *)&src_ptr[x]);
@@ -81,9 +81,9 @@ static INLINE unsigned int masked_sad16xh_avx2(
     int height) {
   int y;
   __m256i res = _mm256_setzero_si256();
-  const __m256i mask_max = _mm256_set1_epi8((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m256i mask_max = _mm256_set1_epi8((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m256i round_scale =
-      _mm256_set1_epi16(1 << (15 - AOM_BLEND_A64_ROUND_BITS));
+      _mm256_set1_epi16(1 << (15 - AVM_BLEND_A64_ROUND_BITS));
   for (y = 0; y < height; y += 2) {
     const __m256i src = xx_loadu2_m128i(src_ptr + src_stride, src_ptr);
     const __m256i a = xx_loadu2_m128i(a_ptr + a_stride, a_ptr);
@@ -121,7 +121,7 @@ static INLINE unsigned int masked_sad16xh_avx2(
   return sad;
 }
 
-static INLINE unsigned int aom_masked_sad_avx2(
+static INLINE unsigned int avm_masked_sad_avx2(
     const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride,
     const uint8_t *second_pred, const uint8_t *msk, int msk_stride,
     int invert_mask, int m, int n) {
@@ -129,11 +129,11 @@ static INLINE unsigned int aom_masked_sad_avx2(
   if (!invert_mask) {
     switch (m) {
       case 4:
-        sad = aom_masked_sad4xh_ssse3(src, src_stride, ref, ref_stride,
+        sad = avm_masked_sad4xh_ssse3(src, src_stride, ref, ref_stride,
                                       second_pred, m, msk, msk_stride, n);
         break;
       case 8:
-        sad = aom_masked_sad8xh_ssse3(src, src_stride, ref, ref_stride,
+        sad = avm_masked_sad8xh_ssse3(src, src_stride, ref, ref_stride,
                                       second_pred, m, msk, msk_stride, n);
         break;
       case 16:
@@ -148,11 +148,11 @@ static INLINE unsigned int aom_masked_sad_avx2(
   } else {
     switch (m) {
       case 4:
-        sad = aom_masked_sad4xh_ssse3(src, src_stride, second_pred, m, ref,
+        sad = avm_masked_sad4xh_ssse3(src, src_stride, second_pred, m, ref,
                                       ref_stride, msk, msk_stride, n);
         break;
       case 8:
-        sad = aom_masked_sad8xh_ssse3(src, src_stride, second_pred, m, ref,
+        sad = avm_masked_sad8xh_ssse3(src, src_stride, second_pred, m, ref,
                                       ref_stride, msk, msk_stride, n);
         break;
       case 16:
@@ -169,11 +169,11 @@ static INLINE unsigned int aom_masked_sad_avx2(
 }
 
 #define MASKSADMXN_AVX2(m, n)                                                 \
-  unsigned int aom_masked_sad##m##x##n##_avx2(                                \
+  unsigned int avm_masked_sad##m##x##n##_avx2(                                \
       const uint8_t *src, int src_stride, const uint8_t *ref, int ref_stride, \
       const uint8_t *second_pred, const uint8_t *msk, int msk_stride,         \
       int invert_mask) {                                                      \
-    return aom_masked_sad_avx2(src, src_stride, ref, ref_stride, second_pred, \
+    return avm_masked_sad_avx2(src, src_stride, ref, ref_stride, second_pred, \
                                msk, msk_stride, invert_mask, m, n);           \
   }
 
@@ -212,9 +212,9 @@ static INLINE unsigned int highbd_masked_sad8xh_avx2(
     int m_stride, int height) {
   int y;
   __m256i res = _mm256_setzero_si256();
-  const __m256i mask_max = _mm256_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m256i mask_max = _mm256_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m256i round_const =
-      _mm256_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm256_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m256i one = _mm256_set1_epi16(1);
 
   for (y = 0; y < height; y += 2) {
@@ -231,13 +231,13 @@ static INLINE unsigned int highbd_masked_sad8xh_avx2(
     const __m256i mask_l = _mm256_unpacklo_epi16(m, m_inv);
     __m256i pred_l = _mm256_madd_epi16(data_l, mask_l);
     pred_l = _mm256_srai_epi32(_mm256_add_epi32(pred_l, round_const),
-                               AOM_BLEND_A64_ROUND_BITS);
+                               AVM_BLEND_A64_ROUND_BITS);
 
     const __m256i data_r = _mm256_unpackhi_epi16(a, b);
     const __m256i mask_r = _mm256_unpackhi_epi16(m, m_inv);
     __m256i pred_r = _mm256_madd_epi16(data_r, mask_r);
     pred_r = _mm256_srai_epi32(_mm256_add_epi32(pred_r, round_const),
-                               AOM_BLEND_A64_ROUND_BITS);
+                               AVM_BLEND_A64_ROUND_BITS);
 
     // Note: the maximum value in pred_l/r is (2^bd)-1 < 2^15,
     // so it is safe to do signed saturation here.
@@ -266,9 +266,9 @@ static INLINE unsigned int highbd_masked_sad16xh_avx2(
     int m_stride, int width, int height) {
   int x, y;
   __m256i res = _mm256_setzero_si256();
-  const __m256i mask_max = _mm256_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m256i mask_max = _mm256_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m256i round_const =
-      _mm256_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm256_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m256i one = _mm256_set1_epi16(1);
 
   for (y = 0; y < height; y++) {
@@ -285,13 +285,13 @@ static INLINE unsigned int highbd_masked_sad16xh_avx2(
       const __m256i mask_l = _mm256_unpacklo_epi16(m, m_inv);
       __m256i pred_l = _mm256_madd_epi16(data_l, mask_l);
       pred_l = _mm256_srai_epi32(_mm256_add_epi32(pred_l, round_const),
-                                 AOM_BLEND_A64_ROUND_BITS);
+                                 AVM_BLEND_A64_ROUND_BITS);
 
       const __m256i data_r = _mm256_unpackhi_epi16(a, b);
       const __m256i mask_r = _mm256_unpackhi_epi16(m, m_inv);
       __m256i pred_r = _mm256_madd_epi16(data_r, mask_r);
       pred_r = _mm256_srai_epi32(_mm256_add_epi32(pred_r, round_const),
-                                 AOM_BLEND_A64_ROUND_BITS);
+                                 AVM_BLEND_A64_ROUND_BITS);
 
       // Note: the maximum value in pred_l/r is (2^bd)-1 < 2^15,
       // so it is safe to do signed saturation here.
@@ -315,7 +315,7 @@ static INLINE unsigned int highbd_masked_sad16xh_avx2(
   return sad;
 }
 
-static INLINE unsigned int aom_highbd_masked_sad_avx2(
+static INLINE unsigned int avm_highbd_masked_sad_avx2(
     const uint16_t *src, int src_stride, const uint16_t *ref, int ref_stride,
     const uint16_t *second_pred, const uint8_t *msk, int msk_stride,
     int invert_mask, int m, int n) {
@@ -324,7 +324,7 @@ static INLINE unsigned int aom_highbd_masked_sad_avx2(
     switch (m) {
       case 4:
         sad =
-            aom_highbd_masked_sad4xh_ssse3(src, src_stride, ref, ref_stride,
+            avm_highbd_masked_sad4xh_ssse3(src, src_stride, ref, ref_stride,
                                            second_pred, m, msk, msk_stride, n);
         break;
       case 8:
@@ -340,7 +340,7 @@ static INLINE unsigned int aom_highbd_masked_sad_avx2(
     switch (m) {
       case 4:
         sad =
-            aom_highbd_masked_sad4xh_ssse3(src, src_stride, second_pred, m, ref,
+            avm_highbd_masked_sad4xh_ssse3(src, src_stride, second_pred, m, ref,
                                            ref_stride, msk, msk_stride, n);
         break;
       case 8:
@@ -357,11 +357,11 @@ static INLINE unsigned int aom_highbd_masked_sad_avx2(
 }
 
 #define HIGHBD_MASKSADMXN_AVX2(m, n)                                      \
-  unsigned int aom_highbd_masked_sad##m##x##n##_avx2(                     \
+  unsigned int avm_highbd_masked_sad##m##x##n##_avx2(                     \
       const uint16_t *src8, int src_stride, const uint16_t *ref8,         \
       int ref_stride, const uint16_t *second_pred8, const uint8_t *msk,   \
       int msk_stride, int invert_mask) {                                  \
-    return aom_highbd_masked_sad_avx2(src8, src_stride, ref8, ref_stride, \
+    return avm_highbd_masked_sad_avx2(src8, src_stride, ref8, ref_stride, \
                                       second_pred8, msk, msk_stride,      \
                                       invert_mask, m, n);                 \
   }

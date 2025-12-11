@@ -12,12 +12,12 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/quantize_x86.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/quantize_x86.h"
 
-#include "av1/encoder/av1_quantize.h"
+#include "av2/encoder/av2_quantize.h"
 
 static INLINE void highbd_load_b_values_avx2(
     const int32_t *zbin_ptr, __m256i *zbin, const int32_t *round_ptr,
@@ -50,9 +50,9 @@ static INLINE void highbd_update_mask0_avx2(__m256i *qcoeff0, __m256i *qcoeff1,
                                             const int16_t *iscan_ptr,
                                             int *is_found, __m256i *mask) {
   __m256i coeff[2], cmp_mask0, cmp_mask1;
-  coeff[0] = _mm256_slli_epi32(*qcoeff0, AOM_QM_BITS);
+  coeff[0] = _mm256_slli_epi32(*qcoeff0, AVM_QM_BITS);
   cmp_mask0 = _mm256_cmpgt_epi32(coeff[0], threshold[0]);
-  coeff[1] = _mm256_slli_epi32(*qcoeff1, AOM_QM_BITS);
+  coeff[1] = _mm256_slli_epi32(*qcoeff1, AVM_QM_BITS);
   cmp_mask1 = _mm256_cmpgt_epi32(coeff[1], threshold[1]);
   cmp_mask0 =
       _mm256_permute4x64_epi64(_mm256_packs_epi32(cmp_mask0, cmp_mask1), 0xd8);
@@ -104,7 +104,7 @@ static INLINE void highbd_store_coefficients_avx2(__m256i coeff0,
   _mm256_store_si256((__m256i *)(coeff_ptr + 8), coeff1);
 }
 
-void aom_highbd_quantize_b_adaptive_avx2(
+void avm_highbd_quantize_b_adaptive_avx2(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
@@ -123,7 +123,7 @@ void aom_highbd_quantize_b_adaptive_avx2(
   int prescan_add[2];
   int thresh[2];
   const int log_scale = 0;
-  const qm_val_t wt = (1 << AOM_QM_BITS);
+  const qm_val_t wt = (1 << AVM_QM_BITS);
   for (int i = 0; i < 2; ++i) {
     prescan_add[i] =
         ROUND_POWER_OF_TWO(dequant_ptr[i] * EOB_FACTOR, 7 + QUANT_TABLE_BITS);
@@ -257,13 +257,13 @@ void aom_highbd_quantize_b_adaptive_avx2(
     const int rc = scan[(*eob_ptr - 1)];
     if (qcoeff_ptr[rc] == 1 || qcoeff_ptr[rc] == -1) {
       const int coeff = coeff_ptr[rc] * wt;
-      const int coeff_sign = AOMSIGN(coeff);
+      const int coeff_sign = AVMSIGN(coeff);
       const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
       const int factor = EOB_FACTOR + SKIP_EOB_FACTOR_ADJUST;
       const int prescan_add_val = ROUND_POWER_OF_TWO(
           dequant_ptr[rc != 0] * factor, 7 + QUANT_TABLE_BITS);
       if (abs_coeff <
-          (zbin_ptr[rc != 0] * (1 << AOM_QM_BITS) + prescan_add_val)) {
+          (zbin_ptr[rc != 0] * (1 << AVM_QM_BITS) + prescan_add_val)) {
         qcoeff_ptr[rc] = 0;
         dqcoeff_ptr[rc] = 0;
         *eob_ptr = 0;
@@ -273,7 +273,7 @@ void aom_highbd_quantize_b_adaptive_avx2(
 #endif
 }
 
-void aom_highbd_quantize_b_32x32_adaptive_avx2(
+void avm_highbd_quantize_b_32x32_adaptive_avx2(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
@@ -296,7 +296,7 @@ void aom_highbd_quantize_b_32x32_adaptive_avx2(
   int thresh[2];
   const int zbins[2] = { ROUND_POWER_OF_TWO(zbin_ptr[0], log_scale),
                          ROUND_POWER_OF_TWO(zbin_ptr[1], log_scale) };
-  const qm_val_t wt = (1 << AOM_QM_BITS);
+  const qm_val_t wt = (1 << AVM_QM_BITS);
   for (int i = 0; i < 2; ++i) {
     prescan_add[i] =
         ROUND_POWER_OF_TWO(dequant_ptr[i] * EOB_FACTOR, 7 + QUANT_TABLE_BITS);
@@ -446,12 +446,12 @@ void aom_highbd_quantize_b_32x32_adaptive_avx2(
     const int rc = scan[(*eob_ptr - 1)];
     if (qcoeff_ptr[rc] == 1 || qcoeff_ptr[rc] == -1) {
       const int coeff = coeff_ptr[rc] * wt;
-      const int coeff_sign = AOMSIGN(coeff);
+      const int coeff_sign = AVMSIGN(coeff);
       const int abs_coeff = (coeff ^ coeff_sign) - coeff_sign;
       const int factor = EOB_FACTOR + SKIP_EOB_FACTOR_ADJUST;
       const int prescan_add_val = ROUND_POWER_OF_TWO(
           dequant_ptr[rc != 0] * factor, 7 + QUANT_TABLE_BITS);
-      if (abs_coeff < (zbins[rc != 0] * (1 << AOM_QM_BITS) + prescan_add_val)) {
+      if (abs_coeff < (zbins[rc != 0] * (1 << AVM_QM_BITS) + prescan_add_val)) {
         qcoeff_ptr[rc] = 0;
         dqcoeff_ptr[rc] = 0;
         *eob_ptr = 0;

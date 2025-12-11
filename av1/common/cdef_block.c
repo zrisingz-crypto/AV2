@@ -13,10 +13,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cdef.h"
+#include "av2/common/cdef.h"
 
 /* Generated from gen_filter_tables.c with 2 padding entries at the
 beginning and end of the table. The cdef direction range is [0, 7] and the
@@ -163,10 +163,10 @@ static void cdef_filter_block_internal(uint16_t *const dst16, int dstride,
           sum += pri_taps[k] * constrain(p0 - x, pri_strength, pri_damping);
           sum += pri_taps[k] * constrain(p1 - x, pri_strength, pri_damping);
           if (clipping_required) {
-            if (p0 != CDEF_VERY_LARGE) max = AOMMAX(p0, max);
-            if (p1 != CDEF_VERY_LARGE) max = AOMMAX(p1, max);
-            min = AOMMIN(p0, min);
-            min = AOMMIN(p1, min);
+            if (p0 != CDEF_VERY_LARGE) max = AVMMAX(p0, max);
+            if (p1 != CDEF_VERY_LARGE) max = AVMMAX(p1, max);
+            min = AVMMIN(p0, min);
+            min = AVMMIN(p1, min);
           }
         }
         if (enable_secondary) {
@@ -175,14 +175,14 @@ static void cdef_filter_block_internal(uint16_t *const dst16, int dstride,
           int16_t s2 = in[i * s + j + cdef_directions[dir - 2][k]];
           int16_t s3 = in[i * s + j - cdef_directions[dir - 2][k]];
           if (clipping_required) {
-            if (s0 != CDEF_VERY_LARGE) max = AOMMAX(s0, max);
-            if (s1 != CDEF_VERY_LARGE) max = AOMMAX(s1, max);
-            if (s2 != CDEF_VERY_LARGE) max = AOMMAX(s2, max);
-            if (s3 != CDEF_VERY_LARGE) max = AOMMAX(s3, max);
-            min = AOMMIN(s0, min);
-            min = AOMMIN(s1, min);
-            min = AOMMIN(s2, min);
-            min = AOMMIN(s3, min);
+            if (s0 != CDEF_VERY_LARGE) max = AVMMAX(s0, max);
+            if (s1 != CDEF_VERY_LARGE) max = AVMMAX(s1, max);
+            if (s2 != CDEF_VERY_LARGE) max = AVMMAX(s2, max);
+            if (s3 != CDEF_VERY_LARGE) max = AVMMAX(s3, max);
+            min = AVMMIN(s0, min);
+            min = AVMMIN(s1, min);
+            min = AVMMIN(s2, min);
+            min = AVMMIN(s3, min);
           }
           sum += sec_taps[k] * constrain(s0 - x, sec_strength, sec_damping);
           sum += sec_taps[k] * constrain(s1 - x, sec_strength, sec_damping);
@@ -255,7 +255,7 @@ void cdef_filter_16_3_c(uint16_t *const dst16, int dstride, const uint16_t *in,
    either have a low contrast edge, or a non-directional texture, so
    we want to be careful not to blur. */
 static INLINE int adjust_strength(int strength, int32_t var) {
-  const int i = var >> 6 ? AOMMIN(get_msb(var >> 6), 12) : 0;
+  const int i = var >> 6 ? AVMMIN(get_msb(var >> 6), 12) : 0;
   /* We use the variance of 8x8 blocks to adjust the strength. */
   return var ? (strength * (4 + i) + 8) >> 4 : 0;
 }
@@ -263,7 +263,7 @@ static INLINE int adjust_strength(int strength, int32_t var) {
 /* Computes CDEF direction of each 8x8 block by invoking cdef_find_dir_dual()
  * for the adjacent 8x8 blocks and cdef_find_dir() for the remaining 8x8 block.
  */
-static inline void aom_cdef_find_dir(const uint16_t *in, cdef_list *dlist,
+static inline void avm_cdef_find_dir(const uint16_t *in, cdef_list *dlist,
                                      int var[CDEF_NBLOCKS][CDEF_NBLOCKS],
                                      int cdef_count, int coeff_shift,
                                      int dir[CDEF_NBLOCKS][CDEF_NBLOCKS]) {
@@ -297,7 +297,7 @@ static void copy_cdef_pixels(uint16_t *dst, int dst_stride, const uint16_t *src,
   for (int i = 0; i < height; ++i)
     memcpy(dst + i * dst_stride, src + i * src_stride, width * sizeof(*dst));
 }
-void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
+void av2_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
                         uint16_t *in, int xdec, int ydec,
                         int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], int *dirinit,
                         int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
@@ -310,14 +310,14 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
   int by;
   const int pri_strength = level << coeff_shift;
   sec_strength <<= coeff_shift;
-  damping += coeff_shift - (pli != AOM_PLANE_Y);
+  damping += coeff_shift - (pli != AVM_PLANE_Y);
   const int bw_log2 = 3 - xdec;
   const int bh_log2 = 3 - ydec;
   if (dirinit && pri_strength == 0 && sec_strength == 0) {
     // If we're here, both primary and secondary strengths are 0, and
     // we still haven't written anything to y[] yet, so we just copy
-    // the input to y[]. This is necessary only for av1_cdef_search()
-    // and only av1_cdef_search() sets dirinit.
+    // the input to y[]. This is necessary only for av2_cdef_search()
+    // and only av2_cdef_search() sets dirinit.
     for (bi = 0; bi < cdef_count; bi++) {
       by = dlist[bi].by;
       bx = dlist[bi].bx;
@@ -333,7 +333,7 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
 
   if (pli == 0) {
     if (!dirinit || !*dirinit) {
-      aom_cdef_find_dir(in, dlist, var, cdef_count, coeff_shift, dir);
+      avm_cdef_find_dir(in, dlist, var, cdef_count, coeff_shift, dir);
       if (dirinit) *dirinit = 1;
     }
   }
@@ -364,8 +364,8 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
 
     // If chroma part is lossless, copy the block
     // Luma lossless block is already handled when dlist is generated in
-    // av1_cdef_compute_sb_list
-    if (pli != AOM_PLANE_Y && dlist[bi].chroma_lossless) {
+    // av2_cdef_compute_sb_list
+    if (pli != AVM_PLANE_Y && dlist[bi].chroma_lossless) {
       copy_cdef_pixels(
           &dst16[dirinit ? bi << (bw_log2 + bh_log2)
                          : (by << bh_log2) * dstride + (bx << bw_log2)],

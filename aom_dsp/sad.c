@@ -12,12 +12,12 @@
 
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/blend.h"
 
 static INLINE unsigned int highbd_sad(const uint16_t *a, int a_stride,
                                       const uint16_t *b, int b_stride,
@@ -52,14 +52,14 @@ static INLINE unsigned int highbd_sad_ds(const uint16_t *a, int a_stride,
 }
 
 #define highbd_sadMxN(m, n)                                     \
-  unsigned int aom_highbd_sad##m##x##n##_c(                     \
+  unsigned int avm_highbd_sad##m##x##n##_c(                     \
       const uint16_t *src, int src_stride, const uint16_t *ref, \
       int ref_stride) {                                         \
     return highbd_sad(src, src_stride, ref, ref_stride, m, n);  \
   }
 
 #define highbd_sadMxN_ds(m, n)                                    \
-  unsigned int aom_highbd_sad##m##x##n##_ds_c(                    \
+  unsigned int avm_highbd_sad##m##x##n##_ds_c(                    \
       const uint16_t *src, int src_stride, const uint16_t *ref,   \
       int ref_stride) {                                           \
     return highbd_sad_ds(src, src_stride, ref, ref_stride, m, n); \

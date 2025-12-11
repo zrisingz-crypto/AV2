@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_CDEF_BLOCK_H_
-#define AOM_AV1_COMMON_CDEF_BLOCK_H_
+#ifndef AVM_AV2_COMMON_CDEF_BLOCK_H_
+#define AVM_AV2_COMMON_CDEF_BLOCK_H_
 
-#include "av1/common/odintrin.h"
+#include "av2/common/odintrin.h"
 
 #define CDEF_BLOCKSIZE 64
 #define CDEF_BLOCKSIZE_LOG2 6
@@ -52,10 +52,10 @@ typedef void (*cdef_filter_block_func)(uint16_t *const dest, int dstride,
                                        int coeff_shift, int block_width,
                                        int block_height);
 
-void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
+void av2_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
                         uint16_t *in, int xdec, int ydec,
                         int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], int *dirinit,
                         int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                         cdef_list *dlist, int cdef_count, int level,
                         int sec_strength, int damping, int coeff_shift);
-#endif  // AOM_AV1_COMMON_CDEF_BLOCK_H_
+#endif  // AVM_AV2_COMMON_CDEF_BLOCK_H_

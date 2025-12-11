@@ -12,12 +12,12 @@
 
 #include <assert.h>
 #include <immintrin.h>
-#include "aom_dsp/x86/mem_sse2.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
-#include "aom_ports/system_state.h"
+#include "avm_dsp/x86/mem_sse2.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
+#include "avm_ports/system_state.h"
 
-#include "config/av1_rtcd.h"
-#include "av1/encoder/rdopt.h"
+#include "config/av2_rtcd.h"
+#include "av2/encoder/rdopt.h"
 
 // Process horizontal and vertical correlations in a 4x4 block of pixels.
 // We actually use the 4x4 pixels to calculate correlations corresponding to
@@ -62,7 +62,7 @@ INLINE static void horver_correlation_4x4(const int16_t *diff, int stride,
   *x2_sum_32 = _mm256_add_epi32(*x2_sum_32, madd_slli);
 }
 
-void av1_get_horver_correlation_full_avx2(const int16_t *diff, int stride,
+void av2_get_horver_correlation_full_avx2(const int16_t *diff, int stride,
                                           int width, int height, float *hcorr,
                                           float *vcorr) {
   // The following notation is used:
@@ -229,7 +229,7 @@ void av1_get_horver_correlation_full_avx2(const int16_t *diff, int stride,
   int64_t y2_sum = x2_sum - x2_firstcol;
   int64_t z2_sum = x2_sum - x2_firstrow;
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 
   const float num_hor = (float)(height * (width - 1));
   const float num_ver = (float)((height - 1) * width);

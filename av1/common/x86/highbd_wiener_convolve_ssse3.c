@@ -13,13 +13,13 @@
 #include <tmmintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "av1/common/convolve.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
+#include "av2/common/convolve.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
 
-void av1_highbd_wiener_convolve_add_src_ssse3(
+void av2_highbd_wiener_convolve_add_src_ssse3(
     const uint16_t *src, ptrdiff_t src_stride, uint16_t *dst,
     ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4,
     const int16_t *filter_y, int y_step_q4, int w, int h,

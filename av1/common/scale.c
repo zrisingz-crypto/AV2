@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/filter.h"
-#include "av1/common/scale.h"
-#include "aom_dsp/aom_filter.h"
+#include "av2/common/filter.h"
+#include "av2/common/scale.h"
+#include "avm_dsp/avm_filter.h"
 
 // Note: Expect val to be in q4 precision
 static INLINE int scaled_x(int val, const struct scale_factors *sf) {
@@ -75,7 +75,7 @@ static int fixed_point_scale_to_coarse_point_scale(int scale_fp) {
 }
 
 // Note: x and y are integer precision, mvq4 is q4 precision.
-MV32 av1_scale_mv(const MV *mvq4, int x, int y,
+MV32 av2_scale_mv(const MV *mvq4, int x, int y,
                   const struct scale_factors *sf) {
   const int x_off_q4 = scaled_x(x << SUBPEL_BITS, sf);
   const int y_off_q4 = scaled_y(y << SUBPEL_BITS, sf);
@@ -84,7 +84,7 @@ MV32 av1_scale_mv(const MV *mvq4, int x, int y,
   return res;
 }
 
-void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
+void av2_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
                                        int other_h, int this_w, int this_h) {
   if (!valid_ref_frame_size(other_w, other_h, this_w, this_h)) {
     sf->x_scale_fp = REF_INVALID_SCALE;
@@ -98,7 +98,7 @@ void av1_setup_scale_factors_for_frame(struct scale_factors *sf, int other_w,
   sf->x_step_q4 = fixed_point_scale_to_coarse_point_scale(sf->x_scale_fp);
   sf->y_step_q4 = fixed_point_scale_to_coarse_point_scale(sf->y_scale_fp);
 
-  if (av1_is_scaled(sf)) {
+  if (av2_is_scaled(sf)) {
     sf->scale_value_x = scaled_x;
     sf->scale_value_y = scaled_y;
     sf->scale_value_warp_x = scaled_warp_x;

@@ -11,19 +11,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_mem/aom_mem.h"
+#include "avm_mem/avm_mem.h"
 
-#include "av1/common/alloccommon.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/cdef_block.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/entropymv.h"
-#include "av1/common/thread_common.h"
+#include "av2/common/alloccommon.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/cdef_block.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/thread_common.h"
 
-int av1_get_MBs(int width, int height) {
+int av2_get_MBs(int width, int height) {
   const int aligned_width = ALIGN_POWER_OF_TWO(width, 3);
   const int aligned_height = ALIGN_POWER_OF_TWO(height, 3);
   const int mi_cols = aligned_width >> MI_SIZE_LOG2;
@@ -34,7 +34,7 @@ int av1_get_MBs(int width, int height) {
   return mb_rows * mb_cols;
 }
 
-void av1_free_ref_frame_buffers(BufferPool *pool) {
+void av2_free_ref_frame_buffers(BufferPool *pool) {
   int i;
 
   for (i = 0; i < FRAME_BUFFERS; ++i) {
@@ -46,32 +46,32 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
       pool->frame_bufs[i].raw_frame_buffer.priv = NULL;
       pool->frame_bufs[i].ref_count = 0;
     }
-    aom_free(pool->frame_bufs[i].mvs);
+    avm_free(pool->frame_bufs[i].mvs);
     pool->frame_bufs[i].mvs = NULL;
-    aom_free(pool->frame_bufs[i].seg_map);
+    avm_free(pool->frame_bufs[i].seg_map);
     pool->frame_bufs[i].seg_map = NULL;
-    aom_free_frame_buffer(&pool->frame_bufs[i].buf);
+    avm_free_frame_buffer(&pool->frame_bufs[i].buf);
 
     for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
       if (pool->frame_bufs[i].ccso_info.sb_filter_control[plane] != NULL) {
-        aom_free(pool->frame_bufs[i].ccso_info.sb_filter_control[plane]);
+        avm_free(pool->frame_bufs[i].ccso_info.sb_filter_control[plane]);
         pool->frame_bufs[i].ccso_info.sb_filter_control[plane] = NULL;
       }
     }
 
     for (int p = 0; p < MAX_MB_PLANE; ++p) {
-      av1_free_restoration_struct(&pool->frame_bufs[i].rst_info[p]);
+      av2_free_restoration_struct(&pool->frame_bufs[i].rst_info[p]);
     }
   }
 }
 
 // Frees CDEF line buffers when their allocated and new size is not matching.
 static INLINE void free_cdef_linebuf_conditional(
-    AV1_COMMON *const cm, const size_t *new_linebuf_size) {
+    AV2_COMMON *const cm, const size_t *new_linebuf_size) {
   CdefInfo *cdef_info = &cm->cdef_info;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     if (new_linebuf_size[plane] != cdef_info->allocated_linebuf_size[plane]) {
-      aom_free(cdef_info->linebuf[plane]);
+      avm_free(cdef_info->linebuf[plane]);
       cdef_info->linebuf[plane] = NULL;
     }
   }
@@ -79,19 +79,19 @@ static INLINE void free_cdef_linebuf_conditional(
 
 // Frees CDEF source/column buffers if their allocated and new size is not
 // matching.
-static INLINE void free_cdef_bufs_conditional(AV1_COMMON *const cm,
+static INLINE void free_cdef_bufs_conditional(AV2_COMMON *const cm,
                                               uint16_t **const colbuf,
                                               uint16_t **const srcbuf,
                                               const size_t *new_colbuf_size,
                                               const size_t new_srcbuf_size) {
   CdefInfo *cdef_info = &cm->cdef_info;
   if (new_srcbuf_size != cdef_info->allocated_srcbuf_size) {
-    aom_free(*srcbuf);
+    avm_free(*srcbuf);
     *srcbuf = NULL;
   }
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
     if (new_colbuf_size[plane] != cdef_info->allocated_colbuf_size[plane]) {
-      aom_free(colbuf[plane]);
+      avm_free(colbuf[plane]);
       colbuf[plane] = NULL;
     }
   }
@@ -100,44 +100,44 @@ static INLINE void free_cdef_bufs_conditional(AV1_COMMON *const cm,
 // Free and reset CDEF source and column buffers.
 static INLINE void free_cdef_bufs(uint16_t **const colbuf,
                                   uint16_t **const srcbuf) {
-  aom_free(*srcbuf);
+  avm_free(*srcbuf);
   *srcbuf = NULL;
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
-    aom_free(colbuf[plane]);
+    avm_free(colbuf[plane]);
     colbuf[plane] = NULL;
   }
 }
 
 // Frees the memory and synchronization primitives allocated for CDEF row sync.
-static INLINE void free_cdef_row_sync(AV1CdefRowSync **cdef_row_mt,
+static INLINE void free_cdef_row_sync(AV2CdefRowSync **cdef_row_mt,
                                       const int num_mi_rows) {
   if (*cdef_row_mt == NULL) return;
 #if CONFIG_MULTITHREAD
   for (int row_idx = 0; row_idx < num_mi_rows; row_idx++) {
     if ((*cdef_row_mt)[row_idx].row_mutex_ != NULL) {
       pthread_mutex_destroy((*cdef_row_mt)[row_idx].row_mutex_);
-      aom_free((*cdef_row_mt)[row_idx].row_mutex_);
+      avm_free((*cdef_row_mt)[row_idx].row_mutex_);
     }
     if ((*cdef_row_mt)[row_idx].row_cond_ != NULL) {
       pthread_cond_destroy((*cdef_row_mt)[row_idx].row_cond_);
-      aom_free((*cdef_row_mt)[row_idx].row_cond_);
+      avm_free((*cdef_row_mt)[row_idx].row_cond_);
     }
   }
 #else
   (void)num_mi_rows;
 #endif  // CONFIG_MULTITHREAD
-  aom_free(*cdef_row_mt);
+  avm_free(*cdef_row_mt);
   *cdef_row_mt = NULL;
 }
 
-void av1_free_cdef_buffers(AV1_COMMON *const cm,
-                           AV1CdefWorkerData **cdef_worker,
-                           AV1CdefSync *cdef_sync, int num_workers) {
+void av2_free_cdef_buffers(AV2_COMMON *const cm,
+                           AV2CdefWorkerData **cdef_worker,
+                           AV2CdefSync *cdef_sync, int num_workers) {
   CdefInfo *cdef_info = &cm->cdef_info;
   const int num_mi_rows = cdef_info->allocated_mi_rows;
 
   for (int plane = 0; plane < MAX_MB_PLANE; plane++) {
-    aom_free(cdef_info->linebuf[plane]);
+    avm_free(cdef_info->linebuf[plane]);
     cdef_info->linebuf[plane] = NULL;
   }
   // De-allocation of column buffer & source buffer (worker 0).
@@ -149,68 +149,68 @@ void av1_free_cdef_buffers(AV1_COMMON *const cm,
       // De-allocation of column buffer & source buffer for remaining workers.
       free_cdef_bufs((*cdef_worker)[idx].colbuf, &(*cdef_worker)[idx].srcbuf);
     }
-    aom_free(*cdef_worker);
+    avm_free(*cdef_worker);
     *cdef_worker = NULL;
   }
   free_cdef_row_sync(&cdef_sync->cdef_row_mt, num_mi_rows);
 }
 
 // Allocate CDEF line buffers for each plane if not already allocated.
-static INLINE void alloc_cdef_linebuf(AV1_COMMON *const cm,
+static INLINE void alloc_cdef_linebuf(AV2_COMMON *const cm,
                                       uint16_t **const linebuf,
                                       int num_planes) {
   CdefInfo *cdef_info = &cm->cdef_info;
   for (int plane = 0; plane < num_planes; plane++) {
     if (linebuf[plane] == NULL)
       CHECK_MEM_ERROR(cm, linebuf[plane],
-                      aom_malloc(cdef_info->allocated_linebuf_size[plane]));
+                      avm_malloc(cdef_info->allocated_linebuf_size[plane]));
   }
 }
 
 // Allocate CDEF source and column buffers.
-static INLINE void alloc_cdef_bufs(AV1_COMMON *const cm, uint16_t **colbuf,
+static INLINE void alloc_cdef_bufs(AV2_COMMON *const cm, uint16_t **colbuf,
                                    uint16_t **srcbuf, const int num_planes) {
   CdefInfo *cdef_info = &cm->cdef_info;
   if (*srcbuf == NULL)
     CHECK_MEM_ERROR(cm, *srcbuf,
-                    aom_memalign(16, cdef_info->allocated_srcbuf_size));
+                    avm_memalign(16, cdef_info->allocated_srcbuf_size));
 
   for (int plane = 0; plane < num_planes; plane++) {
     if (colbuf[plane] == NULL)
       CHECK_MEM_ERROR(cm, colbuf[plane],
-                      aom_malloc(cdef_info->allocated_colbuf_size[plane]));
+                      avm_malloc(cdef_info->allocated_colbuf_size[plane]));
   }
 }
 
 // Allocate and initialize row-level synchronization structure for CDEF.
-static INLINE void alloc_cdef_row_sync(AV1_COMMON *const cm,
-                                       AV1CdefRowSync **cdef_row_mt,
+static INLINE void alloc_cdef_row_sync(AV2_COMMON *const cm,
+                                       AV2CdefRowSync **cdef_row_mt,
                                        const int num_mi_rows) {
   if (*cdef_row_mt != NULL) return;
 
   CHECK_MEM_ERROR(cm, *cdef_row_mt,
-                  aom_calloc(num_mi_rows, sizeof(**cdef_row_mt)));
+                  avm_calloc(num_mi_rows, sizeof(**cdef_row_mt)));
 #if CONFIG_MULTITHREAD
   for (int row_idx = 0; row_idx < num_mi_rows; row_idx++) {
     CHECK_MEM_ERROR(cm, (*cdef_row_mt)[row_idx].row_mutex_,
-                    aom_malloc(sizeof(*(*cdef_row_mt)[row_idx].row_mutex_)));
+                    avm_malloc(sizeof(*(*cdef_row_mt)[row_idx].row_mutex_)));
     pthread_mutex_init((*cdef_row_mt)[row_idx].row_mutex_, NULL);
 
     CHECK_MEM_ERROR(cm, (*cdef_row_mt)[row_idx].row_cond_,
-                    aom_malloc(sizeof(*(*cdef_row_mt)[row_idx].row_cond_)));
+                    avm_malloc(sizeof(*(*cdef_row_mt)[row_idx].row_cond_)));
     pthread_cond_init((*cdef_row_mt)[row_idx].row_cond_, NULL);
   }
 #endif  // CONFIG_MULTITHREAD
 }
 
-void av1_alloc_cdef_buffers(AV1_COMMON *const cm,
-                            AV1CdefWorkerData **cdef_worker,
-                            AV1CdefSync *cdef_sync, int num_workers) {
+void av2_alloc_cdef_buffers(AV2_COMMON *const cm,
+                            AV2CdefWorkerData **cdef_worker,
+                            AV2CdefSync *cdef_sync, int num_workers) {
   CdefInfo *cdef_info = &cm->cdef_info;
   size_t new_linebuf_size[MAX_MB_PLANE] = { 0 };
   size_t new_colbuf_size[MAX_MB_PLANE] = { 0 };
   size_t new_srcbuf_size = 0;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const int luma_stride =
       ALIGN_POWER_OF_TWO(cm->mi_params.mi_cols << MI_SIZE_LOG2, 4);
   // Check for configuration change
@@ -230,7 +230,7 @@ void av1_alloc_cdef_buffers(AV1_COMMON *const cm,
     // Calculate src buffer size
     new_srcbuf_size = sizeof(*cdef_info->srcbuf) * CDEF_INBUF_SIZE;
     for (int plane = 0; plane < num_planes; plane++) {
-      const int shift = plane == AOM_PLANE_Y ? 0 : cm->seq_params.subsampling_x;
+      const int shift = plane == AVM_PLANE_Y ? 0 : cm->seq_params.subsampling_x;
       // Calculate top and bottom line buffer size
       new_linebuf_size[plane] = sizeof(*cdef_info->linebuf) * num_bufs *
                                 (CDEF_VBORDER << 1) * (luma_stride >> shift);
@@ -268,8 +268,8 @@ void av1_alloc_cdef_buffers(AV1_COMMON *const cm,
 
   // Store allocated sizes for reallocation
   cdef_info->allocated_srcbuf_size = new_srcbuf_size;
-  av1_copy(cdef_info->allocated_colbuf_size, new_colbuf_size);
-  av1_copy(cdef_info->allocated_linebuf_size, new_linebuf_size);
+  av2_copy(cdef_info->allocated_colbuf_size, new_colbuf_size);
+  av2_copy(cdef_info->allocated_linebuf_size, new_linebuf_size);
   // Store configuration to check change in configuration
   cdef_info->allocated_mi_rows = num_mi_rows;
   cdef_info->allocated_num_workers = num_workers;
@@ -284,7 +284,7 @@ void av1_alloc_cdef_buffers(AV1_COMMON *const cm,
 
   if (*cdef_worker == NULL)
     CHECK_MEM_ERROR(cm, *cdef_worker,
-                    aom_calloc(num_workers, sizeof(**cdef_worker)));
+                    avm_calloc(num_workers, sizeof(**cdef_worker)));
 
   for (int idx = 1; idx < num_workers; idx++) {
     // Memory allocation of column buffer & source buffer for remaining workers.
@@ -297,10 +297,10 @@ void av1_alloc_cdef_buffers(AV1_COMMON *const cm,
 }
 
 // Assumes cm->rst_info[p].restoration_unit_size is already initialized
-void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
-  const int num_planes = av1_num_planes(cm);
+void av2_alloc_restoration_buffers(AV2_COMMON *cm) {
+  const int num_planes = av2_num_planes(cm);
   for (int p = 0; p < num_planes; ++p)
-    av1_alloc_restoration_struct(cm, &cm->rst_info[p], p > 0);
+    av2_alloc_restoration_struct(cm, &cm->rst_info[p], p > 0);
 
   if (cm->frame_filter_dictionary == NULL) {
     allocate_frame_filter_dictionary(cm);
@@ -308,18 +308,18 @@ void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
   }
 
   if (cm->rlbs == NULL) {
-    CHECK_MEM_ERROR(cm, cm->rlbs, aom_malloc(sizeof(RestorationLineBuffers)));
+    CHECK_MEM_ERROR(cm, cm->rlbs, avm_malloc(sizeof(RestorationLineBuffers)));
   }
   if (cm->lru_stripe_buf == NULL) {
     CHECK_MEM_ERROR(
         cm, cm->lru_stripe_buf,
-        aom_malloc(MAX_LRU_STRIPE_BUF_SIZE * sizeof(*cm->lru_stripe_buf)));
+        avm_malloc(MAX_LRU_STRIPE_BUF_SIZE * sizeof(*cm->lru_stripe_buf)));
   }
 
-  av1_alloc_restoration_boundary_buffers(cm, num_planes);
+  av2_alloc_restoration_boundary_buffers(cm, num_planes);
 }
 
-void av1_alloc_restoration_boundary_buffers(struct AV1Common *cm,
+void av2_alloc_restoration_boundary_buffers(struct AV2Common *cm,
                                             int num_planes) {
   // For striped loop restoration, we divide each row of tiles into "stripes",
   // of height 64 luma pixels but with an offset by RESTORATION_UNIT_OFFSET
@@ -328,14 +328,14 @@ void av1_alloc_restoration_boundary_buffers(struct AV1Common *cm,
   // able to quickly answer the question "Where is the <n>'th stripe for tile
   // row <m>?" To make that efficient, we generate the rst_last_stripe array.
 
-  AV1PixelRect tile_rect;
+  AV2PixelRect tile_rect;
   int num_stripes = 0;
   TileInfo tile_info;
   for (int tr = 0; tr < cm->tiles.rows; ++tr) {
-    av1_tile_init(&tile_info, cm, tr, 0);
-    tile_rect = av1_get_tile_rect(&tile_info, cm, 0);
+    av2_tile_init(&tile_info, cm, tr, 0);
+    tile_rect = av2_get_tile_rect(&tile_info, cm, 0);
     const int tile_h = tile_rect.bottom - tile_rect.top;
-    num_stripes += av1_lr_count_stripes_in_tile(tile_h, 0);
+    num_stripes += av2_lr_count_stripes_in_tile(tile_h, 0);
   }
   // int num_stripes = cm->rst_info[0].vert_stripes_per_frame;
 
@@ -356,12 +356,12 @@ void av1_alloc_restoration_boundary_buffers(struct AV1Common *cm,
     if (buf_size != boundaries->stripe_boundary_size ||
         boundaries->stripe_boundary_above == NULL ||
         boundaries->stripe_boundary_below == NULL) {
-      aom_free(boundaries->stripe_boundary_above);
-      aom_free(boundaries->stripe_boundary_below);
+      avm_free(boundaries->stripe_boundary_above);
+      avm_free(boundaries->stripe_boundary_below);
       CHECK_MEM_ERROR(cm, boundaries->stripe_boundary_above,
-                      aom_memalign(32, buf_size));
+                      avm_memalign(32, buf_size));
       CHECK_MEM_ERROR(cm, boundaries->stripe_boundary_below,
-                      aom_memalign(32, buf_size));
+                      avm_memalign(32, buf_size));
 
       boundaries->stripe_boundary_size = buf_size;
     }
@@ -369,41 +369,41 @@ void av1_alloc_restoration_boundary_buffers(struct AV1Common *cm,
   }
 }
 
-void av1_free_restoration_buffers(AV1_COMMON *cm) {
+void av2_free_restoration_buffers(AV2_COMMON *cm) {
   int p;
   for (p = 0; p < MAX_MB_PLANE; ++p)
-    av1_free_restoration_struct(&cm->rst_info[p]);
-  aom_free(cm->rlbs);
+    av2_free_restoration_struct(&cm->rst_info[p]);
+  avm_free(cm->rlbs);
   cm->rlbs = NULL;
-  aom_free(cm->lru_stripe_buf);
+  avm_free(cm->lru_stripe_buf);
   cm->lru_stripe_buf = NULL;
   for (p = 0; p < MAX_MB_PLANE; ++p) {
     RestorationStripeBoundaries *boundaries = &cm->rst_info[p].boundaries;
-    aom_free(boundaries->stripe_boundary_above);
-    aom_free(boundaries->stripe_boundary_below);
+    avm_free(boundaries->stripe_boundary_above);
+    avm_free(boundaries->stripe_boundary_below);
     boundaries->stripe_boundary_above = NULL;
     boundaries->stripe_boundary_below = NULL;
   }
   free_frame_filter_dictionary(cm);
-  aom_free_frame_buffer(&cm->rst_frame);
+  avm_free_frame_buffer(&cm->rst_frame);
 }
 
-void av1_free_above_context_buffers(CommonContexts *above_contexts) {
+void av2_free_above_context_buffers(CommonContexts *above_contexts) {
   int i;
   const int num_planes = above_contexts->num_planes;
 
   for (int tile_row = 0; tile_row < above_contexts->num_tile_rows; tile_row++) {
     for (i = 0; i < num_planes; i++) {
-      aom_free(above_contexts->entropy[i][tile_row]);
+      avm_free(above_contexts->entropy[i][tile_row]);
       above_contexts->entropy[i][tile_row] = NULL;
-      aom_free(above_contexts->partition[i][tile_row]);
+      avm_free(above_contexts->partition[i][tile_row]);
       above_contexts->partition[i][tile_row] = NULL;
     }
   }
   for (i = 0; i < num_planes; i++) {
-    aom_free(above_contexts->entropy[i]);
+    avm_free(above_contexts->entropy[i]);
     above_contexts->entropy[i] = NULL;
-    aom_free(above_contexts->partition[i]);
+    avm_free(above_contexts->partition[i]);
     above_contexts->partition[i] = NULL;
   }
 
@@ -414,23 +414,23 @@ void av1_free_above_context_buffers(CommonContexts *above_contexts) {
 
 static void free_sbi(CommonSBInfoParams *sbi_params) {
   for (int i = 0; i < sbi_params->sbi_alloc_size; ++i) {
-    av1_free_ptree_recursive(sbi_params->sbi_grid_base[i].ptree_root[0]);
-    av1_free_ptree_recursive(sbi_params->sbi_grid_base[i].ptree_root[1]);
+    av2_free_ptree_recursive(sbi_params->sbi_grid_base[i].ptree_root[0]);
+    av2_free_ptree_recursive(sbi_params->sbi_grid_base[i].ptree_root[1]);
   }
 
-  aom_free(sbi_params->sbi_grid_base);
+  avm_free(sbi_params->sbi_grid_base);
   sbi_params->sbi_grid_base = NULL;
   sbi_params->sbi_alloc_size = 0;
 }
 
-void av1_free_context_buffers(AV1_COMMON *cm) {
+void av2_free_context_buffers(AV2_COMMON *cm) {
   cm->mi_params.free_mi(&cm->mi_params);
   free_sbi(&cm->sbi_params);
 
-  av1_free_above_context_buffers(&cm->above_contexts);
+  av2_free_above_context_buffers(&cm->above_contexts);
 }
 
-int av1_alloc_above_context_buffers(CommonContexts *above_contexts,
+int av2_alloc_above_context_buffers(CommonContexts *above_contexts,
                                     int num_tile_rows, int num_mi_cols,
                                     int num_planes) {
   const int aligned_mi_cols =
@@ -441,10 +441,10 @@ int av1_alloc_above_context_buffers(CommonContexts *above_contexts,
   above_contexts->num_mi_cols = aligned_mi_cols;
   above_contexts->num_planes = num_planes;
   for (int plane_idx = 0; plane_idx < num_planes; plane_idx++) {
-    above_contexts->entropy[plane_idx] = (ENTROPY_CONTEXT **)aom_calloc(
+    above_contexts->entropy[plane_idx] = (ENTROPY_CONTEXT **)avm_calloc(
         num_tile_rows, sizeof(above_contexts->entropy[0]));
     if (!above_contexts->entropy[plane_idx]) return 1;
-    above_contexts->partition[plane_idx] = (PARTITION_CONTEXT **)aom_calloc(
+    above_contexts->partition[plane_idx] = (PARTITION_CONTEXT **)avm_calloc(
         num_tile_rows, sizeof(above_contexts->partition[plane_idx]));
     if (!above_contexts->partition[plane_idx]) return 1;
   }
@@ -452,11 +452,11 @@ int av1_alloc_above_context_buffers(CommonContexts *above_contexts,
   for (int tile_row = 0; tile_row < num_tile_rows; tile_row++) {
     for (int plane_idx = 0; plane_idx < num_planes; plane_idx++) {
       above_contexts->entropy[plane_idx][tile_row] =
-          (ENTROPY_CONTEXT *)aom_calloc(
+          (ENTROPY_CONTEXT *)avm_calloc(
               aligned_mi_cols, sizeof(*above_contexts->entropy[0][tile_row]));
       if (!above_contexts->entropy[plane_idx][tile_row]) return 1;
       above_contexts->partition[plane_idx][tile_row] =
-          (PARTITION_CONTEXT *)aom_calloc(
+          (PARTITION_CONTEXT *)avm_calloc(
               aligned_mi_cols,
               sizeof(*above_contexts->partition[plane_idx][tile_row]));
       if (!above_contexts->partition[plane_idx][tile_row]) return 1;
@@ -469,7 +469,7 @@ int av1_alloc_above_context_buffers(CommonContexts *above_contexts,
 // Allocate the dynamically allocated arrays in 'mi_params' assuming
 // 'mi_params->set_mb_mi()' was already called earlier to initialize the rest of
 // the struct members.
-static int alloc_mi(CommonModeInfoParams *mi_params, AV1_COMMON *cm,
+static int alloc_mi(CommonModeInfoParams *mi_params, AV2_COMMON *cm,
                     int height) {
   const int aligned_mi_rows = calc_mi_size(mi_params->mi_rows);
   const int mi_grid_size = mi_params->mi_stride * aligned_mi_rows;
@@ -482,39 +482,39 @@ static int alloc_mi(CommonModeInfoParams *mi_params, AV1_COMMON *cm,
     mi_params->free_mi(mi_params);
 
     mi_params->mi_alloc =
-        aom_calloc(alloc_mi_size, sizeof(*mi_params->mi_alloc));
+        avm_calloc(alloc_mi_size, sizeof(*mi_params->mi_alloc));
     if (!mi_params->mi_alloc) return 1;
     mi_params->mi_alloc_size = alloc_mi_size;
 
-    mi_params->mi_grid_base = (MB_MODE_INFO **)aom_calloc(
+    mi_params->mi_grid_base = (MB_MODE_INFO **)avm_calloc(
         mi_grid_size, sizeof(*mi_params->mi_grid_base));
     if (!mi_params->mi_grid_base) return 1;
     mi_params->mi_grid_size = mi_grid_size;
-    av1_alloc_txk_skip_array(mi_params, cm);
-    av1_alloc_class_id_array(mi_params, cm, height);
+    av2_alloc_txk_skip_array(mi_params, cm);
+    av2_alloc_class_id_array(mi_params, cm, height);
     mi_params->mi_alloc_sub =
-        aom_calloc(alloc_mi_size, sizeof(*mi_params->mi_alloc_sub));
+        avm_calloc(alloc_mi_size, sizeof(*mi_params->mi_alloc_sub));
     if (!mi_params->mi_alloc_sub) return 1;
-    mi_params->submi_grid_base = (SUBMB_INFO **)aom_calloc(
+    mi_params->submi_grid_base = (SUBMB_INFO **)avm_calloc(
         mi_grid_size, sizeof(*mi_params->submi_grid_base));
     if (!mi_params->submi_grid_base) return 1;
 
     mi_params->tx_type_map =
-        aom_calloc(mi_grid_size, sizeof(*mi_params->tx_type_map));
+        avm_calloc(mi_grid_size, sizeof(*mi_params->tx_type_map));
     if (!mi_params->tx_type_map) return 1;
     mi_params->cctx_type_map =
-        aom_calloc(mi_grid_size, sizeof(*mi_params->cctx_type_map));
+        avm_calloc(mi_grid_size, sizeof(*mi_params->cctx_type_map));
     if (!mi_params->cctx_type_map) return 1;
   } else {
     // Set only the strides corresponding to the current frame dims
-    av1_set_txk_skip_array_stride(mi_params, cm);
-    av1_set_class_id_array_stride(mi_params, cm, height);
+    av2_set_txk_skip_array_stride(mi_params, cm);
+    av2_set_class_id_array_stride(mi_params, cm, height);
   }
 
   return 0;
 }
 
-static void set_sb_si(AV1_COMMON *cm) {
+static void set_sb_si(AV2_COMMON *cm) {
   CommonSBInfoParams *const sbi_params = &cm->sbi_params;
   const int mib_size_log2 = cm->mib_size_log2;
   sbi_params->sb_cols =
@@ -530,7 +530,7 @@ static int alloc_sbi(CommonSBInfoParams *sbi_params) {
   if (sbi_params->sbi_alloc_size < sbi_size) {
     free_sbi(sbi_params);
     sbi_params->sbi_grid_base =
-        aom_calloc(sbi_size, sizeof(*sbi_params->sbi_grid_base));
+        avm_calloc(sbi_size, sizeof(*sbi_params->sbi_grid_base));
 
     if (!sbi_params->sbi_grid_base) return 1;
 
@@ -545,37 +545,37 @@ static int alloc_sbi(CommonSBInfoParams *sbi_params) {
   return 0;
 }
 
-int av1_alloc_superblock_info_buffers(AV1_COMMON *cm) {
+int av2_alloc_superblock_info_buffers(AV2_COMMON *cm) {
   CommonSBInfoParams *const sbi_params = &cm->sbi_params;
   set_sb_si(cm);
   return alloc_sbi(sbi_params);
 }
 
-int av1_alloc_context_buffers(AV1_COMMON *cm, int width, int height) {
+int av2_alloc_context_buffers(AV2_COMMON *cm, int width, int height) {
   CommonModeInfoParams *const mi_params = &cm->mi_params;
   mi_params->set_mb_mi(mi_params, width, height);
   if (alloc_mi(mi_params, cm, height)) goto fail;
 
-  if (av1_alloc_superblock_info_buffers(cm)) goto fail;
+  if (av2_alloc_superblock_info_buffers(cm)) goto fail;
 
   return 0;
 
 fail:
   // clear the mi_* values to force a realloc on resync
   mi_params->set_mb_mi(mi_params, 0, 0);
-  av1_free_context_buffers(cm);
+  av2_free_context_buffers(cm);
   return 1;
 }
 
-void av1_remove_common(AV1_COMMON *cm) {
-  av1_free_context_buffers(cm);
+void av2_remove_common(AV2_COMMON *cm) {
+  av2_free_context_buffers(cm);
 
-  aom_free(cm->fc);
+  avm_free(cm->fc);
   cm->fc = NULL;
-  aom_free(cm->default_frame_context);
+  avm_free(cm->default_frame_context);
   cm->default_frame_context = NULL;
 }
 
-void av1_init_mi_buffers(CommonModeInfoParams *mi_params) {
+void av2_init_mi_buffers(CommonModeInfoParams *mi_params) {
   mi_params->setup_mi(mi_params);
 }

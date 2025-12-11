@@ -17,11 +17,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/ssim.h"
-#include "aom_ports/system_state.h"
+#include "avm_dsp/ssim.h"
+#include "avm_ports/system_state.h"
 
 typedef struct fs_level fs_level;
 typedef struct fs_ctx fs_ctx;
@@ -450,13 +450,13 @@ static double calc_ssim(const uint16_t *_src, int _systride,
   return ret;
 }
 
-double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
+double avm_calc_fastssim(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *dest, double *ssim_y,
                          double *ssim_u, double *ssim_v, uint32_t bd,
                          uint32_t in_bd) {
   double ssimv;
   uint32_t bd_shift = 0;
-  aom_clear_system_state();
+  avm_clear_system_state();
   assert(bd >= in_bd);
   assert(source->flags == dest->flags);
   bd_shift = bd - in_bd;

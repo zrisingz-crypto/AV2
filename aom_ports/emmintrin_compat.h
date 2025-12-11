@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_EMMINTRIN_COMPAT_H_
-#define AOM_AOM_PORTS_EMMINTRIN_COMPAT_H_
+#ifndef AVM_AVM_PORTS_EMMINTRIN_COMPAT_H_
+#define AVM_AVM_PORTS_EMMINTRIN_COMPAT_H_
 
 #if defined(__GNUC__) && __GNUC__ < 4
 /* From emmintrin.h (gcc 4.5.3) */
@@ -54,4 +54,4 @@ extern __inline __m128d
 }
 #endif
 
-#endif  // AOM_AOM_PORTS_EMMINTRIN_COMPAT_H_
+#endif  // AVM_AVM_PORTS_EMMINTRIN_COMPAT_H_

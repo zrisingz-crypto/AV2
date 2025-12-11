@@ -12,10 +12,10 @@
 #include <math.h>
 
 #include <immintrin.h>
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_ports/mem.h"
-#include "aom_dsp/flow_estimation/corner_match.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/flow_estimation/corner_match.h"
 
 DECLARE_ALIGNED(32, static const uint16_t, ones_array[16]) = { 1, 1, 1, 1, 1, 1,
                                                                1, 1, 1, 1, 1, 1,
@@ -35,11 +35,11 @@ DECLARE_ALIGNED(32, static const uint16_t, ones_array[16]) = { 1, 1, 1, 1, 1, 1,
 
    Combined with the fact that we return 1/stddev rather than the standard
    deviation itself, this allows us to completely avoid divisions in
-   aom_compute_correlation, which is much hotter than this function is.
+   avm_compute_correlation, which is much hotter than this function is.
 
    Returns true if this feature point is usable, false otherwise.
 */
-bool aom_compute_mean_stddev_avx2(const unsigned char *frame, int stride, int x,
+bool avm_compute_mean_stddev_avx2(const unsigned char *frame, int stride, int x,
                                   int y, double *mean,
                                   double *one_over_stddev) {
   __m256i sum_vec = _mm256_setzero_si256();
@@ -84,7 +84,7 @@ bool aom_compute_mean_stddev_avx2(const unsigned char *frame, int stride, int x,
    of the window in each frame are precomputed and passed into this function
    as arguments.
 */
-double aom_compute_correlation_avx2(const unsigned char *frame1, int stride1,
+double avm_compute_correlation_avx2(const unsigned char *frame1, int stride1,
                                     int x1, int y1, double mean1,
                                     double one_over_stddev1,
                                     const unsigned char *frame2, int stride2,
@@ -115,7 +115,7 @@ double aom_compute_correlation_avx2(const unsigned char *frame1, int stride1,
   //   covariance = cross / N^2 - mean1 * mean2
   //   correlation = covariance / (stddev1 * stddev2).
   //
-  // However, because of the scaling in aom_compute_mean_stddev, the
+  // However, because of the scaling in avm_compute_mean_stddev, the
   // lines below actually calculate
   //   covariance * N^2 = cross - (mean1 * N) * (mean2 * N)
   //   correlation = (covariance * N^2) / ((stddev1 * N) * (stddev2 * N))

@@ -17,11 +17,11 @@
 #include <assert.h>
 #include <stdbool.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/warped_motion.h"
-#include "av1/common/scale.h"
-#include "av1/common/mvref_common.h"
+#include "av2/common/warped_motion.h"
+#include "av2/common/scale.h"
+#include "av2/common/mvref_common.h"
 
 // For warping, we use 8/6/4/2-tap filters, but we do blocks of 8 pixels
 // at a time. The zoom/rotation/shear in the model are applied to the
@@ -29,7 +29,7 @@
 // [-3, 4) * WARPEDPIXEL_PREC_SHIFTS.
 // We need an extra 2-6 taps to fit this in, for a total of 8 taps.
 /* clang-format off */
-const int16_t av1_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 7 + 1][8] = {
+const int16_t av2_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 7 + 1][8] = {
 #if WARPEDPIXEL_PREC_BITS == 6
   // [-3, -2)
   { 127,   1, 0, 0, 0, 0, 0, 0 }, { 126,   2, 0, 0, 0, 0, 0, 0 },
@@ -399,7 +399,7 @@ const int16_t av1_warped_filter[WARPEDPIXEL_PREC_SHIFTS * 7 + 1][8] = {
 };
 
 DECLARE_ALIGNED(16, const int16_t,
-                av1_ext_warped_filter[EXT_WARP_PHASES + 1][EXT_WARP_STORAGE_TAPS]) = {
+                av2_ext_warped_filter[EXT_WARP_PHASES + 1][EXT_WARP_STORAGE_TAPS]) = {
 // The extended warp filter is a 6-tap filter, but we store each kernel with
 // two extra zeros at the end so that each kernel is 16-byte aligned
 { 0,   0, 128,   0,   0, 0, 0, 0 },
@@ -473,7 +473,7 @@ DECLARE_ALIGNED(16, const int16_t,
 // Recompute the translational part of a warp model, so that the center
 // of the current block (determined by `mi_row`, `mi_col`, `bsize`)
 // has an induced motion vector of `mv`
-void av1_set_warp_translation(int mi_row, int mi_col, BLOCK_SIZE bsize, MV mv,
+void av2_set_warp_translation(int mi_row, int mi_col, BLOCK_SIZE bsize, MV mv,
                               WarpedMotionParams *wm) {
   const int center_x = mi_col * MI_SIZE + block_size_wide[bsize] / 2 - 1;
   const int center_y = mi_row * MI_SIZE + block_size_high[bsize] / 2 - 1;
@@ -527,14 +527,14 @@ static int is_affine_shear_allowed(int16_t alpha, int16_t beta, int16_t gamma,
 }
 
 // Returns 1 on success or 0 on an invalid affine set
-int av1_get_shear_params(WarpedMotionParams *wm, const struct scale_factors *sf
+int av2_get_shear_params(WarpedMotionParams *wm, const struct scale_factors *sf
 
 ) {
   if (!is_affine_valid(wm)) return 0;
   const int16_t max_value = INT16_MAX - (1 << (WARP_PARAM_REDUCE_BITS - 1));
 
   // Always use 4x4 warp in scale of across-scale
-  const int is_scaled = sf ? av1_is_scaled(sf) : 0;
+  const int is_scaled = sf ? av2_is_scaled(sf) : 0;
   const int32_t *mat = wm->wmmat;
 
   wm->alpha =
@@ -585,13 +585,13 @@ int av1_get_shear_params(WarpedMotionParams *wm, const struct scale_factors *sf
 
 // Reduce the precision of a warp model, ready for use in the warp filter
 // and for storage. This should be called after the non-translational parameters
-// are calculated, but before av1_set_warp_translation() or
-// av1_get_shear_params() are called
+// are calculated, but before av2_set_warp_translation() or
+// av2_get_shear_params() are called
 //
 // This also clamps the values, ensuring that hardware can store each value
 // in a signed integer with (WARPEDMODEL_PREC_BITS - WARP_PARAM_REDUCE_BITS)
 // total bits
-void av1_reduce_warp_model(WarpedMotionParams *wm) {
+void av2_reduce_warp_model(WarpedMotionParams *wm) {
   // Constrain parameters so that they lie within the range of +/- 1/2
   // relative to the identity model.
   //
@@ -617,8 +617,8 @@ void av1_reduce_warp_model(WarpedMotionParams *wm) {
 }
 
 // Check if a model is already properly reduced, according to the same logic
-// used in av1_reduce_warp_model()
-bool av1_is_warp_model_reduced(WarpedMotionParams *wm) {
+// used in av2_reduce_warp_model()
+bool av2_is_warp_model_reduced(WarpedMotionParams *wm) {
   // Constrain parameters so that they lie within the range of +/- 1/2
   // relative to the identity model.
   //
@@ -731,7 +731,7 @@ bool av1_is_warp_model_reduced(WarpedMotionParams *wm) {
     So in that case we still need to clamp.
 */
 
-void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
+void av2_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
                               int width, int height, int stride, uint16_t *pred,
                               int p_col, int p_row, int p_width, int p_height,
                               int p_stride, int subsampling_x,
@@ -799,7 +799,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
           const int offs = ROUND_POWER_OF_TWO(sx, WARPEDDIFF_PREC_BITS) +
                            3 * WARPEDPIXEL_PREC_SHIFTS;
           assert(offs >= 0 && offs <= WARPEDPIXEL_PREC_SHIFTS * 7);
-          const int16_t *coeffs = av1_warped_filter[offs];
+          const int16_t *coeffs = av2_warped_filter[offs];
           int32_t sum = 1 << offset_bits_horiz;
           for (int m = 0; m < taps; ++m) {
             const int sample_x = clamp(ix + m, left_limit, right_limit);
@@ -813,13 +813,13 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
       }
 
       // Vertical filter
-      for (int k = -4; k < AOMMIN(4, p_row + p_height - i - 4); ++k) {
+      for (int k = -4; k < AVMMIN(4, p_row + p_height - i - 4); ++k) {
         int sy = sy4 + delta * (k + 4);
-        for (int l = -4; l < AOMMIN(4, p_col + p_width - j - 4); ++l) {
+        for (int l = -4; l < AVMMIN(4, p_col + p_width - j - 4); ++l) {
           const int offs = ROUND_POWER_OF_TWO(sy, WARPEDDIFF_PREC_BITS) +
                            3 * WARPEDPIXEL_PREC_SHIFTS;
           assert(offs >= 0 && offs <= WARPEDPIXEL_PREC_SHIFTS * 7);
-          const int16_t *coeffs = av1_warped_filter[offs];
+          const int16_t *coeffs = av2_warped_filter[offs];
 
           int32_t sum = 1 << offset_bits_vert;
           for (int m = 0; m < taps; ++m) {
@@ -866,7 +866,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
 }
 
 /* Extended-range warp filter, used for strong warps where the regular
-   affine filter (av1_highbd_warp_affine) is not usable.
+   affine filter (av2_highbd_warp_affine) is not usable.
 
    This filter operates by splitting the prediction unit into 4x4 pixel
    chunks. Then, for each chunk, the following process is applied:
@@ -885,7 +885,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
    apply some form of deblocking to the output of this function. This is handled
    separately.
 */
-void av1_ext_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
+void av2_ext_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
                                   int width, int height, int stride,
                                   uint16_t *pred, int p_col, int p_row,
                                   int p_width, int p_height, int p_stride,
@@ -952,7 +952,7 @@ void av1_ext_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
       // Horizontal Filter
       const int offs_x = ROUND_POWER_OF_TWO(sx4, EXT_WARP_ROUND_BITS);
       assert(offs_x >= 0 && offs_x <= EXT_WARP_PHASES);
-      const int16_t *coeffs_x = av1_ext_warped_filter[offs_x];
+      const int16_t *coeffs_x = av2_ext_warped_filter[offs_x];
 
       for (int k = -(taps_half + 1); k < taps_half + 2; ++k) {
         const int iy = clamp(iy4 + k, top_limit, bottom_limit);
@@ -974,10 +974,10 @@ void av1_ext_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
       // Vertical filter
       const int offs_y = ROUND_POWER_OF_TWO(sy4, WARPEDDIFF_PREC_BITS);
       assert(offs_y >= 0 && offs_y <= WARPEDPIXEL_PREC_SHIFTS);
-      const int16_t *coeffs_y = av1_ext_warped_filter[offs_y];
+      const int16_t *coeffs_y = av2_ext_warped_filter[offs_y];
 
-      for (int k = -2; k < AOMMIN(2, p_row + p_height - i - 2); ++k) {
-        for (int l = -2; l < AOMMIN(2, p_col + p_width - j - 2); ++l) {
+      for (int k = -2; k < AVMMIN(2, p_row + p_height - i - 2); ++k) {
+        for (int l = -2; l < AVMMIN(2, p_col + p_width - j - 2); ++l) {
           int32_t sum = 1 << offset_bits_vert;
           for (int m = 0; m < taps; ++m) {
             sum += im_block[(k + m + 2) * 4 + (l + 2)] * coeffs_y[m];
@@ -1021,7 +1021,7 @@ void av1_ext_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
   }
 }
 
-void av1_ext_highbd_warp_affine_scaled_c(
+void av2_ext_highbd_warp_affine_scaled_c(
     const int32_t *mat, const uint16_t *ref, int width, int height, int stride,
     uint16_t *pred, int p_col, int p_row, int p_width, int p_height,
     int p_stride, int subsampling_x, int subsampling_y, int bd,
@@ -1118,7 +1118,7 @@ void av1_ext_highbd_warp_affine_scaled_c(
           int32_t sx4 = x_qn & ((1 << WARPEDMODEL_PREC_BITS) - 1);
           const int offs_x = ROUND_POWER_OF_TWO(sx4, EXT_WARP_ROUND_BITS);
           assert(offs_x >= 0 && offs_x <= EXT_WARP_PHASES);
-          const int16_t *coeffs_x = av1_ext_warped_filter[offs_x];
+          const int16_t *coeffs_x = av2_ext_warped_filter[offs_x];
 
           // position in the unit of integer pixel
           int ix = (int32_t)(x_qn >> WARPEDMODEL_PREC_BITS);  // init_x + x;
@@ -1138,15 +1138,15 @@ void av1_ext_highbd_warp_affine_scaled_c(
       // Vertical filter
       int32_t *src_vert = im_block + fo_vert * im_stride;
 
-      for (int x = 0; x < AOMMIN(4, p_col + p_width - j); ++x) {
+      for (int x = 0; x < AVMMIN(4, p_col + p_width - j); ++x) {
         int64_t y_qn = subpel_y_qn;
-        for (int y = 0; y < AOMMIN(4, p_row + p_height - i);
+        for (int y = 0; y < AVMMIN(4, p_row + p_height - i);
              ++y, y_qn += y_step_qn) {
           // Extract the filter parameters
           int32_t sy4 = y_qn & ((1 << WARPEDMODEL_PREC_BITS) - 1);
           const int offs_y = ROUND_POWER_OF_TWO(sy4, EXT_WARP_ROUND_BITS);
           assert(offs_y >= 0 && offs_y <= EXT_WARP_PHASES);
-          const int16_t *coeffs_y = av1_ext_warped_filter[offs_y];
+          const int16_t *coeffs_y = av2_ext_warped_filter[offs_y];
 
           const int32_t *src_vert_y =
               &src_vert[(y_qn >> WARPEDMODEL_PREC_BITS) * im_stride];
@@ -1200,7 +1200,7 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
                        int bd, ConvolveParams *conv_params,
                        const struct scale_factors *sf, int use_warp_bd_box,
                        PadBlock *warp_bd_box) {
-  const int is_scaled = sf ? av1_is_scaled(sf) : 0;
+  const int is_scaled = sf ? av2_is_scaled(sf) : 0;
   assert(wm->wmtype <= AFFINE);
   if (wm->wmtype == ROTZOOM) {
     wm->wmmat[5] = wm->wmmat[2];
@@ -1220,25 +1220,25 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
   if (!wm->use_affine_filter || p_width < 8 || p_height < 8 || is_scaled) {
     WarpedMotionParams wm_scaled = *wm;
     if (is_scaled) {
-      av1_ext_highbd_warp_affine_scaled_c(
+      av2_ext_highbd_warp_affine_scaled_c(
           &wm_scaled.wmmat[0], ref, width, height, stride, pred, p_col, p_row,
           p_width, p_height, p_stride, subsampling_x, subsampling_y, bd,
           conv_params, sf, use_warp_bd_box, warp_bd_box);
     } else {
-      av1_ext_highbd_warp_affine(&wm_scaled.wmmat[0], ref, width, height,
+      av2_ext_highbd_warp_affine(&wm_scaled.wmmat[0], ref, width, height,
                                  stride, pred, p_col, p_row, p_width, p_height,
                                  p_stride, subsampling_x, subsampling_y, bd,
                                  conv_params, use_warp_bd_box, warp_bd_box);
     }
   } else {
-    av1_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
+    av2_highbd_warp_affine(mat, ref, width, height, stride, pred, p_col, p_row,
                            p_width, p_height, p_stride, subsampling_x,
                            subsampling_y, bd, conv_params, alpha, beta, gamma,
                            delta);
   }
 }
 
-void av1_warp_plane(WarpedMotionParams *wm, int bd, const uint16_t *ref,
+void av2_warp_plane(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                     int width, int height, int stride, uint16_t *pred,
                     int p_col, int p_row, int p_width, int p_height,
                     int p_stride, int subsampling_x, int subsampling_y,
@@ -1425,8 +1425,8 @@ static int find_affine_int(int np, const int *pts1, const int *pts2,
     wm->wmmat[5] = (1 << WARPEDMODEL_PREC_BITS);
     wm->wmmat[6] = 0;
     wm->wmmat[7] = 0;
-    av1_get_shear_params(wm, sf);
-    av1_set_warp_translation(mi_row, mi_col, bsize, mv, wm);
+    av2_get_shear_params(wm, sf);
+    av2_set_warp_translation(mi_row, mi_col, bsize, mv, wm);
     return 0;
   }
 
@@ -1454,18 +1454,18 @@ static int find_affine_int(int np, const int *pts1, const int *pts2,
   wm->wmmat[5] =
       clamp64_to_32(ROUND_POWER_OF_TWO_SIGNED_64(Py[1] * iDet, shift));
 
-  av1_reduce_warp_model(wm);
+  av2_reduce_warp_model(wm);
   // check compatibility with the fast warp filter
-  if (!av1_get_shear_params(wm, sf
+  if (!av2_get_shear_params(wm, sf
 
                             ))
     return 1;
-  av1_set_warp_translation(mi_row, mi_col, bsize, mv, wm);
+  av2_set_warp_translation(mi_row, mi_col, bsize, mv, wm);
   wm->wmmat[6] = wm->wmmat[7] = 0;
   return 0;
 }
 
-int av1_find_projection(int np, const int *pts1, const int *pts2,
+int av2_find_projection(int np, const int *pts1, const int *pts2,
                         BLOCK_SIZE bsize, MV mv, WarpedMotionParams *wm_params,
                         int mi_row, int mi_col, const struct scale_factors *sf
 
@@ -1495,7 +1495,7 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
     Returns 0 if  the resulting model can be used with the warp filter,
     1 if not.
 */
-int av1_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
+int av2_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
                           const MV *center_mv, const int mi_row,
                           const int mi_col,
                           const WarpedMotionParams *neighbor_wm,
@@ -1581,15 +1581,15 @@ int av1_extend_warp_model(const bool neighbor_is_above, const BLOCK_SIZE bsize,
         ROUND_POWER_OF_TWO_64(proj_center_y - proj_left_y, half_width_log2));
   }
 
-  av1_reduce_warp_model(wm_params);
+  av2_reduce_warp_model(wm_params);
   // check compatibility with the fast warp filter
-  if (!av1_get_shear_params(wm_params, sf)) {
+  if (!av2_get_shear_params(wm_params, sf)) {
     wm_params->invalid = 1;
     return 1;
   }
 
   // Derive translational part from signaled MV
-  av1_set_warp_translation(mi_row, mi_col, bsize, *center_mv, wm_params);
+  av2_set_warp_translation(mi_row, mi_col, bsize, *center_mv, wm_params);
   wm_params->invalid = 0;
   return 0;
 }
@@ -1728,10 +1728,10 @@ int get_model_from_corner_mvs(WarpedMotionParams *derive_model, int *pts,
   derive_model->wmtype = AFFINE;
   derive_model->invalid = 0;
 
-  av1_reduce_warp_model(derive_model);
+  av2_reduce_warp_model(derive_model);
 
   // check compatibility with the fast warp filter
-  if (!av1_get_shear_params(derive_model, sf
+  if (!av2_get_shear_params(derive_model, sf
 
                             )) {
     derive_model->invalid = 1;

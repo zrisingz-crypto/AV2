@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_HR_CODING_H_
-#define AOM_AV1_COMMON_HR_CODING_H_
+#ifndef AVM_AV2_COMMON_HR_CODING_H_
+#define AVM_AV2_COMMON_HR_CODING_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/bitreader.h"
-#include "aom_dsp/bitwriter.h"
-#include "av1/common/blockd.h"
+#include "avm_dsp/bitreader.h"
+#include "avm_dsp/bitwriter.h"
+#include "av2/common/blockd.h"
 
 /*!\brief Calculate the code length of an input symbol when it is coded
  * using Exp-Golomb code with order k
@@ -150,4 +150,4 @@ int get_adaptive_hr_length(int level, int ctx);
  */
 int get_adaptive_hr_length_diff(int level, int ctx, int *diff);
 
-#endif  // AOM_AV1_COMMON_HR_CODING_H_
+#endif  // AVM_AV2_COMMON_HR_CODING_H_

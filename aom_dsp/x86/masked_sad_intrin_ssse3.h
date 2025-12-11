@@ -10,26 +10,26 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_
-#define AOM_AOM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_
+#ifndef AVM_AVM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_
+#define AVM_AVM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_
 
-unsigned int aom_masked_sad8xh_ssse3(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_masked_sad8xh_ssse3(const uint8_t *src_ptr, int src_stride,
                                      const uint8_t *a_ptr, int a_stride,
                                      const uint8_t *b_ptr, int b_stride,
                                      const uint8_t *m_ptr, int m_stride,
                                      int height);
 
-unsigned int aom_masked_sad4xh_ssse3(const uint8_t *src_ptr, int src_stride,
+unsigned int avm_masked_sad4xh_ssse3(const uint8_t *src_ptr, int src_stride,
                                      const uint8_t *a_ptr, int a_stride,
                                      const uint8_t *b_ptr, int b_stride,
                                      const uint8_t *m_ptr, int m_stride,
                                      int height);
 
-unsigned int aom_highbd_masked_sad4xh_ssse3(const uint16_t *src_ptr,
+unsigned int avm_highbd_masked_sad4xh_ssse3(const uint16_t *src_ptr,
                                             int src_stride,
                                             const uint16_t *a_ptr, int a_stride,
                                             const uint16_t *b_ptr, int b_stride,
                                             const uint8_t *m_ptr, int m_stride,
                                             int height);
 
-#endif  // AOM_AOM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_
+#endif  // AVM_AVM_DSP_X86_MASKED_SAD_INTRIN_SSSE3_H_

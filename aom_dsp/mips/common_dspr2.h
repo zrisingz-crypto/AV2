@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MIPS_COMMON_DSPR2_H_
-#define AOM_AOM_DSP_MIPS_COMMON_DSPR2_H_
+#ifndef AVM_AVM_DSP_MIPS_COMMON_DSPR2_H_
+#define AVM_AVM_DSP_MIPS_COMMON_DSPR2_H_
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +25,7 @@ extern "C" {
 #if HAVE_DSPR2
 #define CROP_WIDTH 512
 
-extern uint8_t *aom_ff_cropTbl;  // From "aom_dsp/mips/intrapred4_dspr2.c"
+extern uint8_t *avm_ff_cropTbl;  // From "avm_dsp/mips/intrapred4_dspr2.c"
 
 static INLINE void prefetch_load(const unsigned char *src) {
   __asm__ __volatile__("pref   0,  0(%[src])   \n\t" : : [src] "r"(src));
@@ -49,4 +49,4 @@ static INLINE void prefetch_store_streamed(unsigned char *dst) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_MIPS_COMMON_DSPR2_H_
+#endif  // AVM_AVM_DSP_MIPS_COMMON_DSPR2_H_

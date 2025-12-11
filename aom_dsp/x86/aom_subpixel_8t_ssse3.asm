@@ -21,7 +21,7 @@ even_byte_mask: times 8 dw 0x00ff
 ; NOTE: pmulhrsw has a latency of 5 cycles.  Tests showed a performance loss
 ; when using this instruction.
 ;
-; The add order below (based on ffav1) must be followed to prevent outranges.
+; The add order below (based on ffav2) must be followed to prevent outranges.
 ; x = k0k1 + k4k5
 ; y = k2k3 + k6k7
 ; z = signed SAT(x + y)

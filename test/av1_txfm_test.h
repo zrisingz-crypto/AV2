@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_TEST_AV1_TXFM_TEST_H_
-#define AOM_TEST_AV1_TXFM_TEST_H_
+#ifndef AVM_TEST_AV2_TXFM_TEST_H_
+#define AVM_TEST_AV2_TXFM_TEST_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,16 +20,16 @@
 #endif
 #include <math.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 #include "test/acm_random.h"
-#include "av1/common/av1_txfm.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "av2/common/av2_txfm.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 
-namespace libaom_test {
+namespace libavm_test {
 static INLINE bool IsTxSizeTypeValid(TX_SIZE tx_size, TX_TYPE tx_type) {
   const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];
   const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
@@ -45,7 +45,7 @@ static INLINE bool IsTxSizeTypeValid(TX_SIZE tx_size, TX_TYPE tx_type) {
   }
   if (tx_set_type == EXT_TX_SET_LONG_SIDE_64 ||
       tx_set_type == EXT_TX_SET_LONG_SIDE_32) {
-    uint16_t ext_tx_used_flag = av1_ext_tx_used_flag[tx_set_type];
+    uint16_t ext_tx_used_flag = av2_ext_tx_used_flag[tx_set_type];
     adjust_ext_tx_used_flag(tx_size, tx_set_type, &ext_tx_used_flag);
 
     if (!(ext_tx_used_flag & (1 << get_primary_tx_type(tx_type)))) {
@@ -54,7 +54,7 @@ static INLINE bool IsTxSizeTypeValid(TX_SIZE tx_size, TX_TYPE tx_type) {
       return 1;
     }
   }
-  return av1_ext_tx_used[tx_set_type][tx_type] != 0;
+  return av2_ext_tx_used[tx_set_type][tx_type] != 0;
 }
-}  // namespace libaom_test
-#endif  // AOM_TEST_AV1_TXFM_TEST_H_
+}  // namespace libavm_test
+#endif  // AVM_TEST_AV2_TXFM_TEST_H_

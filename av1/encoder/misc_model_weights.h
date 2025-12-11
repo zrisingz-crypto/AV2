@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_MISC_MODEL_WEIGHTS_H_
-#define AOM_AV1_ENCODER_MISC_MODEL_WEIGHTS_H_
+#ifndef AVM_AV2_ENCODER_MISC_MODEL_WEIGHTS_H_
+#define AVM_AV2_ENCODER_MISC_MODEL_WEIGHTS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/encoder/ml.h"
+#include "av2/encoder/ml.h"
 
 #define MV_PREC_FEATURE_SIZE 18
 
@@ -26,7 +26,7 @@ extern "C" {
 #define MV_PREC_LAYER_SIZE_0 32
 #define NUM_LOGITS 1
 
-const float av1_mv_prec_mean[MV_PREC_FEATURE_SIZE] = { 143.67358891063745f,
+const float av2_mv_prec_mean[MV_PREC_FEATURE_SIZE] = { 143.67358891063745f,
                                                        141.6251917346238f,
                                                        0.36313633945679064f,
                                                        0.0028162791958822085f,
@@ -45,7 +45,7 @@ const float av1_mv_prec_mean[MV_PREC_FEATURE_SIZE] = { 143.67358891063745f,
                                                        5.518483124004564f,
                                                        87.63597847427077f };
 
-const float av1_mv_prec_std[MV_PREC_FEATURE_SIZE] = { 66.86256140247244f,
+const float av2_mv_prec_std[MV_PREC_FEATURE_SIZE] = { 66.86256140247244f,
                                                       68.04472572607503f,
                                                       13.23247674430399f,
                                                       0.0029123438396921955f,
@@ -64,7 +64,7 @@ const float av1_mv_prec_std[MV_PREC_FEATURE_SIZE] = { 66.86256140247244f,
                                                       3.8911353973740535f,
                                                       112.07985259573601f };
 
-const float av1_mv_prec_nn_weights_layer_0[] = { -0.13008492159557145f,
+const float av2_mv_prec_nn_weights_layer_0[] = { -0.13008492159557145f,
                                                  -0.1483527373474774f,
                                                  0.08112076098858864f,
                                                  -0.9582568679627453f,
@@ -641,7 +641,7 @@ const float av1_mv_prec_nn_weights_layer_0[] = { -0.13008492159557145f,
                                                  -0.4351697502345834f,
                                                  -0.33253649399571805f };
 
-const float av1_mv_prec_nn_bias_layer_0[] = {
+const float av2_mv_prec_nn_bias_layer_0[] = {
   -0.651213833993862f,   -1.1243309933417809f,  -0.2123880023097051f,
   0.23095477452877616f,  -0.6668057665893545f,  0.3082268148379634f,
   -0.3344916753975844f,  -0.20920185606857844f, 0.6057933917964854f,
@@ -655,7 +655,7 @@ const float av1_mv_prec_nn_bias_layer_0[] = {
   -0.41957330902404616f, -0.9658160514319954f
 };
 
-const float av1_mv_prec_nn_weights_layer_1[] = {
+const float av2_mv_prec_nn_weights_layer_1[] = {
   1.5017296484510276f,  1.044216918060133f,   -1.066541411740906f,
   -0.7762965171172661f, -0.9814396609661653f, 0.9334065847340715f,
   0.7117244268817873f,  -0.7695942296628597f, 0.7892157680137047f,
@@ -669,20 +669,20 @@ const float av1_mv_prec_nn_weights_layer_1[] = {
   -1.249673977776904f,  -1.2890127265725608f
 };
 
-const float av1_mv_prec_nn_bias_layer_1[] = { -0.341771735378258f };
+const float av2_mv_prec_nn_bias_layer_1[] = { -0.341771735378258f };
 
-static const NN_CONFIG av1_mv_prec_dnn_config = {
+static const NN_CONFIG av2_mv_prec_dnn_config = {
   NUM_DNN_FEATURES,
   NUM_LOGITS,
   NUM_DNN_LAYERS,
   { MV_PREC_LAYER_SIZE_0 },
   {
-      av1_mv_prec_nn_weights_layer_0,
-      av1_mv_prec_nn_weights_layer_1,
+      av2_mv_prec_nn_weights_layer_0,
+      av2_mv_prec_nn_weights_layer_1,
   },
   {
-      av1_mv_prec_nn_bias_layer_0,
-      av1_mv_prec_nn_bias_layer_1,
+      av2_mv_prec_nn_bias_layer_0,
+      av2_mv_prec_nn_bias_layer_1,
   },
 };
 #undef NUM_DNN_LAYERS
@@ -694,4 +694,4 @@ static const NN_CONFIG av1_mv_prec_dnn_config = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_MISC_MODEL_WEIGHTS_H_
+#endif  // AVM_AV2_ENCODER_MISC_MODEL_WEIGHTS_H_

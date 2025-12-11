@@ -10,34 +10,34 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/x86/convolve.h"
+#include "avm_dsp/x86/convolve.h"
 
 #if HAVE_SSE2
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_v8_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_h8_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_v8_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_h8_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_v8_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_h8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_v8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_h8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_v8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_h8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_v8_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_h8_sse2;
 
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_v4_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_h4_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_v4_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_h4_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_v4_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_h4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_v4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_h4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_v4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_h4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_v4_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_h4_sse2;
 
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_v2_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d16_h2_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_v2_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d8_h2_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_v2_sse2;
-highbd_filter8_1dfunction aom_highbd_filter_block1d4_h2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_v2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d16_h2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_v2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d8_h2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_v2_sse2;
+highbd_filter8_1dfunction avm_highbd_filter_block1d4_h2_sse2;
 
-// void aom_highbd_convolve8_horiz_sse2(const uint8_t *src,
+// void avm_highbd_convolve8_horiz_sse2(const uint8_t *src,
 //                                      ptrdiff_t src_stride,
 //                                      uint8_t *dst,
 //                                      ptrdiff_t dst_stride,
@@ -46,7 +46,7 @@ highbd_filter8_1dfunction aom_highbd_filter_block1d4_h2_sse2;
 //                                      const int16_t *filter_y,
 //                                      int y_step_q4,
 //                                      int w, int h, int bd);
-// void aom_highbd_convolve8_vert_sse2(const uint8_t *src,
+// void avm_highbd_convolve8_vert_sse2(const uint8_t *src,
 //                                     ptrdiff_t src_stride,
 //                                     uint8_t *dst,
 //                                     ptrdiff_t dst_stride,

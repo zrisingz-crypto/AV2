@@ -15,15 +15,15 @@
 #include <string.h>
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 #include "common/obudec.h"
 #include "common/tools_common.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem_ops.h"
-#include "av1/common/common.h"
-#include "av1/common/obu_util.h"
-#include "av1/common/enums.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_ports/mem_ops.h"
+#include "av2/common/common.h"
+#include "av2/common/obu_util.h"
+#include "av2/common/enums.h"
 
 /*!\brief Maximum OBU header size in bytes. */
 #define OBU_HEADER_SIZE 1
@@ -57,7 +57,7 @@ static int obudec_read_leb128(FILE *f, uint8_t *value_buffer,
     }
   }
 
-  return aom_uleb_decode(value_buffer, len, value, NULL);
+  return avm_uleb_decode(value_buffer, len, value, NULL);
 }
 
 // Returns the OBU header size (1 or 2) on success. Returns -1 on EOF. Returns
@@ -332,8 +332,8 @@ int obudec_read_temporal_unit(struct ObuDecInputContext *obu_ctx,
     return -1;
   }
 
-#if defined AOM_MAX_ALLOCABLE_MEMORY
-  if (tu_size > AOM_MAX_ALLOCABLE_MEMORY) {
+#if defined AVM_MAX_ALLOCABLE_MEMORY
+  if (tu_size > AVM_MAX_ALLOCABLE_MEMORY) {
     fprintf(stderr, "obudec: Temporal Unit size exceeds max alloc size.\n");
     return -1;
   }

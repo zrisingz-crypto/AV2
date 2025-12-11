@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_GLOBAL_MOTION_H_
-#define AOM_AV1_ENCODER_GLOBAL_MOTION_H_
+#ifndef AVM_AV2_ENCODER_GLOBAL_MOTION_H_
+#define AVM_AV2_ENCODER_GLOBAL_MOTION_H_
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/flow_estimation/flow_estimation.h"
-#include "aom_scale/yv12config.h"
-#include "aom_util/aom_thread.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
+#include "avm_scale/yv12config.h"
+#include "avm_util/avm_thread.h"
 
-#include "av1/common/mv.h"
-#include "av1/common/warped_motion.h"
+#include "av2/common/mv.h"
+#include "av2/common/warped_motion.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,7 +82,7 @@ typedef struct {
 
   // Number of workers for which thread_data is allocated.
   int8_t allocated_workers;
-} AV1GlobalMotionSync;
+} AV2GlobalMotionSync;
 
 // Criteria for accepting a global motion model
 static const double erroradv_tr = 0.65;
@@ -99,26 +99,26 @@ static const double erroradv_prod_tr = 20000;
 //    threshold even if the model is initially above the threshold
 static const double erroradv_early_tr = 0.70;
 
-int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost);
+int av2_is_enough_erroradvantage(double best_erroradvantage, int params_cost);
 
-int64_t av1_segmented_frame_error(int bd, const uint16_t *ref, int ref_stride,
+int64_t av2_segmented_frame_error(int bd, const uint16_t *ref, int ref_stride,
                                   uint16_t *dst, int dst_stride, int p_width,
                                   int p_height, uint8_t *segment_map,
                                   int segment_map_stride);
 
 // Returns the error between the result of applying motion 'wm' to the frame
 // described by 'ref' and the frame described by 'dst'.
-int64_t av1_warp_error(WarpedMotionParams *wm, int bd, const uint16_t *ref,
+int64_t av2_warp_error(WarpedMotionParams *wm, int bd, const uint16_t *ref,
                        int ref_width, int ref_height, int ref_stride,
                        uint16_t *dst, int dst_stride, int p_col, int p_row,
                        int p_width, int p_height, int subsampling_x,
                        int subsampling_y, int64_t best_error,
                        uint8_t *segment_map, int segment_map_stride);
 
-// Returns the av1_warp_error between "dst" and the result of applying the
+// Returns the av2_warp_error between "dst" and the result of applying the
 // motion params that result from fine-tuning "wm" to "ref". Note that "wm" is
 // modified in place.
-int64_t av1_refine_integerized_param(
+int64_t av2_refine_integerized_param(
     WarpedMotionParams *wm, TransformationType wmtype, int bd, uint16_t *ref,
     int r_width, int r_height, int r_stride, uint16_t *dst, int d_width,
     int d_height, int d_stride, int n_refinements, int64_t ref_frame_error,
@@ -126,11 +126,11 @@ int64_t av1_refine_integerized_param(
 
 );
 
-void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
+void av2_compute_feature_segmentation_map(uint8_t *segment_map, int width,
                                           int height, int *inliers,
                                           int num_inliers);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_ENCODER_GLOBAL_MOTION_H_
+#endif  // AVM_AV2_ENCODER_GLOBAL_MOTION_H_

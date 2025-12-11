@@ -14,52 +14,52 @@
 // Internal implementation details
 ///////////////////////////////////////////////////////////////////////////////
 //
-// There are two levels of interfaces used to access the AOM codec: the
-// the aom_codec_iface and the aom_codec_ctx.
+// There are two levels of interfaces used to access the AVM codec: the
+// the avm_codec_iface and the avm_codec_ctx.
 //
-// 1. aom_codec_iface_t
-//    (Related files: aom/aom_codec.h, aom/src/aom_codec.c,
-//    aom/internal/aom_codec_internal.h, av1/av1_cx_iface.c,
-//    av1/av1_dx_iface.c)
+// 1. avm_codec_iface_t
+//    (Related files: avm/avm_codec.h, avm/src/avm_codec.c,
+//    avm/internal/avm_codec_internal.h, av2/av2_cx_iface.c,
+//    av2/av2_dx_iface.c)
 //
 // Used to initialize the codec context, which contains the configuration for
 // for modifying the encoder/decoder during run-time. See the other
 // documentation in this header file for more details. For the most part,
-// users will call helper functions, such as aom_codec_iface_name,
-// aom_codec_get_caps, etc., to interact with it.
+// users will call helper functions, such as avm_codec_iface_name,
+// avm_codec_get_caps, etc., to interact with it.
 //
-// The main purpose of the aom_codec_iface_t is to provide a way to generate
+// The main purpose of the avm_codec_iface_t is to provide a way to generate
 // a default codec config, find out what capabilities the implementation has,
-// and create an aom_codec_ctx_t (which is actually used to interact with the
+// and create an avm_codec_ctx_t (which is actually used to interact with the
 // codec).
 //
-// Note that the implementations for the AV1 algorithm are located in
-// av1/av1_cx_iface.c and av1/av1_dx_iface.c
+// Note that the implementations for the AV2 algorithm are located in
+// av2/av2_cx_iface.c and av2/av2_dx_iface.c
 //
 //
-// 2. aom_codec_ctx_t
-//  (Related files: aom/aom_codec.h, av1/av1_cx_iface.c, av1/av1_dx_iface.c,
-//   aom/aomcx.h, aom/aomdx.h, aom/src/aom_encoder.c, aom/src/aom_decoder.c)
+// 2. avm_codec_ctx_t
+//  (Related files: avm/avm_codec.h, av2/av2_cx_iface.c, av2/av2_dx_iface.c,
+//   avm/avmcx.h, avm/avmdx.h, avm/src/avm_encoder.c, avm/src/avm_decoder.c)
 //
 // The actual interface between user code and the codec. It stores the name
-// of the codec, a pointer back to the aom_codec_iface_t that initialized it,
+// of the codec, a pointer back to the avm_codec_iface_t that initialized it,
 // initialization flags, a config for either encoder or the decoder, and a
 // pointer to internal data.
 //
-// The codec is configured / queried through calls to aom_codec_control,
-// which takes a control ID (listed in aomcx.h and aomdx.h) and a parameter.
+// The codec is configured / queried through calls to avm_codec_control,
+// which takes a control ID (listed in avmcx.h and avmdx.h) and a parameter.
 // In the case of "getter" control IDs, the parameter is modified to have
 // the requested value; in the case of "setter" control IDs, the codec's
-// configuration is changed based on the parameter. Note that a aom_codec_err_t
+// configuration is changed based on the parameter. Note that a avm_codec_err_t
 // is returned, which indicates if the operation was successful or not.
 //
-// Note that for the encoder, the aom_codec_alg_priv_t points to the
-// the aom_codec_alg_priv structure in av1/av1_cx_iface.c, and for the decoder,
-// the struct in av1/av1_dx_iface.c. Variables such as AV1_COMP cpi are stored
+// Note that for the encoder, the avm_codec_alg_priv_t points to the
+// the avm_codec_alg_priv structure in av2/av2_cx_iface.c, and for the decoder,
+// the struct in av2/av2_dx_iface.c. Variables such as AV2_COMP cpi are stored
 // here and also used in the core algorithm.
 //
-// At the end, aom_codec_destroy should be called for each initialized
-// aom_codec_ctx_t.
+// At the end, avm_codec_destroy should be called for each initialized
+// avm_codec_ctx_t.
 
 /*!\defgroup codec Common Algorithm Interface
  * This abstraction allows applications to easily support multiple video
@@ -75,62 +75,62 @@
  * video codec algorithm.
  *
  * An application instantiates a specific codec instance by using
- * aom_codec_dec_init() or aom_codec_enc_init() and a pointer to the
+ * avm_codec_dec_init() or avm_codec_enc_init() and a pointer to the
  * algorithm's interface structure:
  *     <pre>
  *     my_app.c:
- *       extern aom_codec_iface_t my_codec;
+ *       extern avm_codec_iface_t my_codec;
  *       {
- *           aom_codec_ctx_t algo;
+ *           avm_codec_ctx_t algo;
  *           int threads = 4;
- *           aom_codec_dec_cfg_t cfg = { threads, 0, 0 };
- *           res = aom_codec_dec_init(&algo, &my_codec, &cfg, 0);
+ *           avm_codec_dec_cfg_t cfg = { threads, 0, 0 };
+ *           res = avm_codec_dec_init(&algo, &my_codec, &cfg, 0);
  *       }
  *     </pre>
  *
  * Once initialized, the instance is managed using other functions from
- * the aom_codec_* family.
+ * the avm_codec_* family.
  */
-#ifndef AOM_AOM_AOM_CODEC_H_
-#define AOM_AOM_AOM_CODEC_H_
+#ifndef AVM_AVM_AVM_CODEC_H_
+#define AVM_AVM_AVM_CODEC_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_image.h"
-#include "aom/aom_integer.h"
+#include "avm/avm_image.h"
+#include "avm/avm_integer.h"
 
 /*!\brief Decorator indicating a function is deprecated */
-#ifndef AOM_DEPRECATED
+#ifndef AVM_DEPRECATED
 #if defined(__GNUC__) && __GNUC__
-#define AOM_DEPRECATED __attribute__((deprecated))
+#define AVM_DEPRECATED __attribute__((deprecated))
 #elif defined(_MSC_VER)
-#define AOM_DEPRECATED
+#define AVM_DEPRECATED
 #else
-#define AOM_DEPRECATED
+#define AVM_DEPRECATED
 #endif
-#endif /* AOM_DEPRECATED */
+#endif /* AVM_DEPRECATED */
 
-#ifndef AOM_DECLSPEC_DEPRECATED
+#ifndef AVM_DECLSPEC_DEPRECATED
 #if defined(__GNUC__) && __GNUC__
-#define AOM_DECLSPEC_DEPRECATED /**< \copydoc #AOM_DEPRECATED */
+#define AVM_DECLSPEC_DEPRECATED /**< \copydoc #AVM_DEPRECATED */
 #elif defined(_MSC_VER)
-/*!\brief \copydoc #AOM_DEPRECATED */
-#define AOM_DECLSPEC_DEPRECATED __declspec(deprecated)
+/*!\brief \copydoc #AVM_DEPRECATED */
+#define AVM_DECLSPEC_DEPRECATED __declspec(deprecated)
 #else
-#define AOM_DECLSPEC_DEPRECATED /**< \copydoc #AOM_DEPRECATED */
+#define AVM_DECLSPEC_DEPRECATED /**< \copydoc #AVM_DEPRECATED */
 #endif
-#endif /* AOM_DECLSPEC_DEPRECATED */
+#endif /* AVM_DECLSPEC_DEPRECATED */
 
 /*!\brief Decorator indicating a function is potentially unused */
-#ifdef AOM_UNUSED
+#ifdef AVM_UNUSED
 #elif defined(__GNUC__) || defined(__clang__)
-#define AOM_UNUSED __attribute__((unused))
+#define AVM_UNUSED __attribute__((unused))
 #else
-#define AOM_UNUSED
+#define AVM_UNUSED
 #endif
 
 /*!\brief Decorator indicating that given struct/union/enum is packed */
@@ -152,31 +152,31 @@ extern "C" {
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
  */
-#define AOM_CODEC_ABI_VERSION (6 + AOM_IMAGE_ABI_VERSION) /**<\hideinitializer*/
+#define AVM_CODEC_ABI_VERSION (6 + AVM_IMAGE_ABI_VERSION) /**<\hideinitializer*/
 
 /*!\brief Algorithm return codes */
 typedef enum {
   /*!\brief Operation completed without error */
-  AOM_CODEC_OK,
+  AVM_CODEC_OK,
 
   /*!\brief Unspecified error */
-  AOM_CODEC_ERROR,
+  AVM_CODEC_ERROR,
 
   /*!\brief Memory operation failed */
-  AOM_CODEC_MEM_ERROR,
+  AVM_CODEC_MEM_ERROR,
 
   /*!\brief ABI version mismatch */
-  AOM_CODEC_ABI_MISMATCH,
+  AVM_CODEC_ABI_MISMATCH,
 
   /*!\brief Algorithm does not have required capability */
-  AOM_CODEC_INCAPABLE,
+  AVM_CODEC_INCAPABLE,
 
   /*!\brief The given bitstream is not supported.
    *
    * The bitstream was unable to be parsed at the highest level. The decoder
    * is unable to proceed. This error \ref SHOULD be treated as fatal to the
    * stream. */
-  AOM_CODEC_UNSUP_BITSTREAM,
+  AVM_CODEC_UNSUP_BITSTREAM,
 
   /*!\brief Encoded bitstream uses an unsupported feature
    *
@@ -185,7 +185,7 @@ typedef enum {
    * pictures from being properly decoded. This error \ref MAY be treated as
    * fatal to the stream or \ref MAY be treated as fatal to the current GOP.
    */
-  AOM_CODEC_UNSUP_FEATURE,
+  AVM_CODEC_UNSUP_FEATURE,
 
   /*!\brief The coded data for this stream is corrupt or incomplete
    *
@@ -195,73 +195,73 @@ typedef enum {
    * stream or \ref MAY be treated as fatal to the current GOP. If decoding
    * is continued for the current GOP, artifacts may be present.
    */
-  AOM_CODEC_CORRUPT_FRAME,
+  AVM_CODEC_CORRUPT_FRAME,
 
   /*!\brief An application-supplied parameter is not valid.
    *
    */
-  AOM_CODEC_INVALID_PARAM,
+  AVM_CODEC_INVALID_PARAM,
 
   /*!\brief An iterator reached the end of list.
    *
    */
-  AOM_CODEC_LIST_END
+  AVM_CODEC_LIST_END
 
-} aom_codec_err_t;
+} avm_codec_err_t;
 
 /*! \brief Codec capabilities bitfield
  *
  *  Each codec advertises the capabilities it supports as part of its
- *  ::aom_codec_iface_t interface structure. Capabilities are extra interfaces
+ *  ::avm_codec_iface_t interface structure. Capabilities are extra interfaces
  *  or functionality, and are not required to be supported.
  *
- *  The available flags are specified by AOM_CODEC_CAP_* defines.
+ *  The available flags are specified by AVM_CODEC_CAP_* defines.
  */
-typedef long aom_codec_caps_t;
-#define AOM_CODEC_CAP_DECODER 0x1 /**< Is a decoder */
-#define AOM_CODEC_CAP_ENCODER 0x2 /**< Is an encoder */
+typedef long avm_codec_caps_t;
+#define AVM_CODEC_CAP_DECODER 0x1 /**< Is a decoder */
+#define AVM_CODEC_CAP_ENCODER 0x2 /**< Is an encoder */
 
 /*! \brief Initialization-time Feature Enabling
  *
  *  Certain codec features must be known at initialization time, to allow for
  *  proper memory allocation.
  *
- *  The available flags are specified by AOM_CODEC_USE_* defines.
+ *  The available flags are specified by AVM_CODEC_USE_* defines.
  */
-typedef long aom_codec_flags_t;
+typedef long avm_codec_flags_t;
 
 /*!\brief Time Stamp Type
  *
  * An integer, which when multiplied by the stream's time base, provides
  * the absolute time of a sample.
  */
-typedef int64_t aom_codec_pts_t;
+typedef int64_t avm_codec_pts_t;
 
 /*!\brief Codec interface structure.
  *
  * Contains function pointers and other data private to the codec
  * implementation. This structure is opaque to the application. Common
  * functions used with this structure:
- *   - aom_codec_iface_name(aom_codec_iface_t *iface): get the
+ *   - avm_codec_iface_name(avm_codec_iface_t *iface): get the
  *     name of the codec
- *   - aom_codec_get_caps(aom_codec_iface_t *iface): returns
+ *   - avm_codec_get_caps(avm_codec_iface_t *iface): returns
  *     the capabilities of the codec
- *   - aom_codec_enc_config_default: generate the default config for
- *     initializing the encoder (see documentation in aom_encoder.h)
- *   - aom_codec_dec_init, aom_codec_enc_init: initialize the codec context
- *     structure (see documentation on aom_codec_ctx).
+ *   - avm_codec_enc_config_default: generate the default config for
+ *     initializing the encoder (see documentation in avm_encoder.h)
+ *   - avm_codec_dec_init, avm_codec_enc_init: initialize the codec context
+ *     structure (see documentation on avm_codec_ctx).
  *
- * To get access to the AV1 encoder and decoder, use aom_codec_av1_cx() and
- *  aom_codec_av1_dx().
+ * To get access to the AV2 encoder and decoder, use avm_codec_av2_cx() and
+ *  avm_codec_av2_dx().
  */
-typedef const struct aom_codec_iface aom_codec_iface_t;
+typedef const struct avm_codec_iface avm_codec_iface_t;
 
 /*!\brief Codec private data structure.
  *
  * Contains data private to the codec implementation. This structure is opaque
  * to the application.
  */
-typedef struct aom_codec_priv aom_codec_priv_t;
+typedef struct avm_codec_priv avm_codec_priv_t;
 
 /*!\brief Compressed Frame Flags
  *
@@ -270,25 +270,25 @@ typedef struct aom_codec_priv aom_codec_priv_t;
  * can be used by an algorithm to provide additional detail, for example to
  * support frame types that are codec specific (MPEG-1 D-frames for example)
  */
-typedef uint32_t aom_codec_frame_flags_t;
-#define AOM_FRAME_IS_KEY 0x1 /**< frame is the start of a GOP */
+typedef uint32_t avm_codec_frame_flags_t;
+#define AVM_FRAME_IS_KEY 0x1 /**< frame is the start of a GOP */
 /*!\brief frame can be dropped without affecting the stream (no future frame
  * depends on this one) */
-#define AOM_FRAME_IS_DROPPABLE 0x2
+#define AVM_FRAME_IS_DROPPABLE 0x2
 /*!\brief this is an INTRA_ONLY frame */
-#define AOM_FRAME_IS_INTRAONLY 0x10
+#define AVM_FRAME_IS_INTRAONLY 0x10
 /*!\brief this is an S-frame */
-#define AOM_FRAME_IS_SWITCH 0x20
+#define AVM_FRAME_IS_SWITCH 0x20
 /*!\brief this is a key-frame dependent recovery-point frame */
-#define AOM_FRAME_IS_DELAYED_RANDOM_ACCESS_POINT 0x80
+#define AVM_FRAME_IS_DELAYED_RANDOM_ACCESS_POINT 0x80
 /*!\brief this frame has coded film frain params */
-#define AOM_FRAME_HAS_FILM_GRAIN_PARAMS 0x100
+#define AVM_FRAME_HAS_FILM_GRAIN_PARAMS 0x100
 
 /*!\brief Iterator
  *
  * Opaque storage used for iterating over lists.
  */
-typedef const void *aom_codec_iter_t;
+typedef const void *avm_codec_iter_t;
 
 /*!\brief Codec context structure
  *
@@ -298,31 +298,31 @@ typedef const void *aom_codec_iter_t;
  * may reference the 'name' member to get a printable description of the
  * algorithm.
  */
-typedef struct aom_codec_ctx {
+typedef struct avm_codec_ctx {
   const char *name;             /**< Printable interface name */
-  aom_codec_iface_t *iface;     /**< Interface pointers */
-  aom_codec_err_t err;          /**< Last returned error */
+  avm_codec_iface_t *iface;     /**< Interface pointers */
+  avm_codec_err_t err;          /**< Last returned error */
   const char *err_detail;       /**< Detailed info, if available */
-  aom_codec_flags_t init_flags; /**< Flags passed at init time */
+  avm_codec_flags_t init_flags; /**< Flags passed at init time */
   union {
     /**< Decoder Configuration Pointer */
-    const struct aom_codec_dec_cfg *dec;
+    const struct avm_codec_dec_cfg *dec;
     /**< Encoder Configuration Pointer */
-    const struct aom_codec_enc_cfg *enc;
+    const struct avm_codec_enc_cfg *enc;
     const void *raw;
   } config;               /**< Configuration pointer aliasing union */
-  aom_codec_priv_t *priv; /**< Algorithm private storage */
-} aom_codec_ctx_t;
+  avm_codec_priv_t *priv; /**< Algorithm private storage */
+} avm_codec_ctx_t;
 
 /*!\brief Bit depth for codec
  * *
  * This enumeration determines the bit depth of the codec.
  */
-typedef enum aom_bit_depth {
-  AOM_BITS_8 = 8,   /**<  8 bits */
-  AOM_BITS_10 = 10, /**< 10 bits */
-  AOM_BITS_12 = 12, /**< 12 bits */
-} aom_bit_depth_t;
+typedef enum avm_bit_depth {
+  AVM_BITS_8 = 8,   /**<  8 bits */
+  AVM_BITS_10 = 10, /**< 10 bits */
+  AVM_BITS_12 = 12, /**< 12 bits */
+} avm_bit_depth_t;
 
 #if CONFIG_CWG_E242_BITDEPTH
 /*!\brief Bit depth index
@@ -330,17 +330,17 @@ typedef enum aom_bit_depth {
  * The index correponds with each bitepth
  */
 enum {
-  AOM_BITDEPTH_0 = 0,        /**< 10 bits */
-  AOM_BITDEPTH_1 = 1,        /**< 8 bits */
-  AOM_BITDEPTH_2 = 2,        /**< 12 bits */
-  AOM_NUM_SUPPORTED_BITDEPTH /**<number of supported bitdepth>*/
+  AVM_BITDEPTH_0 = 0,        /**< 10 bits */
+  AVM_BITDEPTH_1 = 1,        /**< 8 bits */
+  AVM_BITDEPTH_2 = 2,        /**< 12 bits */
+  AVM_NUM_SUPPORTED_BITDEPTH /**<number of supported bitdepth>*/
 };
 
 /*!\brief Return the bitdepth
  *
  * Return the bitdepth corresponding to index
  */
-int av1_get_bitdepth_from_index(uint32_t bitdepth_lut_idx);
+int av2_get_bitdepth_from_index(uint32_t bitdepth_lut_idx);
 #endif  // CONFIG_CWG_E242_BITDEPTH
 
 /*!\brief Superblock size selection.
@@ -349,20 +349,20 @@ int av1_get_bitdepth_from_index(uint32_t bitdepth_lut_idx);
  * either be fixed at 64x64 or 128x128 pixels, or it can be dynamically
  * selected by the encoder for each frame.
  */
-typedef enum aom_superblock_size {
-  AOM_SUPERBLOCK_SIZE_64X64,   /**< Always use 64x64 superblocks. */
-  AOM_SUPERBLOCK_SIZE_128X128, /**< Always use 128x128 superblocks. */
-  AOM_SUPERBLOCK_SIZE_256X256, /**< Always use 256x256 superblocks. */
-  AOM_SUPERBLOCK_SIZE_DYNAMIC  /**< Select superblock size dynamically. */
-} aom_superblock_size_t;
+typedef enum avm_superblock_size {
+  AVM_SUPERBLOCK_SIZE_64X64,   /**< Always use 64x64 superblocks. */
+  AVM_SUPERBLOCK_SIZE_128X128, /**< Always use 128x128 superblocks. */
+  AVM_SUPERBLOCK_SIZE_256X256, /**< Always use 256x256 superblocks. */
+  AVM_SUPERBLOCK_SIZE_DYNAMIC  /**< Select superblock size dynamically. */
+} avm_superblock_size_t;
 
 /*
  * Library Version Number Interface
  *
  * For example, see the following sample return values:
- *     aom_codec_version()           (1<<16 | 2<<8 | 3)
- *     aom_codec_version_str()       "v1.2.3-rc1-16-gec6a1ba"
- *     aom_codec_version_extra_str() "rc1-16-gec6a1ba"
+ *     avm_codec_version()           (1<<16 | 2<<8 | 3)
+ *     avm_codec_version_str()       "v1.2.3-rc1-16-gec6a1ba"
+ *     avm_codec_version_extra_str() "rc1-16-gec6a1ba"
  */
 
 /*!\brief Return the version information (as an integer)
@@ -373,16 +373,16 @@ typedef enum aom_superblock_size {
  * may change in the future.
  *
  */
-int aom_codec_version(void);
+int avm_codec_version(void);
 
 /*!\brief Return the major version number */
-#define aom_codec_version_major() ((aom_codec_version() >> 16) & 0xff)
+#define avm_codec_version_major() ((avm_codec_version() >> 16) & 0xff)
 
 /*!\brief Return the minor version number */
-#define aom_codec_version_minor() ((aom_codec_version() >> 8) & 0xff)
+#define avm_codec_version_minor() ((avm_codec_version() >> 8) & 0xff)
 
 /*!\brief Return the patch version number */
-#define aom_codec_version_patch() ((aom_codec_version() >> 0) & 0xff)
+#define avm_codec_version_patch() ((avm_codec_version() >> 0) & 0xff)
 
 /*!\brief Return the version information (as a string)
  *
@@ -391,23 +391,23 @@ int aom_codec_version(void);
  * indicate release candidates, prerelease versions, etc.
  *
  */
-const char *aom_codec_version_str(void);
+const char *avm_codec_version_str(void);
 
 /*!\brief Return the version information (as a string)
  *
  * Returns a printable "extra string". This is the component of the string
- * returned by aom_codec_version_str() following the three digit version number.
+ * returned by avm_codec_version_str() following the three digit version number.
  *
  */
-const char *aom_codec_version_extra_str(void);
+const char *avm_codec_version_extra_str(void);
 
 /*!\brief Return the build configuration
  *
  * Returns a printable string containing an encoded version of the build
- * configuration. This may be useful to aom support.
+ * configuration. This may be useful to avm support.
  *
  */
-const char *aom_codec_build_config(void);
+const char *avm_codec_build_config(void);
 
 /*!\brief Return the name for a given interface
  *
@@ -416,7 +416,7 @@ const char *aom_codec_build_config(void);
  * \param[in]    iface     Interface pointer
  *
  */
-const char *aom_codec_iface_name(aom_codec_iface_t *iface);
+const char *avm_codec_iface_name(avm_codec_iface_t *iface);
 
 /*!\brief Convert error number to printable string
  *
@@ -428,7 +428,7 @@ const char *aom_codec_iface_name(aom_codec_iface_t *iface);
  * \param[in]    err     Error number.
  *
  */
-const char *aom_codec_err_to_string(aom_codec_err_t err);
+const char *avm_codec_err_to_string(avm_codec_err_t err);
 
 /*!\brief Retrieve error synopsis for codec context
  *
@@ -440,7 +440,7 @@ const char *aom_codec_err_to_string(aom_codec_err_t err);
  * \param[in]    ctx     Pointer to this instance's context.
  *
  */
-const char *aom_codec_error(aom_codec_ctx_t *ctx);
+const char *avm_codec_error(avm_codec_ctx_t *ctx);
 
 /*!\brief Retrieve detailed error information for codec context
  *
@@ -452,7 +452,7 @@ const char *aom_codec_error(aom_codec_ctx_t *ctx);
  * \retval NULL
  *     No detailed information is available.
  */
-const char *aom_codec_error_detail(aom_codec_ctx_t *ctx);
+const char *avm_codec_error_detail(avm_codec_ctx_t *ctx);
 
 /* REQUIRED FUNCTIONS
  *
@@ -466,12 +466,12 @@ const char *aom_codec_error_detail(aom_codec_ctx_t *ctx);
  *
  * \param[in] ctx   Pointer to this instance's context
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The codec algorithm initialized.
- * \retval #AOM_CODEC_MEM_ERROR
+ * \retval #AVM_CODEC_MEM_ERROR
  *     Memory allocation failed.
  */
-aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx);
+avm_codec_err_t avm_codec_destroy(avm_codec_ctx_t *ctx);
 
 /*!\brief Get the capabilities of an algorithm.
  *
@@ -480,42 +480,42 @@ aom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx);
  * \param[in] iface   Pointer to the algorithm interface
  *
  */
-aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
+avm_codec_caps_t avm_codec_get_caps(avm_codec_iface_t *iface);
 
 /*!\name Codec Control
  *
- * The aom_codec_control function exchanges algorithm specific data with the
- * codec instance. Additionally, the macro AOM_CODEC_CONTROL_TYPECHECKED is
+ * The avm_codec_control function exchanges algorithm specific data with the
+ * codec instance. Additionally, the macro AVM_CODEC_CONTROL_TYPECHECKED is
  * provided, which will type-check the parameter against the control ID before
- * calling aom_codec_control - note that this macro requires the control ID
+ * calling avm_codec_control - note that this macro requires the control ID
  * to be directly encoded in it, e.g.,
- * AOM_CODEC_CONTROL_TYPECHECKED(&ctx, AOME_SET_CPUUSED, 8).
+ * AVM_CODEC_CONTROL_TYPECHECKED(&ctx, AVME_SET_CPUUSED, 8).
  *
- * The codec control IDs can be found in aom.h, aomcx.h, and aomdx.h
- * (defined as aom_com_control_id, aome_enc_control_id, and aom_dec_control_id).
+ * The codec control IDs can be found in avm.h, avmcx.h, and avmdx.h
+ * (defined as avm_com_control_id, avme_enc_control_id, and avm_dec_control_id).
  * @{
  */
 /*!\brief Algorithm Control
  *
- * aom_codec_control takes a context, a control ID, and a third parameter
+ * avm_codec_control takes a context, a control ID, and a third parameter
  * (with varying type). If the context is non-null and an error occurs,
  * ctx->err will be set to the same value as the return value.
  *
  * \param[in]     ctx              Pointer to this instance's context
  * \param[in]     ctrl_id          Algorithm specific control identifier
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The control request was processed.
- * \retval #AOM_CODEC_ERROR
+ * \retval #AVM_CODEC_ERROR
  *     The control request was not processed.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     The data was not valid.
  */
-aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);
+avm_codec_err_t avm_codec_control(avm_codec_ctx_t *ctx, int ctrl_id, ...);
 
 /*!\brief Key & Value API
  *
- * aom_codec_set_option() takes a context, a key (option name) and a value. If
+ * avm_codec_set_option() takes a context, a key (option name) and a value. If
  * the context is non-null and an error occurs, ctx->err will be set to the same
  * value as the return value.
  *
@@ -523,40 +523,40 @@ aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);
  * \param[in]     name             The name of the option (key)
  * \param[in]     value            The value of the option
  *
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  *     The value of the option was set.
- * \retval #AOM_CODEC_INVALID_PARAM
+ * \retval #AVM_CODEC_INVALID_PARAM
  *     The data was not valid.
- * \retval #AOM_CODEC_ERROR
+ * \retval #AVM_CODEC_ERROR
  *     The option was not successfully set.
  */
-aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *name,
+avm_codec_err_t avm_codec_set_option(avm_codec_ctx_t *ctx, const char *name,
                                      const char *value);
 
-/*!\brief aom_codec_control wrapper macro (adds type-checking, less flexible)
+/*!\brief avm_codec_control wrapper macro (adds type-checking, less flexible)
  *
  * This macro allows for type safe conversions across the variadic parameter
- * to aom_codec_control(). However, it requires the explicit control ID
+ * to avm_codec_control(). However, it requires the explicit control ID
  * be passed in (it cannot be passed in via a variable) -- otherwise a compiler
- * error will occur. After the type checking, it calls aom_codec_control.
+ * error will occur. After the type checking, it calls avm_codec_control.
  */
-#define AOM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \
-  aom_codec_control_typechecked_##id(ctx, id, data) /**<\hideinitializer*/
+#define AVM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \
+  avm_codec_control_typechecked_##id(ctx, id, data) /**<\hideinitializer*/
 
-/*!\brief Creates typechecking mechanisms for aom_codec_control
+/*!\brief Creates typechecking mechanisms for avm_codec_control
  *
  * It defines a static function with the correctly typed arguments as a wrapper
- * to the type-unsafe aom_codec_control function. It also creates a typedef
+ * to the type-unsafe avm_codec_control function. It also creates a typedef
  * for each type.
  */
-#define AOM_CTRL_USE_TYPE(id, typ)                           \
-  static aom_codec_err_t aom_codec_control_typechecked_##id( \
-      aom_codec_ctx_t *, int, typ) AOM_UNUSED;               \
-  static aom_codec_err_t aom_codec_control_typechecked_##id( \
-      aom_codec_ctx_t *ctx, int ctrl, typ data) {            \
-    return aom_codec_control(ctx, ctrl, data);               \
+#define AVM_CTRL_USE_TYPE(id, typ)                           \
+  static avm_codec_err_t avm_codec_control_typechecked_##id( \
+      avm_codec_ctx_t *, int, typ) AVM_UNUSED;               \
+  static avm_codec_err_t avm_codec_control_typechecked_##id( \
+      avm_codec_ctx_t *ctx, int ctrl, typ data) {            \
+    return avm_codec_control(ctx, ctrl, data);               \
   } /**<\hideinitializer*/                                   \
-  typedef typ aom_codec_control_type_##id;
+  typedef typ avm_codec_control_type_##id;
 /*!@} end Codec Control group */
 
 /*!\brief OBU types. */
@@ -622,7 +622,7 @@ typedef enum ATTRIBUTE_PACKED {
 
 /*!\brief OBU metadata types. */
 typedef enum {
-  OBU_METADATA_TYPE_AOM_RESERVED_0 = 0,
+  OBU_METADATA_TYPE_AVM_RESERVED_0 = 0,
   OBU_METADATA_TYPE_HDR_CLL = 1,
   OBU_METADATA_TYPE_HDR_MDCV = 2,
   OBU_METADATA_TYPE_SCALABILITY = 3,
@@ -650,10 +650,10 @@ typedef enum {
  *
  * \param[in]     type            The OBU_TYPE to convert to string.
  */
-const char *aom_obu_type_to_string(OBU_TYPE type);
+const char *avm_obu_type_to_string(OBU_TYPE type);
 
 /*!@} - end defgroup codec*/
 #ifdef __cplusplus
 }
 #endif
-#endif  // AOM_AOM_AOM_CODEC_H_
+#endif  // AVM_AVM_AVM_CODEC_H_

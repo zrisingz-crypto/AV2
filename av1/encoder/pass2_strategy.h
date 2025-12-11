@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_PASS2_STRATEGY_H_
-#define AOM_AV1_ENCODER_PASS2_STRATEGY_H_
+#ifndef AVM_AV2_ENCODER_PASS2_STRATEGY_H_
+#define AVM_AV2_ENCODER_PASS2_STRATEGY_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct EncodeFrameParams;
 
 /*!
@@ -64,7 +64,7 @@ typedef struct {
 } GF_FRAME_STATS;
 /*!\cond */
 
-void av1_init_single_pass_lap(AV1_COMP *cpi);
+void av2_init_single_pass_lap(AV2_COMP *cpi);
 
 /*!\endcond */
 /*!\brief Main per frame entry point for second pass of two pass encode
@@ -85,7 +85,7 @@ void av1_init_single_pass_lap(AV1_COMP *cpi);
  * No return but analyses first pass stats and assigns a target
  * number of bits to the current frame and a target Q range.
  */
-void av1_get_second_pass_params(struct AV1_COMP *cpi,
+void av2_get_second_pass_params(struct AV2_COMP *cpi,
                                 struct EncodeFrameParams *const frame_params);
 
 /*!\brief Adjustments to two pass and rate control after each frame.
@@ -101,7 +101,7 @@ void av1_get_second_pass_params(struct AV1_COMP *cpi,
  * related data structures that for example track overshoot and
  * undershoot.
  */
-void av1_twopass_postencode_update(struct AV1_COMP *cpi);
+void av2_twopass_postencode_update(struct AV2_COMP *cpi);
 
 /*!\brief Distributes bits to frames in a group
  *
@@ -122,7 +122,7 @@ void av1_twopass_postencode_update(struct AV1_COMP *cpi);
  * No return but updates the rate control and group data structures
  * to reflect the allocation of bits.
  */
-void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
+void av2_gop_bit_allocation(const AV2_COMP *cpi, RATE_CONTROL *const rc,
                             GF_GROUP *gf_group, int is_key_frame, int use_arf,
                             int64_t gf_group_bits);
 
@@ -130,4 +130,4 @@ void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_PASS2_STRATEGY_H_
+#endif  // AVM_AV2_ENCODER_PASS2_STRATEGY_H_

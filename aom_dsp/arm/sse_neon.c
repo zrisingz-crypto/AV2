@@ -10,11 +10,11 @@
 
 #include <arm_neon.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/arm/sum_neon.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_dsp/arm/transpose_neon.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/arm/sum_neon.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_dsp/arm/transpose_neon.h"
 
 static INLINE uint32_t highbd_sse_W8x1_neon(uint16x8_t q2, uint16x8_t q3) {
   uint32_t sse;
@@ -39,7 +39,7 @@ static INLINE uint32_t highbd_sse_W8x1_neon(uint16x8_t q2, uint16x8_t q3) {
   return sse;
 }
 
-int64_t aom_highbd_sse_neon(const uint16_t *a, int a_stride, const uint16_t *b,
+int64_t avm_highbd_sse_neon(const uint16_t *a, int a_stride, const uint16_t *b,
                             int b_stride, int width, int height) {
   const uint16x8_t q0 = { 0, 1, 2, 3, 4, 5, 6, 7 };
   int64_t sse = 0;

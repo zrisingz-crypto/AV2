@@ -15,14 +15,14 @@
 #include <assert.h>
 #include <math.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_dsp/flow_estimation/disflow.h"
-#include "aom_dsp/flow_estimation/ransac.h"
-#include "aom_dsp/pyramid.h"
-#include "aom_mem/aom_mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/flow_estimation/corner_detect.h"
+#include "avm_dsp/flow_estimation/disflow.h"
+#include "avm_dsp/flow_estimation/ransac.h"
+#include "avm_dsp/pyramid.h"
+#include "avm_mem/avm_mem.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 // Amount to downsample the flow field by.
 // e.g., DOWNSAMPLE_SHIFT = 2 (DOWNSAMPLE_FACTOR == 4) means we calculate
@@ -171,7 +171,7 @@ static int determine_disflow_correspondence(const ImagePyramid *src_pyr,
     // Refine the interpolated flow vector one last time
     const int patch_tl_x = x0 - DISFLOW_PATCH_CENTER;
     const int patch_tl_y = y0 - DISFLOW_PATCH_CENTER;
-    aom_compute_flow_at_point(
+    avm_compute_flow_at_point(
         src_pyr->layers[0].buffer, ref_pyr->layers[0].buffer, patch_tl_x,
         patch_tl_y, src_pyr->layers[0].width, src_pyr->layers[0].height,
         src_pyr->layers[0].stride, &flow_u, &flow_v);
@@ -410,7 +410,7 @@ static INLINE void invert_2x2(const double *M, double *M_inv) {
   M_inv[3] = M[0] * det_inv;
 }
 
-void aom_compute_flow_at_point_c(const uint8_t *src, const uint8_t *ref, int x,
+void avm_compute_flow_at_point_c(const uint8_t *src, const uint8_t *ref, int x,
                                  int y, int width, int height, int stride,
                                  double *u, double *v) {
   double M[4];
@@ -623,7 +623,7 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
 
     const size_t tmpbuf_size =
         (layer1_height + 2 * FLOW_BORDER_OUTER) * flow->stride;
-    tmpbuf0 = aom_malloc(tmpbuf_size * sizeof(*tmpbuf0));
+    tmpbuf0 = avm_malloc(tmpbuf_size * sizeof(*tmpbuf0));
     if (!tmpbuf0) {
       mem_status = false;
       goto free_tmpbuf;
@@ -669,7 +669,7 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
         assert(patch_tl_x >= 0);
         assert(patch_tl_y >= 0);
 
-        aom_compute_flow_at_point(src_buffer, ref_buffer, patch_tl_x,
+        avm_compute_flow_at_point(src_buffer, ref_buffer, patch_tl_x,
                                   patch_tl_y, cur_width, cur_height, cur_stride,
                                   &flow_u[flow_field_idx],
                                   &flow_v[flow_field_idx]);
@@ -723,12 +723,12 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
   }
 
 free_tmpbuf:
-  aom_free(tmpbuf0);
+  avm_free(tmpbuf0);
   return mem_status;
 }
 
 static FlowField *alloc_flow_field(int frame_width, int frame_height) {
-  FlowField *flow = (FlowField *)aom_malloc(sizeof(FlowField));
+  FlowField *flow = (FlowField *)avm_malloc(sizeof(FlowField));
   if (flow == NULL) return NULL;
 
   // Calculate the size of the bottom (largest) layer of the flow pyramid
@@ -739,9 +739,9 @@ static FlowField *alloc_flow_field(int frame_width, int frame_height) {
   const size_t flow_size =
       flow->stride * (size_t)(flow->height + 2 * FLOW_BORDER_OUTER);
 
-  flow->buf0 = aom_calloc(2 * flow_size, sizeof(*flow->buf0));
+  flow->buf0 = avm_calloc(2 * flow_size, sizeof(*flow->buf0));
   if (!flow->buf0) {
-    aom_free(flow);
+    avm_free(flow);
     return NULL;
   }
 
@@ -752,8 +752,8 @@ static FlowField *alloc_flow_field(int frame_width, int frame_height) {
 }
 
 static void free_flow_field(FlowField *flow) {
-  aom_free(flow->buf0);
-  aom_free(flow);
+  avm_free(flow->buf0);
+  avm_free(flow);
 }
 
 // Compute flow field between `src` and `ref`, and then use that flow to
@@ -762,7 +762,7 @@ static void free_flow_field(FlowField *flow) {
 // Following the convention in flow_estimation.h, the flow vectors are computed
 // at fixed points in `src` and point to the corresponding locations in `ref`,
 // regardless of the temporal ordering of the frames.
-bool av1_compute_global_motion_disflow(
+bool av2_compute_global_motion_disflow(
     TransformationType type, YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *ref,
     int bit_depth, int downsample_level, MotionModel *motion_models,
     int num_motion_models, bool *mem_alloc_failed) {
@@ -772,15 +772,15 @@ bool av1_compute_global_motion_disflow(
   ImagePyramid *ref_pyramid = ref->y_pyramid;
 
   const int src_layers =
-      aom_compute_pyramid(src, bit_depth, DISFLOW_PYRAMID_LEVELS, src_pyramid);
+      avm_compute_pyramid(src, bit_depth, DISFLOW_PYRAMID_LEVELS, src_pyramid);
   const int ref_layers =
-      aom_compute_pyramid(ref, bit_depth, DISFLOW_PYRAMID_LEVELS, ref_pyramid);
+      avm_compute_pyramid(ref, bit_depth, DISFLOW_PYRAMID_LEVELS, ref_pyramid);
 
   if (src_layers < 0 || ref_layers < 0) {
     *mem_alloc_failed = true;
     return false;
   }
-  if (!av1_compute_corner_list(src, bit_depth, downsample_level, src_corners)) {
+  if (!av2_compute_corner_list(src, bit_depth, downsample_level, src_corners)) {
     *mem_alloc_failed = true;
     return false;
   }
@@ -806,7 +806,7 @@ bool av1_compute_global_motion_disflow(
 
   // find correspondences between the two images using the flow field
   Correspondence *correspondences =
-      aom_malloc(src_corners->num_corners * sizeof(*correspondences));
+      avm_malloc(src_corners->num_corners * sizeof(*correspondences));
   if (!correspondences) {
     *mem_alloc_failed = true;
     free_flow_field(flow);
@@ -819,7 +819,7 @@ bool av1_compute_global_motion_disflow(
   bool result = ransac(correspondences, num_correspondences, type,
                        motion_models, num_motion_models, mem_alloc_failed);
 
-  aom_free(correspondences);
+  avm_free(correspondences);
   free_flow_field(flow);
   return result;
 }

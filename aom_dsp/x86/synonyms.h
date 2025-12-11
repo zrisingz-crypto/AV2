@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_SYNONYMS_H_
-#define AOM_AOM_DSP_X86_SYNONYMS_H_
+#ifndef AVM_AVM_DSP_X86_SYNONYMS_H_
+#define AVM_AVM_DSP_X86_SYNONYMS_H_
 
 #include <immintrin.h>
 #include <string.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 /**
  * Various reusable shorthands for x86 SIMD intrinsics.
@@ -121,4 +121,4 @@ static INLINE __m128i xx_roundn_epi16(__m128i v_val_d, int bits) {
   return _mm_srai_epi16(v_tmp_d, bits);
 }
 
-#endif  // AOM_AOM_DSP_X86_SYNONYMS_H_
+#endif  // AVM_AVM_DSP_X86_SYNONYMS_H_

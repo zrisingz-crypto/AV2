@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 // To start out, just dispatch to the function using the 2D mask and
 // pass mask stride as 0. This can be improved upon if necessary.
 
-void aom_highbd_blend_a64_hmask_sse4_1(
+void avm_highbd_blend_a64_hmask_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
     const uint8_t *mask, int w, int h, int bd) {
-  aom_highbd_blend_a64_mask_sse4_1(dst, dst_stride, src0, src0_stride, src1,
+  avm_highbd_blend_a64_mask_sse4_1(dst, dst_stride, src0, src0_stride, src1,
                                    src1_stride, mask, 0, w, h, 0, 0, bd);
 }

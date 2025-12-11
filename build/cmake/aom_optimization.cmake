@@ -8,12 +8,12 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_BUILD_CMAKE_AOM_OPTIMIZATION_CMAKE_)
+if(AVM_BUILD_CMAKE_AVM_OPTIMIZATION_CMAKE_)
   return()
-endif() # AOM_BUILD_CMAKE_AOM_OPTIMIZATION_CMAKE_
-set(AOM_BUILD_CMAKE_AOM_OPTIMIZATION_CMAKE_ 1)
+endif() # AVM_BUILD_CMAKE_AVM_OPTIMIZATION_CMAKE_
+set(AVM_BUILD_CMAKE_AVM_OPTIMIZATION_CMAKE_ 1)
 
-include("${AOM_ROOT}/build/cmake/util.cmake")
+include("${AVM_ROOT}/build/cmake/util.cmake")
 
 # Translate $flag to one which MSVC understands, and write the new flag to the
 # variable named by $translated_flag (or unset it, when MSVC needs no flag).
@@ -39,7 +39,7 @@ endfunction()
 # $opt_name is used to name the target. $target_to_update is made dependent upon
 # the created target.
 #
-# Note: this function always updates the aom, and aom_static targets because
+# Note: this function always updates the avm, and avm_static targets because
 # OBJECT libraries have rules that disallow the direct addition of .o files to
 # them as dependencies. Static and shared libraries do not have this limitation.
 function(add_intrinsics_object_library flag opt_name target_to_update sources)
@@ -48,7 +48,7 @@ function(add_intrinsics_object_library flag opt_name target_to_update sources)
   endif()
   set(target_name ${target_to_update}_${opt_name}_intrinsics)
   add_library(${target_name} OBJECT ${${sources}})
-  set_property(TARGET ${target_name} PROPERTY FOLDER ${AOM_TARGET_CPU})
+  set_property(TARGET ${target_name} PROPERTY FOLDER ${AVM_TARGET_CPU})
 
   # Clang/CL requires the -mXXX flag. The MSVC version is not granular enough.
   if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
@@ -74,15 +74,15 @@ function(add_intrinsics_object_library flag opt_name target_to_update sources)
     target_compile_options(${target_name} PUBLIC ${flag})
   endif()
 
-  target_sources(aom PRIVATE $<TARGET_OBJECTS:${target_name}>)
+  target_sources(avm PRIVATE $<TARGET_OBJECTS:${target_name}>)
   if(BUILD_SHARED_LIBS)
-    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:${target_name}>)
+    target_sources(avm_static PRIVATE $<TARGET_OBJECTS:${target_name}>)
   endif()
 
-  # Add the new lib target to the global list of aom library targets.
-  list(APPEND AOM_LIB_TARGETS ${target_name})
-  set(AOM_LIB_TARGETS
-      ${AOM_LIB_TARGETS}
+  # Add the new lib target to the global list of avm library targets.
+  list(APPEND AVM_LIB_TARGETS ${target_name})
+  set(AVM_LIB_TARGETS
+      ${AVM_LIB_TARGETS}
       PARENT_SCOPE)
 endfunction()
 
@@ -107,19 +107,19 @@ endfunction()
 # or terminates the build when the object format for the current target is
 # unknown.
 function(get_asm_obj_format out_format)
-  if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+  if("${AVM_TARGET_CPU}" STREQUAL "x86_64")
+    if("${AVM_TARGET_SYSTEM}" STREQUAL "Darwin")
       set(objformat "macho64")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
+    elseif("${AVM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AVM_TARGET_SYSTEM}"
                                                      STREQUAL "Windows")
       set(objformat "win64")
     else()
       set(objformat "elf64")
     endif()
-  elseif("${AOM_TARGET_CPU}" STREQUAL "x86")
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+  elseif("${AVM_TARGET_CPU}" STREQUAL "x86")
+    if("${AVM_TARGET_SYSTEM}" STREQUAL "Darwin")
       set(objformat "macho32")
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
+    elseif("${AVM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AVM_TARGET_SYSTEM}"
                                                      STREQUAL "Windows")
       set(objformat "win32")
     else()
@@ -127,7 +127,7 @@ function(get_asm_obj_format out_format)
     endif()
   else()
     message(
-      FATAL_ERROR "Unknown obj format: ${AOM_TARGET_CPU}-${AOM_TARGET_SYSTEM}")
+      FATAL_ERROR "Unknown obj format: ${AVM_TARGET_CPU}-${AVM_TARGET_SYSTEM}")
   endif()
 
   set(${out_format}
@@ -137,7 +137,7 @@ endfunction()
 
 # Adds library target named $lib_name for ASM files in variable named by
 # $asm_sources. Builds an output directory path from $lib_name. Links $lib_name
-# into the aom library target(s). Generates a dummy C file with a dummy function
+# into the avm library target(s). Generates a dummy C file with a dummy function
 # to ensure that all cmake generators can determine the linker language, and
 # that build tools don't complain that an object exposes no symbols.
 #
@@ -168,7 +168,7 @@ function(add_asm_library lib_name asm_sources)
 
     foreach(asm_config ${asm_configs})
       set(asm_lib_name ${lib_name}_${asm_config})
-      set(asm_lib_obj_dir "${AOM_CONFIG_DIR}/asm_objects/${asm_lib_name}")
+      set(asm_lib_obj_dir "${AVM_CONFIG_DIR}/asm_objects/${asm_lib_name}")
       if(NOT EXISTS "${asm_lib_obj_dir}")
         file(MAKE_DIRECTORY "${asm_lib_obj_dir}")
       endif()
@@ -178,16 +178,16 @@ function(add_asm_library lib_name asm_sources)
         set(asm_object "${asm_lib_obj_dir}/${asm_source_name}.o")
         add_custom_command(
           OUTPUT "${asm_object}"
-          COMMAND ${as_executable} ARGS ${AOM_AS_FLAGS} -I${AOM_ROOT}/
-                  -I${AOM_CONFIG_DIR}/ -o "${asm_object}" "${asm_source}"
+          COMMAND ${as_executable} ARGS ${AVM_AS_FLAGS} -I${AVM_ROOT}/
+                  -I${AVM_CONFIG_DIR}/ -o "${asm_object}" "${asm_source}"
           DEPENDS "${asm_source}"
           COMMENT "Building ASM object ${asm_object}"
-          WORKING_DIRECTORY "${AOM_CONFIG_DIR}"
+          WORKING_DIRECTORY "${AVM_CONFIG_DIR}"
           VERBATIM)
         if(BUILD_SHARED_LIBS AND "${asm_config}" STREQUAL "static")
-          target_sources(aom_static PRIVATE "${asm_object}")
+          target_sources(avm_static PRIVATE "${asm_object}")
         else()
-          target_sources(aom PRIVATE "${asm_object}")
+          target_sources(avm PRIVATE "${asm_object}")
         endif()
       endforeach()
     endforeach()
@@ -197,21 +197,21 @@ function(add_asm_library lib_name asm_sources)
     set(asm_lib_name ${lib_name})
 
     add_library(${asm_lib_name} OBJECT ${${asm_sources}})
-    target_include_directories(${asm_lib_name} PRIVATE ${AOM_ROOT}
-                                                       ${AOM_CONFIG_DIR})
-    target_compile_options(${asm_lib_name} PRIVATE ${AOM_AS_FLAGS})
-    set_property(TARGET ${asm_lib_name} PROPERTY FOLDER ${AOM_TARGET_CPU})
+    target_include_directories(${asm_lib_name} PRIVATE ${AVM_ROOT}
+                                                       ${AVM_CONFIG_DIR})
+    target_compile_options(${asm_lib_name} PRIVATE ${AVM_AS_FLAGS})
+    set_property(TARGET ${asm_lib_name} PROPERTY FOLDER ${AVM_TARGET_CPU})
     if(BUILD_SHARED_LIBS)
-      target_sources(aom_static PRIVATE "$<TARGET_OBJECTS:${asm_lib_name}>")
+      target_sources(avm_static PRIVATE "$<TARGET_OBJECTS:${asm_lib_name}>")
     endif()
-    target_sources(aom PRIVATE "$<TARGET_OBJECTS:${asm_lib_name}>")
+    target_sources(avm PRIVATE "$<TARGET_OBJECTS:${asm_lib_name}>")
 
-    # Add the new lib target to the global list of aom library targets.
-    list(APPEND AOM_LIB_TARGETS ${asm_lib_name})
+    # Add the new lib target to the global list of avm library targets.
+    list(APPEND AVM_LIB_TARGETS ${asm_lib_name})
   endif()
 
-  set(AOM_LIB_TARGETS
-      ${AOM_LIB_TARGETS}
+  set(AVM_LIB_TARGETS
+      ${AVM_LIB_TARGETS}
       PARENT_SCOPE)
 endfunction()
 
@@ -229,13 +229,13 @@ function(test_nasm)
 
   execute_process(COMMAND ${CMAKE_ASM_NASM_COMPILER} -hf
                   OUTPUT_VARIABLE nasm_helptext)
-  if("${AOM_TARGET_CPU}" STREQUAL "x86")
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+  if("${AVM_TARGET_CPU}" STREQUAL "x86")
+    if("${AVM_TARGET_SYSTEM}" STREQUAL "Darwin")
       if(NOT "${nasm_helptext}" MATCHES "macho32")
         message(
           FATAL_ERROR "Unsupported nasm: macho32 object format not supported.")
       endif()
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
+    elseif("${AVM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AVM_TARGET_SYSTEM}"
                                                      STREQUAL "Windows")
       if(NOT "${nasm_helptext}" MATCHES "win32")
         message(
@@ -248,12 +248,12 @@ function(test_nasm)
       endif()
     endif()
   else()
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+    if("${AVM_TARGET_SYSTEM}" STREQUAL "Darwin")
       if(NOT "${nasm_helptext}" MATCHES "macho64")
         message(
           FATAL_ERROR "Unsupported nasm: macho64 object format not supported.")
       endif()
-    elseif("${AOM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AOM_TARGET_SYSTEM}"
+    elseif("${AVM_TARGET_SYSTEM}" STREQUAL "MSYS" OR "${AVM_TARGET_SYSTEM}"
                                                      STREQUAL "Windows")
       if(NOT "${nasm_helptext}" MATCHES "win64")
         message(
@@ -276,12 +276,12 @@ function(add_rtcd_build_step config output source symbol)
   add_custom_command(
     OUTPUT ${output}
     COMMAND
-      ${PERL_EXECUTABLE} ARGS "${AOM_ROOT}/build/cmake/rtcd.pl"
-      --arch=${AOM_TARGET_CPU} --sym=${symbol} ${AOM_RTCD_FLAGS}
-      --config=${AOM_CONFIG_DIR}/config/aom_config.h ${config} > ${output}
+      ${PERL_EXECUTABLE} ARGS "${AVM_ROOT}/build/cmake/rtcd.pl"
+      --arch=${AVM_TARGET_CPU} --sym=${symbol} ${AVM_RTCD_FLAGS}
+      --config=${AVM_CONFIG_DIR}/config/avm_config.h ${config} > ${output}
     DEPENDS ${config}
     COMMENT "Generating ${output}"
-    WORKING_DIRECTORY ${AOM_CONFIG_DIR}
+    WORKING_DIRECTORY ${AVM_CONFIG_DIR}
     VERBATIM)
   set_property(SOURCE ${source} PROPERTY OBJECT_DEPENDS ${output})
   set_property(SOURCE ${output} PROPERTY GENERATED TRUE)

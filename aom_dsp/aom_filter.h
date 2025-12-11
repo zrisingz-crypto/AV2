@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_AOM_FILTER_H_
-#define AOM_AOM_DSP_AOM_FILTER_H_
+#ifndef AVM_AVM_DSP_AVM_FILTER_H_
+#define AVM_AVM_DSP_AVM_FILTER_H_
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,4 +54,4 @@ static const uint8_t bilinear_filters_2t[BIL_SUBPEL_SHIFTS][2] = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_AOM_FILTER_H_
+#endif  // AVM_AVM_DSP_AVM_FILTER_H_

@@ -9,14 +9,14 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_AV1_IFACE_COMMON_H_
-#define AOM_AV1_AV1_IFACE_COMMON_H_
+#ifndef AVM_AV2_AV2_IFACE_COMMON_H_
+#define AVM_AV2_AV2_IFACE_COMMON_H_
 
 #include <assert.h>
 
-#include "aom_ports/mem.h"
-#include "aom_scale/yv12config.h"
-#include "av1/common/enums.h"
+#include "avm_ports/mem.h"
+#include "avm_scale/yv12config.h"
+#include "av2/common/enums.h"
 
 /* Constant value specifying size of subgop*/
 #define MAX_SUBGOP_SIZE 32
@@ -43,9 +43,9 @@ typedef struct {
   SubGOPStepData step[MAX_SUBGOP_SIZE];
 } SubGOPData;
 
-static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
+static void yuvconfig2image(avm_image_t *img, const YV12_BUFFER_CONFIG *yv12,
                             void *user_priv) {
-  /* aom_img_wrap() doesn't allow specifying independent strides for
+  /* avm_img_wrap() doesn't allow specifying independent strides for
    * the Y, U, and V planes, nor other alignment adjustments that
    * might be representable by a YV12_BUFFER_CONFIG, so we just
    * initialize all the fields.
@@ -53,14 +53,14 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
   int bps;
   if (!yv12->subsampling_y) {
     if (!yv12->subsampling_x) {
-      img->fmt = AOM_IMG_FMT_I444;
+      img->fmt = AVM_IMG_FMT_I444;
       bps = 24;
     } else {
-      img->fmt = AOM_IMG_FMT_I422;
+      img->fmt = AVM_IMG_FMT_I422;
       bps = 16;
     }
   } else {
-    img->fmt = AOM_IMG_FMT_I420;
+    img->fmt = AVM_IMG_FMT_I420;
     bps = 12;
   }
   img->cp = yv12->color_primaries;
@@ -79,16 +79,16 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
   img->x_chroma_shift = yv12->subsampling_x;
   img->y_chroma_shift = yv12->subsampling_y;
   bps *= 2;
-  // aom_image_t uses byte strides and a pointer to the first byte
+  // avm_image_t uses byte strides and a pointer to the first byte
   // of the image.
-  img->fmt = (aom_img_fmt_t)(img->fmt | AOM_IMG_FMT_HIGHBITDEPTH);
+  img->fmt = (avm_img_fmt_t)(img->fmt | AVM_IMG_FMT_HIGHBITDEPTH);
   img->bit_depth = yv12->bit_depth;
-  img->planes[AOM_PLANE_Y] = (uint8_t *)yv12->y_buffer;
-  img->planes[AOM_PLANE_U] = (uint8_t *)yv12->u_buffer;
-  img->planes[AOM_PLANE_V] = (uint8_t *)yv12->v_buffer;
-  img->stride[AOM_PLANE_Y] = 2 * yv12->y_stride;
-  img->stride[AOM_PLANE_U] = 2 * yv12->uv_stride;
-  img->stride[AOM_PLANE_V] = 2 * yv12->uv_stride;
+  img->planes[AVM_PLANE_Y] = (uint8_t *)yv12->y_buffer;
+  img->planes[AVM_PLANE_U] = (uint8_t *)yv12->u_buffer;
+  img->planes[AVM_PLANE_V] = (uint8_t *)yv12->v_buffer;
+  img->stride[AVM_PLANE_Y] = 2 * yv12->y_stride;
+  img->stride[AVM_PLANE_U] = 2 * yv12->uv_stride;
+  img->stride[AVM_PLANE_V] = 2 * yv12->uv_stride;
   img->bps = bps;
   img->user_priv = user_priv;
   img->img_data = yv12->buffer_alloc;
@@ -136,21 +136,21 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
         (yv12->w_win_top_offset * yv12->y_crop_height) / yv12->max_height;
 
     // Adjust plane pointers to point to the cropped region
-    const int bytes_per_sample = (img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1;
+    const int bytes_per_sample = (img->fmt & AVM_IMG_FMT_HIGHBITDEPTH) ? 2 : 1;
 
     // Adjust Y plane pointer
-    img->planes[AOM_PLANE_Y] += (scaled_top_offset * img->stride[AOM_PLANE_Y]) +
+    img->planes[AVM_PLANE_Y] += (scaled_top_offset * img->stride[AVM_PLANE_Y]) +
                                 (scaled_left_offset * bytes_per_sample);
 
     const int chroma_left_offset = scaled_left_offset >> img->x_chroma_shift;
     const int chroma_top_offset = scaled_top_offset >> img->y_chroma_shift;
 
     if (!img->monochrome) {
-      img->planes[AOM_PLANE_U] +=
-          (chroma_top_offset * img->stride[AOM_PLANE_U]) +
+      img->planes[AVM_PLANE_U] +=
+          (chroma_top_offset * img->stride[AVM_PLANE_U]) +
           (chroma_left_offset * bytes_per_sample);
-      img->planes[AOM_PLANE_V] +=
-          (chroma_top_offset * img->stride[AOM_PLANE_V]) +
+      img->planes[AVM_PLANE_V] +=
+          (chroma_top_offset * img->stride[AVM_PLANE_V]) +
           (chroma_left_offset * bytes_per_sample);
     }
   } else {
@@ -164,11 +164,11 @@ static void yuvconfig2image(aom_image_t *img, const YV12_BUFFER_CONFIG *yv12,
 #endif  // CONFIG_CROP_WIN_CWG_F220
 }
 
-static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
+static avm_codec_err_t image2yuvconfig(const avm_image_t *img,
                                        YV12_BUFFER_CONFIG *yv12) {
-  yv12->y_buffer = (uint16_t *)img->planes[AOM_PLANE_Y];
-  yv12->u_buffer = (uint16_t *)img->planes[AOM_PLANE_U];
-  yv12->v_buffer = (uint16_t *)img->planes[AOM_PLANE_V];
+  yv12->y_buffer = (uint16_t *)img->planes[AVM_PLANE_Y];
+  yv12->u_buffer = (uint16_t *)img->planes[AVM_PLANE_U];
+  yv12->v_buffer = (uint16_t *)img->planes[AVM_PLANE_V];
 
   yv12->y_crop_width = img->d_w;
   yv12->y_crop_height = img->d_h;
@@ -184,8 +184,8 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->uv_crop_width = yv12->uv_width;
   yv12->uv_crop_height = yv12->uv_height;
 
-  yv12->y_stride = img->stride[AOM_PLANE_Y];
-  yv12->uv_stride = img->stride[AOM_PLANE_U];
+  yv12->y_stride = img->stride[AVM_PLANE_Y];
+  yv12->uv_stride = img->stride[AVM_PLANE_U];
   yv12->color_primaries = img->cp;
   yv12->transfer_characteristics = img->tc;
   yv12->matrix_coefficients = img->mc;
@@ -193,7 +193,7 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->chroma_sample_position = img->csp;
   yv12->color_range = img->range;
 
-  // In aom_image_t
+  // In avm_image_t
   //     planes point to uint8 address of start of data
   //     stride counts uint8s to reach next row
   // In YV12_BUFFER_CONFIG
@@ -214,14 +214,14 @@ static aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->subsampling_x = img->x_chroma_shift;
   yv12->subsampling_y = img->y_chroma_shift;
   yv12->metadata = img->metadata;
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 
-static void image2yuvconfig_upshift(aom_image_t *hbd_img,
-                                    const aom_image_t *img,
+static void image2yuvconfig_upshift(avm_image_t *hbd_img,
+                                    const avm_image_t *img,
                                     YV12_BUFFER_CONFIG *yv12) {
-  aom_img_upshift(hbd_img, img, 0);
-  // Copy some properties aom_img_upshift() ignores
+  avm_img_upshift(hbd_img, img, 0);
+  // Copy some properties avm_img_upshift() ignores
   hbd_img->cp = img->cp;
   hbd_img->tc = img->tc;
   hbd_img->mc = img->mc;
@@ -231,4 +231,4 @@ static void image2yuvconfig_upshift(aom_image_t *hbd_img,
   image2yuvconfig(hbd_img, yv12);
   yv12->metadata = img->metadata;
 }
-#endif  // AOM_AV1_AV1_IFACE_COMMON_H_
+#endif  // AVM_AV2_AV2_IFACE_COMMON_H_

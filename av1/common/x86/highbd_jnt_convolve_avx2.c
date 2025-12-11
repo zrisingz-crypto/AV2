@@ -13,15 +13,15 @@
 #include <immintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/x86/convolve_avx2.h"
-#include "aom_dsp/x86/convolve_common_intrin.h"
-#include "aom_dsp/x86/convolve_sse4_1.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "av1/common/convolve.h"
+#include "avm_dsp/x86/convolve_avx2.h"
+#include "avm_dsp/x86/convolve_common_intrin.h"
+#include "avm_dsp/x86/convolve_sse4_1.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "av2/common/convolve.h"
 
 static INLINE __m128i loadh_epi64(const void *const src, __m128i s) {
   return _mm_castps_si128(
@@ -61,7 +61,7 @@ static INLINE void highbd_dist_wtd_convolve_2d_copy_do_average(
   *res_clip = _mm256_min_epi16(res_16b, clip_pixel_to_bd);
 }
 
-void av1_highbd_dist_wtd_convolve_2d_copy_avx2(const uint16_t *src,
+void av2_highbd_dist_wtd_convolve_2d_copy_avx2(const uint16_t *src,
                                                int src_stride, uint16_t *dst0,
                                                int dst_stride0, int w, int h,
                                                ConvolveParams *conv_params,
@@ -262,7 +262,7 @@ void av1_highbd_dist_wtd_convolve_2d_copy_avx2(const uint16_t *src,
   }
 }
 
-void av1_highbd_dist_wtd_convolve_2d_avx2(
+void av2_highbd_dist_wtd_convolve_2d_avx2(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
@@ -495,7 +495,7 @@ void av1_highbd_dist_wtd_convolve_2d_avx2(
   }
 }
 
-void av1_highbd_dist_wtd_convolve_x_avx2(
+void av2_highbd_dist_wtd_convolve_x_avx2(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_x, const int subpel_x_qn,
     ConvolveParams *conv_params, int bd) {
@@ -659,7 +659,7 @@ void av1_highbd_dist_wtd_convolve_x_avx2(
   }
 }
 
-void av1_highbd_dist_wtd_convolve_y_avx2(
+void av2_highbd_dist_wtd_convolve_y_avx2(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_y, const int subpel_y_qn,
     ConvolveParams *conv_params, int bd) {

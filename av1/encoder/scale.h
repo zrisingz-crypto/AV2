@@ -10,28 +10,28 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_SCALE_H_
-#define AOM_AV1_ENCODER_SCALE_H_
+#ifndef AVM_AV2_ENCODER_SCALE_H_
+#define AVM_AV2_ENCODER_SCALE_H_
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_setup_frame_size(AV1_COMP *cpi);
+void av2_setup_frame_size(AV2_COMP *cpi);
 
 // Returns 1 if a frame is scaled and 0 otherwise.
-static INLINE int av1_resize_scaled(const AV1_COMMON *cm) {
+static INLINE int av2_resize_scaled(const AV2_COMMON *cm) {
   return !(cm->width == cm->render_width && cm->height == cm->render_height);
 }
 
-static INLINE int av1_frame_scaled(const AV1_COMMON *cm) {
-  return av1_resize_scaled(cm);
+static INLINE int av2_frame_scaled(const AV2_COMMON *cm) {
+  return av2_resize_scaled(cm);
 }
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_SCALE_H_
+#endif  // AVM_AV2_ENCODER_SCALE_H_

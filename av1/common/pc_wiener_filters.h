@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AV1_COMMON_PC_WIENER_FILTERS_H_
-#define AV1_COMMON_PC_WIENER_FILTERS_H_
+#ifndef AV2_COMMON_PC_WIENER_FILTERS_H_
+#define AV2_COMMON_PC_WIENER_FILTERS_H_
 
 #define NUM_PC_WIENER_LUT_CLASSES 256
 #define NUM_PC_WIENER_FILTERS 64
@@ -1290,7 +1290,7 @@ static const uint8_t pc_wiener_collapse_2[1][2] = {
 // clang-format on
 
 // qindex ranges 0 : [0, 130), 1: [130, 190), 2: [190, 220), 3: [220, 270)]
-static AOM_INLINE int get_filter_set_index(int base_qindex, int qindex_offset) {
+static AVM_INLINE int get_filter_set_index(int base_qindex, int qindex_offset) {
   const int qindex = base_qindex + qindex_offset;
   if (qindex < 130)
     return 0;
@@ -1302,7 +1302,7 @@ static AOM_INLINE int get_filter_set_index(int base_qindex, int qindex_offset) {
     return 3;
 }
 
-static AOM_INLINE const int16_t (
+static AVM_INLINE const int16_t (
     *get_filter_set(int filter_set_index))[NUM_PC_WIENER_TAPS_LUMA] {
   switch (filter_set_index) {
     case 0: return pcwiener_filters_luma_0;
@@ -1313,7 +1313,7 @@ static AOM_INLINE const int16_t (
   }
 }
 
-static AOM_INLINE const uint8_t *get_filter_selector(int filter_set_index) {
+static AVM_INLINE const uint8_t *get_filter_selector(int filter_set_index) {
   assert(NUM_PC_WIENER_FILTERS == 64);
   switch (filter_set_index) {
     case 0: return pc_wiener_sub_classify_to_64_0;
@@ -1360,7 +1360,7 @@ static const PcWienerSubClassifiers subclass3 = {
   pc_wiener_sub_classify_to_3_3,  pc_wiener_sub_classify_to_2_3
 };
 
-static AOM_INLINE const PcWienerSubClassifiers *get_sub_classifiers(
+static AVM_INLINE const PcWienerSubClassifiers *get_sub_classifiers(
     int filter_set_index) {
   assert(NUM_PC_WIENER_FILTERS == 64);
   switch (filter_set_index) {
@@ -1376,7 +1376,7 @@ static AOM_INLINE const PcWienerSubClassifiers *get_sub_classifiers(
 #define NUM_FILTER_CLASSES_BITS 3
 
 // Returns a number to encode for each possible value of num_classes.
-static AOM_INLINE int encode_num_filter_classes(int num_classes) {
+static AVM_INLINE int encode_num_filter_classes(int num_classes) {
   assert((1 << NUM_FILTER_CLASSES_BITS) > 7);
   switch (num_classes) {
     case 16: return 7;
@@ -1392,7 +1392,7 @@ static AOM_INLINE int encode_num_filter_classes(int num_classes) {
 }
 
 // Returns a number to encode for each possible value of num_classes.
-static AOM_INLINE int decode_num_filter_classes(int encoded_num_classes) {
+static AVM_INLINE int decode_num_filter_classes(int encoded_num_classes) {
   assert((1 << NUM_FILTER_CLASSES_BITS) > 7);
   switch (encoded_num_classes) {
     case 7: return 16;
@@ -1407,7 +1407,7 @@ static AOM_INLINE int decode_num_filter_classes(int encoded_num_classes) {
   }
 }
 
-static AOM_INLINE const uint8_t *get_converter(int filter_set_index,
+static AVM_INLINE const uint8_t *get_converter(int filter_set_index,
                                                int num_classes,
                                                int target_classes) {
   if (num_classes < target_classes) {
@@ -1760,4 +1760,4 @@ static const uint8_t pc_wiener_lut_to_class_index[PC_WIENER_LUT_SIZE] = {
   68
 };
 
-#endif  // AV1_COMMON_PC_WIENER_FILTERS_H_
+#endif  // AV2_COMMON_PC_WIENER_FILTERS_H_

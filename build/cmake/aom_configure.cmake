@@ -8,21 +8,21 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_)
+if(AVM_BUILD_CMAKE_AVM_CONFIGURE_CMAKE_)
   return()
-endif() # AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_
-set(AOM_BUILD_CMAKE_AOM_CONFIGURE_CMAKE_ 1)
+endif() # AVM_BUILD_CMAKE_AVM_CONFIGURE_CMAKE_
+set(AVM_BUILD_CMAKE_AVM_CONFIGURE_CMAKE_ 1)
 
 include(FindGit)
 include(FindPerl)
 include(FindThreads)
 
-include("${AOM_ROOT}/build/cmake/aom_config_defaults.cmake")
-include("${AOM_ROOT}/build/cmake/aom_experiment_deps.cmake")
-include("${AOM_ROOT}/build/cmake/aom_optimization.cmake")
-include("${AOM_ROOT}/build/cmake/compiler_flags.cmake")
-include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
-include("${AOM_ROOT}/build/cmake/util.cmake")
+include("${AVM_ROOT}/build/cmake/avm_config_defaults.cmake")
+include("${AVM_ROOT}/build/cmake/avm_experiment_deps.cmake")
+include("${AVM_ROOT}/build/cmake/avm_optimization.cmake")
+include("${AVM_ROOT}/build/cmake/compiler_flags.cmake")
+include("${AVM_ROOT}/build/cmake/compiler_tests.cmake")
+include("${AVM_ROOT}/build/cmake/util.cmake")
 
 if(DEFINED CONFIG_LOWBITDEPTH)
   message(WARNING "CONFIG_LOWBITDEPTH has been removed. \
@@ -30,27 +30,27 @@ if(DEFINED CONFIG_LOWBITDEPTH)
 endif()
 
 # Generate the user config settings.
-list(APPEND aom_build_vars ${AOM_CONFIG_VARS} ${AOM_OPTION_VARS})
-foreach(cache_var ${aom_build_vars})
+list(APPEND avm_build_vars ${AVM_CONFIG_VARS} ${AVM_OPTION_VARS})
+foreach(cache_var ${avm_build_vars})
   get_property(
     cache_var_helpstring
     CACHE ${cache_var}
     PROPERTY HELPSTRING)
   if("${cache_var_helpstring}" STREQUAL "${cmake_cmdline_helpstring}")
-    set(AOM_CMAKE_CONFIG "${AOM_CMAKE_CONFIG} -D${cache_var}=${${cache_var}}")
+    set(AVM_CMAKE_CONFIG "${AVM_CMAKE_CONFIG} -D${cache_var}=${${cache_var}}")
   endif()
 endforeach()
-string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
+string(STRIP "${AVM_CMAKE_CONFIG}" AVM_CMAKE_CONFIG)
 
 # Detect target CPU.
-if(NOT AOM_TARGET_CPU)
+if(NOT AVM_TARGET_CPU)
   string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" cpu_lowercase)
   if("${cpu_lowercase}" STREQUAL "amd64" OR "${cpu_lowercase}" STREQUAL
                                             "x86_64")
     if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-      set(AOM_TARGET_CPU "x86")
+      set(AVM_TARGET_CPU "x86")
     elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-      set(AOM_TARGET_CPU "x86_64")
+      set(AVM_TARGET_CPU "x86_64")
     else()
       message(
         FATAL_ERROR
@@ -61,42 +61,42 @@ if(NOT AOM_TARGET_CPU)
     endif()
   elseif("${cpu_lowercase}" STREQUAL "i386" OR "${cpu_lowercase}" STREQUAL
                                                "x86")
-    set(AOM_TARGET_CPU "x86")
+    set(AVM_TARGET_CPU "x86")
   elseif("${cpu_lowercase}" MATCHES "^arm" OR "${cpu_lowercase}" MATCHES
                                               "^mips")
-    set(AOM_TARGET_CPU "${cpu_lowercase}")
+    set(AVM_TARGET_CPU "${cpu_lowercase}")
   elseif("${cpu_lowercase}" MATCHES "aarch64")
-    set(AOM_TARGET_CPU "arm64")
+    set(AVM_TARGET_CPU "arm64")
   elseif("${cpu_lowercase}" MATCHES "^ppc")
-    set(AOM_TARGET_CPU "ppc")
+    set(AVM_TARGET_CPU "ppc")
   else()
     message(WARNING "The architecture ${CMAKE_SYSTEM_PROCESSOR} is not "
                     "supported, falling back to the generic target")
-    set(AOM_TARGET_CPU "generic")
+    set(AVM_TARGET_CPU "generic")
   endif()
 endif()
 
 if(CMAKE_TOOLCHAIN_FILE) # Add toolchain file to config string.
   if(IS_ABSOLUTE "${CMAKE_TOOLCHAIN_FILE}")
-    file(RELATIVE_PATH toolchain_path "${AOM_CONFIG_DIR}"
+    file(RELATIVE_PATH toolchain_path "${AVM_CONFIG_DIR}"
          "${CMAKE_TOOLCHAIN_FILE}")
   else()
     set(toolchain_path "${CMAKE_TOOLCHAIN_FILE}")
   endif()
   set(toolchain_string "-DCMAKE_TOOLCHAIN_FILE=\\\"${toolchain_path}\\\"")
-  set(AOM_CMAKE_CONFIG "${toolchain_string} ${AOM_CMAKE_CONFIG}")
+  set(AVM_CMAKE_CONFIG "${toolchain_string} ${AVM_CMAKE_CONFIG}")
 else()
 
   # Add detected CPU to the config string.
-  set(AOM_CMAKE_CONFIG "-DAOM_TARGET_CPU=${AOM_TARGET_CPU} ${AOM_CMAKE_CONFIG}")
+  set(AVM_CMAKE_CONFIG "-DAVM_TARGET_CPU=${AVM_TARGET_CPU} ${AVM_CMAKE_CONFIG}")
 endif()
-set(AOM_CMAKE_CONFIG "-G \\\"${CMAKE_GENERATOR}\\\" ${AOM_CMAKE_CONFIG}")
-file(RELATIVE_PATH source_path "${AOM_CONFIG_DIR}" "${AOM_ROOT}")
-set(AOM_CMAKE_CONFIG "cmake ${source_path} ${AOM_CMAKE_CONFIG}")
-string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
+set(AVM_CMAKE_CONFIG "-G \\\"${CMAKE_GENERATOR}\\\" ${AVM_CMAKE_CONFIG}")
+file(RELATIVE_PATH source_path "${AVM_CONFIG_DIR}" "${AVM_ROOT}")
+set(AVM_CMAKE_CONFIG "cmake ${source_path} ${AVM_CMAKE_CONFIG}")
+string(STRIP "${AVM_CMAKE_CONFIG}" AVM_CMAKE_CONFIG)
 
-message("--- aom_configure: Detected CPU: ${AOM_TARGET_CPU}")
-set(AOM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
+message("--- avm_configure: Detected CPU: ${AVM_TARGET_CPU}")
+set(AVM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type_lowercase)
 if("${build_type_lowercase}" STREQUAL "debug")
@@ -114,16 +114,16 @@ if(NOT MSVC)
     # TODO(tomfinegan): clang needs -pie in CMAKE_EXE_LINKER_FLAGS for this to
     # work.
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-    if("${AOM_TARGET_SYSTEM}" STREQUAL "Linux" AND "${AOM_TARGET_CPU}" MATCHES
+    if("${AVM_TARGET_SYSTEM}" STREQUAL "Linux" AND "${AVM_TARGET_CPU}" MATCHES
                                                    "^armv[78]")
-      set(AOM_AS_FLAGS ${AOM_AS_FLAGS} --defsym PIC=1)
+      set(AVM_AS_FLAGS ${AVM_AS_FLAGS} --defsym PIC=1)
     else()
-      set(AOM_AS_FLAGS ${AOM_AS_FLAGS} -DPIC)
+      set(AVM_AS_FLAGS ${AVM_AS_FLAGS} -DPIC)
     endif()
   endif()
 endif()
 
-if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
+if("${AVM_TARGET_CPU}" STREQUAL "x86" OR "${AVM_TARGET_CPU}" STREQUAL "x86_64")
   find_program(CMAKE_ASM_NASM_COMPILER yasm $ENV{YASM_PATH})
   if(NOT CMAKE_ASM_NASM_COMPILER OR ENABLE_NASM)
     unset(CMAKE_ASM_NASM_COMPILER CACHE)
@@ -143,23 +143,23 @@ if("${AOM_TARGET_CPU}" STREQUAL "x86" OR "${AOM_TARGET_CPU}" STREQUAL "x86_64")
     # Xcode requires building the objects manually, so pass the object format
     # flag.
     if(XCODE)
-      set(AOM_AS_FLAGS -f ${objformat} ${AOM_AS_FLAGS})
+      set(AVM_AS_FLAGS -f ${objformat} ${AVM_AS_FLAGS})
     endif()
   else()
     message(
       FATAL_ERROR
         "Unable to find assembler. Install 'yasm' or 'nasm.' "
-        "To build without optimizations, add -DAOM_TARGET_CPU=generic to "
+        "To build without optimizations, add -DAVM_TARGET_CPU=generic to "
         "your cmake command line.")
   endif()
-  string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
-elseif("${AOM_TARGET_CPU}" MATCHES "arm")
-  if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
+  string(STRIP "${AVM_AS_FLAGS}" AVM_AS_FLAGS)
+elseif("${AVM_TARGET_CPU}" MATCHES "arm")
+  if("${AVM_TARGET_SYSTEM}" STREQUAL "Darwin")
     if(NOT CMAKE_ASM_COMPILER)
       set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
     endif()
-    set(AOM_AS_FLAGS -arch ${AOM_TARGET_CPU} -isysroot ${CMAKE_OSX_SYSROOT})
-  elseif("${AOM_TARGET_SYSTEM}" STREQUAL "Windows")
+    set(AVM_AS_FLAGS -arch ${AVM_TARGET_CPU} -isysroot ${CMAKE_OSX_SYSROOT})
+  elseif("${AVM_TARGET_SYSTEM}" STREQUAL "Windows")
     if(NOT CMAKE_ASM_COMPILER)
       set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER} "-c -mimplicit-it=always")
     endif()
@@ -177,11 +177,11 @@ elseif("${AOM_TARGET_CPU}" MATCHES "arm")
         "Searched for ${CMAKE_ASM_COMPILER}. Install it, add it to your path,"
         "or set the assembler directly by adding "
         "-DCMAKE_ASM_COMPILER=<assembler path> to your CMake command line."
-        "To build without optimizations, add -DAOM_TARGET_CPU=generic to your "
+        "To build without optimizations, add -DAVM_TARGET_CPU=generic to your "
         "cmake command line.")
   endif()
   enable_language(ASM)
-  string(STRIP "${AOM_AS_FLAGS}" AOM_AS_FLAGS)
+  string(STRIP "${AVM_AS_FLAGS}" AVM_AS_FLAGS)
 endif()
 
 if(CONFIG_ANALYZER)
@@ -205,12 +205,12 @@ if(CONFIG_GPROF)
   require_compiler_flag("-pg" YES)
 endif()
 
-if("${AOM_TARGET_SYSTEM}" MATCHES "Darwin\|Linux\|Windows\|Android")
+if("${AVM_TARGET_SYSTEM}" MATCHES "Darwin\|Linux\|Windows\|Android")
   set(CONFIG_OS_SUPPORT 1)
 endif()
 
 # Define macros that affect Windows headers.
-if("${AOM_TARGET_SYSTEM}" STREQUAL "Windows")
+if("${AVM_TARGET_SYSTEM}" STREQUAL "Windows")
   # The default _WIN32_WINNT value in MinGW is 0x0502 (Windows XP with SP2). Set
   # it to 0x0601 (Windows 7).
   add_compiler_flag_if_supported("-D_WIN32_WINNT=0x0601")
@@ -232,16 +232,16 @@ endif()
 fix_experiment_configs()
 
 # Test compiler support.
-aom_get_inline("INLINE")
+avm_get_inline("INLINE")
 
 # Don't just check for pthread.h, but use the result of the full pthreads
 # including a linking check in FindThreads above.
 set(HAVE_PTHREAD_H ${CMAKE_USE_PTHREADS_INIT})
-aom_check_source_compiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
+avm_check_source_compiles("unistd_check" "#include <unistd.h>" HAVE_UNISTD_H)
 
 if(NOT WIN32)
-  aom_push_var(CMAKE_REQUIRED_LIBRARIES "m")
-  aom_check_c_compiles(
+  avm_push_var(CMAKE_REQUIRED_LIBRARIES "m")
+  avm_check_c_compiles(
     "fenv_check"
     "#define _GNU_SOURCE
                         #include <fenv.h>
@@ -250,10 +250,10 @@ if(NOT WIN32)
                           (void)feenableexcept(FE_DIVBYZERO | FE_INVALID);
                         }"
     HAVE_FEXCEPT)
-  aom_pop_var(CMAKE_REQUIRED_LIBRARIES)
+  avm_pop_var(CMAKE_REQUIRED_LIBRARIES)
 endif()
 
-include("${AOM_ROOT}/build/cmake/cpu.cmake")
+include("${AVM_ROOT}/build/cmake/cpu.cmake")
 
 if(ENABLE_CCACHE)
   set_compiler_launcher(ENABLE_CCACHE ccache)
@@ -267,7 +267,7 @@ if(ENABLE_GOMA)
   set_compiler_launcher(ENABLE_GOMA gomacc)
 endif()
 
-if(NOT CONFIG_AV1_DECODER AND NOT CONFIG_AV1_ENCODER)
+if(NOT CONFIG_AV2_DECODER AND NOT CONFIG_AV2_ENCODER)
   message(FATAL_ERROR "Decoder and encoder disabled, nothing to build.")
 endif()
 
@@ -333,7 +333,7 @@ else()
 
   # Quiet gcc 6 vs 7 abi warnings:
   # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77728
-  if("${AOM_TARGET_CPU}" MATCHES "arm")
+  if("${AVM_TARGET_CPU}" MATCHES "arm")
     add_cxx_flag_if_supported("-Wno-psabi")
   endif()
 
@@ -352,27 +352,27 @@ else()
   add_compiler_flag_if_supported("-D_FILE_OFFSET_BITS=64")
 endif()
 
-set(AOM_LIB_LINK_TYPE PUBLIC)
+set(AVM_LIB_LINK_TYPE PUBLIC)
 if(EMSCRIPTEN)
 
   # Avoid CMake generation time errors resulting from collisions with the form
   # of target_link_libraries() used by Emscripten.cmake.
-  unset(AOM_LIB_LINK_TYPE)
+  unset(AVM_LIB_LINK_TYPE)
 endif()
 
-# Generate aom_config templates.
-set(aom_config_asm_template "${AOM_CONFIG_DIR}/config/aom_config.asm.cmake")
-set(aom_config_h_template "${AOM_CONFIG_DIR}/config/aom_config.h.cmake")
+# Generate avm_config templates.
+set(avm_config_asm_template "${AVM_CONFIG_DIR}/config/avm_config.asm.cmake")
+set(avm_config_h_template "${AVM_CONFIG_DIR}/config/avm_config.h.cmake")
 execute_process(
   COMMAND
-    ${CMAKE_COMMAND} -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR} -DAOM_ROOT=${AOM_ROOT}
-    -P "${AOM_ROOT}/build/cmake/generate_aom_config_templates.cmake")
+    ${CMAKE_COMMAND} -DAVM_CONFIG_DIR=${AVM_CONFIG_DIR} -DAVM_ROOT=${AVM_ROOT}
+    -P "${AVM_ROOT}/build/cmake/generate_avm_config_templates.cmake")
 
-# Generate aom_config.{asm,h}.
-configure_file("${aom_config_asm_template}"
-               "${AOM_CONFIG_DIR}/config/aom_config.asm")
-configure_file("${aom_config_h_template}"
-               "${AOM_CONFIG_DIR}/config/aom_config.h")
+# Generate avm_config.{asm,h}.
+configure_file("${avm_config_asm_template}"
+               "${AVM_CONFIG_DIR}/config/avm_config.asm")
+configure_file("${avm_config_h_template}"
+               "${AVM_CONFIG_DIR}/config/avm_config.h")
 
 # Read the current git hash.
 find_package(Git)
@@ -380,47 +380,47 @@ if(NOT GIT_FOUND)
   message("--- Git missing, version will be read from CHANGELOG.")
 endif()
 
-configure_file("${AOM_ROOT}/build/cmake/aom_config.c.template"
-               "${AOM_CONFIG_DIR}/config/aom_config.c")
+configure_file("${AVM_ROOT}/build/cmake/avm_config.c.template"
+               "${AVM_CONFIG_DIR}/config/avm_config.c")
 
 # Find Perl and generate the RTCD sources.
 find_package(Perl)
 if(NOT PERL_FOUND)
-  message(FATAL_ERROR "Perl is required to build libaom.")
+  message(FATAL_ERROR "Perl is required to build libavm.")
 endif()
 
-set(AOM_RTCD_CONFIG_FILE_LIST
-    "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd_defs.pl"
-    "${AOM_ROOT}/aom_scale/aom_scale_rtcd.pl"
-    "${AOM_ROOT}/av1/common/av1_rtcd_defs.pl")
-set(AOM_RTCD_HEADER_FILE_LIST
-    "${AOM_CONFIG_DIR}/config/aom_dsp_rtcd.h"
-    "${AOM_CONFIG_DIR}/config/aom_scale_rtcd.h"
-    "${AOM_CONFIG_DIR}/config/av1_rtcd.h")
-set(AOM_RTCD_SOURCE_FILE_LIST
-    "${AOM_ROOT}/aom_dsp/aom_dsp_rtcd.c"
-    "${AOM_ROOT}/aom_scale/aom_scale_rtcd.c"
-    "${AOM_ROOT}/av1/common/av1_rtcd.c")
-set(AOM_RTCD_SYMBOL_LIST aom_dsp_rtcd aom_scale_rtcd av1_rtcd)
-list(LENGTH AOM_RTCD_SYMBOL_LIST AOM_RTCD_CUSTOM_COMMAND_COUNT)
-math(EXPR AOM_RTCD_CUSTOM_COMMAND_COUNT "${AOM_RTCD_CUSTOM_COMMAND_COUNT} - 1")
+set(AVM_RTCD_CONFIG_FILE_LIST
+    "${AVM_ROOT}/avm_dsp/avm_dsp_rtcd_defs.pl"
+    "${AVM_ROOT}/avm_scale/avm_scale_rtcd.pl"
+    "${AVM_ROOT}/av2/common/av2_rtcd_defs.pl")
+set(AVM_RTCD_HEADER_FILE_LIST
+    "${AVM_CONFIG_DIR}/config/avm_dsp_rtcd.h"
+    "${AVM_CONFIG_DIR}/config/avm_scale_rtcd.h"
+    "${AVM_CONFIG_DIR}/config/av2_rtcd.h")
+set(AVM_RTCD_SOURCE_FILE_LIST
+    "${AVM_ROOT}/avm_dsp/avm_dsp_rtcd.c"
+    "${AVM_ROOT}/avm_scale/avm_scale_rtcd.c"
+    "${AVM_ROOT}/av2/common/av2_rtcd.c")
+set(AVM_RTCD_SYMBOL_LIST avm_dsp_rtcd avm_scale_rtcd av2_rtcd)
+list(LENGTH AVM_RTCD_SYMBOL_LIST AVM_RTCD_CUSTOM_COMMAND_COUNT)
+math(EXPR AVM_RTCD_CUSTOM_COMMAND_COUNT "${AVM_RTCD_CUSTOM_COMMAND_COUNT} - 1")
 
-foreach(NUM RANGE ${AOM_RTCD_CUSTOM_COMMAND_COUNT})
-  list(GET AOM_RTCD_CONFIG_FILE_LIST ${NUM} AOM_RTCD_CONFIG_FILE)
-  list(GET AOM_RTCD_HEADER_FILE_LIST ${NUM} AOM_RTCD_HEADER_FILE)
-  list(GET AOM_RTCD_SOURCE_FILE_LIST ${NUM} AOM_RTCD_SOURCE_FILE)
-  list(GET AOM_RTCD_SYMBOL_LIST ${NUM} AOM_RTCD_SYMBOL)
+foreach(NUM RANGE ${AVM_RTCD_CUSTOM_COMMAND_COUNT})
+  list(GET AVM_RTCD_CONFIG_FILE_LIST ${NUM} AVM_RTCD_CONFIG_FILE)
+  list(GET AVM_RTCD_HEADER_FILE_LIST ${NUM} AVM_RTCD_HEADER_FILE)
+  list(GET AVM_RTCD_SOURCE_FILE_LIST ${NUM} AVM_RTCD_SOURCE_FILE)
+  list(GET AVM_RTCD_SYMBOL_LIST ${NUM} AVM_RTCD_SYMBOL)
   execute_process(
     COMMAND
-      ${PERL_EXECUTABLE} "${AOM_ROOT}/build/cmake/rtcd.pl"
-      --arch=${AOM_TARGET_CPU} --sym=${AOM_RTCD_SYMBOL} ${AOM_RTCD_FLAGS}
-      --config=${AOM_CONFIG_DIR}/config/aom_config.h ${AOM_RTCD_CONFIG_FILE}
-    OUTPUT_FILE ${AOM_RTCD_HEADER_FILE})
+      ${PERL_EXECUTABLE} "${AVM_ROOT}/build/cmake/rtcd.pl"
+      --arch=${AVM_TARGET_CPU} --sym=${AVM_RTCD_SYMBOL} ${AVM_RTCD_FLAGS}
+      --config=${AVM_CONFIG_DIR}/config/avm_config.h ${AVM_RTCD_CONFIG_FILE}
+    OUTPUT_FILE ${AVM_RTCD_HEADER_FILE})
 endforeach()
 
-# Generate aom_version.h.
+# Generate avm_version.h.
 execute_process(
   COMMAND
-    ${CMAKE_COMMAND} -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR} -DAOM_ROOT=${AOM_ROOT}
+    ${CMAKE_COMMAND} -DAVM_CONFIG_DIR=${AVM_CONFIG_DIR} -DAVM_ROOT=${AVM_ROOT}
     -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -DPERL_EXECUTABLE=${PERL_EXECUTABLE} -P
-    "${AOM_ROOT}/build/cmake/version.cmake")
+    "${AVM_ROOT}/build/cmake/version.cmake")

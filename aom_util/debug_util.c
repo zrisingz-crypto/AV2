@@ -14,29 +14,29 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 
 static int frame_idx_w = 0;
 
 static int frame_idx_r = 0;
 
-void aom_bitstream_queue_set_frame_write(int frame_idx) {
+void avm_bitstream_queue_set_frame_write(int frame_idx) {
   frame_idx_w = frame_idx;
 }
 
-int aom_bitstream_queue_get_frame_write(void) { return frame_idx_w; }
+int avm_bitstream_queue_get_frame_write(void) { return frame_idx_w; }
 
-void aom_bitstream_queue_set_frame_read(int frame_idx) {
+void avm_bitstream_queue_set_frame_read(int frame_idx) {
   frame_idx_r = frame_idx;
 }
 
-int aom_bitstream_queue_get_frame_read(void) { return frame_idx_r; }
+int avm_bitstream_queue_get_frame_read(void) { return frame_idx_r; }
 
 #if CONFIG_BITSTREAM_DEBUG
 #define QUEUE_MAX_SIZE 20000000
 static int result_queue[QUEUE_MAX_SIZE];
 static int nsymbs_queue[QUEUE_MAX_SIZE];
-static aom_cdf_prob cdf_queue[QUEUE_MAX_SIZE][16];
+static avm_cdf_prob cdf_queue[QUEUE_MAX_SIZE][16];
 
 static int queue_r = 0;
 static int queue_w = 0;
@@ -56,7 +56,7 @@ int bitstream_queue_get_write(void) { return queue_w; }
 
 int bitstream_queue_get_read(void) { return queue_r; }
 
-void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
+void bitstream_queue_pop(int *result, avm_cdf_prob *cdf, int *nsymbs) {
   if (!skip_r) {
     if (queue_w == queue_r) {
       printf("buffer underflow queue_w %d queue_r %d\n", queue_w, queue_r);
@@ -69,7 +69,7 @@ void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
   }
 }
 
-void bitstream_queue_push(int result, const aom_cdf_prob *cdf, int nsymbs) {
+void bitstream_queue_push(int result, const avm_cdf_prob *cdf, int nsymbs) {
   // If you observe a CDF error:
   // - Set 'debug_cdf_mismatch' to true
   // - Set target_frame_idx_r and target_queue_r to where CDF error was reported

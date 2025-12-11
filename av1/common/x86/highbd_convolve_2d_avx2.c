@@ -13,13 +13,13 @@
 #include <immintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/x86/convolve_avx2.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "av1/common/convolve.h"
+#include "avm_dsp/x86/convolve_avx2.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "av2/common/convolve.h"
 
 #define CONVOLVE_SR_HORIZ_FILTER_8TAP                                        \
   for (int i = 0; i < im_h; i += 2) {                                        \
@@ -408,7 +408,7 @@
     }                                                                         \
   }
 
-static INLINE void av1_highbd_convolve_2d_sr_specialized_avx2(
+static INLINE void av2_highbd_convolve_2d_sr_specialized_avx2(
     const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
@@ -486,13 +486,13 @@ static INLINE void av1_highbd_convolve_2d_sr_specialized_avx2(
   }
 }
 
-static INLINE void av1_highbd_convolve_2d_sr_bilinear_avx2(
+static INLINE void av2_highbd_convolve_2d_sr_bilinear_avx2(
     const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
     const int subpel_y_qn, ConvolveParams *conv_params, int bd) {
   if (h % 2 != 0 || w < 4) {
-    av1_highbd_convolve_2d_sr_specialized_avx2(
+    av2_highbd_convolve_2d_sr_specialized_avx2(
         src, src_stride, dst, dst_stride, w, h, filter_params_x,
         filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
     return;
@@ -670,7 +670,7 @@ static INLINE void av1_highbd_convolve_2d_sr_bilinear_avx2(
   }
 }
 
-void av1_highbd_convolve_2d_sr_avx2(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_2d_sr_avx2(const uint16_t *src, int src_stride,
                                     uint16_t *dst, int dst_stride, int w, int h,
                                     const InterpFilterParams *filter_params_x,
                                     const InterpFilterParams *filter_params_y,
@@ -679,11 +679,11 @@ void av1_highbd_convolve_2d_sr_avx2(const uint16_t *src, int src_stride,
                                     ConvolveParams *conv_params, int bd) {
   if ((filter_params_x->interp_filter == BILINEAR) &&
       (filter_params_y->interp_filter == BILINEAR)) {
-    av1_highbd_convolve_2d_sr_bilinear_avx2(
+    av2_highbd_convolve_2d_sr_bilinear_avx2(
         src, src_stride, dst, dst_stride, w, h, filter_params_x,
         filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
   } else {
-    av1_highbd_convolve_2d_sr_specialized_avx2(
+    av2_highbd_convolve_2d_sr_specialized_avx2(
         src, src_stride, dst, dst_stride, w, h, filter_params_x,
         filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
   }

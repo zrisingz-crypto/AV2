@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_SCALE_AOM_SCALE_H_
-#define AOM_AOM_SCALE_AOM_SCALE_H_
+#ifndef AVM_AVM_SCALE_AVM_SCALE_H_
+#define AVM_AVM_SCALE_AVM_SCALE_H_
 
-#include "aom_scale/yv12config.h"
+#include "avm_scale/yv12config.h"
 
-extern void aom_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
+extern void avm_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
                             unsigned char *temp_area, unsigned char temp_height,
                             unsigned int hscale, unsigned int hratio,
                             unsigned int vscale, unsigned int vratio,
                             unsigned int interlaced, const int num_planes);
 
-#endif  // AOM_AOM_SCALE_AOM_SCALE_H_
+#endif  // AVM_AVM_SCALE_AVM_SCALE_H_

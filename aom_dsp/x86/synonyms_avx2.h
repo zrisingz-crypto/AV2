@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_SYNONYMS_AVX2_H_
-#define AOM_AOM_DSP_X86_SYNONYMS_AVX2_H_
+#ifndef AVM_AVM_DSP_X86_SYNONYMS_AVX2_H_
+#define AVM_AVM_DSP_X86_SYNONYMS_AVX2_H_
 
 #include <immintrin.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 /**
  * Various reusable shorthands for x86 SIMD intrinsics.
@@ -75,4 +75,4 @@ static INLINE __m256i yy_roundn_epu16(__m256i v_val_w, int bits) {
   const __m256i v_s_w = _mm256_srli_epi16(v_val_w, bits - 1);
   return _mm256_avg_epu16(v_s_w, _mm256_setzero_si256());
 }
-#endif  // AOM_AOM_DSP_X86_SYNONYMS_AVX2_H_
+#endif  // AVM_AVM_DSP_X86_SYNONYMS_AVX2_H_

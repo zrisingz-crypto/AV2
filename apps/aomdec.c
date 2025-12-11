@@ -17,7 +17,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #if CONFIG_OS_SUPPORT
 #if HAVE_UNISTD_H
@@ -27,11 +27,11 @@
 #endif
 #endif
 
-#include "aom/aom_decoder.h"
-#include "aom/aomdx.h"
-#include "aom_ports/aom_timer.h"
-#include "aom_ports/mem_ops.h"
-#include "aom/aom_frame_buffer.h"
+#include "avm/avm_decoder.h"
+#include "avm/avmdx.h"
+#include "avm_ports/avm_timer.h"
+#include "avm_ports/mem_ops.h"
+#include "avm/avm_frame_buffer.h"
 #include "common/args.h"
 #include "common/ivfdec.h"
 #include "common/lanczos_resample.h"
@@ -53,11 +53,11 @@
 static const char *exec_name;
 
 #if CONFIG_PARAKIT_COLLECT_DATA
-#include "av1/common/entropy_sideinfo.h"
+#include "av2/common/entropy_sideinfo.h"
 #endif
 
 struct AvxDecInputContext {
-  struct AvxInputContext *aom_input_ctx;
+  struct AvxInputContext *avm_input_ctx;
   struct ObuDecInputContext *obu_ctx;
   struct WebmInputContext *webm_ctx;
 };
@@ -186,19 +186,19 @@ static INLINE int get_plane_size_i420(int size, int is_uv) {
   return size;
 }
 
-static INLINE int lanczos_scale(aom_image_t *src, aom_image_t *dst, int bd) {
+static INLINE int lanczos_scale(avm_image_t *src, avm_image_t *dst, int bd) {
   if (src->fmt != dst->fmt ||
-      (src->fmt != AOM_IMG_FMT_I42016 && src->fmt != AOM_IMG_FMT_I420))
+      (src->fmt != AVM_IMG_FMT_I42016 && src->fmt != AVM_IMG_FMT_I420))
     return -1;
 
   int scale_q = -1;
   int scale_p = -1;
-  av1_derive_scale_factor(dst->d_w, src->d_w, &scale_p, &scale_q);
+  av2_derive_scale_factor(dst->d_w, src->d_w, &scale_p, &scale_q);
   if (scale_p <= 0 || scale_q <= 0) return -1;
 
   int scale_q_h = -1;
   int scale_p_h = -1;
-  av1_derive_scale_factor(dst->d_h, src->d_h, &scale_p_h, &scale_q_h);
+  av2_derive_scale_factor(dst->d_h, src->d_h, &scale_p_h, &scale_q_h);
   if (scale_p_h <= 0 || scale_q_h <= 0) return -1;
   // NOTE: the ratios must be the same horizontally and vertically in this lib
   if (scale_p != scale_p_h || scale_q != scale_q_h) return -1;
@@ -214,13 +214,13 @@ static INLINE int lanczos_scale(aom_image_t *src, aom_image_t *dst, int bd) {
     const int dst_h = get_plane_size_i420(dst->d_h, is_uv);
     const int dst_w = get_plane_size_i420(dst->d_w, is_uv);
 
-    if (src->fmt == AOM_IMG_FMT_I420) {
-      av1_resample_plane_2d_8b_lanczos(
+    if (src->fmt == AVM_IMG_FMT_I420) {
+      av2_resample_plane_2d_8b_lanczos(
           src->planes[i], src_h, src_w, src->stride[i], dst->planes[i], dst_h,
           dst_w, dst->stride[i], is_uv ? 1 : 0, is_uv ? 1 : 0, bd, scale_q,
           scale_p, lanczos_a_hor, lanczos_a_ver);
     } else {
-      av1_resample_plane_2d_lanczos(
+      av2_resample_plane_2d_lanczos(
           (uint16_t *)src->planes[i], src_h, src_w, src->stride[i] / 2,
           (uint16_t *)dst->planes[i], dst_h, dst_w, dst->stride[i] / 2,
           is_uv ? 1 : 0, is_uv ? 1 : 0, bd, scale_q, scale_p, lanczos_a_hor,
@@ -231,27 +231,27 @@ static INLINE int lanczos_scale(aom_image_t *src, aom_image_t *dst, int bd) {
 }
 
 #elif CONFIG_LIBYUV
-static INLINE int libyuv_scale(aom_image_t *src, aom_image_t *dst,
+static INLINE int libyuv_scale(avm_image_t *src, avm_image_t *dst,
                                FilterModeEnum mode) {
-  if (src->fmt == AOM_IMG_FMT_I42016) {
-    assert(dst->fmt == AOM_IMG_FMT_I42016);
+  if (src->fmt == AVM_IMG_FMT_I42016) {
+    assert(dst->fmt == AVM_IMG_FMT_I42016);
     return I420Scale_16(
-        (uint16_t *)src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y] / 2,
-        (uint16_t *)src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U] / 2,
-        (uint16_t *)src->planes[AOM_PLANE_V], src->stride[AOM_PLANE_V] / 2,
-        src->d_w, src->d_h, (uint16_t *)dst->planes[AOM_PLANE_Y],
-        dst->stride[AOM_PLANE_Y] / 2, (uint16_t *)dst->planes[AOM_PLANE_U],
-        dst->stride[AOM_PLANE_U] / 2, (uint16_t *)dst->planes[AOM_PLANE_V],
-        dst->stride[AOM_PLANE_V] / 2, dst->d_w, dst->d_h, mode);
+        (uint16_t *)src->planes[AVM_PLANE_Y], src->stride[AVM_PLANE_Y] / 2,
+        (uint16_t *)src->planes[AVM_PLANE_U], src->stride[AVM_PLANE_U] / 2,
+        (uint16_t *)src->planes[AVM_PLANE_V], src->stride[AVM_PLANE_V] / 2,
+        src->d_w, src->d_h, (uint16_t *)dst->planes[AVM_PLANE_Y],
+        dst->stride[AVM_PLANE_Y] / 2, (uint16_t *)dst->planes[AVM_PLANE_U],
+        dst->stride[AVM_PLANE_U] / 2, (uint16_t *)dst->planes[AVM_PLANE_V],
+        dst->stride[AVM_PLANE_V] / 2, dst->d_w, dst->d_h, mode);
   }
-  assert(src->fmt == AOM_IMG_FMT_I420);
-  assert(dst->fmt == AOM_IMG_FMT_I420);
-  return I420Scale(src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y],
-                   src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U],
-                   src->planes[AOM_PLANE_V], src->stride[AOM_PLANE_V], src->d_w,
-                   src->d_h, dst->planes[AOM_PLANE_Y], dst->stride[AOM_PLANE_Y],
-                   dst->planes[AOM_PLANE_U], dst->stride[AOM_PLANE_U],
-                   dst->planes[AOM_PLANE_V], dst->stride[AOM_PLANE_V], dst->d_w,
+  assert(src->fmt == AVM_IMG_FMT_I420);
+  assert(dst->fmt == AVM_IMG_FMT_I420);
+  return I420Scale(src->planes[AVM_PLANE_Y], src->stride[AVM_PLANE_Y],
+                   src->planes[AVM_PLANE_U], src->stride[AVM_PLANE_U],
+                   src->planes[AVM_PLANE_V], src->stride[AVM_PLANE_V], src->d_w,
+                   src->d_h, dst->planes[AVM_PLANE_Y], dst->stride[AVM_PLANE_Y],
+                   dst->planes[AVM_PLANE_U], dst->stride[AVM_PLANE_U],
+                   dst->planes[AVM_PLANE_V], dst->stride[AVM_PLANE_V], dst->d_w,
                    dst->d_h, mode);
 }
 #endif
@@ -282,10 +282,10 @@ static void show_help(FILE *fout, int shorthelp) {
           "not specified, the output will be\n  directed to stdout.\n");
   fprintf(fout, "\nIncluded decoders:\n\n");
 
-  for (int i = 0; i < get_aom_decoder_count(); ++i) {
-    aom_codec_iface_t *decoder = get_aom_decoder_by_index(i);
-    fprintf(fout, "    %-6s - %s\n", get_short_name_by_aom_decoder(decoder),
-            aom_codec_iface_name(decoder));
+  for (int i = 0; i < get_avm_decoder_count(); ++i) {
+    avm_codec_iface_t *decoder = get_avm_decoder_by_index(i);
+    fprintf(fout, "    %-6s - %s\n", get_short_name_by_avm_decoder(decoder),
+            avm_codec_iface_name(decoder));
   }
 }
 
@@ -341,17 +341,17 @@ static int raw_read_frame(FILE *infile, uint8_t **buffer, size_t *bytes_read,
 
 static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
                       size_t *bytes_in_buffer, size_t *buffer_size) {
-  switch (input->aom_input_ctx->file_type) {
+  switch (input->avm_input_ctx->file_type) {
 #if CONFIG_WEBM_IO
     case FILE_TYPE_WEBM:
       return webm_read_frame(input->webm_ctx, buf, bytes_in_buffer,
                              buffer_size);
 #endif
     case FILE_TYPE_RAW:
-      return raw_read_frame(input->aom_input_ctx->file, buf, bytes_in_buffer,
+      return raw_read_frame(input->avm_input_ctx->file, buf, bytes_in_buffer,
                             buffer_size);
     case FILE_TYPE_IVF:
-      return ivf_read_frame(input->aom_input_ctx->file, buf, bytes_in_buffer,
+      return ivf_read_frame(input->avm_input_ctx->file, buf, bytes_in_buffer,
                             buffer_size, NULL);
     case FILE_TYPE_OBU:
       return obudec_read_temporal_unit(input->obu_ctx, buf, bytes_in_buffer,
@@ -363,18 +363,18 @@ static int read_frame(struct AvxDecInputContext *input, uint8_t **buf,
 static int file_is_raw(struct AvxInputContext *input) {
   uint8_t buf[32];
   int is_raw = 0;
-  aom_codec_stream_info_t si;
+  avm_codec_stream_info_t si;
   memset(&si, 0, sizeof(si));
 
   if (fread(buf, 1, 32, input->file) == 32) {
     int i;
 
     if (mem_get_le32(buf) < 256 * 1024 * 1024) {
-      for (i = 0; i < get_aom_decoder_count(); ++i) {
-        aom_codec_iface_t *decoder = get_aom_decoder_by_index(i);
-        if (!aom_codec_peek_stream_info(decoder, buf + 4, 32 - 4, &si)) {
+      for (i = 0; i < get_avm_decoder_count(); ++i) {
+        avm_codec_iface_t *decoder = get_avm_decoder_by_index(i);
+        if (!avm_codec_peek_stream_info(decoder, buf + 4, 32 - 4, &si)) {
           is_raw = 1;
-          input->fourcc = get_fourcc_by_aom_decoder(decoder);
+          input->fourcc = get_fourcc_by_avm_decoder(decoder);
           input->width = si.w;
           input->height = si.h;
           input->framerate.numerator = 30;
@@ -407,12 +407,12 @@ struct ExternalFrameBufferList {
   struct ExternalFrameBuffer *ext_fb;
 };
 
-// Callback used by libaom to request an external frame buffer. |cb_priv|
+// Callback used by libavm to request an external frame buffer. |cb_priv|
 // Application private data passed into the set function. |min_size| is the
 // minimum size in bytes needed to decode the next frame. |fb| pointer to the
 // frame buffer.
-static int get_av1_frame_buffer(void *cb_priv, size_t min_size,
-                                aom_codec_frame_buffer_t *fb) {
+static int get_av2_frame_buffer(void *cb_priv, size_t min_size,
+                                avm_codec_frame_buffer_t *fb) {
   int i;
   struct ExternalFrameBufferList *const ext_fb_list =
       (struct ExternalFrameBufferList *)cb_priv;
@@ -442,11 +442,11 @@ static int get_av1_frame_buffer(void *cb_priv, size_t min_size,
   return 0;
 }
 
-// Callback used by libaom when there are no references to the frame buffer.
+// Callback used by libavm when there are no references to the frame buffer.
 // |cb_priv| user private data passed into the set function. |fb| pointer
 // to the frame buffer.
-static int release_av1_frame_buffer(void *cb_priv,
-                                    aom_codec_frame_buffer_t *fb) {
+static int release_av2_frame_buffer(void *cb_priv,
+                                    avm_codec_frame_buffer_t *fb) {
   struct ExternalFrameBuffer *const ext_fb =
       (struct ExternalFrameBuffer *)fb->priv;
   (void)cb_priv;
@@ -548,19 +548,19 @@ static void print_md5(unsigned char digest[16], const char *filename) {
   printf("  %s\n", filename);
 }
 
-static int check_decoded_frame_hash(aom_codec_ctx_t *decoder, aom_image_t *img,
+static int check_decoded_frame_hash(avm_codec_ctx_t *decoder, avm_image_t *img,
                                     int frame_out, int skip_film_gain) {
-  size_t num_metadata = aom_img_num_metadata(img);
+  size_t num_metadata = avm_img_num_metadata(img);
   int checked = 0, ret = 0, flags;
 
-  if (AOM_CODEC_CONTROL_TYPECHECKED(decoder, AOMD_GET_FRAME_FLAGS, &flags)) {
+  if (AVM_CODEC_CONTROL_TYPECHECKED(decoder, AVMD_GET_FRAME_FLAGS, &flags)) {
     fprintf(stderr, "Failed to get frame flags: %s\n",
-            aom_codec_error(decoder));
+            avm_codec_error(decoder));
     return -1;
   }
 
   for (size_t i = 0; i < num_metadata; ++i) {
-    const aom_metadata_t *metadata = aom_img_get_metadata(img, i);
+    const avm_metadata_t *metadata = avm_img_get_metadata(img, i);
     if (metadata->type != OBU_METADATA_TYPE_DECODED_FRAME_HASH) continue;
 
     int type = (metadata->payload[0] & 0xF0) >> 4;
@@ -569,14 +569,14 @@ static int check_decoded_frame_hash(aom_codec_ctx_t *decoder, aom_image_t *img,
     if (type) continue;
 
     if (has_grain) {
-      if (skip_film_gain || !(flags & AOM_FRAME_HAS_FILM_GRAIN_PARAMS))
+      if (skip_film_gain || !(flags & AVM_FRAME_HAS_FILM_GRAIN_PARAMS))
         continue;
     } else {
-      if (!skip_film_gain && (flags & AOM_FRAME_HAS_FILM_GRAIN_PARAMS))
+      if (!skip_film_gain && (flags & AVM_FRAME_HAS_FILM_GRAIN_PARAMS))
         continue;
     }
 
-    const int planes[] = { AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V };
+    const int planes[] = { AVM_PLANE_Y, AVM_PLANE_U, AVM_PLANE_V };
     const char *plane_names[] = { "y", "u", "v" };
     int num_planes = img->monochrome ? 1 : 3;
     MD5Context md5_ctx;
@@ -644,7 +644,7 @@ static FILE *open_outfile(const char *name) {
 }
 
 static int main_loop(int argc, const char **argv_) {
-  aom_codec_ctx_t decoder;
+  avm_codec_ctx_t decoder;
   char *fn = NULL;
   int i;
   int ret = EXIT_FAILURE;
@@ -667,7 +667,7 @@ static int main_loop(int argc, const char **argv_) {
   int opt_yv12 = 0;
   int opt_i420 = 0;
   int opt_raw = 0;
-  aom_codec_dec_cfg_t cfg = { 0, 0, 0, NULL, NULL };
+  avm_codec_dec_cfg_t cfg = { 0, 0, 0, NULL, NULL };
   unsigned int fixed_output_bit_depth = 0;
   int frames_corrupted = 0;
   int dec_flags = 0;
@@ -679,8 +679,8 @@ static int main_loop(int argc, const char **argv_) {
   int random_access = 0;
 #endif  // CONFIG_F024_KEYOBU
   int bru_opt_mode = 0;
-  aom_image_t *scaled_img = NULL;
-  aom_image_t *img_shifted = NULL;
+  avm_image_t *scaled_img = NULL;
+  avm_image_t *img_shifted = NULL;
   int frame_avail, got_data, flush_decoder = 0;
   int num_external_frame_buffers = 0;
   struct ExternalFrameBufferList ext_fb_list = { 0, NULL };
@@ -688,8 +688,8 @@ static int main_loop(int argc, const char **argv_) {
   const char *outfile_pattern = NULL;
   char outfile_name[PATH_MAX] = { 0 };
   FILE *outfile = NULL;
-  FILE *outfile_substream[AOM_MAX_NUM_STREAMS] = { NULL, NULL, NULL, NULL };
-  int substream_frame_out[AOM_MAX_NUM_STREAMS] = { 0, 0, 0, 0 };
+  FILE *outfile_substream[AVM_MAX_NUM_STREAMS] = { NULL, NULL, NULL, NULL };
+  int substream_frame_out[AVM_MAX_NUM_STREAMS] = { 0, 0, 0, 0 };
   FILE *framestats_file = NULL;
 
 #if CONFIG_ICC_METADATA
@@ -700,8 +700,8 @@ static int main_loop(int argc, const char **argv_) {
 
   MD5Context md5_ctx;
   unsigned char md5_digest[16];
-  MD5Context md5_ctx_substream[AOM_MAX_NUM_STREAMS];
-  unsigned char md5_digest_substream[AOM_MAX_NUM_STREAMS][16];
+  MD5Context md5_ctx_substream[AVM_MAX_NUM_STREAMS];
+  unsigned char md5_digest_substream[AVM_MAX_NUM_STREAMS][16];
 
 #if CONFIG_PARAKIT_COLLECT_DATA
   char *datafilename_path = NULL;
@@ -709,8 +709,8 @@ static int main_loop(int argc, const char **argv_) {
 #endif
 
   struct AvxDecInputContext input = { NULL, NULL, NULL };
-  struct AvxInputContext aom_input_ctx;
-  memset(&aom_input_ctx, 0, sizeof(aom_input_ctx));
+  struct AvxInputContext avm_input_ctx;
+  memset(&avm_input_ctx, 0, sizeof(avm_input_ctx));
 #if CONFIG_WEBM_IO
   struct WebmInputContext webm_ctx;
   memset(&webm_ctx, 0, sizeof(webm_ctx));
@@ -719,15 +719,15 @@ static int main_loop(int argc, const char **argv_) {
   struct ObuDecInputContext obu_ctx = { NULL, NULL, 0, 0, 0 };
   int is_ivf = 0;
 
-  obu_ctx.avx_ctx = &aom_input_ctx;
+  obu_ctx.avx_ctx = &avm_input_ctx;
   input.obu_ctx = &obu_ctx;
-  input.aom_input_ctx = &aom_input_ctx;
+  input.avm_input_ctx = &avm_input_ctx;
 
   /* Parse command line */
   exec_name = argv_[0];
   argv = argv_dup(argc - 1, argv_ + 1);
 
-  aom_codec_iface_t *interface = NULL;
+  avm_codec_iface_t *interface = NULL;
   for (argi = argj = argv; (*argj = *argi); argi += arg.argv_step) {
     memset(&arg, 0, sizeof(arg));
     arg.argv_step = 1;
@@ -736,7 +736,7 @@ static int main_loop(int argc, const char **argv_) {
       show_help(stdout, 0);
       exit(EXIT_SUCCESS);
     } else if (arg_match(&arg, &codecarg, argi)) {
-      interface = get_aom_decoder_by_short_name(arg.val);
+      interface = get_avm_decoder_by_short_name(arg.val);
       if (!interface)
         die("Error: Unrecognized argument (%s) to --codec\n", arg.val);
     } else if (arg_match(&arg, &looparg, argi)) {
@@ -865,24 +865,24 @@ static int main_loop(int argc, const char **argv_) {
     return EXIT_FAILURE;
   }
 #endif
-  input.aom_input_ctx->filename = fn;
-  input.aom_input_ctx->file = infile;
-  if (file_is_ivf(input.aom_input_ctx)) {
-    input.aom_input_ctx->file_type = FILE_TYPE_IVF;
+  input.avm_input_ctx->filename = fn;
+  input.avm_input_ctx->file = infile;
+  if (file_is_ivf(input.avm_input_ctx)) {
+    input.avm_input_ctx->file_type = FILE_TYPE_IVF;
     is_ivf = 1;
   }
 #if CONFIG_WEBM_IO
-  else if (file_is_webm(input.webm_ctx, input.aom_input_ctx))
-    input.aom_input_ctx->file_type = FILE_TYPE_WEBM;
+  else if (file_is_webm(input.webm_ctx, input.avm_input_ctx))
+    input.avm_input_ctx->file_type = FILE_TYPE_WEBM;
 #endif
   else if (file_is_obu(&obu_ctx))
-    input.aom_input_ctx->file_type = FILE_TYPE_OBU;
-  else if (file_is_raw(input.aom_input_ctx))
-    input.aom_input_ctx->file_type = FILE_TYPE_RAW;
+    input.avm_input_ctx->file_type = FILE_TYPE_OBU;
+  else if (file_is_raw(input.avm_input_ctx))
+    input.avm_input_ctx->file_type = FILE_TYPE_RAW;
   else {
     fprintf(stderr, "Unrecognized input file type.\n");
 #if !CONFIG_WEBM_IO
-    fprintf(stderr, "aomdec was built without WebM container support.\n");
+    fprintf(stderr, "avmdec was built without WebM container support.\n");
 #endif
     free(argv);
     return EXIT_FAILURE;
@@ -893,7 +893,7 @@ static int main_loop(int argc, const char **argv_) {
 
   if (!noblit && single_file) {
     generate_filename(outfile_pattern, outfile_name, PATH_MAX,
-                      aom_input_ctx.width, aom_input_ctx.height, 0);
+                      avm_input_ctx.width, avm_input_ctx.height, 0);
     if (do_md5) {
       for (int sub = 0; sub < num_streams; sub++) {
         MD5Init(&md5_ctx_substream[sub]);
@@ -923,8 +923,8 @@ static int main_loop(int argc, const char **argv_) {
     }
 
 #if CONFIG_WEBM_IO
-    if (aom_input_ctx.file_type == FILE_TYPE_WEBM) {
-      if (webm_guess_framerate(input.webm_ctx, input.aom_input_ctx)) {
+    if (avm_input_ctx.file_type == FILE_TYPE_WEBM) {
+      if (webm_guess_framerate(input.webm_ctx, input.avm_input_ctx)) {
         fprintf(stderr,
                 "Failed to guess framerate -- error parsing "
                 "webm file?\n");
@@ -934,67 +934,67 @@ static int main_loop(int argc, const char **argv_) {
 #endif
   }
 
-  aom_codec_iface_t *fourcc_interface =
-      get_aom_decoder_by_fourcc(aom_input_ctx.fourcc);
+  avm_codec_iface_t *fourcc_interface =
+      get_avm_decoder_by_fourcc(avm_input_ctx.fourcc);
 
   if (is_ivf && !fourcc_interface)
-    fatal("Unsupported fourcc: %x\n", aom_input_ctx.fourcc);
+    fatal("Unsupported fourcc: %x\n", avm_input_ctx.fourcc);
 
   if (interface && fourcc_interface && interface != fourcc_interface)
     warn("Header indicates codec: %s\n",
-         aom_codec_iface_name(fourcc_interface));
+         avm_codec_iface_name(fourcc_interface));
   else
     interface = fourcc_interface;
 
-  if (!interface) interface = get_aom_decoder_by_index(0);
+  if (!interface) interface = get_avm_decoder_by_index(0);
 
 #if CONFIG_PARAKIT_COLLECT_DATA
   cfg.path_parakit = datafilename_path;
   cfg.suffix_parakit = datafilename_suffix;
 #endif
   dec_flags = 0;
-  if (aom_codec_dec_init(&decoder, interface, &cfg, dec_flags)) {
+  if (avm_codec_dec_init(&decoder, interface, &cfg, dec_flags)) {
     fprintf(stderr, "Failed to initialize decoder: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail2;
   }
 
   if (!quiet) fprintf(stderr, "%s\n", decoder.name);
 
-  if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_SET_OPERATING_POINT,
+  if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_SET_OPERATING_POINT,
                                     operating_point)) {
     fprintf(stderr, "Failed to set operating_point: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail;
   }
 
-  if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_SET_OUTPUT_ALL_LAYERS,
+  if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_SET_OUTPUT_ALL_LAYERS,
                                     output_all_layers)) {
     fprintf(stderr, "Failed to set output_all_layers: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail;
   }
 
-  if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_SET_SKIP_FILM_GRAIN,
+  if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_SET_SKIP_FILM_GRAIN,
                                     skip_film_grain)) {
     fprintf(stderr, "Failed to set skip_film_grain: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail;
   }
 
 #if CONFIG_F024_KEYOBU
-  if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_SET_RANDOM_ACCESS,
+  if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_SET_RANDOM_ACCESS,
                                     random_access)) {
     fprintf(stderr, "Failed to set random_access: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail;
   }
 #endif  // CONFIG_F024_KEYOBU
 
-  if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_SET_BRU_OPT_MODE,
+  if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_SET_BRU_OPT_MODE,
                                     bru_opt_mode)) {
     fprintf(stderr, "Failed to set bru_opt_mode: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
     goto fail;
   }
 
@@ -1008,11 +1008,11 @@ static int main_loop(int argc, const char **argv_) {
     ext_fb_list.num_external_frame_buffers = num_external_frame_buffers;
     ext_fb_list.ext_fb = (struct ExternalFrameBuffer *)calloc(
         num_external_frame_buffers, sizeof(*ext_fb_list.ext_fb));
-    if (aom_codec_set_frame_buffer_functions(&decoder, get_av1_frame_buffer,
-                                             release_av1_frame_buffer,
+    if (avm_codec_set_frame_buffer_functions(&decoder, get_av2_frame_buffer,
+                                             release_av2_frame_buffer,
                                              &ext_fb_list)) {
       fprintf(stderr, "Failed to configure external frame buffers: %s\n",
-              aom_codec_error(&decoder));
+              avm_codec_error(&decoder));
       goto fail;
     }
   }
@@ -1024,9 +1024,9 @@ static int main_loop(int argc, const char **argv_) {
 
   /* Decode file */
   while (frame_avail || got_data) {
-    aom_codec_iter_t iter = NULL;
-    aom_image_t *img;
-    struct aom_usec_timer timer;
+    avm_codec_iter_t iter = NULL;
+    avm_image_t *img;
+    struct avm_usec_timer timer;
     int corrupted = 0;
 
     frame_avail = 0;
@@ -1035,12 +1035,12 @@ static int main_loop(int argc, const char **argv_) {
         frame_avail = 1;
         frame_in++;
 
-        aom_usec_timer_start(&timer);
+        avm_usec_timer_start(&timer);
 
-        if (aom_codec_decode(&decoder, buf, bytes_in_buffer, NULL)) {
-          const char *detail = aom_codec_error_detail(&decoder);
+        if (avm_codec_decode(&decoder, buf, bytes_in_buffer, NULL)) {
+          const char *detail = avm_codec_error_detail(&decoder);
           warn("Failed to decode frame %d: %s", frame_in,
-               aom_codec_error(&decoder));
+               avm_codec_error(&decoder));
 
           if (detail) warn("Additional information: %s", detail);
           if (!keep_going) goto fail;
@@ -1048,17 +1048,17 @@ static int main_loop(int argc, const char **argv_) {
 
         if (framestats_file) {
           int qp;
-          if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AOMD_GET_LAST_QUANTIZER,
+          if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AVMD_GET_LAST_QUANTIZER,
                                             &qp)) {
-            warn("Failed AOMD_GET_LAST_QUANTIZER: %s",
-                 aom_codec_error(&decoder));
+            warn("Failed AVMD_GET_LAST_QUANTIZER: %s",
+                 avm_codec_error(&decoder));
             if (!keep_going) goto fail;
           }
           fprintf(framestats_file, "%d,%d\r\n", (int)bytes_in_buffer, qp);
         }
 
-        aom_usec_timer_mark(&timer);
-        dx_time += aom_usec_timer_elapsed(&timer);
+        avm_usec_timer_mark(&timer);
+        dx_time += avm_usec_timer_elapsed(&timer);
       } else {
         flush_decoder = 1;
       }
@@ -1066,18 +1066,18 @@ static int main_loop(int argc, const char **argv_) {
       flush_decoder = 1;
     }
 
-    aom_usec_timer_start(&timer);
+    avm_usec_timer_start(&timer);
     if (flush_decoder) {
       // Flush the decoder.
-      if (aom_codec_decode(&decoder, NULL, 0, NULL)) {
-        warn("Failed to flush decoder: %s", aom_codec_error(&decoder));
+      if (avm_codec_decode(&decoder, NULL, 0, NULL)) {
+        warn("Failed to flush decoder: %s", avm_codec_error(&decoder));
       }
     }
-    aom_usec_timer_mark(&timer);
-    dx_time += aom_usec_timer_elapsed(&timer);
+    avm_usec_timer_mark(&timer);
+    dx_time += avm_usec_timer_elapsed(&timer);
 
     got_data = 0;
-    while ((img = aom_codec_get_frame(&decoder, &iter))) {
+    while ((img = avm_codec_get_frame(&decoder, &iter))) {
       ++frame_out;
       if (frame_in < frame_out) {  // No OBUs for show_existing_frame.
         frame_in = frame_out;
@@ -1087,9 +1087,9 @@ static int main_loop(int argc, const char **argv_) {
 #endif
         got_data = 1;
 
-      if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AOMD_GET_FRAME_CORRUPTED,
+      if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AVMD_GET_FRAME_CORRUPTED,
                                         &corrupted)) {
-        warn("Failed AOM_GET_FRAME_CORRUPTED: %s", aom_codec_error(&decoder));
+        warn("Failed AVM_GET_FRAME_CORRUPTED: %s", avm_codec_error(&decoder));
         if (!keep_going) goto fail;
       }
       frames_corrupted += corrupted;
@@ -1097,9 +1097,9 @@ static int main_loop(int argc, const char **argv_) {
       if (progress) show_progress(frame_in, frame_out, dx_time);
 
 #if CONFIG_ICC_METADATA
-      const int num_metadata = aom_img_num_metadata(img);
+      const int num_metadata = avm_img_num_metadata(img);
       for (int m = 0; m < num_metadata; m++) {
-        const aom_metadata_t *metadata = aom_img_get_metadata(img, m);
+        const avm_metadata_t *metadata = avm_img_get_metadata(img, m);
         switch (metadata->type) {
           case OBU_METADATA_TYPE_ICC_PROFILE:
             if (icc_size == 0) {
@@ -1122,8 +1122,8 @@ static int main_loop(int argc, const char **argv_) {
           goto fail;
       }
       if (!noblit) {
-        const int PLANES_YUV[] = { AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V };
-        const int PLANES_YVU[] = { AOM_PLANE_Y, AOM_PLANE_V, AOM_PLANE_U };
+        const int PLANES_YUV[] = { AVM_PLANE_Y, AVM_PLANE_U, AVM_PLANE_V };
+        const int PLANES_YVU[] = { AVM_PLANE_Y, AVM_PLANE_V, AVM_PLANE_U };
         const int *planes = flipuv ? PLANES_YVU : PLANES_YUV;
 
         if (do_scale) {
@@ -1133,11 +1133,11 @@ static int main_loop(int argc, const char **argv_) {
             // either of these is set to 0, use the display size set in the
             // first frame header. If that is unavailable, use the raw decoded
             // size of the first decoded frame.
-            int render_width = aom_input_ctx.width;
-            int render_height = aom_input_ctx.height;
+            int render_width = avm_input_ctx.width;
+            int render_height = avm_input_ctx.height;
             if (!render_width || !render_height) {
               int render_size[2];
-              if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AV1D_GET_DISPLAY_SIZE,
+              if (AVM_CODEC_CONTROL_TYPECHECKED(&decoder, AV2D_GET_DISPLAY_SIZE,
                                                 render_size)) {
                 // As last resort use size of first frame as display size.
                 render_width = img->d_w;
@@ -1148,7 +1148,7 @@ static int main_loop(int argc, const char **argv_) {
               }
             }
             scaled_img =
-                aom_img_alloc(NULL, img->fmt, render_width, render_height, 16);
+                avm_img_alloc(NULL, img->fmt, render_width, render_height, 16);
             scaled_img->bit_depth = img->bit_depth;
             scaled_img->monochrome = img->monochrome;
             scaled_img->csp = img->csp;
@@ -1167,7 +1167,7 @@ static int main_loop(int argc, const char **argv_) {
               fprintf(stderr,
                       "Failed to scale output frame: %s.\n"
                       "Lanczos scaling attempted but failed.\n",
-                      aom_codec_error(&decoder));
+                      avm_codec_error(&decoder));
               goto fail;
             }
 #elif CONFIG_LIBYUV
@@ -1179,7 +1179,7 @@ static int main_loop(int argc, const char **argv_) {
                     "libyuv or lanczos required for scaling but are disabled.\n"
                     "Be sure to specify -DCONFIG_LIBYUV=1 or "
                     "-DCONFIG_LANCZOS_RESAMPLE=1 when running cmake.\n",
-                    aom_codec_error(&decoder));
+                    avm_codec_error(&decoder));
             goto fail;
 #endif
           }
@@ -1193,10 +1193,10 @@ static int main_loop(int argc, const char **argv_) {
         }
         // Shift up or down if necessary
         if (output_bit_depth != 0)
-          aom_shift_img(output_bit_depth, &img, &img_shifted);
+          avm_shift_img(output_bit_depth, &img, &img_shifted);
 
-        aom_input_ctx.width = img->d_w;
-        aom_input_ctx.height = img->d_h;
+        avm_input_ctx.width = img->d_w;
+        avm_input_ctx.height = img->d_h;
 
         int num_planes = (opt_raw && img->monochrome) ? 1 : 3;
         int xlayer_id = 0;
@@ -1215,11 +1215,11 @@ static int main_loop(int argc, const char **argv_) {
             if (first_frame_in_file) {
               // Y4M file header
               len = y4m_write_file_header(
-                  y4m_buf, sizeof(y4m_buf), aom_input_ctx.width,
-                  aom_input_ctx.height, &aom_input_ctx.framerate,
+                  y4m_buf, sizeof(y4m_buf), avm_input_ctx.width,
+                  avm_input_ctx.height, &avm_input_ctx.framerate,
                   img->monochrome, img->csp, img->fmt, img->bit_depth,
                   img->range);
-              if (img->csp == AOM_CSP_TOPLEFT) {
+              if (img->csp == AVM_CSP_TOPLEFT) {
                 fprintf(stderr,
                         "Warning: Y4M lacks a colorspace for topleft chroma. "
                         "Using a placeholder.\n");
@@ -1251,16 +1251,16 @@ static int main_loop(int argc, const char **argv_) {
               // Check if --yv12 or --i420 options are consistent with the
               // bit-stream decoded
               if (opt_i420) {
-                if (img->fmt != AOM_IMG_FMT_I420 &&
-                    img->fmt != AOM_IMG_FMT_I42016) {
+                if (img->fmt != AVM_IMG_FMT_I420 &&
+                    img->fmt != AVM_IMG_FMT_I42016) {
                   fprintf(stderr,
                           "Cannot produce i420 output for bit-stream.\n");
                   goto fail;
                 }
               }
               if (opt_yv12) {
-                if ((img->fmt != AOM_IMG_FMT_I420 &&
-                     img->fmt != AOM_IMG_FMT_YV12) ||
+                if ((img->fmt != AVM_IMG_FMT_I420 &&
+                     img->fmt != AVM_IMG_FMT_YV12) ||
                     img->bit_depth != 8) {
                   fprintf(stderr,
                           "Cannot produce yv12 output for bit-stream.\n");
@@ -1326,9 +1326,9 @@ static int main_loop(int argc, const char **argv_) {
 
 fail:
 
-  if (aom_codec_destroy(&decoder)) {
+  if (avm_codec_destroy(&decoder)) {
     fprintf(stderr, "Failed to destroy decoder: %s\n",
-            aom_codec_error(&decoder));
+            avm_codec_error(&decoder));
   }
 
 fail2:
@@ -1353,16 +1353,16 @@ fail2:
   }
 
 #if CONFIG_WEBM_IO
-  if (input.aom_input_ctx->file_type == FILE_TYPE_WEBM)
+  if (input.avm_input_ctx->file_type == FILE_TYPE_WEBM)
     webm_free(input.webm_ctx);
 #endif
-  if (input.aom_input_ctx->file_type == FILE_TYPE_OBU)
+  if (input.avm_input_ctx->file_type == FILE_TYPE_OBU)
     obudec_free(input.obu_ctx);
 
-  if (input.aom_input_ctx->file_type != FILE_TYPE_WEBM) free(buf);
+  if (input.avm_input_ctx->file_type != FILE_TYPE_WEBM) free(buf);
 
-  if (scaled_img) aom_img_free(scaled_img);
-  if (img_shifted) aom_img_free(img_shifted);
+  if (scaled_img) avm_img_free(scaled_img);
+  if (img_shifted) avm_img_free(img_shifted);
 
   for (i = 0; i < ext_fb_list.num_external_frame_buffers; ++i) {
     free(ext_fb_list.ext_fb[i].data);

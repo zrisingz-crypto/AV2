@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_
-#define AOM_AOM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_
+#ifndef AVM_AVM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_
+#define AVM_AVM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_
 
 // Note:
 //  This header file should be put below any x86 intrinsics head file
@@ -29,4 +29,4 @@ static INLINE void add_store(CONV_BUF_TYPE *const dst, const __m128i *const res,
   _mm_store_si128((__m128i *)dst, d);
 }
 
-#endif  // AOM_AOM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_
+#endif  // AVM_AVM_DSP_X86_CONVOLVE_COMMON_INTRIN_H_

@@ -12,20 +12,20 @@
 
 #include <stdint.h>
 
-#include "config/aom_config.h"
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom/aom_codec.h"
-#include "aom/aom_encoder.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_encoder.h"
 
-#include "aom_ports/system_state.h"
+#include "avm_ports/system_state.h"
 
-#include "av1/common/av1_common_int.h"
+#include "av2/common/av2_common_int.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/firstpass.h"
-#include "av1/encoder/gop_structure.h"
-#include "av1/encoder/subgop.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/firstpass.h"
+#include "av2/encoder/gop_structure.h"
+#include "av2/encoder/subgop.h"
 
 // Set parameters for frames between 'start' and 'end' (excluding both).
 static void set_multi_layer_params(const TWO_PASS *twopass,
@@ -45,10 +45,10 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
       gf_group->arf_src_offset[*frame_ind] = 0;
       gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
       gf_group->layer_depth[*frame_ind] = MAX_ARF_LAYERS;
-      gf_group->arf_boost[*frame_ind] = av1_calc_arf_boost(
+      gf_group->arf_boost[*frame_ind] = av2_calc_arf_boost(
           twopass, rc, frame_info, start, end - start, 0, NULL, NULL);
       gf_group->max_layer_depth =
-          AOMMAX(gf_group->max_layer_depth, layer_depth);
+          AVMMAX(gf_group->max_layer_depth, layer_depth);
       ++(*frame_ind);
       ++(*cur_frame_idx);
       ++start;
@@ -63,7 +63,7 @@ static void set_multi_layer_params(const TWO_PASS *twopass,
     gf_group->layer_depth[*frame_ind] = layer_depth;
 
     // Get the boost factor for intermediate ARF frames.
-    gf_group->arf_boost[*frame_ind] = av1_calc_arf_boost(
+    gf_group->arf_boost[*frame_ind] = av2_calc_arf_boost(
         twopass, rc, frame_info, m, end - m, m - start, NULL, NULL);
     ++(*frame_ind);
 
@@ -148,7 +148,7 @@ static void set_multi_layer_params_from_subgop_cfg(
       } else {
         int fwd_arf_disp_idx = find_forward_alt_ref(subgop_cfg, idx);
         int bwd_arf_disp_idx = find_backward_alt_ref(subgop_cfg, idx);
-        gf_group->arf_boost[*frame_index] = av1_calc_arf_boost(
+        gf_group->arf_boost[*frame_index] = av2_calc_arf_boost(
             twopass, rc, frame_info, disp_idx, fwd_arf_disp_idx - disp_idx,
             disp_idx - bwd_arf_disp_idx, NULL, NULL);
       }
@@ -160,7 +160,7 @@ static void set_multi_layer_params_from_subgop_cfg(
 
       int fwd_arf_disp_idx = find_forward_alt_ref(subgop_cfg, idx);
       gf_group->arf_boost[*frame_index] =
-          av1_calc_arf_boost(twopass, rc, frame_info, disp_idx,
+          av2_calc_arf_boost(twopass, rc, frame_info, disp_idx,
                              fwd_arf_disp_idx - disp_idx, 0, NULL, NULL);
       gf_group->arf_src_offset[*frame_index] = 0;
       last_shown_frame = disp_idx;
@@ -177,7 +177,7 @@ static void set_multi_layer_params_from_subgop_cfg(
     }
     gf_group->is_filtered[*frame_index] = (type == FRAME_TYPE_OOO_FILTERED);
     gf_group->layer_depth[*frame_index] = pyr_level;
-    gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, pyr_level);
+    gf_group->max_layer_depth = AVMMAX(gf_group->max_layer_depth, pyr_level);
 
     if (idx != (subgop_cfg->num_steps - 1)) (*frame_index)++;
   }
@@ -191,7 +191,7 @@ static const SubGOPCfg *get_subgop_config(SubGOPSetCfg *config_set,
                                           int num_frames, int is_last_subgop,
                                           int is_first_subgop, int use_alt_ref,
                                           int *is_ld_map) {
-  const SubGOPCfg *cfg = av1_find_subgop_config(
+  const SubGOPCfg *cfg = av2_find_subgop_config(
       config_set, num_frames, is_last_subgop, is_first_subgop);
   if (!cfg) {
     *is_ld_map = 0;
@@ -220,7 +220,7 @@ static const SubGOPCfg *get_subgop_config(SubGOPSetCfg *config_set,
 }
 
 static int construct_multi_layer_gf_structure(
-    AV1_COMP *cpi, TWO_PASS *twopass, GF_GROUP *const gf_group,
+    AV2_COMP *cpi, TWO_PASS *twopass, GF_GROUP *const gf_group,
     RATE_CONTROL *rc, FRAME_INFO *const frame_info, int gf_interval,
     FRAME_UPDATE_TYPE first_frame_update_type) {
   int frame_index = 0;
@@ -311,7 +311,7 @@ static int construct_multi_layer_gf_structure(
         gf_group->cur_frame_idx[frame_index] = cur_frame_index;
         gf_group->layer_depth[frame_index] = MAX_ARF_LAYERS;
         gf_group->arf_boost[frame_index] = NORMAL_BOOST;
-        gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, 2);
+        gf_group->max_layer_depth = AVMMAX(gf_group->max_layer_depth, 2);
         ++frame_index;
       }
     }
@@ -347,7 +347,7 @@ void check_frame_params(GF_GROUP *const gf_group, int gf_interval) {
 }
 #endif  // CHECK_GF_PARAMETER
 
-void av1_gop_setup_structure(AV1_COMP *cpi) {
+void av2_gop_setup_structure(AV2_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   GF_GROUP *const gf_group = &cpi->gf_group;
   TWO_PASS *const twopass = &cpi->twopass;

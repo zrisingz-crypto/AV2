@@ -14,13 +14,13 @@
 #include <cstdio>
 #include <string>
 
-#include "aom/aom_codec.h"
-#include "aom/aom_integer.h"
-#include "aom_ports/mem_ops.h"
-#include "av1/common/obu_util.h"
+#include "avm/avm_codec.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem_ops.h"
+#include "av2/common/obu_util.h"
 #include "tools/obu_parser.h"
 
-namespace aom_tools {
+namespace avm_tools {
 
 // Basic OBU syntax
 // 8 bits: Header
@@ -129,7 +129,7 @@ void PrintObuHeader(const ObuHeader *header, bool first_tile_group_in_frame) {
       "      type:      %s%s\n"
       "      tlayer_id: %d\n",
       header->obu_extension_flag ? "yes" : "no",
-      aom_obu_type_to_string(static_cast<OBU_TYPE>(header->type)),
+      avm_obu_type_to_string(static_cast<OBU_TYPE>(header->type)),
       first_tile_group_in_frame ? " (new frame)" : "", header->obu_tlayer_id);
   if (header->obu_extension_flag) {
     printf(
@@ -156,7 +156,7 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
 
     uint64_t obu_size = 0;
     size_t length_field_size = 0;
-    if (aom_uleb_decode(data + consumed, remaining, &obu_size,
+    if (avm_uleb_decode(data + consumed, remaining, &obu_size,
                         &length_field_size) != 0) {
       fprintf(stderr, "OBU size parsing failed at offset %d.\n", consumed);
       return false;
@@ -230,4 +230,4 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
   return true;
 }
 
-}  // namespace aom_tools
+}  // namespace avm_tools

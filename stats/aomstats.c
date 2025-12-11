@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "stats/aomstats.h"
+#include "stats/avmstats.h"
 
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 #include "common/tools_common.h"
 
 int stats_open_file(stats_io_t *stats, const char *fpf, int pass) {
@@ -93,7 +93,7 @@ void stats_write(stats_io_t *stats, const void *pkt, size_t len) {
   if (stats->buf.sz + len > stats->buf_alloc_sz) {
     // Grow by a factor of 1.5 each time, for amortized constant time.
     // Also make sure there is enough room for the data.
-    size_t new_sz = AOMMAX((3 * stats->buf_alloc_sz) / 2, stats->buf.sz + len);
+    size_t new_sz = AVMMAX((3 * stats->buf_alloc_sz) / 2, stats->buf.sz + len);
     char *new_ptr = realloc(stats->buf.buf, new_sz);
 
     if (new_ptr) {
@@ -110,4 +110,4 @@ void stats_write(stats_io_t *stats, const void *pkt, size_t len) {
   stats->buf_ptr += len;
 }
 
-aom_fixed_buf_t stats_get(stats_io_t *stats) { return stats->buf; }
+avm_fixed_buf_t stats_get(stats_io_t *stats) { return stats->buf; }

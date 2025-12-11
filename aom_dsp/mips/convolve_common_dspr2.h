@@ -10,32 +10,32 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_
-#define AOM_AOM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_
+#ifndef AVM_AVM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_
+#define AVM_AVM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_
 
 #include <assert.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/mips/common_dspr2.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/mips/common_dspr2.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if HAVE_DSPR2
-void aom_convolve2_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve2_horiz_dspr2(const uint8_t *src, ptrdiff_t src_stride,
                                uint8_t *dst, ptrdiff_t dst_stride,
                                const int16_t *filter_x, int x_step_q4,
                                const int16_t *filter_y, int y_step_q4, int w,
                                int h);
 
-void aom_convolve2_dspr2(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
+void avm_convolve2_dspr2(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                          ptrdiff_t dst_stride, const int16_t *filter, int w,
                          int h);
 
-void aom_convolve2_vert_dspr2(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve2_vert_dspr2(const uint8_t *src, ptrdiff_t src_stride,
                               uint8_t *dst, ptrdiff_t dst_stride,
                               const int16_t *filter_x, int x_step_q4,
                               const int16_t *filter_y, int y_step_q4, int w,
@@ -46,4 +46,4 @@ void aom_convolve2_vert_dspr2(const uint8_t *src, ptrdiff_t src_stride,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_
+#endif  // AVM_AVM_DSP_MIPS_CONVOLVE_COMMON_DSPR2_H_

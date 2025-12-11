@@ -15,19 +15,19 @@
 
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
 
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
-#include "aom_dsp/x86/blend_sse4.h"
-#include "aom_dsp/x86/blend_mask_sse4.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
+#include "avm_dsp/x86/blend_sse4.h"
+#include "avm_dsp/x86/blend_mask_sse4.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 //////////////////////////////////////////////////////////////////////////////
-// aom_highbd_blend_a64_d16_mask_avx2()
+// avm_highbd_blend_a64_d16_mask_avx2()
 //////////////////////////////////////////////////////////////////////////////
 
 static INLINE void highbd_blend_a64_d16_mask_w4_avx2(
@@ -418,7 +418,7 @@ static INLINE void highbd_blend_a64_d16_mask_subw1_subh1_w16_avx2(
   }
 }
 
-void aom_highbd_blend_a64_d16_mask_avx2(
+void avm_highbd_blend_a64_d16_mask_avx2(
     uint16_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0,
     uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride,
     const uint8_t *mask, uint32_t mask_stride, int w, int h, int subw, int subh,
@@ -428,13 +428,13 @@ void aom_highbd_blend_a64_d16_mask_avx2(
   const int32_t round_offset =
       ((1 << (round_bits + bd)) + (1 << (round_bits + bd - 1)) -
        (1 << (round_bits - 1)))
-      << AOM_BLEND_A64_ROUND_BITS;
+      << AVM_BLEND_A64_ROUND_BITS;
   const __m256i v_round_offset = _mm256_set1_epi32(round_offset);
-  const int shift = round_bits + AOM_BLEND_A64_ROUND_BITS;
+  const int shift = round_bits + AVM_BLEND_A64_ROUND_BITS;
 
   const __m256i clip_low = _mm256_set1_epi16(0);
   const __m256i clip_high = _mm256_set1_epi16((1 << bd) - 1);
-  const __m256i mask_max = _mm256_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m256i mask_max = _mm256_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
 
   assert(IMPLIES((void *)src0 == dst, src0_stride == dst_stride));
   assert(IMPLIES((void *)src1 == dst, src1_stride == dst_stride));
@@ -491,7 +491,7 @@ void aom_highbd_blend_a64_d16_mask_avx2(
     // Sub-sampling in only one axis doesn't seem to happen very much, so fall
     // back to the vanilla C implementation instead of having all the optimised
     // code for these.
-    aom_highbd_blend_a64_d16_mask_c(dst, dst_stride, src0, src0_stride, src1,
+    avm_highbd_blend_a64_d16_mask_c(dst, dst_stride, src0, src0_stride, src1,
                                     src1_stride, mask, mask_stride, w, h, subw,
                                     subh, conv_params, bd);
   }

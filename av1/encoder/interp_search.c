@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/pred_common.h"
-#include "av1/encoder/interp_search.h"
-#include "av1/encoder/model_rd.h"
-#include "av1/encoder/rdopt_utils.h"
-#include "av1/encoder/reconinter_enc.h"
+#include "av2/common/pred_common.h"
+#include "av2/encoder/interp_search.h"
+#include "av2/encoder/model_rd.h"
+#include "av2/encoder/rdopt_utils.h"
+#include "av2/encoder/reconinter_enc.h"
 
 // return mv_diff
 static INLINE int is_interp_filter_good_match(
@@ -89,8 +89,8 @@ static INLINE int find_interp_filter_in_stats(
   return -1;  // no match result found
 }
 
-int av1_find_interp_filter_match(
-    MB_MODE_INFO *const mbmi, const AV1_COMP *const cpi,
+int av2_find_interp_filter_match(
+    MB_MODE_INFO *const mbmi, const AV2_COMP *const cpi,
     const InterpFilter assign_filter, const int need_search,
     INTERPOLATION_FILTER_STATS *interp_filter_stats, MACROBLOCKD *xd,
     int interp_filter_stats_idx) {
@@ -128,27 +128,27 @@ static INLINE int get_switchable_rate(MACROBLOCK *const x,
 // Build inter predictor and calculate model rd
 // for a given plane.
 static INLINE void interp_model_rd_eval(
-    MACROBLOCK *const x, const AV1_COMP *const cpi, BLOCK_SIZE bsize,
+    MACROBLOCK *const x, const AV2_COMP *const cpi, BLOCK_SIZE bsize,
     const BUFFER_SET *const orig_dst, int plane_from, int plane_to,
     RD_STATS *rd_stats, int is_skip_build_pred) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   RD_STATS tmp_rd_stats;
-  av1_init_rd_stats(&tmp_rd_stats);
+  av2_init_rd_stats(&tmp_rd_stats);
 
   // Skip inter predictor if the predictor is already available.
   if (!is_skip_build_pred) {
     const int mi_row = xd->mi_row;
     const int mi_col = xd->mi_col;
-    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+    av2_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                   plane_from, plane_to);
   }
 
   // The chroma can have different bsize than luma, so they need to taken care
   // of separately.
-  assert(IMPLIES(plane_from == AOM_PLANE_Y, plane_to == AOM_PLANE_Y));
-  if (plane_from > AOM_PLANE_Y) {
-    bsize = get_bsize_base(xd, xd->mi[0], AOM_PLANE_U);
+  assert(IMPLIES(plane_from == AVM_PLANE_Y, plane_to == AVM_PLANE_Y));
+  if (plane_from > AVM_PLANE_Y) {
+    bsize = get_bsize_base(xd, xd->mi[0], AVM_PLANE_U);
   }
 
   model_rd_sb_fn[MODELRD_TYPE_INTERP_FILTER](
@@ -156,26 +156,26 @@ static INLINE void interp_model_rd_eval(
       &tmp_rd_stats.dist, &tmp_rd_stats.skip_txfm, &tmp_rd_stats.sse, NULL,
       NULL, NULL);
 
-  av1_merge_rd_stats(rd_stats, &tmp_rd_stats);
+  av2_merge_rd_stats(rd_stats, &tmp_rd_stats);
 }
 
 // calculate the rdcost of given interpolation_filter
 static INLINE int64_t interpolation_filter_rd(
-    MACROBLOCK *const x, const AV1_COMP *const cpi,
+    MACROBLOCK *const x, const AV2_COMP *const cpi,
     const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     const BUFFER_SET *const orig_dst, int64_t *const rd,
     RD_STATS *rd_stats_luma, RD_STATS *rd_stats, int *const switchable_rate,
     const BUFFER_SET *dst_bufs[2], int filter_idx, const int switchable_ctx[2],
     const int skip_pred) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const InterpSearchFlags *interp_search_flags = &cpi->interp_search_flags;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   RD_STATS this_rd_stats_luma, this_rd_stats;
 
   // Initialize rd_stats structures to default values.
-  av1_init_rd_stats(&this_rd_stats_luma);
+  av2_init_rd_stats(&this_rd_stats_luma);
   this_rd_stats = *rd_stats_luma;
   const InterpFilter last_best = mbmi->interp_fltr;
   mbmi->interp_fltr = filter_idx;
@@ -218,16 +218,16 @@ static INLINE int64_t interpolation_filter_rd(
     case INTERP_EVAL_LUMA_EVAL_CHROMA:
       // skip_pred = 0: Evaluate both luma and chroma.
       // Luma MC
-      interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_Y, AOM_PLANE_Y,
+      interp_model_rd_eval(x, cpi, bsize, orig_dst, AVM_PLANE_Y, AVM_PLANE_Y,
                            &this_rd_stats_luma, 0);
       this_rd_stats = this_rd_stats_luma;
 #if CONFIG_COLLECT_RD_STATS == 3
       RD_STATS rd_stats_y;
-      av1_pick_recursive_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize,
+      av2_pick_recursive_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize,
                                           INT64_MAX);
       PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case INTERP_SKIP_LUMA_EVAL_CHROMA:
       // skip_pred = 1: skip luma evaluation (retain previous best luma stats)
       // and do chroma evaluation.
@@ -281,7 +281,7 @@ static INLINE int64_t interpolation_filter_rd(
 
 // Find the best interp filter if dual_interp_filter = 0
 static INLINE void find_best_non_dual_interp_filter(
-    MACROBLOCK *const x, const AV1_COMP *const cpi,
+    MACROBLOCK *const x, const AV2_COMP *const cpi,
     const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     const BUFFER_SET *const orig_dst, int64_t *const rd, RD_STATS *rd_stats_y,
     RD_STATS *rd_stats, int *const switchable_rate,
@@ -296,19 +296,19 @@ static INLINE void find_best_non_dual_interp_filter(
 }
 
 static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
-                                              const AV1_COMP *const cpi,
+                                              const AV2_COMP *const cpi,
                                               int *skip_hor, int *skip_ver) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const int is_compound = has_second_ref(mbmi);
   assert(is_intrabc_block(mbmi, xd->tree_type) == 0);
   for (int ref = 0; ref < 1 + is_compound; ++ref) {
     const struct scale_factors *const sf =
         get_ref_scale_factors_const(cm, mbmi->ref_frame[ref]);
     // TODO(any): Refine skip flag calculation considering scaling
-    if (av1_is_scaled(sf)) {
+    if (av2_is_scaled(sf)) {
       *skip_hor = 0;
       *skip_ver = 0;
       break;
@@ -316,7 +316,7 @@ static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
     const MV mv = mbmi->mv[ref].as_mv;
     int skip_hor_plane = 0;
     int skip_ver_plane = 0;
-    for (int plane_idx = 0; plane_idx < AOMMAX(1, (num_planes - 1));
+    for (int plane_idx = 0; plane_idx < AVMMAX(1, (num_planes - 1));
          ++plane_idx) {
       struct macroblockd_plane *const pd = &xd->plane[plane_idx];
       const int bw = pd->width;
@@ -346,7 +346,7 @@ static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
   }
 }
 
-/*!\brief AV1 interpolation filter search
+/*!\brief AV2 interpolation filter search
  *
  * \ingroup inter_mode_search
  *
@@ -383,31 +383,31 @@ static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
  * current motion mode being tested should be skipped. It returns 0 if the
  * parameter search is a success.
  */
-int64_t av1_interpolation_filter_search(
-    MACROBLOCK *const x, const AV1_COMP *const cpi,
+int64_t av2_interpolation_filter_search(
+    MACROBLOCK *const x, const AV2_COMP *const cpi,
     const TileDataEnc *tile_data, BLOCK_SIZE bsize,
     const BUFFER_SET *const tmp_dst, const BUFFER_SET *const orig_dst,
     int64_t *const rd, int *const switchable_rate, int *skip_build_pred,
     HandleInterModeArgs *args, int64_t ref_best_rd) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   const InterpSearchFlags *interp_search_flags = &cpi->interp_search_flags;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const int need_search = av1_is_interp_needed(cm, xd);
+  const int need_search = av2_is_interp_needed(cm, xd);
   const int ref_frame = COMPACT_INDEX0_NRS(xd->mi[0]->ref_frame[0]);
   RD_STATS rd_stats_luma, rd_stats;
 
   if (mbmi->mode == WARPMV) return 0;
 
   // Initialization of rd_stats structures with default values
-  av1_init_rd_stats(&rd_stats_luma);
-  av1_init_rd_stats(&rd_stats);
+  av2_init_rd_stats(&rd_stats_luma);
+  av2_init_rd_stats(&rd_stats);
 
   int match_found_idx = -1;
   const InterpFilter assign_filter = cm->features.interp_filter;
 
-  match_found_idx = av1_find_interp_filter_match(
+  match_found_idx = av2_find_interp_filter_match(
       mbmi, cpi, assign_filter, need_search, args->interp_filter_stats, xd,
       args->interp_filter_stats_idx);
 
@@ -419,8 +419,8 @@ int64_t av1_interpolation_filter_search(
   }
 
   int switchable_ctx[2];
-  switchable_ctx[0] = av1_get_pred_context_switchable_interp(xd, 0);
-  switchable_ctx[1] = av1_get_pred_context_switchable_interp(xd, 1);
+  switchable_ctx[0] = av2_get_pred_context_switchable_interp(xd, 0);
+  switchable_ctx[1] = av2_get_pred_context_switchable_interp(xd, 1);
   *switchable_rate =
       (opfl_allowed_cur_pred_mode(cm, xd, mbmi) || mbmi->refinemv_flag ||
        is_tip_ref_frame(mbmi->ref_frame[0]))
@@ -429,22 +429,22 @@ int64_t av1_interpolation_filter_search(
 
   // Do MC evaluation for default filter_type.
   // Luma MC
-  interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_Y, AOM_PLANE_Y,
+  interp_model_rd_eval(x, cpi, bsize, orig_dst, AVM_PLANE_Y, AVM_PLANE_Y,
                        &rd_stats_luma, *skip_build_pred);
 
 #if CONFIG_COLLECT_RD_STATS == 3
   RD_STATS rd_stats_y;
-  av1_pick_recursive_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
+  av2_pick_recursive_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
   PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
   // Chroma MC
   if (num_planes > 1) {
-    interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_U, AOM_PLANE_V,
+    interp_model_rd_eval(x, cpi, bsize, orig_dst, AVM_PLANE_U, AVM_PLANE_V,
                          &rd_stats, *skip_build_pred);
   }
   *skip_build_pred = 1;
 
-  av1_merge_rd_stats(&rd_stats, &rd_stats_luma);
+  av2_merge_rd_stats(&rd_stats, &rd_stats_luma);
 
   assert(rd_stats.rate >= 0);
 
@@ -471,7 +471,7 @@ int64_t av1_interpolation_filter_search(
       const int mode0 = compound_ref0_mode(mbmi->mode);
       const int mode1 = compound_ref1_mode(mbmi->mode);
       const int64_t mrd =
-          AOMMIN(args->modelled_rd[mode0][get_ref_mv_idx(mbmi, 0)][refs[0]],
+          AVMMIN(args->modelled_rd[mode0][get_ref_mv_idx(mbmi, 0)][refs[0]],
                  args->modelled_rd[mode1][get_ref_mv_idx(mbmi, 1)][refs[1]]);
 
       if ((*rd >> 1) > mrd && ref_best_rd < INT64_MAX) {
@@ -506,8 +506,8 @@ int64_t av1_interpolation_filter_search(
     assert((skip_hor == 1) || (skip_ver == 1));
     const int mi_row = xd->mi_row;
     const int mi_col = xd->mi_col;
-    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
-                                  AOM_PLANE_Y, AOM_PLANE_Y);
+    av2_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                  AVM_PLANE_Y, AVM_PLANE_Y);
   }
   x->pred_sse[ref_frame] = (unsigned int)(rd_stats_luma.sse >> 4);
 

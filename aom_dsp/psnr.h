@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_PSNR_H_
-#define AOM_AOM_DSP_PSNR_H_
+#ifndef AVM_AVM_DSP_PSNR_H_
+#define AVM_AVM_DSP_PSNR_H_
 
-#include "aom_scale/yv12config.h"
+#include "avm_scale/yv12config.h"
 
 #define MAX_PSNR 100.0
 
@@ -38,45 +38,45 @@ typedef struct {
  * \param[in]    peak          Max sample value
  * \param[in]    sse           Sum of squared errors
  */
-double aom_sse_to_psnr(double samples, double peak, double sse);
-int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+double avm_sse_to_psnr(double samples, double peak, double sse);
+int64_t avm_get_sse_plane(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, int plane);
-int64_t aom_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
+int64_t avm_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
                                     const YV12_BUFFER_CONFIG *b, int plane,
                                     const uint8_t *active_map,
                                     const int active_map_stride,
                                     const int unit_cols, const int unit_rows,
                                     const int unit_w, const int unit_h);
-uint64_t aom_highbd_get_y_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_y_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height);
-uint64_t aom_highbd_get_u_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_u_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height);
-uint64_t aom_highbd_get_v_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_v_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height);
-int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b);
-int64_t aom_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b);
-int64_t aom_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height);
-int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b);
-void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
+void avm_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
                           unsigned int bit_depth, unsigned int in_bit_depth,
                           bool lossless);
 
-double aom_psnrhvs(const YV12_BUFFER_CONFIG *source,
+double avm_psnrhvs(const YV12_BUFFER_CONFIG *source,
                    const YV12_BUFFER_CONFIG *dest, double *phvs_y,
                    double *phvs_u, double *phvs_v, uint32_t bd, uint32_t in_bd);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AOM_DSP_PSNR_H_
+#endif  // AVM_AVM_DSP_PSNR_H_

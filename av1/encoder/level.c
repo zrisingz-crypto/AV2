@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_ports/system_state.h"
+#include "avm_ports/system_state.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/level.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/level.h"
 
 /* clang-format off */
 #define UNDEFINED_LEVEL     \
@@ -32,7 +32,7 @@
     .max_tile_cols = 0 }
 /* clang-format on */
 
-static const AV1LevelSpec av1_level_defs[SEQ_LEVELS] = {
+static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
   { .level = SEQ_LEVEL_2_0,
     .max_picture_size = 147456,
     .max_h_size = 2048,
@@ -276,7 +276,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The DPB size is invalid.",
 };
 
-static double get_max_bitrate(const AV1LevelSpec *const level_spec, int tier,
+static double get_max_bitrate(const AV2LevelSpec *const level_spec, int tier,
                               BITSTREAM_PROFILE profile) {
   if (level_spec->level < SEQ_LEVEL_4_0) tier = 0;
   const double bitrate_basis =
@@ -286,20 +286,20 @@ static double get_max_bitrate(const AV1LevelSpec *const level_spec, int tier,
   return bitrate_basis * bitrate_profile_factor;
 }
 
-double av1_get_max_bitrate_for_level(AV1_LEVEL level_index, int tier,
+double av2_get_max_bitrate_for_level(AV2_LEVEL level_index, int tier,
                                      BITSTREAM_PROFILE profile) {
   assert(is_valid_seq_level_idx(level_index));
 #if CONFIG_CWG_F270_OPS
-  return get_max_bitrate(&av1_level_defs[level_index], tier, profile);
+  return get_max_bitrate(&av2_level_defs[level_index], tier, profile);
 #else
-  return get_max_bitrate(&av1_level_defs[level_index], tier, profile);
+  return get_max_bitrate(&av2_level_defs[level_index], tier, profile);
 #endif  // CONFIG_CWG_F270_OPS
 }
 
-void av1_get_max_tiles_for_level(AV1_LEVEL level_index, int *const max_tiles,
+void av2_get_max_tiles_for_level(AV2_LEVEL level_index, int *const max_tiles,
                                  int *const max_tile_cols) {
   assert(is_valid_seq_level_idx(level_index));
-  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  const AV2LevelSpec *const level_spec = &av2_level_defs[level_index];
   *max_tiles = level_spec->max_tiles;
   *max_tile_cols = level_spec->max_tile_cols;
 }
@@ -339,7 +339,7 @@ static int get_free_buffer(DECODER_MODEL *const decoder_model) {
   return -1;
 }
 
-static void update_ref_buffers(const AV1_COMMON *const cm,
+static void update_ref_buffers(const AV2_COMMON *const cm,
                                DECODER_MODEL *const decoder_model, int idx,
                                int refresh_frame_flags) {
   FRAME_BUFFER *const this_buffer = &decoder_model->frame_buffer_pool[idx];
@@ -356,7 +356,7 @@ static void update_ref_buffers(const AV1_COMMON *const cm,
 }
 
 // The time (in seconds) required to decode a frame.
-static double time_to_decode_frame(const AV1_COMMON *const cm,
+static double time_to_decode_frame(const AV2_COMMON *const cm,
                                    int64_t max_decode_rate) {
   if (cm->show_existing_frame) return 0.0;
   const FRAME_TYPE frame_type = cm->current_frame.frame_type;
@@ -460,7 +460,7 @@ static double get_removal_time(const DECODER_MODEL *const decoder_model) {
   }
 }
 
-void av1_decoder_model_print_status(const DECODER_MODEL *const decoder_model) {
+void av2_decoder_model_print_status(const DECODER_MODEL *const decoder_model) {
   printf(
       "\n status %d, num_frame %3d, num_decoded_frame %3d, "
       "num_shown_frame %3d, current time %6.2f, frames in buffer %2d, "
@@ -480,20 +480,20 @@ void av1_decoder_model_print_status(const DECODER_MODEL *const decoder_model) {
 }
 
 // op_index is the operating point index.
-void av1_decoder_model_init(const AV1_COMP *const cpi, AV1_LEVEL level,
+void av2_decoder_model_init(const AV2_COMP *const cpi, AV2_LEVEL level,
                             int op_index, DECODER_MODEL *const decoder_model) {
-  aom_clear_system_state();
+  avm_clear_system_state();
   decoder_model->status = DECODER_MODEL_OK;
   decoder_model->level = level;
 
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
 #if CONFIG_CWG_F270_OPS
   decoder_model->bit_rate = get_max_bitrate(
-      av1_level_defs + level, cpi->tier[op_index], seq_params->profile);
+      av2_level_defs + level, cpi->tier[op_index], seq_params->profile);
 #else
   decoder_model->bit_rate = get_max_bitrate(
-      av1_level_defs + level, seq_params->tier[op_index], seq_params->profile);
+      av2_level_defs + level, seq_params->tier[op_index], seq_params->profile);
 #endif  // CONFIG_CWG_F270_OPS
 
   // TODO(huisu or anyone): implement SCHEDULE_MODE.
@@ -551,17 +551,17 @@ void av1_decoder_model_init(const AV1_COMP *const cpi, AV1_LEVEL level,
   decoder_model->initial_display_delay =
       seq_params->op_params[op_index].initial_display_delay;
   decoder_model->initial_presentation_delay = INVALID_TIME;
-  decoder_model->decode_rate = av1_level_defs[level].max_decode_rate;
+  decoder_model->decode_rate = av2_level_defs[level].max_decode_rate;
 }
 
-void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
+void av2_decoder_model_process_frame(const AV2_COMP *const cpi,
                                      size_t coded_bits,
                                      DECODER_MODEL *const decoder_model) {
   if (!decoder_model || decoder_model->status != DECODER_MODEL_OK) return;
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const int luma_pic_size = cm->width * cm->height;
   const int show_existing_frame = cm->show_existing_frame;
   const int show_frame = cm->show_frame || show_existing_frame;
@@ -601,7 +601,7 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
     const double this_decode_rate =
         previous_decode_samples / (removal_time - previous_removal_time);
     decoder_model->max_decode_rate =
-        AOMMAX(decoder_model->max_decode_rate, this_decode_rate);
+        AVMMAX(decoder_model->max_decode_rate, this_decode_rate);
 
     // A frame with show_existing_frame being false indicates the end of a DFG.
     // Update the bits arrival time of this DFG.
@@ -610,7 +610,7 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
                                 90000.0;
     const double latest_arrival_time = removal_time - buffer_delay;
     decoder_model->first_bit_arrival_time =
-        AOMMAX(decoder_model->last_bit_arrival_time, latest_arrival_time);
+        AVMMAX(decoder_model->last_bit_arrival_time, latest_arrival_time);
     decoder_model->last_bit_arrival_time =
         decoder_model->first_bit_arrival_time +
         (double)decoder_model->coded_bits / decoder_model->bit_rate;
@@ -719,20 +719,20 @@ void av1_decoder_model_process_frame(const AV1_COMP *const cpi,
           previous_display_samples /
           (presentation_time - previous_presentation_time);
       decoder_model->max_display_rate =
-          AOMMAX(decoder_model->max_display_rate, this_display_rate);
+          AVMMAX(decoder_model->max_display_rate, this_display_rate);
     }
   }
 }
 
-void av1_init_level_info(AV1_COMP *cpi) {
+void av2_init_level_info(AV2_COMP *cpi) {
   for (int op_index = 0; op_index < MAX_NUM_OPERATING_POINTS; ++op_index) {
-    AV1LevelInfo *const this_level_info =
+    AV2LevelInfo *const this_level_info =
         cpi->level_params.level_info[op_index];
     if (!this_level_info) continue;
     memset(this_level_info, 0, sizeof(*this_level_info));
-    AV1LevelSpec *const level_spec = &this_level_info->level_spec;
+    AV2LevelSpec *const level_spec = &this_level_info->level_spec;
     level_spec->level = SEQ_LEVEL_MAX;
-    AV1LevelStats *const level_stats = &this_level_info->level_stats;
+    AV2LevelStats *const level_stats = &this_level_info->level_stats;
     level_stats->min_cropped_tile_width = INT_MAX;
     level_stats->min_cropped_tile_height = INT_MAX;
     level_stats->min_frame_width = INT_MAX;
@@ -745,50 +745,50 @@ void av1_init_level_info(AV1_COMP *cpi) {
     frame_window_buffer->num = 0;
     frame_window_buffer->start = 0;
 
-    const AV1_COMMON *const cm = &cpi->common;
+    const AV2_COMMON *const cm = &cpi->common;
     const int upscaled_width = cm->width;
     const int height = cm->height;
     const int pic_size = upscaled_width * height;
-    for (AV1_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
+    for (AV2_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
       DECODER_MODEL *const this_model = &this_level_info->decoder_models[level];
-      const AV1LevelSpec *const spec = &av1_level_defs[level];
+      const AV2LevelSpec *const spec = &av2_level_defs[level];
       if (upscaled_width > spec->max_h_size || height > spec->max_v_size ||
           pic_size > spec->max_picture_size) {
         // Turn off decoder model for this level as the frame size already
         // exceeds level constraints.
         this_model->status = DECODER_MODEL_DISABLED;
       } else {
-        av1_decoder_model_init(cpi, level, op_index, this_model);
+        av2_decoder_model_init(cpi, level, op_index, this_model);
       }
     }
   }
 }
 
-static double get_min_cr(const AV1LevelSpec *const level_spec, int tier,
+static double get_min_cr(const AV2LevelSpec *const level_spec, int tier,
                          int is_still_picture, int64_t decoded_sample_rate) {
   if (is_still_picture) return 0.8;
   if (level_spec->level < SEQ_LEVEL_4_0) tier = 0;
   const double min_cr_basis = tier ? level_spec->high_cr : level_spec->main_cr;
   const double speed_adj =
       (double)decoded_sample_rate / level_spec->max_display_rate;
-  return AOMMAX(min_cr_basis * speed_adj, 0.8);
+  return AVMMAX(min_cr_basis * speed_adj, 0.8);
 }
 
-double av1_get_min_cr_for_level(AV1_LEVEL level_index, int tier,
+double av2_get_min_cr_for_level(AV2_LEVEL level_index, int tier,
                                 int is_still_picture) {
   assert(is_valid_seq_level_idx(level_index));
-  const AV1LevelSpec *const level_spec = &av1_level_defs[level_index];
+  const AV2LevelSpec *const level_spec = &av2_level_defs[level_index];
   return get_min_cr(level_spec, tier, is_still_picture,
                     level_spec->max_decode_rate);
 }
 
-int av1_get_max_legal_dpb_size(const SequenceHeader *seq_params,
-                               AV1_LEVEL level_index) {
-  int max_picture_size = av1_level_defs[level_index].max_picture_size;
+int av2_get_max_legal_dpb_size(const SequenceHeader *seq_params,
+                               AV2_LEVEL level_index) {
+  int max_picture_size = av2_level_defs[level_index].max_picture_size;
   int current_picture_size =
       seq_params->max_frame_width * seq_params->max_frame_height;
   int max_legal_dpb_size =
-      AOMMIN(REF_FRAMES, (int)((max_picture_size * 8) / current_picture_size));
+      AVMMIN(REF_FRAMES, (int)((max_picture_size * 8) / current_picture_size));
   return max_legal_dpb_size;
 }
 
@@ -815,8 +815,8 @@ static void get_temporal_parallel_params(int scalability_mode_idc,
 #define MAX_TILE_SIZE_HEADER_RATE_PRODUCT 588251136
 
 static TARGET_LEVEL_FAIL_ID check_level_constraints(
-    const SequenceHeader *seq_params, const AV1LevelInfo *const level_info,
-    AV1_LEVEL level, int tier, int is_still_picture, BITSTREAM_PROFILE profile,
+    const SequenceHeader *seq_params, const AV2LevelInfo *const level_info,
+    AV2_LEVEL level, int tier, int is_still_picture, BITSTREAM_PROFILE profile,
     int check_bitrate) {
   const DECODER_MODEL *const decoder_model = &level_info->decoder_models[level];
   const DECODER_MODEL_STATUS decoder_model_status = decoder_model->status;
@@ -825,9 +825,9 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
     return DECODER_MODEL_FAIL;
   }
 
-  const AV1LevelSpec *const level_spec = &level_info->level_spec;
-  const AV1LevelSpec *const target_level_spec = &av1_level_defs[level];
-  const AV1LevelStats *const level_stats = &level_info->level_stats;
+  const AV2LevelSpec *const level_spec = &level_info->level_spec;
+  const AV2LevelSpec *const target_level_spec = &av2_level_defs[level];
+  const AV2LevelStats *const level_stats = &level_info->level_stats;
   TARGET_LEVEL_FAIL_ID fail_id = TARGET_LEVEL_OK;
   do {
     if (level_spec->max_picture_size > target_level_spec->max_picture_size) {
@@ -933,7 +933,7 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
     }
 
     if (seq_params->ref_frames >
-        av1_get_max_legal_dpb_size(seq_params, level)) {
+        av2_get_max_legal_dpb_size(seq_params, level)) {
       fail_id = DPB_SIZE_FAIL;
       break;
     }
@@ -943,7 +943,7 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
   return fail_id;
 }
 
-static void get_tile_stats(const AV1_COMMON *const cm,
+static void get_tile_stats(const AV2_COMMON *const cm,
                            const TileDataEnc *const tile_data,
                            int *max_tile_size, int *min_cropped_tile_width,
                            int *min_cropped_tile_height,
@@ -964,16 +964,16 @@ static void get_tile_stats(const AV1_COMMON *const cm,
       const int tile_height =
           (tile_info->mi_row_end - tile_info->mi_row_start) * MI_SIZE;
       const int tile_size = tile_width * tile_height;
-      *max_tile_size = AOMMAX(*max_tile_size, tile_size);
+      *max_tile_size = AVMMAX(*max_tile_size, tile_size);
 
       const int cropped_tile_width =
           cm->width - tile_info->mi_col_start * MI_SIZE;
       const int cropped_tile_height =
           cm->height - tile_info->mi_row_start * MI_SIZE;
       *min_cropped_tile_width =
-          AOMMIN(*min_cropped_tile_width, cropped_tile_width);
+          AVMMIN(*min_cropped_tile_width, cropped_tile_width);
       *min_cropped_tile_height =
-          AOMMIN(*min_cropped_tile_height, cropped_tile_height);
+          AVMMIN(*min_cropped_tile_height, cropped_tile_height);
 
       const int is_right_most_tile =
           tile_info->mi_col_end == cm->mi_params.mi_cols;
@@ -1016,7 +1016,7 @@ static int count_frames(const FrameWindowBuffer *const buffer,
   assert(buffer->buf[current_idx].show_frame);
 
   const int64_t current_time = buffer->buf[current_idx].ts_end;
-  const int64_t time_limit = AOMMAX(current_time - duration, 0);
+  const int64_t time_limit = AVMMAX(current_time - duration, 0);
   int num_frames = 1;
   int index = current_idx - 1;
   for (int i = buffer->num - 2; i >= 0; --i, --index, ++num_frames) {
@@ -1033,8 +1033,8 @@ static int count_frames(const FrameWindowBuffer *const buffer,
 // Scan previously encoded frames and update level metrics accordingly.
 static void scan_past_frames(const FrameWindowBuffer *const buffer,
                              int num_frames_to_scan,
-                             AV1LevelSpec *const level_spec,
-                             AV1LevelStats *const level_stats) {
+                             AV2LevelSpec *const level_spec,
+                             AV2LevelStats *const level_stats) {
   const int num_frames_in_buffer = buffer->num;
   int index = (buffer->start + num_frames_in_buffer - 1) % FRAME_WINDOW_SIZE;
   int frame_headers = 0;
@@ -1042,7 +1042,7 @@ static void scan_past_frames(const FrameWindowBuffer *const buffer,
   int64_t display_samples = 0;
   int64_t decoded_samples = 0;
   size_t encoded_size_in_bytes = 0;
-  for (int i = 0; i < AOMMIN(num_frames_in_buffer, num_frames_to_scan); ++i) {
+  for (int i = 0; i < AVMMIN(num_frames_in_buffer, num_frames_to_scan); ++i) {
     const FrameRecord *const record = &buffer->buf[index];
 #if CONFIG_F024_KEYOBU
     frame_headers += record->frame_header_count;
@@ -1062,23 +1062,23 @@ static void scan_past_frames(const FrameWindowBuffer *const buffer,
     if (index < 0) index = FRAME_WINDOW_SIZE - 1;
   }
   level_spec->max_header_rate =
-      AOMMAX(level_spec->max_header_rate, frame_headers);
+      AVMMAX(level_spec->max_header_rate, frame_headers);
   // TODO(huisu): we can now compute max display rate with the decoder model, so
   // these couple of lines can be removed. Keep them here for a while for
   // debugging purpose.
   level_spec->max_display_rate =
-      AOMMAX(level_spec->max_display_rate, display_samples);
+      AVMMAX(level_spec->max_display_rate, display_samples);
   level_spec->max_decode_rate =
-      AOMMAX(level_spec->max_decode_rate, decoded_samples);
-  level_spec->max_tile_rate = AOMMAX(level_spec->max_tile_rate, tiles);
+      AVMMAX(level_spec->max_decode_rate, decoded_samples);
+  level_spec->max_tile_rate = AVMMAX(level_spec->max_tile_rate, tiles);
   level_stats->max_bitrate =
-      AOMMAX(level_stats->max_bitrate, (int)encoded_size_in_bytes * 8);
+      AVMMAX(level_stats->max_bitrate, (int)encoded_size_in_bytes * 8);
 }
 
-void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
+void av2_update_level_info(AV2_COMP *cpi, size_t size, int64_t ts_start,
                            int64_t ts_end) {
-  AV1_COMMON *const cm = &cpi->common;
-  const AV1LevelParams *const level_params = &cpi->level_params;
+  AV2_COMMON *const cm = &cpi->common;
+  const AV2LevelParams *const level_params = &cpi->level_params;
 
   const int upscaled_width = cm->width;
   const int width = cm->width;
@@ -1097,8 +1097,8 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   get_tile_stats(cm, cpi->tile_data, &max_tile_size, &min_cropped_tile_width,
                  &min_cropped_tile_height, &tile_width_is_valid);
 
-  aom_clear_system_state();
-  const double compression_ratio = av1_get_compression_ratio(cm, size);
+  avm_clear_system_state();
+  const double compression_ratio = av2_get_compression_ratio(cm, size);
 
   const int tlayer_id = cm->tlayer_id;
   const int mlayer_id = cm->mlayer_id;
@@ -1116,32 +1116,32 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
       continue;
     }
 
-    AV1LevelInfo *const level_info = level_params->level_info[i];
+    AV2LevelInfo *const level_info = level_params->level_info[i];
     assert(level_info != NULL);
-    AV1LevelStats *const level_stats = &level_info->level_stats;
+    AV2LevelStats *const level_stats = &level_info->level_stats;
 
     level_stats->max_tile_size =
-        AOMMAX(level_stats->max_tile_size, max_tile_size);
+        AVMMAX(level_stats->max_tile_size, max_tile_size);
     level_stats->min_cropped_tile_width =
-        AOMMIN(level_stats->min_cropped_tile_width, min_cropped_tile_width);
+        AVMMIN(level_stats->min_cropped_tile_width, min_cropped_tile_width);
     level_stats->min_cropped_tile_height =
-        AOMMIN(level_stats->min_cropped_tile_height, min_cropped_tile_height);
+        AVMMIN(level_stats->min_cropped_tile_height, min_cropped_tile_height);
     level_stats->tile_width_is_valid &= tile_width_is_valid;
-    level_stats->min_frame_width = AOMMIN(level_stats->min_frame_width, width);
+    level_stats->min_frame_width = AVMMIN(level_stats->min_frame_width, width);
     level_stats->min_frame_height =
-        AOMMIN(level_stats->min_frame_height, height);
-    level_stats->min_cr = AOMMIN(level_stats->min_cr, compression_ratio);
+        AVMMIN(level_stats->min_frame_height, height);
+    level_stats->min_cr = AVMMIN(level_stats->min_cr, compression_ratio);
     level_stats->total_compressed_size += (double)size;
 
     // update level_spec
     // TODO(kyslov@) update all spec fields
-    AV1LevelSpec *const level_spec = &level_info->level_spec;
+    AV2LevelSpec *const level_spec = &level_info->level_spec;
     level_spec->max_picture_size =
-        AOMMAX(level_spec->max_picture_size, luma_pic_size);
-    level_spec->max_h_size = AOMMAX(level_spec->max_h_size, cm->width);
-    level_spec->max_v_size = AOMMAX(level_spec->max_v_size, height);
-    level_spec->max_tile_cols = AOMMAX(level_spec->max_tile_cols, tile_cols);
-    level_spec->max_tiles = AOMMAX(level_spec->max_tiles, tiles);
+        AVMMAX(level_spec->max_picture_size, luma_pic_size);
+    level_spec->max_h_size = AVMMAX(level_spec->max_h_size, cm->width);
+    level_spec->max_v_size = AVMMAX(level_spec->max_v_size, height);
+    level_spec->max_tile_cols = AVMMAX(level_spec->max_tile_cols, tile_cols);
+    level_spec->max_tiles = AVMMAX(level_spec->max_tiles, tiles);
 
     // Store info. of current frame into FrameWindowBuffer.
     FrameWindowBuffer *const buffer = &level_info->frame_window_buffer;
@@ -1160,12 +1160,12 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
     }
 
     DECODER_MODEL *const decoder_models = level_info->decoder_models;
-    for (AV1_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
-      av1_decoder_model_process_frame(cpi, size << 3, &decoder_models[level]);
+    for (AV2_LEVEL level = SEQ_LEVEL_2_0; level < SEQ_LEVELS; ++level) {
+      av2_decoder_model_process_frame(cpi, size << 3, &decoder_models[level]);
     }
 
     // Check whether target level is met.
-    const AV1_LEVEL target_level = level_params->target_seq_level_idx[i];
+    const AV2_LEVEL target_level = level_params->target_seq_level_idx[i];
     if (target_level < SEQ_LEVELS) {
       assert(is_valid_seq_level_idx(target_level));
 #if CONFIG_CWG_F270_OPS
@@ -1179,7 +1179,7 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
       if (fail_id != TARGET_LEVEL_OK) {
         const int target_level_major = 2 + (target_level >> 2);
         const int target_level_minor = target_level & 3;
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+        avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                            "Failed to encode to the target level %d_%d. %s",
                            target_level_major, target_level_minor,
                            level_fail_messages[fail_id]);
@@ -1188,13 +1188,13 @@ void av1_update_level_info(AV1_COMP *cpi, size_t size, int64_t ts_start,
   }
 }
 
-aom_codec_err_t av1_get_seq_level_idx(
+avm_codec_err_t av2_get_seq_level_idx(
 #if CONFIG_CWG_F270_OPS
-    const AV1_COMP *cpi,
+    const AV2_COMP *cpi,
 #endif  // CONFIG_CWG_F270_OPS
     const SequenceHeader *seq_params,
 
-    const AV1LevelParams *level_params, int *seq_level_idx) {
+    const AV2LevelParams *level_params, int *seq_level_idx) {
   const int is_still_picture = seq_params->still_picture;
   const BITSTREAM_PROFILE profile = seq_params->profile;
 #if CONFIG_CWG_F270_OPS
@@ -1209,7 +1209,7 @@ aom_codec_err_t av1_get_seq_level_idx(
 #else
     const int tier = seq_params->tier[op];
 #endif  // CONFIG_CWG_F270_OPS
-    const AV1LevelInfo *const level_info = level_params->level_info[op];
+    const AV2LevelInfo *const level_info = level_params->level_info[op];
     assert(level_info != NULL);
     for (int level = 0; level < SEQ_LEVELS; ++level) {
       if (!is_valid_seq_level_idx(level)) continue;
@@ -1222,5 +1222,5 @@ aom_codec_err_t av1_get_seq_level_idx(
     }
   }
 
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }

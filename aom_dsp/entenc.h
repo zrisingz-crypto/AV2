@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_ENTENC_H_
-#define AOM_AOM_DSP_ENTENC_H_
+#ifndef AVM_AVM_DSP_ENTENC_H_
+#define AVM_AVM_DSP_ENTENC_H_
 #include <stddef.h>
-#include "aom_dsp/entcode.h"
+#include "avm_dsp/entcode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,4 +86,4 @@ void od_ec_enc_rollback(od_ec_enc *dst, const od_ec_enc *src);
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_ENTENC_H_
+#endif  // AVM_AVM_DSP_ENTENC_H_

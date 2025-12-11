@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/entcode.h"
+#include "avm_dsp/entcode.h"
 
-const uint16_t av1_prob_inc_tbl[15][16] = {
+const uint16_t av2_prob_inc_tbl[15][16] = {
   { 8, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
   { 10, 5, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
   { 12, 8, 4, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },

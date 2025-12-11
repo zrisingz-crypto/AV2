@@ -14,11 +14,11 @@
 #include <assert.h>
 #include <math.h>
 
-#include "av1/common/txb_common.h"
-#include "av1/encoder/encodetxb.h"
-#include "aom_dsp/arm/mem_neon.h"
+#include "av2/common/txb_common.h"
+#include "av2/encoder/encodetxb.h"
+#include "avm_dsp/arm/mem_neon.h"
 
-void av1_txb_init_levels_neon(const tran_low_t *const coeff, const int width,
+void av2_txb_init_levels_neon(const tran_low_t *const coeff, const int width,
                               const int height, uint8_t *const levels) {
   const int stride = width + TX_PAD_HOR;
   memset(levels - TX_PAD_TOP * stride, 0,
@@ -583,7 +583,7 @@ static INLINE void get_16n_coeff_contexts_ver(const uint8_t *levels,
 }
 
 // Note: levels[] must be in the range [0, 127], inclusive.
-void av1_get_nz_map_contexts_neon(const uint8_t *const levels,
+void av2_get_nz_map_contexts_neon(const uint8_t *const levels,
                                   const int16_t *const scan, const uint16_t eob,
                                   const TX_SIZE tx_size,
                                   const TX_CLASS tx_class,

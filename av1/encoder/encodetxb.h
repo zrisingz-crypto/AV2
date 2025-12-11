@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENCODETXB_H_
-#define AOM_AV1_ENCODER_ENCODETXB_H_
+#ifndef AVM_AV2_ENCODER_ENCODETXB_H_
+#define AVM_AV2_ENCODER_ENCODETXB_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/txb_common.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/encoder.h"
-#include "aom_dsp/bitwriter.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/txb_common.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encoder.h"
+#include "avm_dsp/bitwriter.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,16 +41,16 @@ extern "C" {
  *
  * \param[in]    cpi            Top-level encoder structure
  */
-void av1_alloc_txb_buf(AV1_COMP *cpi);
+void av2_alloc_txb_buf(AV2_COMP *cpi);
 /*!\brief Free the memory resources for all the macro blocks in the current
  * coding frame.
  * \ingroup coefficient_coding
  *
- * See \ref av1_alloc_txb_buf and \ref CB_COEFF_BUFFER for more details.
+ * See \ref av2_alloc_txb_buf and \ref CB_COEFF_BUFFER for more details.
  *
  * \param[in]    cpi            Top-level encoder structure
  */
-void av1_free_txb_buf(AV1_COMP *cpi);
+void av2_free_txb_buf(AV2_COMP *cpi);
 
 /*!\brief Compute the entropy cost of coding coefficients in a transform block.
  *
@@ -76,7 +76,7 @@ void av1_free_txb_buf(AV1_COMP *cpi);
  * a reduced set.
  */
 
-int av1_cost_coeffs_txb(const AV1_COMMON *cm, const MACROBLOCK *x,
+int av2_cost_coeffs_txb(const AV2_COMMON *cm, const MACROBLOCK *x,
                         const int plane, const int block, const TX_SIZE tx_size,
                         const TX_TYPE tx_type, const CctxType cctx_type,
                         const TXB_CTX *const txb_ctx, int reduced_tx_set_used);
@@ -89,13 +89,13 @@ int av1_cost_coeffs_txb(const AV1_COMMON *cm, const MACROBLOCK *x,
  * This function compute the entropy costs of the end of block position (eob)
  * and the transform type (tx_type) precisely.
  *
- * Then using \ref av1_cost_coeffs_txb_estimate to estimate the entropy costs
+ * Then using \ref av2_cost_coeffs_txb_estimate to estimate the entropy costs
  * of coefficients in the transform block.
  *
  * In the end, the function returns the sum of entropy costs of end of block
  * position (eob), transform type (tx_type) and coefficients.
  *
- * Compared to \ref av1_cost_coeffs_txb, this function is much faster but less
+ * Compared to \ref av2_cost_coeffs_txb, this function is much faster but less
  * accurate.
  *
  * \param[in]    cm             Top-level structure shared by encoder and
@@ -119,7 +119,7 @@ int av1_cost_coeffs_txb(const AV1_COMMON *cm, const MACROBLOCK *x,
  * \return       int            Estimated entropy cost of coding the transform
  block.
  */
-int av1_cost_coeffs_txb_laplacian(const AV1_COMMON *cm, const MACROBLOCK *x,
+int av2_cost_coeffs_txb_laplacian(const AV2_COMMON *cm, const MACROBLOCK *x,
                                   const int plane, const int block,
                                   const TX_SIZE tx_size, const TX_TYPE tx_type,
                                   const CctxType cctx_type,
@@ -156,7 +156,7 @@ int av1_cost_coeffs_txb_laplacian(const AV1_COMMON *cm, const MACROBLOCK *x,
  * \return       int            Estimated entropy cost of coefficients in the
  * transform block.
  */
-int av1_cost_coeffs_txb_estimate(const MACROBLOCK *x, const int plane,
+int av2_cost_coeffs_txb_estimate(const MACROBLOCK *x, const int plane,
                                  const int block, const TX_SIZE tx_size,
                                  const TX_TYPE tx_type);
 
@@ -194,8 +194,8 @@ int av1_cost_coeffs_txb_estimate(const MACROBLOCK *x, const int plane,
  * the currernt transform block
  * \param[in]    tx_size        The given transform size
  */
-void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *const x,
-                          aom_writer *w, int blk_row, int blk_col, int plane,
+void av2_write_coeffs_txb(const AV2_COMMON *const cm, MACROBLOCK *const x,
+                          avm_writer *w, int blk_row, int blk_col, int plane,
                           int block, TX_SIZE tx_size);
 
 /*!\brief Write the transform unit skip flag and the transform type for Luma
@@ -226,13 +226,13 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *const x,
  * the currernt transform block
  * \param[in]    tx_size   The given transform size
  */
-int av1_write_sig_txtype(const AV1_COMMON *const cm, MACROBLOCK *const x,
-                         aom_writer *w, int blk_row, int blk_col, int plane,
+int av2_write_sig_txtype(const AV2_COMMON *const cm, MACROBLOCK *const x,
+                         avm_writer *w, int blk_row, int blk_col, int plane,
                          int block, TX_SIZE tx_size);
 
 /*!\brief Estimate the entropy cost of 2D IDTX transform coefficients
  * using Laplacian distribution for forward skip residual coding. Unlike
- * av1_cost_coeffs_txb_estimate this function does not consider EOB.
+ * av2_cost_coeffs_txb_estimate this function does not consider EOB.
  *
  * \ingroup coefficient_coding
  *
@@ -260,7 +260,7 @@ int av1_write_sig_txtype(const AV1_COMMON *const cm, MACROBLOCK *const x,
  * \return       int            Estimated entropy cost of coefficients in the
  * transform block.
  */
-int av1_cost_coeffs_txb_skip_estimate(const MACROBLOCK *x, const int plane,
+int av2_cost_coeffs_txb_skip_estimate(const MACROBLOCK *x, const int plane,
                                       const int block, const TX_SIZE tx_size,
                                       const TX_TYPE tx_type);
 
@@ -296,8 +296,8 @@ int av1_cost_coeffs_txb_skip_estimate(const MACROBLOCK *x, const int plane,
  * the currernt transform block
  * \param[in]    tx_size        The given transform size
  */
-void av1_write_coeffs_txb_skip(const AV1_COMMON *const cm, MACROBLOCK *const x,
-                               aom_writer *w, int blk_row, int blk_col,
+void av2_write_coeffs_txb_skip(const AV2_COMMON *const cm, MACROBLOCK *const x,
+                               avm_writer *w, int blk_row, int blk_col,
                                int plane, int block, TX_SIZE tx_size);
 
 /*!\brief Write quantized coefficients of all transform blocks in an intra
@@ -307,7 +307,7 @@ void av1_write_coeffs_txb_skip(const AV1_COMMON *const cm, MACROBLOCK *const x,
  *
  * All transform blocks in the intra macroblock share the same transform size.
  *
- * This function use \ref av1_write_coeffs_txb() to code each transform block in
+ * This function use \ref av2_write_coeffs_txb() to code each transform block in
  * raster order.
  *
  * \param[in]    cm             Top-level structure shared by encoder and
@@ -318,8 +318,8 @@ void av1_write_coeffs_txb_skip(const AV1_COMMON *const cm, MACROBLOCK *const x,
  * \param[in]    bsize          Block size of the current macroblock
  */
 
-void av1_write_intra_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
-                               aom_writer *w, BLOCK_SIZE bsize);
+void av2_write_intra_coeffs_mb(const AV2_COMMON *const cm, MACROBLOCK *x,
+                               avm_writer *w, BLOCK_SIZE bsize);
 
 /*!\brief Pack the context info of the current transform block into an uint8_t.
  * \ingroup coefficient_coding
@@ -334,7 +334,7 @@ void av1_write_intra_coeffs_mb(const AV1_COMMON *const cm, MACROBLOCK *x,
  * \param[in]    eob            The scan index of last non-zero coefficient plus
  * one
  */
-uint8_t av1_get_txb_entropy_context(const tran_low_t *qcoeff,
+uint8_t av2_get_txb_entropy_context(const tran_low_t *qcoeff,
                                     const SCAN_ORDER *scan_order, int eob);
 
 /*!\brief Update the probability model (cdf) and the entropy context related to
@@ -343,7 +343,7 @@ uint8_t av1_get_txb_entropy_context(const tran_low_t *qcoeff,
  * \ingroup coefficient_coding
  *
  * This function will go through each transform block in the intra macorblock
- * and call \ref av1_update_and_record_txb_context to update the probability
+ * and call \ref av2_update_and_record_txb_context to update the probability
  * model and entropy context properly.
  *
  * \param[in]    cpi               Top-level encoder structure
@@ -353,7 +353,7 @@ uint8_t av1_get_txb_entropy_context(const tran_low_t *qcoeff,
  * \param[in]    allow_update_cdf  Allowed to update probability model (cdf) or
  * not.
  */
-void av1_update_intra_mb_txb_context(const AV1_COMP *cpi, ThreadData *td,
+void av2_update_intra_mb_txb_context(const AV2_COMP *cpi, ThreadData *td,
                                      RUN_TYPE dry_run, BLOCK_SIZE bsize,
                                      uint8_t allow_update_cdf);
 
@@ -392,7 +392,7 @@ void av1_update_intra_mb_txb_context(const AV1_COMP *cpi, ThreadData *td,
  * \param[in]    arg          This parameter will be translated into
  * tokenize_b_args, in which RUN_TYPE indicates using regular mode or dry run.
  */
-void av1_update_and_record_txb_context(int plane, int block, int blk_row,
+void av2_update_and_record_txb_context(int plane, int block, int blk_row,
                                        int blk_col, BLOCK_SIZE plane_bsize,
                                        TX_SIZE tx_size, void *arg);
 
@@ -432,7 +432,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
  * \param[in]    arg          This parameter will be translated into
  * tokenize_b_args, in which RUN_TYPE indicates using regular mode or dry run.
  */
-void av1_update_and_record_txb_skip_context(int plane, int block, int blk_row,
+void av2_update_and_record_txb_skip_context(int plane, int block, int blk_row,
                                             int blk_col, BLOCK_SIZE plane_bsize,
                                             TX_SIZE tx_size, void *arg);
 
@@ -467,7 +467,7 @@ void av1_update_and_record_txb_skip_context(int plane, int block, int blk_row,
  coefficients
  * and therefore preserve the sharpness of the reconstructed block.
  */
-int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
+int av2_optimize_txb_new(const struct AV2_COMP *cpi, MACROBLOCK *x, int plane,
                          int block, TX_SIZE tx_size, TX_TYPE tx_type,
                          CctxType cctx_type, const TXB_CTX *const txb_ctx,
                          int *rate_cost, int sharpness);
@@ -502,7 +502,7 @@ int av1_optimize_txb_new(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
  coefficients
  * and therefore preserve the sharpness of the reconstructed block.
  */
-int av1_optimize_fsc_block(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
+int av2_optimize_fsc_block(const struct AV2_COMP *cpi, MACROBLOCK *x, int plane,
                            int block, TX_SIZE tx_size, TX_TYPE tx_type,
                            const TXB_CTX *const txb_ctx, int *rate_cost,
                            int sharpness);
@@ -524,7 +524,7 @@ int av1_optimize_fsc_block(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
  * \return       CB_COEFF_BUFFER*  Pointer of \ref CB_COEFF_BUFFER associated
  * to this macroblock.
  */
-CB_COEFF_BUFFER *av1_get_cb_coeff_buffer(const struct AV1_COMP *cpi, int mi_row,
+CB_COEFF_BUFFER *av2_get_cb_coeff_buffer(const struct AV2_COMP *cpi, int mi_row,
                                          int mi_col);
 
 /*!\brief Return the entropy cost associated with the cross chroma transform
@@ -544,7 +544,7 @@ CB_COEFF_BUFFER *av1_get_cb_coeff_buffer(const struct AV1_COMP *cpi, int mi_row,
  *
  * \return       int            Entropy cost for cctx type
  */
-int get_cctx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
+int get_cctx_type_cost(const AV2_COMMON *cm, const MACROBLOCK *x,
                        const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
                        int block, CctxType cctx_type);
 
@@ -562,7 +562,7 @@ int get_cctx_type_cost(const AV1_COMMON *cm, const MACROBLOCK *x,
                                 current encoding macroblock
  * \param[in]    block          The index of the current transform block
  */
-static INLINE int av1_cost_skip_txb(const CoeffCosts *coeff_costs,
+static INLINE int av2_cost_skip_txb(const CoeffCosts *coeff_costs,
                                     const TXB_CTX *const txb_ctx, int plane,
                                     TX_SIZE tx_size, MACROBLOCK *x, int block) {
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
@@ -570,7 +570,7 @@ static INLINE int av1_cost_skip_txb(const CoeffCosts *coeff_costs,
   const LV_MAP_COEFF_COST *const coeff_costs_ =
       &coeff_costs->coeff_costs[txs_ctx][plane_type];
   int txb_skip_ctx = txb_ctx->txb_skip_ctx;
-  if (plane == AOM_PLANE_Y || plane == AOM_PLANE_U) {
+  if (plane == AVM_PLANE_Y || plane == AVM_PLANE_U) {
     MACROBLOCKD *const xd = &x->e_mbd;
     const MB_MODE_INFO *mbmi = xd->mi[0];
     const int is_inter = is_inter_block(mbmi, xd->tree_type);
@@ -579,7 +579,7 @@ static INLINE int av1_cost_skip_txb(const CoeffCosts *coeff_costs,
     return coeff_costs_->txb_skip_cost[pred_mode_ctx][txb_skip_ctx][1];
   } else {
     txb_skip_ctx +=
-        (x->plane[AOM_PLANE_U].eobs[block] ? V_TXB_SKIP_CONTEXT_OFFSET : 0);
+        (x->plane[AVM_PLANE_U].eobs[block] ? V_TXB_SKIP_CONTEXT_OFFSET : 0);
     return coeff_costs_->v_txb_skip_cost[txb_skip_ctx][1];
   }
 }
@@ -594,7 +594,7 @@ static const int plane_rd_mult[REF_TYPES][PLANE_TYPES] = {
 
 // Calculate lambda for current transform block. The lambda is used by both the
 // new TCQ and legacy trellis quant in RDO
-static INLINE int64_t av1_compute_rdmult_for_plane(int64_t base_rdmult,
+static INLINE int64_t av2_compute_rdmult_for_plane(int64_t base_rdmult,
                                                    int plane_rdmult,
                                                    int bit_depth, int rshift) {
   const int plane_rdmult_factor = plane_rdmult << (2 * (bit_depth - 8));
@@ -612,4 +612,4 @@ int get_tx_type_cost(const MACROBLOCK *x, const MACROBLOCKD *xd, int plane,
 }
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODETXB_H_
+#endif  // AVM_AV2_ENCODER_ENCODETXB_H_

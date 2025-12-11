@@ -9,12 +9,12 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AOM_DSP_LOOPFILTER_H_
-#define AOM_AOM_DSP_LOOPFILTER_H_
+#ifndef AVM_AVM_DSP_LOOPFILTER_H_
+#define AVM_AVM_DSP_LOOPFILTER_H_
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "aom_ports/mem.h"
+#include "config/avm_config.h"
+#include "avm_ports/mem.h"
 
 #define DF_8_THRESH 3
 #define DF_6_THRESH 4
@@ -156,4 +156,4 @@ static INLINE int filt_choice_highbd(uint16_t *s, int pitch, int max_filt_neg,
   }
   return MAX_DBL_FLT_LEN;
 }
-#endif  // AOM_AOM_DSP_LOOPFILTER_H_
+#endif  // AVM_AVM_DSP_LOOPFILTER_H_

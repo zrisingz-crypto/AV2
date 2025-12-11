@@ -10,7 +10,7 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 static INLINE void copy_128(const uint8_t *src, uint8_t *dst) {
   __m256i s[4];
@@ -24,7 +24,7 @@ static INLINE void copy_128(const uint8_t *src, uint8_t *dst) {
   _mm256_storeu_si256((__m256i *)(dst + 3 * 32), s[3]);
 }
 
-void aom_convolve_copy_avx2(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve_copy_avx2(const uint8_t *src, ptrdiff_t src_stride,
                             uint8_t *dst, ptrdiff_t dst_stride, int w, int h) {
   if (w >= 16) {
     assert(!(dst_stride % 16));
@@ -152,7 +152,7 @@ static INLINE void highbd_copy_128(const uint16_t *src, uint16_t *dst) {
   _mm256_storeu_si256((__m256i *)(dst + 7 * 16), s[7]);
 }
 
-void aom_highbd_convolve_copy_avx2(const uint16_t *src, ptrdiff_t src_stride,
+void avm_highbd_convolve_copy_avx2(const uint16_t *src, ptrdiff_t src_stride,
                                    uint16_t *dst, ptrdiff_t dst_stride, int w,
                                    int h) {
   if (w == 2) {

@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_LPF_COMMON_SSE2_H_
-#define AOM_AOM_DSP_X86_LPF_COMMON_SSE2_H_
+#ifndef AVM_AVM_DSP_X86_LPF_COMMON_SSE2_H_
+#define AVM_AVM_DSP_X86_LPF_COMMON_SSE2_H_
 
 #include <emmintrin.h>  // SSE2
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 static INLINE void highbd_transpose6x6_sse2(__m128i *x0, __m128i *x1,
                                             __m128i *x2, __m128i *x3,
@@ -527,4 +527,4 @@ static INLINE void transpose16x4_4x16_sse2(
   *d2 = _mm_unpacklo_epi64(w7, w15);
   *d3 = _mm_unpackhi_epi64(w7, w15);
 }
-#endif  // AOM_AOM_DSP_X86_LPF_COMMON_SSE2_H_
+#endif  // AVM_AVM_DSP_X86_LPF_COMMON_SSE2_H_

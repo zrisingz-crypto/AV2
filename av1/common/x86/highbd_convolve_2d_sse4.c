@@ -14,15 +14,15 @@
 #include <smmintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_dsp/x86/convolve_sse2.h"
-#include "aom_dsp/x86/convolve_sse4_1.h"
-#include "av1/common/convolve.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_dsp/x86/convolve_sse2.h"
+#include "avm_dsp/x86/convolve_sse4_1.h"
+#include "av2/common/convolve.h"
 
-void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
+void av2_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
                                                  int src_stride, uint16_t *dst0,
                                                  int dst_stride0, int w, int h,
                                                  ConvolveParams *conv_params,
@@ -163,7 +163,7 @@ void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
   }
 }
 
-void av1_highbd_dist_wtd_convolve_2d_sse4_1(
+void av2_highbd_dist_wtd_convolve_2d_sse4_1(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
@@ -201,7 +201,7 @@ void av1_highbd_dist_wtd_convolve_2d_sse4_1(
 
   /* Horizontal filter */
   {
-    const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+    const int16_t *x_filter = av2_get_interp_filter_subpel_kernel(
         filter_params_x, subpel_x_qn & SUBPEL_MASK);
     const __m128i coeffs_x = _mm_loadu_si128((__m128i *)x_filter);
 
@@ -268,7 +268,7 @@ void av1_highbd_dist_wtd_convolve_2d_sse4_1(
 
   /* Vertical filter */
   {
-    const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+    const int16_t *y_filter = av2_get_interp_filter_subpel_kernel(
         filter_params_y, subpel_y_qn & SUBPEL_MASK);
     const __m128i coeffs_y = _mm_loadu_si128((__m128i *)y_filter);
 

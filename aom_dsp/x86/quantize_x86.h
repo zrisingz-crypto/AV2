@@ -12,7 +12,7 @@
 
 #include <emmintrin.h>
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 static INLINE void load_b_values(const int32_t *zbin_ptr, __m128i *zbin,
                                  const int32_t *round_ptr, __m128i *round,
                                  const int32_t *quant_ptr, __m128i *quant,
@@ -172,13 +172,13 @@ static INLINE void update_mask0(__m128i *qcoeff0, __m128i *qcoeff1,
   coeff[2] = _mm_unpacklo_epi16(*qcoeff1, zero);
   coeff[3] = _mm_unpackhi_epi16(*qcoeff1, zero);
 
-  coeff[0] = _mm_slli_epi32(coeff[0], AOM_QM_BITS);
+  coeff[0] = _mm_slli_epi32(coeff[0], AVM_QM_BITS);
   cmp_mask0 = _mm_cmpgt_epi32(coeff[0], threshold[0]);
-  coeff[1] = _mm_slli_epi32(coeff[1], AOM_QM_BITS);
+  coeff[1] = _mm_slli_epi32(coeff[1], AVM_QM_BITS);
   cmp_mask1 = _mm_cmpgt_epi32(coeff[1], threshold[1]);
-  coeff[2] = _mm_slli_epi32(coeff[2], AOM_QM_BITS);
+  coeff[2] = _mm_slli_epi32(coeff[2], AVM_QM_BITS);
   cmp_mask2 = _mm_cmpgt_epi32(coeff[2], threshold[1]);
-  coeff[3] = _mm_slli_epi32(coeff[3], AOM_QM_BITS);
+  coeff[3] = _mm_slli_epi32(coeff[3], AVM_QM_BITS);
   cmp_mask3 = _mm_cmpgt_epi32(coeff[3], threshold[1]);
 
   cmp_mask0 = _mm_packs_epi32(cmp_mask0, cmp_mask1);

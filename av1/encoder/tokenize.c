@@ -15,23 +15,23 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "aom_mem/aom_mem.h"
+#include "avm_mem/avm_mem.h"
 
-#include "av1/common/entropy.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/scan.h"
-#include "av1/common/seg_common.h"
+#include "av2/common/entropy.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/scan.h"
+#include "av2/common/seg_common.h"
 
-#include "av1/common/cost.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/encodetxb.h"
-#include "av1/encoder/rdopt.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/common/cost.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/encodetxb.h"
+#include "av2/encoder/rdopt.h"
+#include "av2/encoder/tokenize.h"
 
 // Chooses a palette token index for each pixel in the block, and determines
 // whether or not to use line flags. Optionally can return the estimated cost
 // for decisions or update the CDF for final encoding..
-static int cost_and_tokenize_map(Av1ColorMapParam *param, TokenExtra **t,
+static int cost_and_tokenize_map(Av2ColorMapParam *param, TokenExtra **t,
                                  int plane, int calc_rate, int allow_update_cdf,
                                  FRAME_COUNTS *counts, int direction) {
   const uint8_t *const color_map = param->color_map;
@@ -54,7 +54,7 @@ static int cost_and_tokenize_map(Av1ColorMapParam *param, TokenExtra **t,
   const int axis1_limit = direction ? rows : cols;
   const int axis2_limit = direction ? cols : rows;
   if (calc_rate && plane_block_width < 64 && plane_block_height < 64) {
-    this_rate += av1_cost_literal(1);  // direction_cost
+    this_rate += av2_cost_literal(1);  // direction_cost
   }
   for (int ax2 = 0; ax2 < axis2_limit; ax2++) {
     int line_copy_flag = 0;
@@ -122,7 +122,7 @@ static int cost_and_tokenize_map(Av1ColorMapParam *param, TokenExtra **t,
         const int y = direction ? ax1 : ax2;
         const int x = direction ? ax2 : ax1;
         uint8_t color_order[PALETTE_MAX_SIZE];
-        const int color_ctx = av1_get_palette_color_index_context(
+        const int color_ctx = av2_get_palette_color_index_context(
             color_map, plane_block_width, y, x, color_order, &color_new_idx);
         assert(color_new_idx >= 0 && color_new_idx < num_colors);
         if (calc_rate) {
@@ -170,7 +170,7 @@ static int cost_and_tokenize_map(Av1ColorMapParam *param, TokenExtra **t,
 }
 
 static void get_palette_params(const MACROBLOCK *const x, int plane,
-                               BLOCK_SIZE bsize, Av1ColorMapParam *params) {
+                               BLOCK_SIZE bsize, Av2ColorMapParam *params) {
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -183,7 +183,7 @@ static void get_palette_params(const MACROBLOCK *const x, int plane,
                                     : &x->mode_costs.palette_y_row_flag_cost;
   params->color_cost = &x->mode_costs.palette_y_color_cost;
   params->n_colors = pmi->palette_size[plane];
-  av1_get_block_dimensions(bsize, plane, xd, &params->plane_width,
+  av2_get_block_dimensions(bsize, plane, xd, &params->plane_width,
                            &params->plane_height, &params->rows, &params->cols);
 }
 
@@ -191,7 +191,7 @@ static void get_palette_params(const MACROBLOCK *const x, int plane,
 static void get_color_map_params(const MACROBLOCK *const x, int plane,
                                  BLOCK_SIZE bsize, TX_SIZE tx_size,
                                  COLOR_MAP_TYPE type,
-                                 Av1ColorMapParam *params) {
+                                 Av2ColorMapParam *params) {
   (void)tx_size;
   memset(params, 0, sizeof(*params));
   switch (type) {
@@ -200,10 +200,10 @@ static void get_color_map_params(const MACROBLOCK *const x, int plane,
   }
 }
 
-int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
+int av2_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
                        TX_SIZE tx_size, COLOR_MAP_TYPE type) {
   assert(plane == 0 || plane == 1);
-  Av1ColorMapParam color_map_params;
+  Av2ColorMapParam color_map_params;
   get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
 
   int dir0 =
@@ -214,15 +214,15 @@ int av1_cost_color_map(const MACROBLOCK *const x, int plane, BLOCK_SIZE bsize,
   } else {
     dir1 = dir0;
   }
-  return AOMMIN(dir0, dir1);
+  return AVMMIN(dir0, dir1);
 }
 
-void av1_tokenize_color_map(const MACROBLOCK *const x, int plane,
+void av2_tokenize_color_map(const MACROBLOCK *const x, int plane,
                             TokenExtra **t, BLOCK_SIZE bsize, TX_SIZE tx_size,
                             COLOR_MAP_TYPE type, int allow_update_cdf,
                             FRAME_COUNTS *counts) {
   assert(plane == 0 || plane == 1);
-  Av1ColorMapParam color_map_params;
+  Av2ColorMapParam color_map_params;
   get_color_map_params(x, plane, bsize, tx_size, type, &color_map_params);
   int cost_dir0 =
       cost_and_tokenize_map(&color_map_params, NULL, plane, 1, 0, NULL, 0);
@@ -249,12 +249,12 @@ static void tokenize_vartx(ThreadData *td, TX_SIZE tx_size,
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
-  const int index = av1_get_txb_size_index(plane_bsize, blk_row, blk_col);
+  const int index = av2_get_txb_size_index(plane_bsize, blk_row, blk_col);
 
   if (mbmi->tx_partition_type[index] == TX_PARTITION_NONE || plane) {
     plane_bsize = get_mb_plane_block_size(xd, mbmi, plane, pd->subsampling_x,
                                           pd->subsampling_y);
-    av1_update_and_record_txb_context(plane, block, blk_row, blk_col,
+    av2_update_and_record_txb_context(plane, block, blk_row, blk_col,
                                       plane_bsize, tx_size, arg);
   } else {
     TXB_POS_INFO txb_pos;
@@ -272,19 +272,19 @@ static void tokenize_vartx(ThreadData *td, TX_SIZE tx_size,
       const int offsetr = blk_row + txb_pos.row_offset[txb_idx];
       const int offsetc = blk_col + txb_pos.col_offset[txb_idx];
       if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
-      av1_update_and_record_txb_context(plane, block, offsetr, offsetc,
+      av2_update_and_record_txb_context(plane, block, offsetr, offsetc,
                                         plane_bsize, sub_tx, arg);
       block += sub_step;
     }
   }
 }
 
-void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td,
+void av2_tokenize_sb_vartx(const AV2_COMP *cpi, ThreadData *td,
                            RUN_TYPE dry_run, BLOCK_SIZE bsize, int *rate,
                            uint8_t allow_update_cdf, int plane_start,
                            int plane_end) {
   assert(bsize < BLOCK_SIZES_ALL);
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   const int mi_row = xd->mi_row;
@@ -292,12 +292,12 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td,
   if (mi_row >= cm->mi_params.mi_rows || mi_col >= cm->mi_params.mi_cols)
     return;
 
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   MB_MODE_INFO *const mbmi = xd->mi[0];
   struct tokenize_b_args arg = { cpi, td, 0, allow_update_cdf, dry_run };
   if (mbmi->skip_txfm[xd->tree_type == CHROMA_PART]) {
-    assert(bsize == mbmi->sb_type[av1_get_sdp_idx(xd->tree_type)]);
-    av1_reset_entropy_context(xd, bsize, num_planes);
+    assert(bsize == mbmi->sb_type[av2_get_sdp_idx(xd->tree_type)]);
+    av2_reset_entropy_context(xd, bsize, num_planes);
     return;
   }
   for (int plane = plane_start; plane < plane_end; ++plane) {
@@ -328,8 +328,8 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td,
     int mu_blocks_wide = mi_size_wide[max_unit_bsize];
     int mu_blocks_high = mi_size_high[max_unit_bsize];
 
-    mu_blocks_wide = AOMMIN(mi_width, mu_blocks_wide);
-    mu_blocks_high = AOMMIN(mi_height, mu_blocks_high);
+    mu_blocks_wide = AVMMIN(mi_width, mu_blocks_wide);
+    mu_blocks_high = AVMMIN(mi_height, mu_blocks_high);
 
     const int mu128_wide = mi_size_wide[BLOCK_128X128] >> ss_x;
     const int mu128_high = mi_size_high[BLOCK_128X128] >> ss_y;
@@ -337,12 +337,12 @@ void av1_tokenize_sb_vartx(const AV1_COMP *cpi, ThreadData *td,
     for (int row128 = 0; row128 < mi_height; row128 += mu128_high) {
       for (int col128 = 0; col128 < mi_width; col128 += mu128_wide) {
         // Loop through each 64x64 block within the current 128x128 block
-        for (int idy = row128; idy < AOMMIN(row128 + mu128_high, mi_height);
+        for (int idy = row128; idy < AVMMIN(row128 + mu128_high, mi_height);
              idy += mu_blocks_high) {
-          for (int idx = col128; idx < AOMMIN(col128 + mu128_wide, mi_width);
+          for (int idx = col128; idx < AVMMIN(col128 + mu128_wide, mi_width);
                idx += mu_blocks_wide) {
-            const int unit_height = AOMMIN(mu_blocks_high + idy, mi_height);
-            const int unit_width = AOMMIN(mu_blocks_wide + idx, mi_width);
+            const int unit_height = AVMMIN(mu_blocks_high + idy, mi_height);
+            const int unit_width = AVMMIN(mu_blocks_wide + idx, mi_width);
             for (int blk_row = idy; blk_row < unit_height; blk_row += bh) {
               for (int blk_col = idx; blk_col < unit_width; blk_col += bw) {
                 tokenize_vartx(td, max_tx_size, plane_bsize, blk_row, blk_col,

@@ -12,10 +12,10 @@
 
 #include <immintrin.h>
 #include <stdio.h>
-#include "aom/aom_integer.h"
-#include "av1/common/common.h"
+#include "avm/avm_integer.h"
+#include "av2/common/common.h"
 
-int64_t av1_highbd_block_error_avx2(const tran_low_t *coeff,
+int64_t av2_highbd_block_error_avx2(const tran_low_t *coeff,
                                     const tran_low_t *dqcoeff,
                                     intptr_t block_size, int64_t *ssz,
                                     int bps) {

@@ -24,8 +24,8 @@
 #include <assert.h>
 #include <string.h>  // for memset()
 
-#include "aom_mem/aom_mem.h"
-#include "aom_util/aom_thread.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_util/avm_thread.h"
 
 #if CONFIG_MULTITHREAD
 
@@ -126,7 +126,7 @@ static int reset(AVxWorker *const worker) {
   worker->had_error = 0;
   if (worker->status_ < OK) {
 #if CONFIG_MULTITHREAD
-    worker->impl_ = (AVxWorkerImpl *)aom_calloc(1, sizeof(*worker->impl_));
+    worker->impl_ = (AVxWorkerImpl *)avm_calloc(1, sizeof(*worker->impl_));
     if (worker->impl_ == NULL) {
       return 0;
     }
@@ -160,7 +160,7 @@ static int reset(AVxWorker *const worker) {
       pthread_mutex_destroy(&worker->impl_->mutex_);
       pthread_cond_destroy(&worker->impl_->condition_);
     Error:
-      aom_free(worker->impl_);
+      avm_free(worker->impl_);
       worker->impl_ = NULL;
       return 0;
     }
@@ -195,7 +195,7 @@ static void end(AVxWorker *const worker) {
     pthread_join(worker->impl_->thread_, NULL);
     pthread_mutex_destroy(&worker->impl_->mutex_);
     pthread_cond_destroy(&worker->impl_->condition_);
-    aom_free(worker->impl_);
+    avm_free(worker->impl_);
     worker->impl_ = NULL;
   }
 #else
@@ -210,7 +210,7 @@ static void end(AVxWorker *const worker) {
 static AVxWorkerInterface g_worker_interface = { init,   reset,   sync,
                                                  launch, execute, end };
 
-int aom_set_worker_interface(const AVxWorkerInterface *const winterface) {
+int avm_set_worker_interface(const AVxWorkerInterface *const winterface) {
   if (winterface == NULL || winterface->init == NULL ||
       winterface->reset == NULL || winterface->sync == NULL ||
       winterface->launch == NULL || winterface->execute == NULL ||
@@ -221,7 +221,7 @@ int aom_set_worker_interface(const AVxWorkerInterface *const winterface) {
   return 1;
 }
 
-const AVxWorkerInterface *aom_get_worker_interface(void) {
+const AVxWorkerInterface *avm_get_worker_interface(void) {
   return &g_worker_interface;
 }
 

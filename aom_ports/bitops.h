@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_BITOPS_H_
-#define AOM_AOM_PORTS_BITOPS_H_
+#ifndef AVM_AVM_PORTS_BITOPS_H_
+#define AVM_AVM_PORTS_BITOPS_H_
 
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "aom_ports/msvc.h"
-#include "config/aom_config.h"
+#include "avm_ports/msvc.h"
+#include "config/avm_config.h"
 
 #ifdef _MSC_VER
 #if defined(_M_X64) || defined(_M_IX86)
@@ -87,7 +87,7 @@ static INLINE int get_msb_signed_64(int64_t n) {
 }
 
 // Returns (int)ceil(log2(n)).
-static inline int aom_ceil_log2(int n) {
+static inline int avm_ceil_log2(int n) {
   if (n < 2) return 0;
   return get_msb(n - 1) + 1;
 }
@@ -96,4 +96,4 @@ static inline int aom_ceil_log2(int n) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_PORTS_BITOPS_H_
+#endif  // AVM_AVM_PORTS_BITOPS_H_

@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/gdf_block.h"
+#include "av2/common/gdf_block.h"
 #include <immintrin.h>
 
 #define gdf_calculate_laplacian_2x2_reg(lap, lap0, lap1, y0A, y_1A, y1A, y0B, \
@@ -48,7 +48,7 @@ void gdf_set_lap_and_cls_unit_avx2(
   __m256i shuffle_mask2 = _mm256_set_epi32(0, 7, 6, 5, 4, 3, 2, 1);
   __m256i clip_mask = _mm256_set1_epi16(
       (short)((1 << (16 - (GDF_TEST_INP_PREC -
-                           AOMMIN(GDF_TEST_INP_PREC, bit_depth)))) -
+                           AVMMIN(GDF_TEST_INP_PREC, bit_depth)))) -
               1));
   for (int j = 0; j < (j_max - j_min); j += 14) {
     const uint16_t *std_pos = rec_pnt + (i_max - i_min) * rec_stride + j;
@@ -335,7 +335,7 @@ void gdf_inference_unit_avx2(
       is_intra ? GDF_NET_LUT_IDX_INTRA_MAX : GDF_NET_LUT_IDX_INTER_MAX;
   const int lut_idx_min = -(lut_frm_max >> 1);
   const int lut_idx_max = lut_frm_max - 1 + lut_idx_min;
-  const int lut_idx_scale = AOMMAX(-lut_idx_min, lut_idx_max);
+  const int lut_idx_scale = AVMMAX(-lut_idx_min, lut_idx_max);
   int32_t lut_shift =
       GDF_TEST_INP_PREC - GDF_TRAIN_INP_PREC + GDF_TRAIN_PAR_SCALE_LOG2;
   int32_t lut_shitf_half = 1 << (lut_shift - 1);

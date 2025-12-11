@@ -13,8 +13,8 @@
 /*!\file
  * \brief Declares frame encoding functions.
  */
-#ifndef AOM_AV1_ENCODER_ENCODE_STRATEGY_H_
-#define AOM_AV1_ENCODER_ENCODE_STRATEGY_H_
+#ifndef AVM_AV2_ENCODER_ENCODE_STRATEGY_H_
+#define AVM_AV2_ENCODER_ENCODE_STRATEGY_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,10 +22,10 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "aom/aom_encoder.h"
+#include "avm/avm_encoder.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/firstpass.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/firstpass.h"
 
 /*!\brief Implement high-level encode strategy
  *
@@ -36,7 +36,7 @@ extern "C" {
  * frame placement, etc. It populates an EncodeFrameParams struct with the
  * results of these decisions and then encodes the frame. The caller should use
  * the output parameters *time_stamp and *time_end only when this function
- * returns AOM_CODEC_OK.
+ * returns AVM_CODEC_OK.
  *
  * \param[in]    cpi         Top-level encoder structure
  * \param[in]    size        Bitstream size
@@ -48,58 +48,58 @@ extern "C" {
  * \param[in]    flush       Decide to encode one frame or the rest of frames
  *
  * \return Returns a value to indicate if the encoding is done successfully.
- * \retval #AOM_CODEC_OK
+ * \retval #AVM_CODEC_OK
  * \retval -1
- * \retval #AOM_CODEC_ERROR
+ * \retval #AVM_CODEC_ERROR
  */
-int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
+int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
-                        const aom_rational64_t *const timestamp_ratio,
+                        const avm_rational64_t *const timestamp_ratio,
                         int flush);
 
 /*!\cond */
 // Set individual buffer update flags based on frame reference type.
 // force_refresh_all is used when we have a KEY_FRAME or S_FRAME.  It forces all
 // refresh_*_frame flags to be set, because we refresh all buffers in this case.
-void av1_configure_buffer_updates(AV1_COMP *const cpi,
+void av2_configure_buffer_updates(AV2_COMP *const cpi,
                                   const FRAME_UPDATE_TYPE type);
 // Encoder-only version for the reference mapping
 
 #if CONFIG_MULTI_LEVEL_SEGMENTATION
-void av1_set_seq_seg_info(SequenceHeader *seq_params, struct segmentation *seg);
+void av2_set_seq_seg_info(SequenceHeader *seq_params, struct segmentation *seg);
 #endif  // CONFIG_MULTI_LEVEL_SEGMENTATION
 
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
-void av1_get_ref_frames_enc(AV1_COMP *const cpi, int cur_frame_disp,
+void av2_get_ref_frames_enc(AV2_COMP *const cpi, int cur_frame_disp,
                             RefFrameMapPair *ref_frame_map_pairs);
 #else   // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
-void av1_get_ref_frames_enc(AV1_COMMON *cm, int cur_frame_disp,
+void av2_get_ref_frames_enc(AV2_COMMON *cm, int cur_frame_disp,
                             RefFrameMapPair *ref_frame_map_pairs);
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
 
-int av1_get_refresh_frame_flags(
+int av2_get_refresh_frame_flags(
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
-    AV1_COMP *const cpi, const EncodeFrameParams *const frame_params,
+    AV2_COMP *const cpi, const EncodeFrameParams *const frame_params,
 #else   // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
-    const AV1_COMP *const cpi, const EncodeFrameParams *const frame_params,
+    const AV2_COMP *const cpi, const EncodeFrameParams *const frame_params,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
     FRAME_UPDATE_TYPE frame_update_type, int gf_index, int cur_frame_disp,
     RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]);
 
-int av1_get_refresh_ref_frame_map(AV1_COMMON *cm, int refresh_frame_flags);
+int av2_get_refresh_ref_frame_map(AV2_COMMON *cm, int refresh_frame_flags);
 
 int get_forced_keyframe_position(struct lookahead_ctx *lookahead,
                                  const int up_to_index,
                                  const COMPRESSOR_STAGE compressor_stage);
 
-int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
+int av2_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
                            int frame_since_key);
-int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
+int av2_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
                                int frame_since_key);
 /*!\endcond */
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENCODE_STRATEGY_H_
+#endif  // AVM_AV2_ENCODER_ENCODE_STRATEGY_H_

@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_TILE_COMMON_H_
-#define AOM_AV1_COMMON_TILE_COMMON_H_
+#ifndef AVM_AV2_COMMON_TILE_COMMON_H_
+#define AVM_AV2_COMMON_TILE_COMMON_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-struct AV1Common;
+struct AV2Common;
 struct SequenceHeader;
 struct CommonTileParams;
 struct TileInfoSyntax;
@@ -36,22 +36,22 @@ typedef struct TileInfo {
 
 // initializes 'tile->mi_(row|col)_(start|end)' for (row, col) based on
 // 'cm->log2_tile_(rows|cols)' & 'cm->mi_(rows|cols)'
-void av1_tile_init(TileInfo *tile, const struct AV1Common *cm, int row,
+void av2_tile_init(TileInfo *tile, const struct AV2Common *cm, int row,
                    int col);
 
-void av1_tile_set_row(TileInfo *tile, const struct AV1Common *cm, int row);
-void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
+void av2_tile_set_row(TileInfo *tile, const struct AV2Common *cm, int row);
+void av2_tile_set_col(TileInfo *tile, const struct AV2Common *cm, int col);
 
-int av1_get_sb_rows_in_tile(struct AV1Common *cm, TileInfo tile);
-int av1_get_sb_cols_in_tile(struct AV1Common *cm, TileInfo tile);
+int av2_get_sb_rows_in_tile(struct AV2Common *cm, TileInfo tile);
+int av2_get_sb_cols_in_tile(struct AV2Common *cm, TileInfo tile);
 
 typedef struct {
   int left, top, right, bottom;
-} AV1PixelRect;
+} AV2PixelRect;
 
 // Return the pixel extents of the given tile
-AV1PixelRect av1_get_tile_rect(const TileInfo *tile_info,
-                               const struct AV1Common *cm, int is_uv);
+AV2PixelRect av2_get_tile_rect(const TileInfo *tile_info,
+                               const struct AV2Common *cm, int is_uv);
 
 // Define tile maximum width and area
 // There is no maximum height since height is limited by area and width limits
@@ -59,20 +59,20 @@ AV1PixelRect av1_get_tile_rect(const TileInfo *tile_info,
 #define MAX_TILE_WIDTH (4096)        // Max Tile width in pixels
 #define MAX_TILE_AREA (4096 * 2304)  // Maximum tile area in pixels
 
-void av1_get_uniform_tile_size(const struct AV1Common *cm, int *w, int *h);
-void av1_get_tile_limits(struct CommonTileParams *const tiles, int cm_mi_rows,
+void av2_get_uniform_tile_size(const struct AV2Common *cm, int *w, int *h);
+void av2_get_tile_limits(struct CommonTileParams *const tiles, int cm_mi_rows,
                          int cm_mi_cols, int mib_size_log2,
                          int seq_mib_size_log2);
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
-void av1_get_seqmfh_tile_limits(struct TileInfoSyntax *const tiles,
+void av2_get_seqmfh_tile_limits(struct TileInfoSyntax *const tiles,
                                 int frame_height, int frame_width,
                                 int mib_size_log2, int seq_mib_size_log2);
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
-void av1_calculate_tile_cols(struct CommonTileParams *const tiles);
-void av1_calculate_tile_rows(struct CommonTileParams *const tiles);
+void av2_calculate_tile_cols(struct CommonTileParams *const tiles);
+void av2_calculate_tile_rows(struct CommonTileParams *const tiles);
 
 // Checks if the minimum tile_width requirement is satisfied
-int av1_is_min_tile_width_satisfied(const struct AV1Common *cm);
+int av2_is_min_tile_width_satisfied(const struct AV2Common *cm);
 
 // Get tile row or col from mi_row or mi_col respectively
 int get_tile_row_from_mi_row(const struct CommonTileParams *tiles, int mi_row);
@@ -94,4 +94,4 @@ static INLINE int tile_log2(int blk_size, int target) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_TILE_COMMON_H_
+#endif  // AVM_AV2_COMMON_TILE_COMMON_H_

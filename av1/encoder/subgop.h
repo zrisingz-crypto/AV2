@@ -10,18 +10,18 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_SUBGOP_H_
+#ifndef AVM_AV2_ENCODER_SUBGOP_H_
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_init_subgop_config_set(SubGOPSetCfg *config_set);
-int av1_process_subgop_config_set(const char *param, SubGOPSetCfg *config_set);
-void av1_print_subgop_config_set(SubGOPSetCfg *config_set);
-int av1_process_subgop_config_set_fromfile(const char *paramfile,
+void av2_init_subgop_config_set(SubGOPSetCfg *config_set);
+int av2_process_subgop_config_set(const char *param, SubGOPSetCfg *config_set);
+void av2_print_subgop_config_set(SubGOPSetCfg *config_set);
+int av2_process_subgop_config_set_fromfile(const char *paramfile,
                                            SubGOPSetCfg *config_set);
 
 // Finds the ptr to the subgop config with the queried number of
@@ -30,7 +30,7 @@ int av1_process_subgop_config_set_fromfile(const char *paramfile,
 // subgop_in_gop_code is not found then the generic config with the
 // matching length is returned. If the right number of frames
 // is not found, Null is returned.
-const SubGOPCfg *av1_find_subgop_config(SubGOPSetCfg *config_set,
+const SubGOPCfg *av2_find_subgop_config(SubGOPSetCfg *config_set,
                                         int num_frames, int is_last_gop,
                                         int is_first_subgop);
 
@@ -38,7 +38,7 @@ const SubGOPCfg *av1_find_subgop_config(SubGOPSetCfg *config_set,
 // frames and subgop_in_gop_code. Only if th exact subgop_in_gop_code
 // is found for the given length, the pointer to that config is returned.
 // Else Null is returned.
-const SubGOPCfg *av1_find_subgop_config_exact(
+const SubGOPCfg *av2_find_subgop_config_exact(
     SubGOPSetCfg *config_set, int num_frames,
     SUBGOP_IN_GOP_CODE subgop_in_gop_code);
 
@@ -46,4 +46,4 @@ const SubGOPCfg *av1_find_subgop_config_exact(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_SUBGOP_H_
+#endif  // AVM_AV2_ENCODER_SUBGOP_H_

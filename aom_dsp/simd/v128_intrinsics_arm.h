@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V128_INTRINSICS_ARM_H_
-#define AOM_AOM_DSP_SIMD_V128_INTRINSICS_ARM_H_
+#ifndef AVM_AVM_DSP_SIMD_V128_INTRINSICS_ARM_H_
+#define AVM_AVM_DSP_SIMD_V128_INTRINSICS_ARM_H_
 
 #include <arm_neon.h>
 
-#include "aom_dsp/simd/v64_intrinsics_arm.h"
+#include "avm_dsp/simd/v64_intrinsics_arm.h"
 
 typedef int64x2_t v128;
 
@@ -971,4 +971,4 @@ SIMD_INLINE uint64_t v128_ssd_s16_sum(ssd128_internal_s16 s) {
   return v64_u64(v128_low_v64(s)) + v64_u64(v128_high_v64(s));
 }
 
-#endif  // AOM_AOM_DSP_SIMD_V128_INTRINSICS_ARM_H_
+#endif  // AVM_AVM_DSP_SIMD_V128_INTRINSICS_ARM_H_

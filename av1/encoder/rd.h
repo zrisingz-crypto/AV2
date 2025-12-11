@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RD_H_
-#define AOM_AV1_ENCODER_RD_H_
+#ifndef AVM_AV2_ENCODER_RD_H_
+#define AVM_AV2_ENCODER_RD_H_
 
 #include <limits.h>
 
-#include "av1/common/blockd.h"
+#include "av2/common/blockd.h"
 
-#include "av1/encoder/block.h"
-#include "av1/encoder/context_tree.h"
-#include "av1/common/cost.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/context_tree.h"
+#include "av2/common/cost.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,26 +30,26 @@ extern "C" {
 
 // Compute RD cost (Rate-distortion cost) given distortion in 8-bit scale.
 // This assumes that the given input parameters are as follows:
-// - Rate `R` is (rate_in_bits << AV1_PROB_COST_SHIFT)
+// - Rate `R` is (rate_in_bits << AV2_PROB_COST_SHIFT)
 // - Distortion `D` is distortion in 8-bit scale computed as follows:
 //   * D_NATIVE_BD = SSE << 4              <-- Distortion at native bitdepth
 //   * D = D_NATIVE_BD >> (2 * (BD - 8))   <-- Distortion at 8-bit
 #define RDCOST(RM, R, D)                                            \
-  (ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT) + \
+  (ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV2_PROB_COST_SHIFT) + \
    ((D) * (1 << RDDIV_BITS)))
 
 // Similar to RDCOST(), but for special case where rate `R` is negative.
 #define RDCOST_NEG_R(RM, R, D) \
   (((D) * (1 << RDDIV_BITS)) - \
-   ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT))
+   ROUND_POWER_OF_TWO(((int64_t)(R)) * (RM), AV2_PROB_COST_SHIFT))
 
 // Compute RD cost at double precision given distortion at native bitdepth.
 // This differs from RDCOST() in a few ways:
-// - Rate `R` is assumed to be (rate_in_bits << (AV1_PROB_COST_SHIFT - 4))
+// - Rate `R` is assumed to be (rate_in_bits << (AV2_PROB_COST_SHIFT - 4))
 // - Distortion `D` is assumed to be unscaled SSE at native bitdepth.
 // - Outputs RD cost at double precision floating point instead of an integer.
 #define RDCOST_DBL_WITH_NATIVE_BD_DIST(RM, R, D, BD)               \
-  (((((double)(R)) * (RM)) / (double)(1 << AV1_PROB_COST_SHIFT)) + \
+  (((((double)(R)) * (RM)) / (double)(1 << AV2_PROB_COST_SHIFT)) + \
    ((double)((D) >> (2 * (BD - 8))) * (1 << RDDIV_BITS)))
 
 #define MV_COST_WEIGHT 108
@@ -91,7 +91,7 @@ typedef struct RD_OPT {
   double r0;
 } RD_OPT;
 
-static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
+static INLINE void av2_init_rd_stats(RD_STATS *rd_stats) {
 #if CONFIG_RD_DEBUG
   int plane;
 #endif
@@ -116,7 +116,7 @@ static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
 #endif
 }
 
-static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
+static INLINE void av2_invalid_rd_stats(RD_STATS *rd_stats) {
 #if CONFIG_RD_DEBUG
   int plane;
 #endif
@@ -141,11 +141,11 @@ static INLINE void av1_invalid_rd_stats(RD_STATS *rd_stats) {
 #endif
 }
 
-static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
+static INLINE void av2_merge_rd_stats(RD_STATS *rd_stats_dst,
                                       const RD_STATS *rd_stats_src) {
   assert(rd_stats_dst->rate != INT_MAX && rd_stats_src->rate != INT_MAX);
   if (rd_stats_src->dist == INT64_MAX || rd_stats_src->rate == INT_MAX) return;
-  rd_stats_dst->rate = (int)AOMMIN(
+  rd_stats_dst->rate = (int)AVMMIN(
       ((int64_t)rd_stats_dst->rate + (int64_t)rd_stats_src->rate), INT_MAX);
   if (!rd_stats_dst->zero_rate)
     rd_stats_dst->zero_rate = rd_stats_src->zero_rate;
@@ -173,7 +173,7 @@ static INLINE void av1_merge_rd_stats(RD_STATS *rd_stats_dst,
 #endif
 }
 
-static INLINE int64_t av1_calculate_rd_cost(int mult, int rate, int64_t dist) {
+static INLINE int64_t av2_calculate_rd_cost(int mult, int rate, int64_t dist) {
   assert(mult >= 0);
   if (rate >= 0) {
     return RDCOST(mult, rate, dist);
@@ -181,67 +181,67 @@ static INLINE int64_t av1_calculate_rd_cost(int mult, int rate, int64_t dist) {
   return RDCOST_NEG_R(mult, -rate, dist);
 }
 
-static INLINE void av1_rd_cost_update(int mult, RD_STATS *rd_cost) {
+static INLINE void av2_rd_cost_update(int mult, RD_STATS *rd_cost) {
   if (rd_cost->rate < INT_MAX && rd_cost->dist < INT64_MAX &&
       rd_cost->rdcost < INT64_MAX) {
-    rd_cost->rdcost = av1_calculate_rd_cost(mult, rd_cost->rate, rd_cost->dist);
+    rd_cost->rdcost = av2_calculate_rd_cost(mult, rd_cost->rate, rd_cost->dist);
   } else {
-    av1_invalid_rd_stats(rd_cost);
+    av2_invalid_rd_stats(rd_cost);
   }
 }
 
-static INLINE void av1_rd_stats_subtraction(int mult,
+static INLINE void av2_rd_stats_subtraction(int mult,
                                             const RD_STATS *const left,
                                             const RD_STATS *const right,
                                             RD_STATS *result) {
   if (left->rate == INT_MAX || right->rate == INT_MAX ||
       left->dist == INT64_MAX || right->dist == INT64_MAX ||
       left->rdcost == INT64_MAX || right->rdcost == INT64_MAX) {
-    av1_invalid_rd_stats(result);
+    av2_invalid_rd_stats(result);
   } else {
     result->rate = left->rate - right->rate;
     result->dist = left->dist - right->dist;
-    result->rdcost = av1_calculate_rd_cost(mult, result->rate, result->dist);
+    result->rdcost = av2_calculate_rd_cost(mult, result->rate, result->dist);
   }
 }
 
 struct TileInfo;
 struct TileDataEnc;
-struct AV1_COMP;
+struct AV2_COMP;
 struct macroblock;
 
-int av1_compute_rd_mult_based_on_qindex(const struct AV1_COMP *cpi, int qindex);
+int av2_compute_rd_mult_based_on_qindex(const struct AV2_COMP *cpi, int qindex);
 
-int av1_compute_rd_mult(const struct AV1_COMP *cpi, int qindex);
+int av2_compute_rd_mult(const struct AV2_COMP *cpi, int qindex);
 
-void av1_initialize_rd_consts(struct AV1_COMP *cpi);
+void av2_initialize_rd_consts(struct AV2_COMP *cpi);
 
 // Sets the multiplier to convert mv cost to l1 error during motion search.
-void av1_set_sad_per_bit(const struct AV1_COMP *cpi, MvCosts *mv_costs,
+void av2_set_sad_per_bit(const struct AV2_COMP *cpi, MvCosts *mv_costs,
                          int qindex);
 
-void av1_model_rd_from_var_lapndz(int64_t var, unsigned int n,
+void av2_model_rd_from_var_lapndz(int64_t var, unsigned int n,
                                   unsigned int qstep, int *rate, int64_t *dist);
 
-void av1_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
+void av2_model_rd_curvfit(BLOCK_SIZE bsize, double sse_norm, double xqr,
                           double *rate_f, double *distbysse_f);
 
-int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
+int av2_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
                             InterpFilter interp_filter);
 
-YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const struct AV1_COMP *cpi,
+YV12_BUFFER_CONFIG *av2_get_scaled_ref_frame(const struct AV2_COMP *cpi,
                                              MV_REFERENCE_FRAME ref_frame);
 
-void av1_init_me_luts(void);
+void av2_init_me_luts(void);
 
-void av1_get_entropy_contexts(BLOCK_SIZE plane_bsize,
+void av2_get_entropy_contexts(BLOCK_SIZE plane_bsize,
                               const struct macroblockd_plane *pd,
                               ENTROPY_CONTEXT t_above[MAX_MIB_SIZE],
                               ENTROPY_CONTEXT t_left[MAX_MIB_SIZE]);
 
-void av1_set_rd_speed_thresholds(struct AV1_COMP *cpi);
+void av2_set_rd_speed_thresholds(struct AV2_COMP *cpi);
 
-void av1_update_rd_thresh_fact(const AV1_COMMON *const cm,
+void av2_update_rd_thresh_fact(const AV2_COMMON *const cm,
                                int (*fact)[MB_MODE_COUNT], int rd_thresh,
                                BLOCK_SIZE bsize, PREDICTION_MODE best_mode);
 
@@ -253,13 +253,13 @@ static INLINE void reset_thresh_freq_fact(MACROBLOCK *const x) {
   }
 }
 
-void av1_mv_pred(const struct AV1_COMP *cpi, MACROBLOCK *x,
+void av2_mv_pred(const struct AV2_COMP *cpi, MACROBLOCK *x,
                  uint16_t *ref_y_buffer, int ref_y_stride, int ref_frame,
                  BLOCK_SIZE block_size);
 
 // Sets the multiplier to convert mv cost to l2 error during motion search.
-static INLINE void av1_set_error_per_bit(MvCosts *mv_costs, int rdmult) {
-  mv_costs->errorperbit = AOMMAX(rdmult >> RD_EPB_SHIFT, 1);
+static INLINE void av2_set_error_per_bit(MvCosts *mv_costs, int rdmult) {
+  mv_costs->errorperbit = AVMMAX(rdmult >> RD_EPB_SHIFT, 1);
 }
 
 // Get the threshold for R-D optimization of coefficients depending upon mode
@@ -318,35 +318,35 @@ static INLINE void reset_hash_records(TxfmSearchInfo *const txfm_info,
   txfm_info->mb_rd_record.num = txfm_info->mb_rd_record.index_start = 0;
 }
 
-void av1_setup_pred_block(const MACROBLOCKD *xd,
+void av2_setup_pred_block(const MACROBLOCKD *xd,
                           struct buf_2d dst[MAX_MB_PLANE],
                           const YV12_BUFFER_CONFIG *src,
                           const struct scale_factors *scale,
                           const struct scale_factors *scale_uv,
                           const int num_planes);
 
-int av1_get_intra_cost_penalty(int qindex, int qdelta, int base_y_dc_delta_q,
-                               aom_bit_depth_t bit_depth);
-void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
+int av2_get_intra_cost_penalty(int qindex, int qdelta, int base_y_dc_delta_q,
+                               avm_bit_depth_t bit_depth);
+void av2_fill_mode_rates(AV2_COMMON *const cm, ModeCosts *mode_costs,
                          FRAME_CONTEXT *fc);
 
-void av1_fill_lr_rates(ModeCosts *mode_costs, FRAME_CONTEXT *fc);
+void av2_fill_lr_rates(ModeCosts *mode_costs, FRAME_CONTEXT *fc);
 
-void av1_fill_coeff_costs(CoeffCosts *coeff_costs, FRAME_CONTEXT *fc,
+void av2_fill_coeff_costs(CoeffCosts *coeff_costs, FRAME_CONTEXT *fc,
                           const int num_planes);
 
-void av1_fill_mv_costs(const FRAME_CONTEXT *fc, int integer_mv,
+void av2_fill_mv_costs(const FRAME_CONTEXT *fc, int integer_mv,
                        MvSubpelPrecision precision, MvCosts *mv_costs);
 
 void fill_dv_costs(IntraBCMvCosts *dv_costs, const FRAME_CONTEXT *fc,
                    MvCosts *mv_costs);
 
-int av1_get_adaptive_rdmult(const struct AV1_COMP *cpi, double beta);
+int av2_get_adaptive_rdmult(const struct AV2_COMP *cpi, double beta);
 
-int av1_get_deltaq_offset(const struct AV1_COMP *cpi, int qindex, double beta);
+int av2_get_deltaq_offset(const struct AV2_COMP *cpi, int qindex, double beta);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RD_H_
+#endif  // AVM_AV2_ENCODER_RD_H_

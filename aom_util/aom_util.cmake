@@ -8,29 +8,29 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_AOM_UTIL_AOM_UTIL_CMAKE_)
+if(AVM_AVM_UTIL_AVM_UTIL_CMAKE_)
   return()
-endif() # AOM_AOM_UTIL_AOM_UTIL_CMAKE_
-set(AOM_AOM_UTIL_AOM_UTIL_CMAKE_ 1)
+endif() # AVM_AVM_UTIL_AVM_UTIL_CMAKE_
+set(AVM_AVM_UTIL_AVM_UTIL_CMAKE_ 1)
 
 list(
   APPEND
-  AOM_UTIL_SOURCES
-  "${AOM_ROOT}/aom_util/aom_thread.c"
-  "${AOM_ROOT}/aom_util/aom_thread.h"
-  "${AOM_ROOT}/aom_util/endian_inl.h"
-  "${AOM_ROOT}/aom_util/debug_util.c"
-  "${AOM_ROOT}/aom_util/debug_util.h")
+  AVM_UTIL_SOURCES
+  "${AVM_ROOT}/avm_util/avm_thread.c"
+  "${AVM_ROOT}/avm_util/avm_thread.h"
+  "${AVM_ROOT}/avm_util/endian_inl.h"
+  "${AVM_ROOT}/avm_util/debug_util.c"
+  "${AVM_ROOT}/avm_util/debug_util.h")
 
-# Creates the aom_util build target and makes libaom depend on it. The libaom
+# Creates the avm_util build target and makes libavm depend on it. The libavm
 # target must exist before this function is called.
-function(setup_aom_util_targets)
-  add_library(aom_util OBJECT ${AOM_UTIL_SOURCES})
-  set(AOM_LIB_TARGETS
-      ${AOM_LIB_TARGETS} aom_util
+function(setup_avm_util_targets)
+  add_library(avm_util OBJECT ${AVM_UTIL_SOURCES})
+  set(AVM_LIB_TARGETS
+      ${AVM_LIB_TARGETS} avm_util
       PARENT_SCOPE)
-  target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_util>)
+  target_sources(avm PRIVATE $<TARGET_OBJECTS:avm_util>)
   if(BUILD_SHARED_LIBS)
-    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_util>)
+    target_sources(avm_static PRIVATE $<TARGET_OBJECTS:avm_util>)
   endif()
 endfunction()

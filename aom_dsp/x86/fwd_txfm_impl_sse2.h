@@ -12,12 +12,12 @@
 
 #include <emmintrin.h>  // SSE2
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/txfm_common.h"
-#include "aom_dsp/x86/fwd_txfm_sse2.h"
-#include "aom_dsp/x86/txfm_common_sse2.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/txfm_common.h"
+#include "avm_dsp/x86/fwd_txfm_sse2.h"
+#include "avm_dsp/x86/txfm_common_sse2.h"
+#include "avm_ports/mem.h"
 
 // TODO(jingning) The high bit-depth functions need rework for performance.
 // After we properly fix the high bit-depth function implementations, this
@@ -280,7 +280,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
       overflow =
           check_epi16_overflow_x8(&q0, &q1, &q2, &q3, &q4, &q5, &q6, &q7);
       if (overflow) {
-        aom_highbd_fdct8x8_c(input, output, stride);
+        avm_highbd_fdct8x8_c(input, output, stride);
         return;
       }
     }
@@ -293,7 +293,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
       const __m128i r3 = SUB_EPI16(q0, q3);
       overflow = check_epi16_overflow_x4(&r0, &r1, &r2, &r3);
       if (overflow) {
-        aom_highbd_fdct8x8_c(input, output, stride);
+        avm_highbd_fdct8x8_c(input, output, stride);
         return;
       }
       // Interleave to do the multiply by constants which gets us into 32bits
@@ -334,7 +334,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
         res6 = _mm_packs_epi32(w6, w7);
         overflow = check_epi16_overflow_x4(&res0, &res4, &res2, &res6);
         if (overflow) {
-          aom_highbd_fdct8x8_c(input, output, stride);
+          avm_highbd_fdct8x8_c(input, output, stride);
           return;
         }
       }
@@ -362,7 +362,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
       const __m128i r1 = _mm_packs_epi32(s2, s3);
       overflow = check_epi16_overflow_x2(&r0, &r1);
       if (overflow) {
-        aom_highbd_fdct8x8_c(input, output, stride);
+        avm_highbd_fdct8x8_c(input, output, stride);
         return;
       }
       {
@@ -373,7 +373,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
         const __m128i x3 = ADD_EPI16(q7, r1);
         overflow = check_epi16_overflow_x4(&x0, &x1, &x2, &x3);
         if (overflow) {
-          aom_highbd_fdct8x8_c(input, output, stride);
+          avm_highbd_fdct8x8_c(input, output, stride);
           return;
         }
         // Interleave to do the multiply by constants which gets us into 32bits
@@ -414,7 +414,7 @@ void FDCT8x8_2D(const int16_t *input, tran_low_t *output, int stride) {
           res3 = _mm_packs_epi32(w6, w7);
           overflow = check_epi16_overflow_x4(&res1, &res7, &res5, &res3);
           if (overflow) {
-            aom_highbd_fdct8x8_c(input, output, stride);
+            avm_highbd_fdct8x8_c(input, output, stride);
             return;
           }
         }

@@ -15,10 +15,10 @@
 // Original source:
 //  https://chromium.googlesource.com/webm/libwebp
 
-#ifndef AOM_AOM_UTIL_AOM_THREAD_H_
-#define AOM_AOM_UTIL_AOM_THREAD_H_
+#ifndef AVM_AVM_UTIL_AVM_THREAD_H_
+#define AVM_AVM_UTIL_AVM_THREAD_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -366,10 +366,10 @@ typedef struct {
 // decoding takes place. The contents of the interface struct are copied, it
 // is safe to free the corresponding memory after this call. This function is
 // not thread-safe. Return false in case of invalid pointer or methods.
-int aom_set_worker_interface(const AVxWorkerInterface *const winterface);
+int avm_set_worker_interface(const AVxWorkerInterface *const winterface);
 
 // Retrieve the currently set thread worker interface.
-const AVxWorkerInterface *aom_get_worker_interface(void);
+const AVxWorkerInterface *avm_get_worker_interface(void);
 
 //------------------------------------------------------------------------------
 
@@ -377,4 +377,4 @@ const AVxWorkerInterface *aom_get_worker_interface(void);
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_UTIL_AOM_THREAD_H_
+#endif  // AVM_AVM_UTIL_AVM_THREAD_H_

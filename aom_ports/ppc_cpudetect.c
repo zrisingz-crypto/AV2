@@ -16,14 +16,14 @@
 #include <asm/cputable.h>
 #include <linux/auxvec.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_ports/ppc.h"
+#include "avm_ports/ppc.h"
 
 #if CONFIG_RUNTIME_CPU_DETECT
 static int cpu_env_flags(int *flags) {
   char *env;
-  env = getenv("AOM_SIMD_CAPS");
+  env = getenv("AVM_SIMD_CAPS");
   if (env && *env) {
     *flags = (int)strtol(env, NULL, 0);
     return 0;
@@ -34,7 +34,7 @@ static int cpu_env_flags(int *flags) {
 
 static int cpu_env_mask(void) {
   char *env;
-  env = getenv("AOM_SIMD_CAPS_MASK");
+  env = getenv("AVM_SIMD_CAPS_MASK");
   return env && *env ? (int)strtol(env, NULL, 0) : ~0;
 }
 
@@ -46,7 +46,7 @@ int ppc_simd_caps(void) {
   unsigned int i;
   uint64_t buf[64];
 
-  // If AOM_SIMD_CAPS_MASK is set then allow only those capabilities.
+  // If AVM_SIMD_CAPS_MASK is set then allow only those capabilities.
   if (!cpu_env_flags(&flags)) {
     return flags;
   }

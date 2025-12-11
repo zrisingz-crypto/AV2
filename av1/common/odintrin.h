@@ -12,16 +12,16 @@
 
 /* clang-format off */
 
-#ifndef AOM_AV1_COMMON_ODINTRIN_H_
-#define AOM_AV1_COMMON_ODINTRIN_H_
+#ifndef AVM_AV2_COMMON_ODINTRIN_H_
+#define AVM_AV2_COMMON_ODINTRIN_H_
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/bitops.h"
-#include "av1/common/enums.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_ports/bitops.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,8 +43,8 @@ extern uint32_t OD_DIVU_SMALL_CONSTS[OD_DIVU_DMAX][2];
 #define OD_DIVU(_x, _d) \
   (((_d) < OD_DIVU_DMAX) ? (OD_DIVU_SMALL((_x), (_d))) : ((_x) / (_d)))
 
-#define OD_MINI AOMMIN
-#define OD_MAXI AOMMAX
+#define OD_MINI AVMMIN
+#define OD_MAXI AVMMAX
 #define OD_CLAMPI(min, val, max) (OD_MAXI(min, OD_MINI(val, max)))
 
 /*Integer logarithm (base 2) of a nonzero unsigned 32-bit integer.
@@ -83,4 +83,4 @@ extern uint32_t OD_DIVU_SMALL_CONSTS[OD_DIVU_DMAX][2];
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_ODINTRIN_H_
+#endif  // AVM_AV2_COMMON_ODINTRIN_H_

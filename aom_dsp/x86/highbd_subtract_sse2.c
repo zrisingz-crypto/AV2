@@ -14,8 +14,8 @@
 #include <emmintrin.h>
 #include <stddef.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
 typedef void (*SubtractWxHFuncType)(int16_t *diff, ptrdiff_t diff_stride,
                                     const uint16_t *src, ptrdiff_t src_stride,
@@ -274,7 +274,7 @@ static SubtractWxHFuncType getSubtractFunc(int rows, int cols) {
   return NULL;
 }
 
-void aom_highbd_subtract_block_sse2(int rows, int cols, int16_t *diff,
+void avm_highbd_subtract_block_sse2(int rows, int cols, int16_t *diff,
                                     ptrdiff_t diff_stride, const uint16_t *src,
                                     ptrdiff_t src_stride, const uint16_t *pred,
                                     ptrdiff_t pred_stride, int bd) {

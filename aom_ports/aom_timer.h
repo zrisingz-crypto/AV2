@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_AOM_TIMER_H_
-#define AOM_AOM_PORTS_AOM_TIMER_H_
+#ifndef AVM_AVM_PORTS_AVM_TIMER_H_
+#define AVM_AVM_PORTS_AVM_TIMER_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #if CONFIG_OS_SUPPORT
 
@@ -47,7 +47,7 @@
 #endif
 #endif
 
-struct aom_usec_timer {
+struct avm_usec_timer {
 #if defined(_WIN32)
   LARGE_INTEGER begin, end;
 #else
@@ -55,7 +55,7 @@ struct aom_usec_timer {
 #endif
 };
 
-static INLINE void aom_usec_timer_start(struct aom_usec_timer *t) {
+static INLINE void avm_usec_timer_start(struct avm_usec_timer *t) {
 #if defined(_WIN32)
   QueryPerformanceCounter(&t->begin);
 #else
@@ -63,7 +63,7 @@ static INLINE void aom_usec_timer_start(struct aom_usec_timer *t) {
 #endif
 }
 
-static INLINE void aom_usec_timer_mark(struct aom_usec_timer *t) {
+static INLINE void avm_usec_timer_mark(struct avm_usec_timer *t) {
 #if defined(_WIN32)
   QueryPerformanceCounter(&t->end);
 #else
@@ -71,7 +71,7 @@ static INLINE void aom_usec_timer_mark(struct aom_usec_timer *t) {
 #endif
 }
 
-static INLINE int64_t aom_usec_timer_elapsed(struct aom_usec_timer *t) {
+static INLINE int64_t avm_usec_timer_elapsed(struct avm_usec_timer *t) {
 #if defined(_WIN32)
   LARGE_INTEGER freq, diff;
 
@@ -94,19 +94,19 @@ static INLINE int64_t aom_usec_timer_elapsed(struct aom_usec_timer *t) {
 #define timersub(a, b, result)
 #endif
 
-struct aom_usec_timer {
+struct avm_usec_timer {
   void *dummy;
 };
 
-static INLINE void aom_usec_timer_start(struct aom_usec_timer *t) { (void)t; }
+static INLINE void avm_usec_timer_start(struct avm_usec_timer *t) { (void)t; }
 
-static INLINE void aom_usec_timer_mark(struct aom_usec_timer *t) { (void)t; }
+static INLINE void avm_usec_timer_mark(struct avm_usec_timer *t) { (void)t; }
 
-static INLINE int aom_usec_timer_elapsed(struct aom_usec_timer *t) {
+static INLINE int avm_usec_timer_elapsed(struct avm_usec_timer *t) {
   (void)t;
   return 0;
 }
 
 #endif /* CONFIG_OS_SUPPORT */
 
-#endif  // AOM_AOM_PORTS_AOM_TIMER_H_
+#endif  // AVM_AVM_PORTS_AVM_TIMER_H_

@@ -13,10 +13,10 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/loopfilter.h"
+#include "avm_dsp/loopfilter.h"
 
 // An alternative implementation for vertical filtering is available under this
 // macro.
@@ -60,7 +60,7 @@ static void filt_generic_asym_highbd_hor_4px_sse4_1(int q_threshold,
   if (filter_len_neg < 1 || filter_len_pos < 1) {
     return;
   }
-  int filter_len = AOMMAX(filter_len_neg, filter_len_pos);
+  int filter_len = AVMMAX(filter_len_neg, filter_len_pos);
 
   // --- Calculate delta_m2 for 4 horizontal pixels ---
   __m128i xmm_src_p0_64 = _mm_loadl_epi64((__m128i const *)(src));
@@ -258,7 +258,7 @@ static INLINE void filt_generic_asym_highbd_ver_4px_sse4_1(
   if (filter_len_neg < 1 || filter_len_pos < 1) {
     return;
   }
-  int filter_len = AOMMAX(filter_len_neg, filter_len_pos);
+  int filter_len = AVMMAX(filter_len_neg, filter_len_pos);
 
   uint16_t *row_ptr[4];
   row_ptr[0] = src;
@@ -481,7 +481,7 @@ static INLINE void transpose_filt_generic_asym_highbd_ver_4px_sse4_1(
   if (filter_len_neg < 1 || filter_len_pos < 1) {
     return;
   }
-  int filter_len = AOMMAX(filter_len_neg, filter_len_pos);
+  int filter_len = AVMMAX(filter_len_neg, filter_len_pos);
 
   // Transpose the rows into columns
   __m128i xmm_transposed_cols_32[16];
@@ -1059,7 +1059,7 @@ static INLINE int filt_choice_highbd_vertical_px4_sse4_1(uint16_t *s, int pitch,
   return MAX_DBL_FLT_LEN;
 }
 
-void aom_highbd_lpf_horizontal_generic_sse4_1(
+void avm_highbd_lpf_horizontal_generic_sse4_1(
     uint16_t *s, int pitch, int filt_width_neg, int filt_width_pos,
     const uint16_t *q_thresh, const uint16_t *side_thresh, int bd,
     int is_lossless_neg, int is_lossless_pos) {
@@ -1081,14 +1081,14 @@ void aom_highbd_lpf_horizontal_generic_sse4_1(
   // loop filter designed to work using chars so that we can make maximum use
   // of 8 bit simd instructions.
   for (int i = 0; i < count; i += 4) {
-    filt_generic_asym_highbd_hor_4px_sse4_1(*q_thresh, AOMMIN(filter, filt_neg),
+    filt_generic_asym_highbd_hor_4px_sse4_1(*q_thresh, AVMMIN(filter, filt_neg),
                                             filter, s, pitch, bd);
 
     s += 4;
   }
 }
 
-void aom_highbd_lpf_vertical_generic_sse4_1(
+void avm_highbd_lpf_vertical_generic_sse4_1(
     uint16_t *s, int pitch, int filt_width_neg, int filt_width_pos,
     const uint16_t *q_thresh, const uint16_t *side_thresh, int bd,
     int is_lossless_neg, int is_lossless_pos) {
@@ -1112,7 +1112,7 @@ void aom_highbd_lpf_vertical_generic_sse4_1(
   // loop filter designed to work using chars so that we can make maximum use
   // of 8 bit simd instructions.
   for (i = 0; i < count; i += 4) {
-    filt_generic_asym_highbd_ver_4px_sse4_1(*q_thresh, AOMMIN(filter, filt_neg),
+    filt_generic_asym_highbd_ver_4px_sse4_1(*q_thresh, AVMMIN(filter, filt_neg),
                                             filter, s, pitch, bd);
     s += 4 * pitch;
   }

@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/hr_coding.h"
-#include "aom/internal/aom_codec_internal.h"
+#include "av2/common/hr_coding.h"
+#include "avm/internal/avm_codec_internal.h"
 
 /*
  * This is a table hosting the threshold values for deriving the
@@ -66,11 +66,11 @@ int get_truncated_rice_length_diff(int level, int m, int k, int cmax,
 
 int get_adaptive_hr_length(int level, int ctx) {
   int m = get_adaptive_param(ctx);
-  return get_truncated_rice_length(level, m, m + 1, AOMMIN(m + 4, 6));
+  return get_truncated_rice_length(level, m, m + 1, AVMMIN(m + 4, 6));
 }
 
 int get_adaptive_hr_length_diff(int level, int ctx, int *diff) {
   int m = get_adaptive_param(ctx);
-  return get_truncated_rice_length_diff(level, m, m + 1, AOMMIN(m + 4, 6),
+  return get_truncated_rice_length_diff(level, m, m + 1, AVMMIN(m + 4, 6),
                                         diff);
 }

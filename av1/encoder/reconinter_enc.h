@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RECONINTER_ENC_H_
-#define AOM_AV1_ENCODER_RECONINTER_ENC_H_
+#ifndef AVM_AV2_ENCODER_RECONINTER_ENC_H_
+#define AVM_AV2_ENCODER_RECONINTER_ENC_H_
 
-#include "aom/aom_integer.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/convolve.h"
-#include "av1/common/filter.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/warped_motion.h"
+#include "avm/avm_integer.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/convolve.h"
+#include "av2/common/filter.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/warped_motion.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,12 +27,12 @@ extern "C" {
 
 // Build single or compound reference inter predictors for all planes.
 // Can build inter-intra predictors, masked predictors etc as well.
-void av1_enc_build_inter_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_enc_build_inter_predictor(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col,
                                    const BUFFER_SET *ctx, BLOCK_SIZE bsize,
                                    int plane_from, int plane_to);
 
-void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void enc_build_inter_predictors(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                 int plane, MB_MODE_INFO *mi,
                                 const BUFFER_SET *ctx,
                                 int build_for_refine_mv_only, int bw, int bh,
@@ -41,15 +41,15 @@ void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 // Build one inter predictor. It is called for building predictor for single
 // reference case, or just the 1st or 2nd reference in compound reference case.
 // Can build both regular and masked predictors.
-void av1_enc_build_one_inter_predictor(uint16_t *dst, int dst_stride,
+void av2_enc_build_one_inter_predictor(uint16_t *dst, int dst_stride,
                                        const MV *src_mv,
                                        InterPredParams *inter_pred_params);
 
-void av1_build_inter_predictor_single_buf_y(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+void av2_build_inter_predictor_single_buf_y(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                             int ref, uint16_t *ext_dst,
                                             int ext_dst_stride);
 
-void av1_build_wedge_inter_predictor_from_buf_y(
+void av2_build_wedge_inter_predictor_from_buf_y(
     MACROBLOCKD *xd, BLOCK_SIZE bsize, uint16_t *ext_dst0, int ext_dst_stride0,
     uint16_t *ext_dst1, int ext_dst_stride1);
 
@@ -57,4 +57,4 @@ void av1_build_wedge_inter_predictor_from_buf_y(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RECONINTER_ENC_H_
+#endif  // AVM_AV2_ENCODER_RECONINTER_ENC_H_

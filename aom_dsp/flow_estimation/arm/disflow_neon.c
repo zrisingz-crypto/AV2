@@ -9,15 +9,15 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "aom_dsp/flow_estimation/disflow.h"
+#include "avm_dsp/flow_estimation/disflow.h"
 
 #include <arm_neon.h>
 #include <math.h>
 
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_dsp/arm/sum_neon.h"
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_dsp/arm/sum_neon.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
 static INLINE void get_cubic_kernel_dbl(double x, double kernel[4]) {
   // Check that the fractional position is in range.
@@ -332,7 +332,7 @@ static INLINE void compute_flow_vector(const int16_t *dx, int dx_stride,
   vst1_s32(b, add_pairwise_s32x4(b_red));
 }
 
-void aom_compute_flow_at_point_neon(const uint8_t *src, const uint8_t *ref,
+void avm_compute_flow_at_point_neon(const uint8_t *src, const uint8_t *ref,
                                     int x, int y, int width, int height,
                                     int stride, double *u, double *v) {
   double M_inv[4];

@@ -12,13 +12,13 @@
 #include <assert.h>
 #include <immintrin.h> /*AVX2*/
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
-#include "av1/common/av1_txfm.h"
-#include "aom_dsp/txfm_common.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/x86/txfm_common_sse2.h"
-#include "av1/common/txb_common.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
+#include "av2/common/av2_txfm.h"
+#include "avm_dsp/txfm_common.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/x86/txfm_common_sse2.h"
+#include "av2/common/txb_common.h"
 
 static INLINE __m256i round_power_of_two_signed_avx2(__m256i v_val_d,
                                                      int bits) {
@@ -38,11 +38,11 @@ static INLINE __m128i round_power_of_two_signed_sse2(__m128i v_val_d,
   return _mm_srai_epi32(v_tmp_d, bits);
 }
 
-void av1_fwd_cross_chroma_tx_block_avx2(tran_low_t *coeff_c1,
+void av2_fwd_cross_chroma_tx_block_avx2(tran_low_t *coeff_c1,
                                         tran_low_t *coeff_c2, TX_SIZE tx_size,
                                         CctxType cctx_type, const int bd) {
   if (cctx_type == CCTX_NONE) return;
-  const int ncoeffs = av1_get_max_eob(tx_size);
+  const int ncoeffs = av2_get_max_eob(tx_size);
   int32_t *src_c1 = (int32_t *)coeff_c1;
   int32_t *src_c2 = (int32_t *)coeff_c2;
 
@@ -5204,7 +5204,7 @@ void fwd_txfm_avx2(const int16_t *resi, tran_low_t *coeff, int diff_stride,
 
   if (txfm_param->lossless) {
     assert(tx_type == DCT_DCT);
-    av1_highbd_fwht4x4(resi, coeff, diff_stride);
+    av2_highbd_fwht4x4(resi, coeff, diff_stride);
     return;
   }
 
@@ -5268,7 +5268,7 @@ void fwd_txfm_avx2(const int16_t *resi, tran_low_t *coeff, int diff_stride,
     __m128i shift_bits = _mm_set1_epi64x(NewSqrt2Bits);
     __m256i round_offset = _mm256_set1_epi64x(1LL << (NewSqrt2Bits - 1));
     __m256i idx = _mm256_set_epi32(6, 4, 2, 0, 6, 4, 2, 0);
-    for (int i = 0; i < AOMMIN(1024, width * height); i += 8) {
+    for (int i = 0; i < AVMMIN(1024, width * height); i += 8) {
       __m256i data = _mm256_loadu_si256((__m256i *)(coeff + i));
 
       __m256i data0 = _mm256_cvtepi32_epi64(_mm256_extracti128_si256(data, 0));

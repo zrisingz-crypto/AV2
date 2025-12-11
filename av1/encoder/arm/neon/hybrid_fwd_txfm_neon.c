@@ -12,7 +12,7 @@
 
 #include <arm_neon.h>
 
-#include "aom_dsp/txfm_common.h"
+#include "avm_dsp/txfm_common.h"
 
 static void transpose4x4(int16x8_t in[2], int16x4_t out[4]) {
   int32x4x2_t b0 =
@@ -27,7 +27,7 @@ static void transpose4x4(int16x8_t in[2], int16x4_t out[4]) {
   out[3] = c1.val[1];
 }
 
-void av1_fwht4x4_neon(const int16_t *input, tran_low_t *output, int stride) {
+void av2_fwht4x4_neon(const int16_t *input, tran_low_t *output, int stride) {
   // Load the 4x4 source in transposed form.
   int16x4_t a1, b1, c1, d1, e;
   a1 = vld1_s16(&input[0]);
@@ -78,7 +78,7 @@ void av1_fwht4x4_neon(const int16_t *input, tran_low_t *output, int stride) {
   vst1q_s32(&output[12], vshll_n_s16(s[3], UNIT_QUANT_SHIFT));
 }
 
-void av1_highbd_fwht4x4_neon(const int16_t *input, tran_low_t *output,
+void av2_highbd_fwht4x4_neon(const int16_t *input, tran_low_t *output,
                              int stride) {
-  av1_fwht4x4_neon(input, output, stride);
+  av2_fwht4x4_neon(input, output, stride);
 }

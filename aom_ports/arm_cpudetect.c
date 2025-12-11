@@ -12,8 +12,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "aom_ports/arm.h"
-#include "config/aom_config.h"
+#include "avm_ports/arm.h"
+#include "config/avm_config.h"
 
 #ifdef WINAPI_FAMILY
 #include <winapifamily.h>
@@ -24,7 +24,7 @@
 
 static int arm_cpu_env_flags(int *flags) {
   char *env;
-  env = getenv("AOM_SIMD_CAPS");
+  env = getenv("AVM_SIMD_CAPS");
   if (env && *env) {
     *flags = (int)strtol(env, NULL, 0);
     return 0;
@@ -35,13 +35,13 @@ static int arm_cpu_env_flags(int *flags) {
 
 static int arm_cpu_env_mask(void) {
   char *env;
-  env = getenv("AOM_SIMD_CAPS_MASK");
+  env = getenv("AVM_SIMD_CAPS_MASK");
   return env && *env ? (int)strtol(env, NULL, 0) : ~0;
 }
 
 #if !CONFIG_RUNTIME_CPU_DETECT || defined(__APPLE__)
 
-int aom_arm_cpu_caps(void) {
+int avm_arm_cpu_caps(void) {
   /* This function should actually be a no-op. There is no way to adjust any of
    * these because the RTCD tables do not exist: the functions are called
    * statically */
@@ -63,7 +63,7 @@ int aom_arm_cpu_caps(void) {
 #define WIN32_EXTRA_LEAN
 #include <windows.h>
 
-int aom_arm_cpu_caps(void) {
+int avm_arm_cpu_caps(void) {
   int flags;
   int mask;
   if (!arm_cpu_env_flags(&flags)) {
@@ -91,7 +91,7 @@ int aom_arm_cpu_caps(void) {
 #elif defined(__ANDROID__) /* end _MSC_VER */
 #include <cpu-features.h>
 
-int aom_arm_cpu_caps(void) {
+int avm_arm_cpu_caps(void) {
   int flags;
   int mask;
   uint64_t features;
@@ -111,7 +111,7 @@ int aom_arm_cpu_caps(void) {
 
 #include <stdio.h>
 
-int aom_arm_cpu_caps(void) {
+int avm_arm_cpu_caps(void) {
   FILE *fin;
   int flags;
   int mask;

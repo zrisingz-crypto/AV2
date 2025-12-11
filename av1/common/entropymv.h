@@ -10,22 +10,22 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_ENTROPYMV_H_
-#define AOM_AV1_COMMON_ENTROPYMV_H_
+#ifndef AVM_AV2_COMMON_ENTROPYMV_H_
+#define AVM_AV2_COMMON_ENTROPYMV_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/prob.h"
+#include "avm_dsp/prob.h"
 
-#include "av1/common/mv.h"
+#include "av2/common/mv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1Common;
+struct AV2Common;
 
-void av1_init_mv_probs(struct AV1Common *cm);
+void av2_init_mv_probs(struct AV2Common *cm);
 
 /* Symbols for coding which components are zero jointly */
 #define MV_JOINTS 4
@@ -74,33 +74,33 @@ enum {
 #define NUM_CTX_CLASS_OFFSETS 1
 
 typedef struct {
-  aom_cdf_prob amvd_indices_cdf[CDF_SIZE(MAX_AMVD_INDEX)];
+  avm_cdf_prob amvd_indices_cdf[CDF_SIZE(MAX_AMVD_INDEX)];
 } nmv_component;
 
 typedef struct {
   /*The joint_shell_set is first decoded. Depending on the shell set index, the
    * joint_shell_class is decoded.*/
-  aom_cdf_prob joint_shell_set_cdf[CDF_SIZE(2)];
-  aom_cdf_prob joint_shell_class_cdf_0[NUM_MV_PRECISIONS]
+  avm_cdf_prob joint_shell_set_cdf[CDF_SIZE(2)];
+  avm_cdf_prob joint_shell_class_cdf_0[NUM_MV_PRECISIONS]
                                       [CDF_SIZE(FIRST_SHELL_CLASS)];
-  aom_cdf_prob joint_shell_class_cdf_1[NUM_MV_PRECISIONS]
+  avm_cdf_prob joint_shell_class_cdf_1[NUM_MV_PRECISIONS]
                                       [CDF_SIZE(SECOND_SHELL_CLASS)];
 
   // Only MV_PRECISION_ONE_EIGHTH_PEL has shell class 15 and class 16.
   // For MV_PRECISION_ONE_EIGHTH_PEL, class 15 and 16 are coded as a
   // single class, then another flag to distinguish them
-  aom_cdf_prob joint_shell_last_two_classes_cdf[CDF_SIZE(2)];
+  avm_cdf_prob joint_shell_last_two_classes_cdf[CDF_SIZE(2)];
 
-  aom_cdf_prob shell_offset_low_class_cdf[2][CDF_SIZE(2)];
+  avm_cdf_prob shell_offset_low_class_cdf[2][CDF_SIZE(2)];
 
-  aom_cdf_prob
+  avm_cdf_prob
       shell_offset_class2_cdf[CDF_SIZE(2)];  // First bin for truncated unary
 
-  aom_cdf_prob shell_offset_other_class_cdf[NUM_CTX_CLASS_OFFSETS]
+  avm_cdf_prob shell_offset_other_class_cdf[NUM_CTX_CLASS_OFFSETS]
                                            [SHELL_INT_OFFSET_BIT][CDF_SIZE(2)];
-  aom_cdf_prob col_mv_greater_flags_cdf[NUM_CTX_COL_MV_GTX][CDF_SIZE(2)];
-  aom_cdf_prob col_mv_index_cdf[NUM_CTX_COL_MV_INDEX][CDF_SIZE(2)];
-  aom_cdf_prob amvd_joints_cdf[CDF_SIZE(MV_JOINTS)];
+  avm_cdf_prob col_mv_greater_flags_cdf[NUM_CTX_COL_MV_GTX][CDF_SIZE(2)];
+  avm_cdf_prob col_mv_index_cdf[NUM_CTX_COL_MV_INDEX][CDF_SIZE(2)];
+  avm_cdf_prob amvd_joints_cdf[CDF_SIZE(MV_JOINTS)];
   nmv_component comps[2];
 } nmv_context;
 
@@ -108,4 +108,4 @@ typedef struct {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_ENTROPYMV_H_
+#endif  // AVM_AV2_COMMON_ENTROPYMV_H_

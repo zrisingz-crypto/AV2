@@ -14,8 +14,8 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
-#include "aom_dsp/entenc.h"
-#include "aom_dsp/prob.h"
+#include "avm_dsp/entenc.h"
+#include "avm_dsp/prob.h"
 
 #if OD_MEASURE_EC_OVERHEAD
 #if !defined(M_LOG2E)

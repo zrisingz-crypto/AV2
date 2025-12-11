@@ -8,45 +8,45 @@
 ## License 1.0 was not distributed with this source code in the PATENTS file, you
 ## can obtain it at aomedia.org/license/patent-license/.
 ##
-## This file tests aomenc using hantro_collage_w352h288.yuv as input. To add
+## This file tests avmenc using hantro_collage_w352h288.yuv as input. To add
 ## new tests to this file, do the following:
 ##   1. Write a shell function (this is your test).
-##   2. Add the function to aomenc_tests (on a new line).
+##   2. Add the function to avmenc_tests (on a new line).
 ##
 . $(dirname $0)/tools_common.sh
 
 # Environment check: Make sure input is available.
-aomenc_verify_environment() {
+avmenc_verify_environment() {
   if [ ! -e "${YUV_RAW_INPUT}" ]; then
-    elog "The file ${YUV_RAW_INPUT##*/} must exist in LIBAOM_TEST_DATA_PATH."
+    elog "The file ${YUV_RAW_INPUT##*/} must exist in LIBAVM_TEST_DATA_PATH."
     return 1
   fi
-  if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
+  if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
     if [ ! -e "${Y4M_NOSQ_PAR_INPUT}" ]; then
       elog "The file ${Y4M_NOSQ_PAR_INPUT##*/} must exist in"
-      elog "LIBAOM_TEST_DATA_PATH."
+      elog "LIBAVM_TEST_DATA_PATH."
       return 1
     fi
   fi
-  if [ -z "$(aom_tool_path aomenc)" ]; then
-    elog "aomenc not found. It must exist in LIBAOM_BIN_PATH or its parent."
+  if [ -z "$(avm_tool_path avmenc)" ]; then
+    elog "avmenc not found. It must exist in LIBAVM_BIN_PATH or its parent."
     return 1
   fi
 }
 
-aomenc_can_encode_av1() {
-  if [ "$(av1_encode_available)" = "yes" ]; then
+avmenc_can_encode_av2() {
+  if [ "$(av2_encode_available)" = "yes" ]; then
     echo yes
   fi
 }
 
-aomenc_can_encode_av1() {
-  if [ "$(av1_encode_available)" = "yes" ]; then
+avmenc_can_encode_av2() {
+  if [ "$(av2_encode_available)" = "yes" ]; then
     echo yes
   fi
 }
 
-# Utilities that echo aomenc input file parameters.
+# Utilities that echo avmenc input file parameters.
 y4m_input_non_square_par() {
   echo ""${Y4M_NOSQ_PAR_INPUT}""
 }
@@ -55,39 +55,39 @@ y4m_input_720p() {
   echo ""${Y4M_720P_INPUT}""
 }
 
-# Wrapper function for running aomenc with pipe input. Requires that
-# LIBAOM_BIN_PATH points to the directory containing aomenc. $1 is used as the
+# Wrapper function for running avmenc with pipe input. Requires that
+# LIBAVM_BIN_PATH points to the directory containing avmenc. $1 is used as the
 # input file path and shifted away. All remaining parameters are passed through
-# to aomenc.
-aomenc_pipe() {
-  local encoder="$(aom_tool_path aomenc)"
+# to avmenc.
+avmenc_pipe() {
+  local encoder="$(avm_tool_path avmenc)"
   local input="$1"
   shift
-  cat "${input}" | eval "${AOM_TEST_PREFIX}" "${encoder}" - \
+  cat "${input}" | eval "${AVM_TEST_PREFIX}" "${encoder}" - \
     --test-decode=fatal \
     "$@" ${devnull}
 }
 
-# Wrapper function for running aomenc. Requires that LIBAOM_BIN_PATH points to
-# the directory containing aomenc. $1 one is used as the input file path and
-# shifted away. All remaining parameters are passed through to aomenc.
-aomenc() {
-  local encoder="$(aom_tool_path aomenc)"
+# Wrapper function for running avmenc. Requires that LIBAVM_BIN_PATH points to
+# the directory containing avmenc. $1 one is used as the input file path and
+# shifted away. All remaining parameters are passed through to avmenc.
+avmenc() {
+  local encoder="$(avm_tool_path avmenc)"
   local input="$1"
   shift
-  eval "${AOM_TEST_PREFIX}" "${encoder}" "${input}" \
+  eval "${AVM_TEST_PREFIX}" "${encoder}" "${input}" \
     --test-decode=fatal \
     "$@" ${devnull}
 }
 
-aomenc_av1_ivf() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
-    local output="${AV1_IVF_FILE}"
-    if [ -e "${AV1_IVF_FILE}" ]; then
-      output="${AOM_TEST_OUTPUT_DIR}/av1_test.ivf"
+avmenc_av2_ivf() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
+    local output="${AV2_IVF_FILE}"
+    if [ -e "${AV2_IVF_FILE}" ]; then
+      output="${AVM_TEST_OUTPUT_DIR}/av2_test.ivf"
     fi
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --ivf \
       --output="${output}" || return 1
 
@@ -98,14 +98,14 @@ aomenc_av1_ivf() {
   fi
 }
 
-aomenc_av1_obu() {
-   if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
-    local output="${AV1_OBU_FILE}"
-    if [ -e "${AV1_OBU_FILE}" ]; then
-      output="${AOM_TEST_OUTPUT_DIR}/av1_test.obu"
+avmenc_av2_obu() {
+   if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
+    local output="${AV2_OBU_FILE}"
+    if [ -e "${AV2_OBU_FILE}" ]; then
+      output="${AVM_TEST_OUTPUT_DIR}/av2_test.obu"
     fi
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --obu \
       --output="${output}" || return 1
 
@@ -116,14 +116,14 @@ aomenc_av1_obu() {
   fi
 }
 
-aomenc_av1_obu_lcr_ops_atlas() {
-   if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
-    local output="${AV1_OBU_LCR_OPS_ATLAS_FILE}"
-    if [ -e "${AV1_OBU_LCR_OPS_ATLAS_FILE}" ]; then
-      output="${AOM_TEST_OUTPUT_DIR}/av1_test.lcr_ops_atlas.obu"
+avmenc_av2_obu_lcr_ops_atlas() {
+   if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
+    local output="${AV2_OBU_LCR_OPS_ATLAS_FILE}"
+    if [ -e "${AV2_OBU_LCR_OPS_ATLAS_FILE}" ]; then
+      output="${AVM_TEST_OUTPUT_DIR}/av2_test.lcr_ops_atlas.obu"
     fi
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --obu \
       --enable-lcr=1 \
       --enable-ops=1 \
@@ -138,15 +138,15 @@ aomenc_av1_obu_lcr_ops_atlas() {
   fi
 }
 
-aomenc_av1_webm() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
+avmenc_av2_webm() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
-    local output="${AV1_WEBM_FILE}"
-    if [ -e "${AV1_WEBM_FILE}" ]; then
-      output="${AOM_TEST_OUTPUT_DIR}/av1_test.webm"
+    local output="${AV2_WEBM_FILE}"
+    if [ -e "${AV2_WEBM_FILE}" ]; then
+      output="${AVM_TEST_OUTPUT_DIR}/av2_test.webm"
     fi
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --output="${output}" || return 1
 
     if [ ! -e "${output}" ]; then
@@ -156,12 +156,12 @@ aomenc_av1_webm() {
   fi
 }
 
-aomenc_av1_webm_1pass() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
+avmenc_av2_webm_1pass() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
-    local output="${AOM_TEST_OUTPUT_DIR}/av1_test.webm"
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    local output="${AVM_TEST_OUTPUT_DIR}/av2_test.webm"
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --passes=1 \
       --output="${output}" || return 1
 
@@ -172,11 +172,11 @@ aomenc_av1_webm_1pass() {
   fi
 }
 
-aomenc_av1_ivf_lossless() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
-    local output="${AOM_TEST_OUTPUT_DIR}/av1_lossless.ivf"
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+avmenc_av2_ivf_lossless() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
+    local output="${AVM_TEST_OUTPUT_DIR}/av2_lossless.ivf"
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --ivf \
       --output="${output}" \
       --lossless=1 || return 1
@@ -188,11 +188,11 @@ aomenc_av1_ivf_lossless() {
   fi
 }
 
-aomenc_av1_ivf_minq0_maxq0() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ]; then
-    local output="${AOM_TEST_OUTPUT_DIR}/av1_lossless_minq0_maxq0.ivf"
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+avmenc_av2_ivf_minq0_maxq0() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ]; then
+    local output="${AVM_TEST_OUTPUT_DIR}/av2_lossless_minq0_maxq0.ivf"
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --ivf \
       --output="${output}" \
       --disable-warning-prompt \
@@ -206,14 +206,14 @@ aomenc_av1_ivf_minq0_maxq0() {
   fi
 }
 
-aomenc_av1_webm_lag5_frames10() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
+avmenc_av2_webm_lag5_frames10() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
     local lag_total_frames=10
     local lag_frames=5
-    local output="${AOM_TEST_OUTPUT_DIR}/av1_lag5_frames10.webm"
-    aomenc $(yuv_raw_input) \
-      $(aomenc_encode_test_fast_params) \
+    local output="${AVM_TEST_OUTPUT_DIR}/av2_lag5_frames10.webm"
+    avmenc $(yuv_raw_input) \
+      $(avmenc_encode_test_fast_params) \
       --limit=${lag_total_frames} \
       --lag-in-frames=${lag_frames} \
       --output="${output}" || return 1
@@ -226,12 +226,12 @@ aomenc_av1_webm_lag5_frames10() {
 }
 
 # TODO(fgalligan): Test that DisplayWidth is different than video width.
-aomenc_av1_webm_non_square_par() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
+avmenc_av2_webm_non_square_par() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
-    local output="${AOM_TEST_OUTPUT_DIR}/av1_non_square_par.webm"
-    aomenc $(y4m_input_non_square_par) \
-      $(aomenc_encode_test_fast_params) \
+    local output="${AVM_TEST_OUTPUT_DIR}/av2_non_square_par.webm"
+    avmenc $(y4m_input_non_square_par) \
+      $(avmenc_encode_test_fast_params) \
       --output="${output}" || return 1
 
     if [ ! -e "${output}" ]; then
@@ -241,13 +241,13 @@ aomenc_av1_webm_non_square_par() {
   fi
 }
 
-aomenc_av1_webm_cdf_update_mode() {
-  if [ "$(aomenc_can_encode_av1)" = "yes" ] && \
+avmenc_av2_webm_cdf_update_mode() {
+  if [ "$(avmenc_can_encode_av2)" = "yes" ] && \
      [ "$(webm_io_available)" = "yes" ]; then
     for mode in 0 1 2; do
-      local output="${AOM_TEST_OUTPUT_DIR}/cdf_mode_${mode}.webm"
-      aomenc $(yuv_raw_input) \
-        $(aomenc_encode_test_fast_params) \
+      local output="${AVM_TEST_OUTPUT_DIR}/cdf_mode_${mode}.webm"
+      avmenc $(yuv_raw_input) \
+        $(avmenc_encode_test_fast_params) \
         --cdf-update-mode=${mode} \
         --output="${output}" || return 1
 
@@ -259,15 +259,15 @@ aomenc_av1_webm_cdf_update_mode() {
   fi
 }
 
-aomenc_tests="aomenc_av1_ivf
-              aomenc_av1_obu
-              aomenc_av1_obu_lcr_ops_atlas
-              aomenc_av1_webm
-              aomenc_av1_webm_1pass
-              aomenc_av1_ivf_lossless
-              aomenc_av1_ivf_minq0_maxq0
-              aomenc_av1_webm_lag5_frames10
-              aomenc_av1_webm_non_square_par
-              aomenc_av1_webm_cdf_update_mode"
+avmenc_tests="avmenc_av2_ivf
+              avmenc_av2_obu
+              avmenc_av2_obu_lcr_ops_atlas
+              avmenc_av2_webm
+              avmenc_av2_webm_1pass
+              avmenc_av2_ivf_lossless
+              avmenc_av2_ivf_minq0_maxq0
+              avmenc_av2_webm_lag5_frames10
+              avmenc_av2_webm_non_square_par
+              avmenc_av2_webm_cdf_update_mode"
 
-run_tests aomenc_verify_environment "${aomenc_tests}"
+run_tests avmenc_verify_environment "${avmenc_tests}"

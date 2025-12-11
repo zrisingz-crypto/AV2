@@ -14,10 +14,10 @@
 #include <emmintrin.h>  // SSE2
 #include <smmintrin.h>  /* SSE4.1 */
 
-#include "aom/aom_integer.h"
-#include "av1/common/blockd.h"
-#include "av1/common/reconinter.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm/avm_integer.h"
+#include "av2/common/blockd.h"
+#include "av2/common/reconinter.h"
+#include "avm_dsp/x86/synonyms.h"
 
 static INLINE __m128i round_power_of_two_signed_epi64(__m128i in, int n) {
   __m128i sign_mask = _mm_srai_epi32(in, 31);
@@ -57,7 +57,7 @@ static INLINE __m128i clamp_epi16(__m128i val, const int min_val,
   return _mm_min_epi16(_mm_max_epi16(val, min), max);
 }
 
-void av1_bicubic_grad_interpolation_highbd_sse4_1(const int16_t *pred_src,
+void av2_bicubic_grad_interpolation_highbd_sse4_1(const int16_t *pred_src,
                                                   int16_t *x_grad,
                                                   int16_t *y_grad,
                                                   const int stride,
@@ -85,10 +85,10 @@ void av1_bicubic_grad_interpolation_highbd_sse4_1(const int16_t *pred_src,
   if (bw < 16) {
     for (int col = 0; col < bh; col++) {
       const int is_y_boundary = (col + 1 > bh - 1 || col - 1 < 0);
-      const int id_prev1 = AOMMAX(col - 1, 0);
-      const int id_prev2 = AOMMAX(col - 2, 0);
-      const int id_next1 = AOMMIN(col + 1, bh - 1);
-      const int id_next2 = AOMMIN(col + 2, bh - 1);
+      const int id_prev1 = AVMMAX(col - 1, 0);
+      const int id_prev2 = AVMMAX(col - 2, 0);
+      const int id_next1 = AVMMIN(col + 1, bh - 1);
+      const int id_next2 = AVMMIN(col + 2, bh - 1);
 
       for (int row = 0; row < bw; row += 8) {
         __m128i vpred_next1, vpred_prev1, vpred_next2, vpred_prev2;
@@ -161,10 +161,10 @@ void av1_bicubic_grad_interpolation_highbd_sse4_1(const int16_t *pred_src,
   } else {
     for (int col = 0; col < bh; col++) {
       const int is_y_boundary = (col + 1 > bh - 1 || col - 1 < 0);
-      const int id_prev = AOMMAX(col - 1, 0);
-      const int id_prev2 = AOMMAX(col - 2, 0);
-      const int id_next = AOMMIN(col + 1, bh - 1);
-      const int id_next2 = AOMMIN(col + 2, bh - 1);
+      const int id_prev = AVMMAX(col - 1, 0);
+      const int id_prev2 = AVMMAX(col - 2, 0);
+      const int id_next = AVMMIN(col + 1, bh - 1);
+      const int id_next2 = AVMMIN(col + 2, bh - 1);
       for (int row = 0; row < bw; row += 16) {
         __m128i vpred_next1_1, vpred_prev1_1, vpred_next2_1, vpred_prev2_1;
         __m128i vpred_next1_2, vpred_prev1_2, vpred_next2_2, vpred_prev2_2;
@@ -317,7 +317,7 @@ static INLINE __m128i LoadUnaligned16(const void *a) {
   return _mm_loadu_si128((const __m128i *)a);
 }
 
-static AOM_FORCE_INLINE void multiply_and_accum(
+static AVM_FORCE_INLINE void multiply_and_accum(
     __m128i a_lo_0, __m128i b_lo_0, __m128i a_hi_0, __m128i b_hi_0,
     __m128i a_lo1, __m128i b_lo1, __m128i a_hi1, __m128i b_hi1,
     const int grad_bits_lo, const int grad_bits_hi, __m128i *t1, __m128i *t2) {
@@ -514,7 +514,7 @@ static void opfl_mv_refinement_8x8_sse4_1(const int16_t *pdiff, int pstride,
                   vx1, vy1);
 }
 
-static AOM_INLINE void opfl_mv_refinement_sse4_1(
+static AVM_INLINE void opfl_mv_refinement_sse4_1(
     const int16_t *pdiff, int pstride, const int16_t *gx, const int16_t *gy,
     int gstride, int bw, int bh, int d0, int d1, int grad_prec_bits,
     int mv_prec_bits, int *vx0, int *vy0, int *vx1, int *vy1) {
@@ -530,7 +530,7 @@ static AOM_INLINE void opfl_mv_refinement_sse4_1(
 }
 
 // Function to compute optical flow offsets in nxn blocks
-int av1_opfl_mv_refinement_nxn_sse4_1(
+int av2_opfl_mv_refinement_nxn_sse4_1(
     const int16_t *pdiff, int pstride, const int16_t *gx, const int16_t *gy,
     int gstride, int bw, int bh, int n, int d0, int d1, int grad_prec_bits,
     int mv_prec_bits, int mi_x, int mi_y, int mi_cols, int mi_rows,
@@ -569,7 +569,7 @@ static INLINE __m128i round_power_of_two_signed_epi16(__m128i temp1,
   return _mm_mullo_epi16(reg, v_sign_d);
 }
 
-static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_sse4_1(
+static AVM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_sse4_1(
     const uint16_t *src1, const uint16_t *src2, int src_stride, int16_t *dst1,
     int16_t *dst2, int bw, int bh, int d0, int d1, int bd, int centered) {
   const __m128i zero = _mm_setzero_si128();
@@ -610,7 +610,7 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd_sse4_1(
   }
 }
 
-void av1_copy_pred_array_highbd_sse4_1(const uint16_t *src1,
+void av2_copy_pred_array_highbd_sse4_1(const uint16_t *src1,
                                        const uint16_t *src2, int src_stride,
                                        int16_t *dst1, int16_t *dst2, int bw,
                                        int bh, int d0, int d1, int bd,

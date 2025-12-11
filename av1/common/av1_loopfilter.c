@@ -12,20 +12,20 @@
 
 #include <math.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/av1_loopfilter.h"
-#include "av1/common/bru.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/seg_common.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/av2_loopfilter.h"
+#include "av2/common/bru.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/seg_common.h"
 
 #define MAX_SIDE_TABLE 296
-// based on int side_threshold = (int)(32 * AOMMAX(0.0444 * q_ind - 2.9936, 0.31
+// based on int side_threshold = (int)(32 * AVMMAX(0.0444 * q_ind - 2.9936, 0.31
 // * q_ind - 39) );
 static const int16_t side_thresholds[MAX_SIDE_TABLE] = {
   -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,  -16,
@@ -55,7 +55,7 @@ static const int16_t side_thresholds[MAX_SIDE_TABLE] = {
 
 // Function obtains q_threshold from the quantization index.
 int df_quant_from_qindex(int q_index, int bit_depth) {
-  int qstep = ROUND_POWER_OF_TWO(av1_ac_quant_QTX(q_index, 0, 0, bit_depth),
+  int qstep = ROUND_POWER_OF_TWO(av2_ac_quant_QTX(q_index, 0, 0, bit_depth),
                                  QUANT_TABLE_BITS);
 
   int q_threshold = qstep >> 6;
@@ -70,20 +70,20 @@ int df_side_from_qindex(int q_index, int bit_depth) {
   int side_threshold = side_thresholds[q_ind];
 
   side_threshold =
-      AOMMAX(side_threshold + (1 << (12 - bit_depth)), 0) >>
+      AVMMAX(side_threshold + (1 << (12 - bit_depth)), 0) >>
       (13 - bit_depth);  // to avoid rounding down for higher bit depths
 
   return side_threshold;
 }
 
-uint16_t av1_get_filter_q(const loop_filter_info_n *lfi_n, const int dir_idx,
+uint16_t av2_get_filter_q(const loop_filter_info_n *lfi_n, const int dir_idx,
                           int plane, const MB_MODE_INFO *mbmi, int bit_depth) {
   const int current_q_index = mbmi->final_qindex_ac[plane];
 
   return df_quant_from_qindex(
       current_q_index + lfi_n->q_thr_q_offset[plane][dir_idx], bit_depth);
 }
-uint16_t av1_get_filter_side(const loop_filter_info_n *lfi_n, const int dir_idx,
+uint16_t av2_get_filter_side(const loop_filter_info_n *lfi_n, const int dir_idx,
                              int plane, const MB_MODE_INFO *mbmi,
                              int bit_depth) {
   const int current_q_index = mbmi->final_qindex_ac[plane];
@@ -92,15 +92,15 @@ uint16_t av1_get_filter_side(const loop_filter_info_n *lfi_n, const int dir_idx,
       current_q_index + lfi_n->side_thr_q_offset[plane][dir_idx], bit_depth);
 }
 
-void av1_loop_filter_init(AV1_COMMON *cm) {
+void av2_loop_filter_init(AV2_COMMON *cm) {
   struct loopfilter *lf = &cm->lf;
 
   lf->combine_vert_horz_lf = 1;
 }
 // Update the loop filter for the current frame.
 // This should be called before loop_filter_rows(),
-// av1_loop_filter_frame() calls this function directly.
-void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
+// av2_loop_filter_frame() calls this function directly.
+void av2_loop_filter_frame_init(AV2_COMMON *cm, int plane_start,
                                 int plane_end) {
   int q_ind[MAX_MB_PLANE][NUM_EDGE_DIRS], side_ind[MAX_MB_PLANE][NUM_EDGE_DIRS];
   int plane;
@@ -119,7 +119,7 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
   q_ind[2][0] = q_ind[2][1] = cm->lf.delta_q_v * DF_DELTA_SCALE;
   side_ind[2][0] = side_ind[2][1] = cm->lf.delta_side_v * DF_DELTA_SCALE;
 
-  assert(plane_start >= AOM_PLANE_Y);
+  assert(plane_start >= AVM_PLANE_Y);
   assert(plane_end <= MAX_MB_PLANE);
 
   for (plane = plane_start; plane < plane_end; plane++) {
@@ -194,22 +194,22 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
     TX_SIZE tx_size = get_lossless_tx_size(xd, mbmi, plane);
     int mi_row_start = mbmi->mi_row_start;
     int mi_col_start = mbmi->mi_col_start;
-    if (plane != AOM_PLANE_Y) {
+    if (plane != AVM_PLANE_Y) {
       get_chroma_start_location(mbmi, tree_type, &mi_row_start, &mi_col_start);
     }
     *tu_edge = is_tu_edge_helper(
         tx_size, edge_dir, (mi_row - mi_row_start) >> plane_ptr->subsampling_y,
         (mi_col - mi_col_start) >> plane_ptr->subsampling_x);
-    assert(IMPLIES((plane != AOM_PLANE_Y), (*tu_edge == 1)));
+    assert(IMPLIES((plane != AVM_PLANE_Y), (*tu_edge == 1)));
     tx_size = (edge_dir == VERT_EDGE) ? txsize_horz_map[tx_size]
                                       : txsize_vert_map[tx_size];
     return tx_size;
   }
-  const int plane_type = av1_get_sdp_idx(tree_type);
+  const int plane_type = av2_get_sdp_idx(tree_type);
 
   TX_SIZE tx_size = TX_INVALID;
-  if (plane != AOM_PLANE_Y) {
-    tx_size = av1_get_max_uv_txsize(bsize_base, plane_ptr->subsampling_x,
+  if (plane != AVM_PLANE_Y) {
+    tx_size = av2_get_max_uv_txsize(bsize_base, plane_ptr->subsampling_x,
                                     plane_ptr->subsampling_y);
     int chroma_mi_row_start;
     int chroma_mi_col_start;
@@ -221,7 +221,7 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
         (mi_col - chroma_mi_col_start) >> plane_ptr->subsampling_x);
   }
 
-  if (plane == AOM_PLANE_Y && !mbmi->skip_txfm[SHARED_PART]) {
+  if (plane == AVM_PLANE_Y && !mbmi->skip_txfm[SHARED_PART]) {
     const BLOCK_SIZE sb_type = mbmi->sb_type[plane_type];
 
     const int blk_row = mi_row - mbmi->mi_row_start;
@@ -231,7 +231,7 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
     assert(blk_col >= 0);
 
     int txp_index = is_inter_block(mbmi, SHARED_PART)
-                        ? av1_get_txb_size_index(sb_type, blk_row, blk_col)
+                        ? av2_get_txb_size_index(sb_type, blk_row, blk_col)
                         : 0;
     const TX_PARTITION_TYPE partition = mbmi->tx_partition_type[txp_index];
     tx_info->tx_partition_type = partition;
@@ -293,7 +293,7 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
     }
   }
 
-  if (plane == AOM_PLANE_Y && mbmi->skip_txfm[SHARED_PART]) {
+  if (plane == AVM_PLANE_Y && mbmi->skip_txfm[SHARED_PART]) {
     const BLOCK_SIZE sb_type = mbmi->sb_type[plane_type];
     tx_size = max_txsize_rect_lookup[sb_type];
     *tu_edge = is_tu_edge_helper(tx_size, edge_dir, mi_row - mbmi->mi_row_start,
@@ -311,14 +311,14 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
   return tx_size;
 }
 
-typedef struct AV1_DEBLOCKING_PARAMETERS {
+typedef struct AV2_DEBLOCKING_PARAMETERS {
   // Length of the filter applied to the outer edge.
   uint32_t filter_length_neg;
   uint32_t filter_length_pos;
   // Thresholds.
   uint16_t q_threshold;
   uint16_t side_threshold;
-} AV1_DEBLOCKING_PARAMETERS;
+} AV2_DEBLOCKING_PARAMETERS;
 
 static uint32_t get_pu_starting_cooord(const MB_MODE_INFO *const mbmi,
                                        int plane, TREE_TYPE tree_type,
@@ -326,7 +326,7 @@ static uint32_t get_pu_starting_cooord(const MB_MODE_INFO *const mbmi,
                                        EDGE_DIR edge_dir) {
   uint32_t pu_starting_mi;
   const bool vert_edge = (edge_dir == VERT_EDGE);
-  if (plane == AOM_PLANE_Y) {
+  if (plane == AVM_PLANE_Y) {
     pu_starting_mi = vert_edge ? mbmi->mi_col_start : mbmi->mi_row_start;
   } else {
     int chroma_mi_row_start;
@@ -341,14 +341,14 @@ static uint32_t get_pu_starting_cooord(const MB_MODE_INFO *const mbmi,
 }
 
 // Check whether current block is TIP mode
-static AOM_INLINE void check_tip_edge(const MB_MODE_INFO *const mbmi,
+static AVM_INLINE void check_tip_edge(const MB_MODE_INFO *const mbmi,
                                       const int scale, TX_SIZE *ts,
                                       int32_t *tip_edge,
                                       int enable_tip_refinemv) {
   const bool is_tip_mode = is_tip_ref_frame(mbmi->ref_frame[0]);
   if (is_tip_mode) {
     *tip_edge = 1;
-    const BLOCK_SIZE bsize = mbmi->sb_type[AOM_PLANE_Y];
+    const BLOCK_SIZE bsize = mbmi->sb_type[AVM_PLANE_Y];
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
     const int sub_pu_size_y =
@@ -365,7 +365,7 @@ static AOM_INLINE void check_tip_edge(const MB_MODE_INFO *const mbmi,
 }
 
 // Check whether current block is OPFL mode
-static AOM_INLINE void check_opfl_edge(const AV1_COMMON *const cm,
+static AVM_INLINE void check_opfl_edge(const AV2_COMMON *const cm,
                                        const int plane, const MACROBLOCKD *xd,
                                        const MB_MODE_INFO *const mbmi,
                                        const int scale, TX_SIZE *ts,
@@ -374,12 +374,12 @@ static AOM_INLINE void check_opfl_edge(const AV1_COMMON *const cm,
   (void)plane;
   if (is_opfl_mode) {
     *opfl_edge = 1;
-    const BLOCK_SIZE bsize = mbmi->sb_type[AOM_PLANE_Y];
+    const BLOCK_SIZE bsize = mbmi->sb_type[AVM_PLANE_Y];
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
     const int use_4x4 = is_tip_ref_frame(mbmi->ref_frame[0]) ? 0 : 1;
     const int sub_pu_size_y =
-        opfl_get_subblock_size(bw, bh, AOM_PLANE_Y, use_4x4);
+        opfl_get_subblock_size(bw, bh, AVM_PLANE_Y, use_4x4);
     if (sub_pu_size_y == OF_MIN_BSIZE) {
       *ts = TX_4X4;
     } else {
@@ -390,7 +390,7 @@ static AOM_INLINE void check_opfl_edge(const AV1_COMMON *const cm,
 }
 
 // Check whether current block is RFMV mode
-static AOM_INLINE void check_rfmv_edge(const AV1_COMMON *const cm,
+static AVM_INLINE void check_rfmv_edge(const AV2_COMMON *const cm,
                                        const MB_MODE_INFO *const mbmi,
                                        const EDGE_DIR edge_dir, const int scale,
                                        TX_SIZE *ts, int32_t *rfmv_edge) {
@@ -404,7 +404,7 @@ static AOM_INLINE void check_rfmv_edge(const AV1_COMMON *const cm,
 
   if (is_rfmv_mode) {
     *rfmv_edge = 1;
-    const BLOCK_SIZE bsize = mbmi->sb_type[AOM_PLANE_Y];
+    const BLOCK_SIZE bsize = mbmi->sb_type[AVM_PLANE_Y];
     const int bw = block_size_wide[bsize];
     const int bh = block_size_high[bsize];
     if (bw >= REFINEMV_SUBBLOCK_WIDTH && bh >= REFINEMV_SUBBLOCK_HEIGHT) {
@@ -428,8 +428,8 @@ static AOM_INLINE void check_rfmv_edge(const AV1_COMMON *const cm,
 }
 
 // Check whether current block is sub-prediction mode
-static AOM_INLINE void check_sub_pu_edge(
-    const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
+static AVM_INLINE void check_sub_pu_edge(
+    const AV2_COMMON *const cm, const MACROBLOCKD *const xd,
     const MB_MODE_INFO *const mbmi, const int plane, TREE_TYPE tree_type,
     const int scale_horz, const int scale_vert, const EDGE_DIR edge_dir,
     const uint32_t coord, TX_SIZE *ts, int32_t *sub_pu_edge,
@@ -483,7 +483,7 @@ static AOM_INLINE void check_sub_pu_edge(
 // 'x'/'y' location are also set.
 // Note that, this function is required because, for chroma plane in particular,
 // the actual 'mi' location maybe at an offset from the mi_row/mi_col.
-MB_MODE_INFO **get_mi_location(const AV1_COMMON *const cm, int scale_horz,
+MB_MODE_INFO **get_mi_location(const AV2_COMMON *const cm, int scale_horz,
                                int scale_vert, uint32_t x, uint32_t y,
                                int plane, int *mi_row, int *mi_col) {
   const int this_mi_row = (y << scale_vert) >> MI_SIZE_LOG2;
@@ -551,8 +551,8 @@ static int get_remaining_mi_size(const MB_MODE_INFO *mbmi,
 // Return TX_SIZE from get_transform_size(), so it is plane and direction
 // aware
 static TX_SIZE set_lpf_parameters(
-    AV1_DEBLOCKING_PARAMETERS *const params, uint32_t prev_x, uint32_t prev_y,
-    AV1_COMMON *const cm, const MACROBLOCKD *const xd, const EDGE_DIR edge_dir,
+    AV2_DEBLOCKING_PARAMETERS *const params, uint32_t prev_x, uint32_t prev_y,
+    AV2_COMMON *const cm, const MACROBLOCKD *const xd, const EDGE_DIR edge_dir,
     const uint32_t x, const uint32_t y, const int plane,
     const struct macroblockd_plane *const plane_ptr, TX_SIZE *tx_size,
     int *mi_size_min) {
@@ -591,7 +591,7 @@ static TX_SIZE set_lpf_parameters(
                                !cm->seq_params.monochrome &&
                                mbmi->region_type == INTRA_REGION;
   if (is_sdp_eligible) {
-    tree_type = (plane == AOM_PLANE_Y) ? LUMA_PART : CHROMA_PART;
+    tree_type = (plane == AVM_PLANE_Y) ? LUMA_PART : CHROMA_PART;
   }
   const int plane_type = is_sdp_eligible && plane > 0;
 
@@ -620,16 +620,16 @@ static TX_SIZE set_lpf_parameters(
     }
     if (cm->bru.enabled) {
       if (mbmi->sb_active_mode != BRU_ACTIVE_SB) {
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+        avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                            "Invalid BRU activity in deblocking: only active SB "
                            "can be filtered");
       }
     }
     // prepare outer edge parameters. deblock the edge if it's an edge of a TU
     {
-      const uint32_t curr_q = av1_get_filter_q(&cm->lf_info, edge_dir, plane,
+      const uint32_t curr_q = av2_get_filter_q(&cm->lf_info, edge_dir, plane,
                                                mbmi, cm->seq_params.bit_depth);
-      const uint32_t curr_side = av1_get_filter_side(
+      const uint32_t curr_side = av2_get_filter_side(
           &cm->lf_info, edge_dir, plane, mbmi, cm->seq_params.bit_depth);
 
       const int curr_skipped =
@@ -653,7 +653,7 @@ static TX_SIZE set_lpf_parameters(
           // current block to previous block, and we need to fetch the tree type
           // of a previous block.
           if (is_prev_sdp_eligible) {
-            prev_tree_type = (plane == AOM_PLANE_Y) ? LUMA_PART : CHROMA_PART;
+            prev_tree_type = (plane == AVM_PLANE_Y) ? LUMA_PART : CHROMA_PART;
           }
           bool prev_tu_edge;
           tx_info_t prev_tx_info = { 0, 0, TX_PARTITION_NONE, TX_4X4 };
@@ -669,9 +669,9 @@ static TX_SIZE set_lpf_parameters(
           check_sub_pu_edge(cm, xd, mi_prev, plane, prev_tree_type, scale_horz,
                             scale_vert, edge_dir, 0, &pv_ts, &pv_sub_pu_edge,
                             &pv_tx_m_partition_size);
-          const uint32_t pv_q = av1_get_filter_q(
+          const uint32_t pv_q = av2_get_filter_q(
               &cm->lf_info, edge_dir, plane, mi_prev, cm->seq_params.bit_depth);
-          const uint32_t pv_side = av1_get_filter_side(
+          const uint32_t pv_side = av2_get_filter_side(
               &cm->lf_info, edge_dir, plane, mi_prev, cm->seq_params.bit_depth);
 
           const uint32_t pu_starting_coord = get_pu_starting_cooord(
@@ -705,16 +705,16 @@ static TX_SIZE set_lpf_parameters(
               if (((VERT_EDGE == edge_dir) && (width < x + 16)) ||
                   ((HORZ_EDGE == edge_dir) && (height < y + 16))) {
                 // make sure filtering does not get outside the frame size
-                clipped_ts = AOMMIN(clipped_ts, TX_16X16);
+                clipped_ts = AVMMIN(clipped_ts, TX_16X16);
               }
             } else {
               if (((VERT_EDGE == edge_dir) && (width < x + 8)) ||
                   ((HORZ_EDGE == edge_dir) && (height < y + 8))) {
                 // make sure filtering does not get outside the frame size
-                clipped_ts = AOMMIN(clipped_ts, TX_8X8);
+                clipped_ts = AVMMIN(clipped_ts, TX_8X8);
               }
             }
-            const TX_SIZE min_ts = AOMMIN(clipped_ts, pv_ts);
+            const TX_SIZE min_ts = AVMMIN(clipped_ts, pv_ts);
             if (TX_4X4 >= min_ts) {
               params->filter_length_neg = 4;
               params->filter_length_pos = 4;
@@ -788,13 +788,13 @@ static TX_SIZE set_lpf_parameters(
   }
   const int mi_size_cur = get_remaining_mi_size(
       mbmi, &tx_info, edge_dir, x, y, plane, tree_type, scale_horz, scale_vert);
-  *mi_size_min = AOMMIN(mi_size_prev, mi_size_cur) - 1;
+  *mi_size_min = AVMMIN(mi_size_prev, mi_size_cur) - 1;
   return ts;
 }
 
 // Extract if the block is lossless or not based on the mbmi map of the frame
 static uint8_t get_lossless_flag(
-    AV1_COMMON *const cm, uint32_t x, uint32_t y, uint32_t scale_horz,
+    AV2_COMMON *const cm, uint32_t x, uint32_t y, uint32_t scale_horz,
     uint32_t scale_vert, int plane,
     const struct macroblockd_plane *const plane_ptr) {
   if (!cm->features.has_lossless_segment) return 0;
@@ -811,7 +811,7 @@ static uint8_t get_lossless_flag(
   return this_mi[0] ? cm->features.lossless_segment[this_mi[0]->segment_id] : 0;
 }
 
-void av1_filter_block_plane_vert(AV1_COMMON *const cm,
+void av2_filter_block_plane_vert(AV2_COMMON *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
                                  const uint32_t mi_row, const uint32_t mi_col) {
@@ -831,7 +831,7 @@ void av1_filter_block_plane_vert(AV1_COMMON *const cm,
   const int y_range = (mib_size >> scale_vert);
   const int x_range = (mib_size >> scale_horz);
 
-  AV1_DEBLOCKING_PARAMETERS params_buf[MAX_MIB_SIZE];
+  AV2_DEBLOCKING_PARAMETERS params_buf[MAX_MIB_SIZE];
   TX_SIZE tx_size_buf[MAX_MIB_SIZE] = { 0 };
   int mi_size_min_height_buf[MAX_MIB_SIZE] = { 0 };
 
@@ -840,7 +840,7 @@ void av1_filter_block_plane_vert(AV1_COMMON *const cm,
     uint32_t prev_x =
         (mi_col == 0) ? 0 : ((mi_col - 1) * MI_SIZE) >> scale_horz;
 
-    AV1_DEBLOCKING_PARAMETERS *params = params_buf;
+    AV2_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_size_buf;
     int *mi_size_min_height = mi_size_min_height_buf;
 
@@ -865,7 +865,7 @@ void av1_filter_block_plane_vert(AV1_COMMON *const cm,
         cur_tx_size = TX_4X4;
       }
 
-      const aom_bit_depth_t bit_depth = cm->seq_params.bit_depth;
+      const avm_bit_depth_t bit_depth = cm->seq_params.bit_depth;
       bool is_lossless_current_block = get_lossless_flag(
           cm, curr_x, curr_y, scale_horz, scale_vert, plane, plane_ptr);
       bool is_lossless_prev_block = get_lossless_flag(
@@ -882,14 +882,14 @@ void av1_filter_block_plane_vert(AV1_COMMON *const cm,
         if (!skip_deblock_lossless &&
             (params->filter_length_neg || params->filter_length_pos)) {
           if (!(is_lossless_prev_block || is_lossless_current_block)) {
-            aom_highbd_lpf_vertical_generic(
+            avm_highbd_lpf_vertical_generic(
                 p, dst_stride, params->filter_length_neg,
                 params->filter_length_pos, &params->q_threshold,
                 &params->side_threshold, bit_depth, is_lossless_prev_block,
                 is_lossless_current_block);
 
           } else {
-            aom_highbd_lpf_vertical_generic_c(
+            avm_highbd_lpf_vertical_generic_c(
                 p, dst_stride, params->filter_length_neg,
                 params->filter_length_pos, &params->q_threshold,
                 &params->side_threshold, bit_depth, is_lossless_prev_block,
@@ -910,7 +910,7 @@ void av1_filter_block_plane_vert(AV1_COMMON *const cm,
     }
   }
 }
-void av1_filter_block_plane_horz(AV1_COMMON *const cm,
+void av2_filter_block_plane_horz(AV2_COMMON *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
                                  const uint32_t mi_row, const uint32_t mi_col) {
@@ -930,7 +930,7 @@ void av1_filter_block_plane_horz(AV1_COMMON *const cm,
   const int y_range = (mib_size >> scale_vert);
   const int x_range = (mib_size >> scale_horz);
 
-  AV1_DEBLOCKING_PARAMETERS params_buf[MAX_MIB_SIZE];
+  AV2_DEBLOCKING_PARAMETERS params_buf[MAX_MIB_SIZE];
   TX_SIZE tx_size_buf[MAX_MIB_SIZE] = { 0 };
   int mi_size_min_width_buf[MAX_MIB_SIZE] = { 0 };
 
@@ -939,7 +939,7 @@ void av1_filter_block_plane_horz(AV1_COMMON *const cm,
     uint32_t prev_y =
         (mi_row == 0) ? 0 : ((mi_row - 1) * MI_SIZE) >> scale_vert;
 
-    AV1_DEBLOCKING_PARAMETERS *params = params_buf;
+    AV2_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_size_buf;
     int *mi_size_min_width = mi_size_min_width_buf;
 
@@ -975,17 +975,17 @@ void av1_filter_block_plane_horz(AV1_COMMON *const cm,
           do_filter = 0;
       }
       if (do_filter) {
-        const aom_bit_depth_t bit_depth = cm->seq_params.bit_depth;
+        const avm_bit_depth_t bit_depth = cm->seq_params.bit_depth;
         if (!skip_deblock_lossless &&
             (params->filter_length_neg || params->filter_length_pos)) {
           if (!(is_lossless_current_block || is_lossless_prev_block)) {
-            aom_highbd_lpf_horizontal_generic(
+            avm_highbd_lpf_horizontal_generic(
                 p, dst_stride, params->filter_length_neg,
                 params->filter_length_pos, &params->q_threshold,
                 &params->side_threshold, bit_depth, is_lossless_prev_block,
                 is_lossless_current_block);
           } else {
-            aom_highbd_lpf_horizontal_generic_c(
+            avm_highbd_lpf_horizontal_generic_c(
                 p, dst_stride, params->filter_length_neg,
                 params->filter_length_pos, &params->q_threshold,
                 &params->side_threshold, bit_depth, is_lossless_prev_block,
@@ -1007,7 +1007,7 @@ void av1_filter_block_plane_horz(AV1_COMMON *const cm,
   }
 }
 
-static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
+static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV2_COMMON *cm,
                              MACROBLOCKD *xd, int start, int stop,
                              int plane_start, int plane_end) {
   struct macroblockd_plane *pd = xd->plane;
@@ -1030,31 +1030,31 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
       for (mi_row = start; mi_row < stop; mi_row += mib_size) {
         for (mi_col = col_start; mi_col < col_end; mi_col += mib_size) {
           // filter vertical edges
-          av1_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
+          av2_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
                                plane + 1, NULL);
-          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
+          av2_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
                                       mi_col);
           // filter horizontal edges
           if (mi_col - mib_size >= 0) {
-            av1_setup_dst_planes(pd, frame_buffer, mi_row, mi_col - mib_size,
+            av2_setup_dst_planes(pd, frame_buffer, mi_row, mi_col - mib_size,
                                  plane, plane + 1, NULL);
-            av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
+            av2_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
                                         mi_col - mib_size);
           }
         }
         // filter horizontal edges
-        av1_setup_dst_planes(pd, frame_buffer, mi_row, mi_col - mib_size, plane,
+        av2_setup_dst_planes(pd, frame_buffer, mi_row, mi_col - mib_size, plane,
                              plane + 1, NULL);
-        av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
+        av2_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
                                     mi_col - mib_size);
       }
     } else {
       // filter all vertical edges in every 128x128 super block
       for (mi_row = start; mi_row < stop; mi_row += mib_size) {
         for (mi_col = col_start; mi_col < col_end; mi_col += mib_size) {
-          av1_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
+          av2_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
                                plane + 1, NULL);
-          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
+          av2_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
                                       mi_col);
         }
       }
@@ -1062,9 +1062,9 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
       // filter all horizontal edges in every 128x128 super block
       for (mi_row = start; mi_row < stop; mi_row += mib_size) {
         for (mi_col = col_start; mi_col < col_end; mi_col += mib_size) {
-          av1_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
+          av2_setup_dst_planes(pd, frame_buffer, mi_row, mi_col, plane,
                                plane + 1, NULL);
-          av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
+          av2_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
                                       mi_col);
         }
       }
@@ -1072,7 +1072,7 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   }
 }
 
-void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+void av2_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV2_COMMON *cm,
                            MACROBLOCKD *xd, int plane_start, int plane_end,
                            int partial_frame) {
   if (cm->bridge_frame_info.is_bridge_frame) {
@@ -1084,17 +1084,17 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   if (partial_frame && cm->mi_params.mi_rows > 8) {
     start_mi_row = cm->mi_params.mi_rows >> 1;
     start_mi_row &= 0xfffffff8;
-    mi_rows_to_filter = AOMMAX(cm->mi_params.mi_rows / 8, 8);
+    mi_rows_to_filter = AVMMAX(cm->mi_params.mi_rows / 8, 8);
   }
   end_mi_row = start_mi_row + mi_rows_to_filter;
-  av1_loop_filter_frame_init(cm, plane_start, plane_end);
+  av2_loop_filter_frame_init(cm, plane_start, plane_end);
   loop_filter_rows(frame, cm, xd, start_mi_row, end_mi_row, plane_start,
                    plane_end);
 }
 
 // Set TIP filter length
-static AOM_INLINE void set_tip_filter_length(
-    AV1_COMMON *cm, const int plane, const int subsampling_x,
+static AVM_INLINE void set_tip_filter_length(
+    AV2_COMMON *cm, const int plane, const int subsampling_x,
     const int subsampling_y, const int blk_sz, const int edge_dir,
     const unsigned int coord, int *filter_length_neg, int *filter_length_pos) {
   const BLOCK_SIZE superblock_size =
@@ -1139,7 +1139,7 @@ static AOM_INLINE void set_tip_filter_length(
   }
 }
 // Apply loop filtering on TIP plane
-AOM_INLINE void loop_filter_tip_plane(AV1_COMMON *cm, const int plane,
+AVM_INLINE void loop_filter_tip_plane(AV2_COMMON *cm, const int plane,
                                       uint16_t *dst, const int dst_stride,
                                       const int plane_w, const int plane_h) {
   // retrieve filter parameters
@@ -1185,7 +1185,7 @@ AOM_INLINE void loop_filter_tip_plane(AV1_COMMON *cm, const int plane,
         set_tip_filter_length(cm, plane, subsampling_x, subsampling_y, sub_bw,
                               VERT_EDGE, i, &filter_length_neg,
                               &filter_length_pos);
-        aom_highbd_lpf_vertical_generic(p, dst_stride, filter_length_neg,
+        avm_highbd_lpf_vertical_generic(p, dst_stride, filter_length_neg,
                                         filter_length_pos, &q_vert, &side_vert,
                                         bit_depth, 0, 0);
       }
@@ -1210,7 +1210,7 @@ AOM_INLINE void loop_filter_tip_plane(AV1_COMMON *cm, const int plane,
         set_tip_filter_length(cm, plane, subsampling_x, subsampling_y, sub_bh,
                               HORZ_EDGE, j, &filter_length_neg,
                               &filter_length_pos);
-        aom_highbd_lpf_horizontal_generic(p, dst_stride, filter_length_neg,
+        avm_highbd_lpf_horizontal_generic(p, dst_stride, filter_length_neg,
                                           filter_length_pos, &q_horz,
                                           &side_horz, bit_depth, 0, 0);
       }
@@ -1221,7 +1221,7 @@ AOM_INLINE void loop_filter_tip_plane(AV1_COMMON *cm, const int plane,
 }
 
 // setup dst buffer for each color component
-static AOM_INLINE void setup_tip_dst_plane(struct buf_2d *dst, uint16_t *src,
+static AVM_INLINE void setup_tip_dst_plane(struct buf_2d *dst, uint16_t *src,
                                            int width, int height, int stride,
                                            int tpl_row, int tpl_col,
                                            const struct scale_factors *scale,
@@ -1237,7 +1237,7 @@ static AOM_INLINE void setup_tip_dst_plane(struct buf_2d *dst, uint16_t *src,
 }
 
 // setup dst buffer
-AOM_INLINE void setup_tip_dst_planes(AV1_COMMON *const cm, const int plane,
+AVM_INLINE void setup_tip_dst_planes(AV2_COMMON *const cm, const int plane,
                                      const int tpl_row, const int tpl_col) {
   const YV12_BUFFER_CONFIG *src = &cm->tip_ref.tip_frame->buf;
   TIP_PLANE *const pd = &cm->tip_ref.tip_plane[plane];
@@ -1255,7 +1255,7 @@ AOM_INLINE void setup_tip_dst_planes(AV1_COMMON *const cm, const int plane,
 }
 
 // Initialize TIP lf parameters
-void init_tip_lf_parameter(struct AV1Common *cm, int plane_start,
+void init_tip_lf_parameter(struct AV2Common *cm, int plane_start,
                            int plane_end) {
   if (!cm->lf.tip_filter_level) return;
   int q_ind[MAX_MB_PLANE], side_ind[MAX_MB_PLANE];
@@ -1277,7 +1277,7 @@ void init_tip_lf_parameter(struct AV1Common *cm, int plane_start,
                            cm->seq_params.base_uv_ac_delta_q +
                            tip_delta_chroma * tip_delta_scale;
 
-  assert(plane_start >= AOM_PLANE_Y);
+  assert(plane_start >= AVM_PLANE_Y);
   assert(plane_end <= MAX_MB_PLANE);
   int plane;
   for (plane = plane_start; plane < plane_end; plane++) {
@@ -1296,7 +1296,7 @@ void init_tip_lf_parameter(struct AV1Common *cm, int plane_start,
 }
 
 // Apply loop filtering on TIP frame
-void loop_filter_tip_frame(struct AV1Common *cm, int plane_start,
+void loop_filter_tip_frame(struct AV2Common *cm, int plane_start,
                            int plane_end) {
   if (!cm->lf.tip_filter_level) return;
   for (int plane = plane_start; plane < plane_end; ++plane) {

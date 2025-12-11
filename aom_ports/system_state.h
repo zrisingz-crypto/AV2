@@ -10,15 +10,15 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_PORTS_SYSTEM_STATE_H_
-#define AOM_AOM_PORTS_SYSTEM_STATE_H_
+#ifndef AVM_AVM_PORTS_SYSTEM_STATE_H_
+#define AVM_AVM_PORTS_SYSTEM_STATE_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #if ARCH_X86 || ARCH_X86_64
-void aom_reset_mmx_state(void);
-#define aom_clear_system_state() aom_reset_mmx_state()
+void avm_reset_mmx_state(void);
+#define avm_clear_system_state() avm_reset_mmx_state()
 #else
-#define aom_clear_system_state()
+#define avm_clear_system_state()
 #endif  // ARCH_X86 || ARCH_X86_64
-#endif  // AOM_AOM_PORTS_SYSTEM_STATE_H_
+#endif  // AVM_AVM_PORTS_SYSTEM_STATE_H_

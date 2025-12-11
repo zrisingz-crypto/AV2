@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_MIPS_MACROS_MSA_H_
-#define AOM_AOM_DSP_MIPS_MACROS_MSA_H_
+#ifndef AVM_AVM_DSP_MIPS_MACROS_MSA_H_
+#define AVM_AVM_DSP_MIPS_MACROS_MSA_H_
 
 #include <msa.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #define LD_B(RTYPE, psrc) *((const RTYPE *)(psrc))
 #define LD_UB(...) LD_B(v16u8, __VA_ARGS__)
@@ -2053,4 +2053,4 @@
                                                                 \
     tmp1_m;                                                     \
   })
-#endif  // AOM_AOM_DSP_MIPS_MACROS_MSA_H_
+#endif  // AVM_AVM_DSP_MIPS_MACROS_MSA_H_

@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/aom_simd.h"
+#include "avm_dsp/avm_simd.h"
 #define SIMD_FUNC(name) name##_avx2
-#include "av1/common/cdef_block_simd.h"
+#include "av2/common/cdef_block_simd.h"
 
 /* Partial A is a 16-bit vector of the form:
 [x8 - - x1 | x16 - - x9] and partial B has the form:
@@ -20,7 +20,7 @@
 This function computes (x1^2+y1^2)*C1 + (x2^2+y2^2)*C2 + ...
 (x7^2+y2^7)*C7 + (x8^2+0^2)*C8 on each 128-bit lane. Here the C1..C8 constants
 are in const1 and const2. */
-static AOM_INLINE __m256i fold_mul_and_sum_avx2(__m256i *partiala,
+static AVM_INLINE __m256i fold_mul_and_sum_avx2(__m256i *partiala,
                                                 __m256i *partialb,
                                                 const __m256i *const1,
                                                 const __m256i *const2) {
@@ -50,7 +50,7 @@ static AOM_INLINE __m256i fold_mul_and_sum_avx2(__m256i *partiala,
 }
 
 /* Computes and returns the element-wise sum across x0, x1, x2 and x3. */
-static AOM_INLINE __m256i hsum4_avx2(__m256i *x0, __m256i *x1, __m256i *x2,
+static AVM_INLINE __m256i hsum4_avx2(__m256i *x0, __m256i *x1, __m256i *x2,
                                      __m256i *x3) {
   const __m256i t0 = _mm256_unpacklo_epi32(*x0, *x1);
   const __m256i t1 = _mm256_unpacklo_epi32(*x2, *x3);
@@ -67,7 +67,7 @@ static AOM_INLINE __m256i hsum4_avx2(__m256i *x0, __m256i *x1, __m256i *x2,
 
 /* Computes cost for directions 0, 5, 6 and 7. We can call this function again
 to compute the remaining directions. */
-static AOM_INLINE __m256i compute_directions_avx2(__m256i *lines,
+static AVM_INLINE __m256i compute_directions_avx2(__m256i *lines,
                                                   int32_t cost_frist_8x8[4],
                                                   int32_t cost_second_8x8[4]) {
   __m256i partial4a, partial4b, partial5a, partial5b, partial7a, partial7b;
@@ -149,7 +149,7 @@ static AOM_INLINE __m256i compute_directions_avx2(__m256i *lines,
 
 /* Transpose and reverse the order of the lines -- equivalent to a 90-degree
 counter-clockwise rotation of the pixels. */
-static AOM_INLINE void array_reverse_transpose_8x8_avx2(__m256i *in,
+static AVM_INLINE void array_reverse_transpose_8x8_avx2(__m256i *in,
                                                         __m256i *res) {
   const __m256i tr0_0 = _mm256_unpacklo_epi16(in[0], in[1]);
   const __m256i tr0_1 = _mm256_unpacklo_epi16(in[2], in[3]);

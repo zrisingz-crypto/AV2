@@ -13,22 +13,22 @@
 #include <assert.h>
 #include <emmintrin.h>  // SSE2
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/blend.h"
-#include "aom_dsp/x86/mem_sse2.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/x86/mem_sse2.h"
+#include "avm_dsp/x86/synonyms.h"
 
-#include "aom_ports/mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/filter.h"
-#include "av1/common/reconinter.h"
-#include "av1/encoder/reconinter_enc.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/filter.h"
+#include "av2/common/reconinter.h"
+#include "av2/encoder/reconinter_enc.h"
 
-unsigned int aom_get_mb_ss_sse2(const int16_t *src) {
+unsigned int avm_get_mb_ss_sse2(const int16_t *src) {
   __m128i vsum = _mm_setzero_si128();
   int i;
 
@@ -46,29 +46,29 @@ unsigned int aom_get_mb_ss_sse2(const int16_t *src) {
 static INLINE __m128i highbd_comp_mask_pred_line_sse2(const __m128i s0,
                                                       const __m128i s1,
                                                       const __m128i a) {
-  const __m128i alpha_max = _mm_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m128i alpha_max = _mm_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m128i round_const =
-      _mm_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m128i a_inv = _mm_sub_epi16(alpha_max, a);
 
   const __m128i s_lo = _mm_unpacklo_epi16(s0, s1);
   const __m128i a_lo = _mm_unpacklo_epi16(a, a_inv);
   const __m128i pred_lo = _mm_madd_epi16(s_lo, a_lo);
   const __m128i pred_l = _mm_srai_epi32(_mm_add_epi32(pred_lo, round_const),
-                                        AOM_BLEND_A64_ROUND_BITS);
+                                        AVM_BLEND_A64_ROUND_BITS);
 
   const __m128i s_hi = _mm_unpackhi_epi16(s0, s1);
   const __m128i a_hi = _mm_unpackhi_epi16(a, a_inv);
   const __m128i pred_hi = _mm_madd_epi16(s_hi, a_hi);
   const __m128i pred_h = _mm_srai_epi32(_mm_add_epi32(pred_hi, round_const),
-                                        AOM_BLEND_A64_ROUND_BITS);
+                                        AVM_BLEND_A64_ROUND_BITS);
 
   const __m128i comp = _mm_packs_epi32(pred_l, pred_h);
 
   return comp;
 }
 
-void aom_highbd_comp_mask_pred_sse2(uint16_t *comp_pred, const uint16_t *pred,
+void avm_highbd_comp_mask_pred_sse2(uint16_t *comp_pred, const uint16_t *pred,
                                     int width, int height, const uint16_t *ref,
                                     int ref_stride, const uint8_t *mask,
                                     int mask_stride, int invert_mask) {

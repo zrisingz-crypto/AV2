@@ -12,9 +12,9 @@
 
 #include <assert.h>
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
-void av1_fwht4x4_msa(const int16_t *input, int16_t *output,
+void av2_fwht4x4_msa(const int16_t *input, int16_t *output,
                      int32_t src_stride) {
   v8i16 in0, in1, in2, in3, in4;
 

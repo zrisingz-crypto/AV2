@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RDOPT_H_
-#define AOM_AV1_ENCODER_RDOPT_H_
+#ifndef AVM_AV2_ENCODER_RDOPT_H_
+#define AVM_AV2_ENCODER_RDOPT_H_
 
 #include <stdbool.h>
 
-#include "av1/common/blockd.h"
-#include "av1/common/txb_common.h"
+#include "av2/common/blockd.h"
+#include "av2/common/txb_common.h"
 
-#include "av1/encoder/block.h"
-#include "av1/encoder/context_tree.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/encodetxb.h"
-#include "av1/encoder/rdopt_utils.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/context_tree.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/encodetxb.h"
+#include "av2/encoder/rdopt_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,14 +42,14 @@ struct TileInfo;
 struct macroblock;
 struct RD_STATS;
 
-/*!\brief AV1 intra mode selection for intra frames.
+/*!\brief AV2 intra mode selection for intra frames.
  *
  * \ingroup intra_mode_search
  * \callgraph
  * Top level function for rd-based intra mode selection during intra frame
  * encoding. This function will first search for the best luma prediction by
- * calling av1_rd_pick_intra_sby_mode, then it searches for chroma prediction
- * with av1_rd_pick_intra_sbuv_mode. If applicable, this function ends the
+ * calling av2_rd_pick_intra_sby_mode, then it searches for chroma prediction
+ * with av2_rd_pick_intra_sbuv_mode. If applicable, this function ends the
  * search with an evaluation for intrabc.
  *
  * \param[in]    cpi            Top-level encoder structure.
@@ -67,12 +67,12 @@ struct RD_STATS;
  * in this function. The rd_cost struct is also updated with the RD stats
  * corresponding to the best mode found.
  */
-void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, ThreadData *td,
+void av2_rd_pick_intra_mode_sb(const struct AV2_COMP *cpi, ThreadData *td,
                                struct macroblock *x, struct RD_STATS *rd_cost,
                                BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
                                int64_t best_rd);
 
-/*!\brief AV1 inter mode selection.
+/*!\brief AV2 inter mode selection.
  *
  * \ingroup inter_mode_search
  * \callgraph
@@ -99,25 +99,25 @@ void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, ThreadData *td,
  * in this function. The rd_cost struct is also updated with the RD stats
  * corresponding to the best mode found.
  */
-void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
+void av2_rd_pick_inter_mode_sb(struct AV2_COMP *cpi,
                                struct TileDataEnc *tile_data,
                                struct macroblock *x, struct RD_STATS *rd_cost,
                                BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
                                int64_t best_rd_so_far);
 
-void av1_rd_pick_inter_mode_sb_seg_skip(
-    const struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
+void av2_rd_pick_inter_mode_sb_seg_skip(
+    const struct AV2_COMP *cpi, struct TileDataEnc *tile_data,
     struct macroblock *x, int mi_row, int mi_col, struct RD_STATS *rd_cost,
     BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx, int64_t best_rd_so_far);
 
 // Internal function, shared by rdopt.c and mcomp.c
 // Calculate the rate cost of directly signaling a warp model
-int av1_cost_warp_delta(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int av2_cost_warp_delta(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                         const MB_MODE_INFO *mbmi,
                         const MB_MODE_INFO_EXT *mbmi_ext,
                         const ModeCosts *mode_costs);
 
-int av1_cost_model_param(const MB_MODE_INFO *mbmi, const ModeCosts *mode_costs,
+int av2_cost_model_param(const MB_MODE_INFO *mbmi, const ModeCosts *mode_costs,
                          int step_size, int max_coded_index,
                          WarpedMotionParams *base_params);
 
@@ -139,13 +139,13 @@ typedef struct {
  * corner). high_bd is a bool indicating the source should be treated
  * as a 16-bit array. bd is the bit depth.
  */
-EdgeInfo av1_edge_exists(const uint16_t *src, int src_stride, int w, int h,
+EdgeInfo av2_edge_exists(const uint16_t *src, int src_stride, int w, int h,
                          int bd);
 
-/** Applies a Gaussian blur with sigma = 1.3. Used by av1_edge_exists and
+/** Applies a Gaussian blur with sigma = 1.3. Used by av2_edge_exists and
  * tests.
  */
-void av1_gaussian_blur(const uint16_t *src, int src_stride, int w, int h,
+void av2_gaussian_blur(const uint16_t *src, int src_stride, int w, int h,
                        uint16_t *dst, int bd);
 
 /*!\cond */
@@ -156,18 +156,18 @@ typedef struct {
 } sobel_xy;
 /*!\endcond */
 
-sobel_xy av1_sobel(const uint16_t *input, int stride, int i, int j);
+sobel_xy av2_sobel(const uint16_t *input, int stride, int i, int j);
 
-void av1_inter_mode_data_init(struct TileDataEnc *tile_data);
-void av1_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
+void av2_inter_mode_data_init(struct TileDataEnc *tile_data);
+void av2_inter_mode_data_fit(TileDataEnc *tile_data, int rdmult);
 
-static INLINE int av1_encoder_get_relative_dist(int a, int b) {
+static INLINE int av2_encoder_get_relative_dist(int a, int b) {
   assert(a >= 0 && b >= 0);
   return (a - b);
 }
 
 // This function will return number of mi's in a superblock.
-static INLINE int av1_get_sb_mi_size(const AV1_COMMON *const cm) {
+static INLINE int av2_get_sb_mi_size(const AV2_COMMON *const cm) {
   const int mi_alloc_size_1d = mi_size_wide[cm->mi_params.mi_alloc_bsize];
   int sb_mi_rows =
       (mi_size_wide[cm->sb_size] + mi_alloc_size_1d - 1) / mi_alloc_size_1d;
@@ -180,7 +180,7 @@ static INLINE int av1_get_sb_mi_size(const AV1_COMMON *const cm) {
 // This function will copy usable ref_mv_stack[ref_frame][4] and
 // weight[ref_frame][4] information from ref_mv_stack[ref_frame][8] and
 // weight[ref_frame][8].
-static INLINE void av1_copy_usable_ref_mv_stack_and_weight(
+static INLINE void av2_copy_usable_ref_mv_stack_and_weight(
     const MACROBLOCKD *xd, MB_MODE_INFO_EXT *const mbmi_ext,
     MV_REFERENCE_FRAME ref_frame) {
   if (xd->mi[0]->skip_mode) {
@@ -190,7 +190,7 @@ static INLINE void av1_copy_usable_ref_mv_stack_and_weight(
   }
   if (has_second_drl(xd->mi[0])) {
     MV_REFERENCE_FRAME rf[2];
-    av1_set_ref_frame(rf, ref_frame);
+    av2_set_ref_frame(rf, ref_frame);
     if (rf[1] < 0) rf[1] = 0;
     memcpy(mbmi_ext->weight[rf[0]], xd->weight[rf[0]],
            USABLE_REF_MV_STACK_SIZE * sizeof(xd->weight[0][0]));
@@ -210,10 +210,10 @@ static INLINE void av1_copy_usable_ref_mv_stack_and_weight(
 
 #define PRUNE_SINGLE_REFS 0
 static INLINE int prune_ref_by_selective_ref_frame(
-    const AV1_COMP *const cpi, const MACROBLOCK *const x,
+    const AV2_COMP *const cpi, const MACROBLOCK *const x,
     const MV_REFERENCE_FRAME *const ref_frame) {
   (void)x;
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const SPEED_FEATURES *const sf = &cpi->sf;
 
   if (!sf->inter_sf.selective_ref_frame) return 0;
@@ -276,9 +276,9 @@ static INLINE int prune_ref_by_selective_ref_frame(
     case 1:
       if (comp_pred) {
         if (one_sided_comp && cm->ref_frames_info.num_past_refs < n_refs) {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 2) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 2) return 1;
         } else {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 3) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 3) return 1;
         }
       } else {
         if (dir_refrank0[d0] > INTER_REFS_PER_FRAME - PRUNE_SINGLE_REFS - 1)
@@ -288,9 +288,9 @@ static INLINE int prune_ref_by_selective_ref_frame(
     case 2:
       if (comp_pred) {
         if (one_sided_comp && cm->ref_frames_info.num_past_refs < n_refs) {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 1) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 1) return 1;
         } else {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 2) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 2) return 1;
         }
       } else {
         if (dir_refrank0[d0] > INTER_REFS_PER_FRAME - PRUNE_SINGLE_REFS - 2)
@@ -301,9 +301,9 @@ static INLINE int prune_ref_by_selective_ref_frame(
     default:
       if (comp_pred) {
         if (one_sided_comp) {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 0) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 0) return 1;
         } else {
-          if (AOMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 1) return 1;
+          if (AVMMIN(dir_refrank0[d0], dir_refrank1[d1]) > 1) return 1;
         }
       } else {
         if (dir_refrank0[d0] > INTER_REFS_PER_FRAME - PRUNE_SINGLE_REFS - 3)
@@ -316,7 +316,7 @@ static INLINE int prune_ref_by_selective_ref_frame(
 
 // This function will copy the best reference mode information from
 // MB_MODE_INFO_EXT to MB_MODE_INFO_EXT_FRAME.
-static INLINE void av1_copy_mbmi_ext_to_mbmi_ext_frame(
+static INLINE void av2_copy_mbmi_ext_to_mbmi_ext_frame(
     MB_MODE_INFO_EXT_FRAME *mbmi_ext_best,
     const MB_MODE_INFO_EXT *const mbmi_ext, MB_MODE_INFO *mbmi,
     uint8_t skip_mode, uint8_t ref_frame_type) {
@@ -328,7 +328,7 @@ static INLINE void av1_copy_mbmi_ext_to_mbmi_ext_frame(
   }
 
   MV_REFERENCE_FRAME rf[2];
-  av1_set_ref_frame(rf, ref_frame_type);
+  av2_set_ref_frame(rf, ref_frame_type);
   if (!has_second_drl(mbmi))
     rf[0] = ref_frame_type;  //????????????? need to know how encoder work,
                              // whether the mode has been set
@@ -360,11 +360,11 @@ static INLINE void av1_copy_mbmi_ext_to_mbmi_ext_frame(
 }
 
 // store submi info into dst_submi
-void store_submi(const MACROBLOCKD *const xd, const AV1_COMMON *cm,
+void store_submi(const MACROBLOCKD *const xd, const AV2_COMMON *cm,
                  SUBMB_INFO *dst_submi, BLOCK_SIZE bsize);
 
 // update submi from src_submi
-void update_submi(MACROBLOCKD *const xd, const AV1_COMMON *cm,
+void update_submi(MACROBLOCKD *const xd, const AV2_COMMON *cm,
                   const SUBMB_INFO *src_submi, BLOCK_SIZE bsize);
 
 // update curmv precision
@@ -399,4 +399,4 @@ int get_drl_cost(int max_drl_bits, const MB_MODE_INFO *mbmi,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RDOPT_H_
+#endif  // AVM_AV2_ENCODER_RDOPT_H_

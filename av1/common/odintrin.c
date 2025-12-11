@@ -12,7 +12,7 @@
 
 /* clang-format off */
 
-#include "av1/common/odintrin.h"
+#include "av2/common/odintrin.h"
 
 /*Constants for use with OD_DIVU_SMALL().
   See \cite{Rob05} for details on computing these constants.

@@ -14,12 +14,12 @@
 #include <immintrin.h>
 #include <smmintrin.h>
 
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
-#include "aom_dsp/x86/sum_squares_sse2.h"
-#include "config/aom_dsp_rtcd.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
+#include "avm_dsp/x86/sum_squares_sse2.h"
+#include "config/avm_dsp_rtcd.h"
 
-static uint64_t aom_sum_squares_2d_i16_nxn_avx2(const int16_t *src, int stride,
+static uint64_t avm_sum_squares_2d_i16_nxn_avx2(const int16_t *src, int stride,
                                                 int width, int height) {
   uint64_t result;
   __m256i v_acc_q = _mm256_setzero_si256();
@@ -65,23 +65,23 @@ static uint64_t aom_sum_squares_2d_i16_nxn_avx2(const int16_t *src, int stride,
   return result;
 }
 
-uint64_t aom_sum_squares_2d_i16_avx2(const int16_t *src, int stride, int width,
+uint64_t avm_sum_squares_2d_i16_avx2(const int16_t *src, int stride, int width,
                                      int height) {
   assert(width > 0 && height > 0);
   if (LIKELY(width == 4 && height == 4)) {
-    return aom_sum_squares_2d_i16_4x4_sse2(src, stride);
+    return avm_sum_squares_2d_i16_4x4_sse2(src, stride);
   } else if (LIKELY(width == 4 && (height & 3) == 0)) {
-    return aom_sum_squares_2d_i16_4xn_sse2(src, stride, height);
+    return avm_sum_squares_2d_i16_4xn_sse2(src, stride, height);
   } else if (LIKELY(width == 8 && (height & 3) == 0)) {
-    return aom_sum_squares_2d_i16_nxn_sse2(src, stride, width, height);
+    return avm_sum_squares_2d_i16_nxn_sse2(src, stride, width, height);
   } else if (LIKELY(((width & 15) == 0) && ((height & 3) == 0))) {
-    return aom_sum_squares_2d_i16_nxn_avx2(src, stride, width, height);
+    return avm_sum_squares_2d_i16_nxn_avx2(src, stride, width, height);
   } else {
-    return aom_sum_squares_2d_i16_c(src, stride, width, height);
+    return avm_sum_squares_2d_i16_c(src, stride, width, height);
   }
 }
 
-static uint64_t aom_sum_sse_2d_i16_nxn_avx2(const int16_t *src, int stride,
+static uint64_t avm_sum_sse_2d_i16_nxn_avx2(const int16_t *src, int stride,
                                             int width, int height, int *sum) {
   uint64_t result;
   const __m256i zero_reg = _mm256_setzero_si256();
@@ -144,23 +144,23 @@ static uint64_t aom_sum_sse_2d_i16_nxn_avx2(const int16_t *src, int stride,
   return result;
 }
 
-uint64_t aom_sum_sse_2d_i16_avx2(const int16_t *src, int src_stride, int width,
+uint64_t avm_sum_sse_2d_i16_avx2(const int16_t *src, int src_stride, int width,
                                  int height, int *sum) {
   if (LIKELY(width == 4 && height == 4)) {
-    return aom_sum_sse_2d_i16_4x4_sse2(src, src_stride, sum);
+    return avm_sum_sse_2d_i16_4x4_sse2(src, src_stride, sum);
   } else if (LIKELY(width == 4 && (height & 3) == 0)) {
-    return aom_sum_sse_2d_i16_4xn_sse2(src, src_stride, height, sum);
+    return avm_sum_sse_2d_i16_4xn_sse2(src, src_stride, height, sum);
   } else if (LIKELY(width == 8 && (height & 3) == 0)) {
-    return aom_sum_sse_2d_i16_nxn_sse2(src, src_stride, width, height, sum);
+    return avm_sum_sse_2d_i16_nxn_sse2(src, src_stride, width, height, sum);
   } else if (LIKELY(((width & 15) == 0) && ((height & 3) == 0))) {
-    return aom_sum_sse_2d_i16_nxn_avx2(src, src_stride, width, height, sum);
+    return avm_sum_sse_2d_i16_nxn_avx2(src, src_stride, width, height, sum);
   } else {
-    return aom_sum_sse_2d_i16_c(src, src_stride, width, height, sum);
+    return avm_sum_sse_2d_i16_c(src, src_stride, width, height, sum);
   }
 }
 
 // Accumulate sum of 16-bit elements in the vector
-static AOM_INLINE int32_t mm256_accumulate_epi16(__m256i vec_a) {
+static AVM_INLINE int32_t mm256_accumulate_epi16(__m256i vec_a) {
   __m128i vtmp1 = _mm256_extracti128_si256(vec_a, 1);
   __m128i vtmp2 = _mm256_castsi256_si128(vec_a);
   vtmp1 = _mm_add_epi16(vtmp1, vtmp2);
@@ -174,7 +174,7 @@ static AOM_INLINE int32_t mm256_accumulate_epi16(__m256i vec_a) {
 }
 
 // Accumulate sum of 32-bit elements in the vector
-static AOM_INLINE int32_t mm256_accumulate_epi32(__m256i vec_a) {
+static AVM_INLINE int32_t mm256_accumulate_epi32(__m256i vec_a) {
   __m128i vtmp1 = _mm256_extracti128_si256(vec_a, 1);
   __m128i vtmp2 = _mm256_castsi256_si128(vec_a);
   vtmp1 = _mm_add_epi32(vtmp1, vtmp2);
@@ -185,7 +185,7 @@ static AOM_INLINE int32_t mm256_accumulate_epi32(__m256i vec_a) {
   return _mm_cvtsi128_si32(vtmp1);
 }
 
-uint64_t aom_var_2d_u8_avx2(uint8_t *src, int src_stride, int width,
+uint64_t avm_var_2d_u8_avx2(uint8_t *src, int src_stride, int width,
                             int height) {
   uint8_t *srcp;
   uint64_t s = 0, ss = 0;
@@ -259,7 +259,7 @@ uint64_t aom_var_2d_u8_avx2(uint8_t *src, int src_stride, int width,
   return (ss - s * s / (width * height));
 }
 
-uint64_t aom_var_2d_u16_avx2(uint16_t *srcp1, int src_stride, int width,
+uint64_t avm_var_2d_u16_avx2(uint16_t *srcp1, int src_stride, int width,
                              int height) {
   uint16_t *srcp;
   uint64_t s = 0, ss = 0;
@@ -328,7 +328,7 @@ uint64_t aom_var_2d_u16_avx2(uint16_t *srcp1, int src_stride, int width,
   return (ss - s * s / (width * height));
 }
 
-uint64_t aom_sum_squares_i32_avx2(const int32_t *src, int32_t n) {
+uint64_t avm_sum_squares_i32_avx2(const int32_t *src, int32_t n) {
   assert(n % 16 == 0);
   uint64_t sum_squares;
   const int32_t *const end = src + n;

@@ -13,17 +13,17 @@
 #include <assert.h>
 #include <smmintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/convolve.h"
-#include "av1/common/resize.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "av2/common/convolve.h"
+#include "av2/common/resize.h"
+#include "avm_dsp/x86/synonyms.h"
 
 // Note: If the crop width is not a multiple of 4, then, unlike the C version,
 // this function will overwrite some of the padding on the right hand side of
 // the frame. This padding appears to be trashed anyway, so this should not
 // affect the running of the decoder.
-void av1_highbd_convolve_horiz_rs_sse4_1(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_horiz_rs_sse4_1(const uint16_t *src, int src_stride,
                                          uint16_t *dst, int dst_stride, int w,
                                          int h, const int16_t *x_filters,
                                          int x0_qn, int x_step_qn, int bd) {

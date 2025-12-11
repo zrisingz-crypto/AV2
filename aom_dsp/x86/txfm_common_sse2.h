@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_X86_TXFM_COMMON_SSE2_H_
-#define AOM_AOM_DSP_X86_TXFM_COMMON_SSE2_H_
+#ifndef AVM_AVM_DSP_X86_TXFM_COMMON_SSE2_H_
+#define AVM_AVM_DSP_X86_TXFM_COMMON_SSE2_H_
 
 #include <emmintrin.h>
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/synonyms.h"
 
 #define pair_set_epi16(a, b) \
   _mm_set1_epi32((int32_t)(((uint16_t)(a)) | (((uint32_t)(b)) << 16)))
@@ -31,4 +31,4 @@ static INLINE __m128i mm_reverse_epi16(const __m128i x) {
   _mm_setr_epi16((int16_t)(a), (int16_t)(b), (int16_t)(c), (int16_t)(d), \
                  (int16_t)(e), (int16_t)(f), (int16_t)(g), (int16_t)(h))
 
-#endif  // AOM_AOM_DSP_X86_TXFM_COMMON_SSE2_H_
+#endif  // AVM_AVM_DSP_X86_TXFM_COMMON_SSE2_H_

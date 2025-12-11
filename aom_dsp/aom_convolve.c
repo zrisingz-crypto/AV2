@@ -13,13 +13,13 @@
 #include <assert.h>
 #include <string.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_ports/mem.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_ports/mem.h"
 
 static const InterpKernel *get_filter_base(const int16_t *filter) {
   // NOTE: This assumes that the filter table is 256-byte aligned.
@@ -84,7 +84,7 @@ static void highbd_convolve_vert(const uint16_t *src, ptrdiff_t src_stride,
   }
 }
 
-void aom_highbd_convolve8_c(const uint16_t *src, ptrdiff_t src_stride,
+void avm_highbd_convolve8_c(const uint16_t *src, ptrdiff_t src_stride,
                             uint16_t *dst, ptrdiff_t dst_stride,
                             const InterpKernel *filter, int x0_q4,
                             int x_step_q4, int y0_q4, int y_step_q4, int w,
@@ -120,7 +120,7 @@ void aom_highbd_convolve8_c(const uint16_t *src, ptrdiff_t src_stride,
                        filter, y0_q4, y_step_q4, w, h, bd);
 }
 
-void aom_convolve_copy_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
+void avm_convolve_copy_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
                          ptrdiff_t dst_stride, int w, int h) {
   for (int r = h; r > 0; --r) {
     memmove(dst, src, w);
@@ -129,7 +129,7 @@ void aom_convolve_copy_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst,
   }
 }
 
-void aom_highbd_convolve8_horiz_c(const uint16_t *src, ptrdiff_t src_stride,
+void avm_highbd_convolve8_horiz_c(const uint16_t *src, ptrdiff_t src_stride,
                                   uint16_t *dst, ptrdiff_t dst_stride,
                                   const int16_t *filter_x, int x_step_q4,
                                   const int16_t *filter_y, int y_step_q4, int w,
@@ -143,7 +143,7 @@ void aom_highbd_convolve8_horiz_c(const uint16_t *src, ptrdiff_t src_stride,
                         x_step_q4, w, h, bd);
 }
 
-void aom_highbd_convolve8_vert_c(const uint16_t *src, ptrdiff_t src_stride,
+void avm_highbd_convolve8_vert_c(const uint16_t *src, ptrdiff_t src_stride,
                                  uint16_t *dst, ptrdiff_t dst_stride,
                                  const int16_t *filter_x, int x_step_q4,
                                  const int16_t *filter_y, int y_step_q4, int w,
@@ -157,7 +157,7 @@ void aom_highbd_convolve8_vert_c(const uint16_t *src, ptrdiff_t src_stride,
                        y_step_q4, w, h, bd);
 }
 
-void aom_highbd_convolve_copy_c(const uint16_t *src, ptrdiff_t src_stride,
+void avm_highbd_convolve_copy_c(const uint16_t *src, ptrdiff_t src_stride,
                                 uint16_t *dst, ptrdiff_t dst_stride, int w,
                                 int h) {
   for (int y = 0; y < h; ++y) {

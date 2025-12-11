@@ -14,17 +14,17 @@
 #include <assert.h>
 #include <arm_neon.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem.h"
-#include "av1/common/convolve.h"
-#include "av1/common/filter.h"
-#include "av1/common/arm/convolve_neon.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_dsp/arm/transpose_neon.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_ports/mem.h"
+#include "av2/common/convolve.h"
+#include "av2/common/filter.h"
+#include "av2/common/arm/convolve_neon.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_dsp/arm/transpose_neon.h"
 
-void av1_convolve_x_sr_intrabc_neon(const uint8_t *src, int src_stride,
+void av2_convolve_x_sr_intrabc_neon(const uint8_t *src, int src_stride,
                                     uint8_t *dst, int dst_stride, int w, int h,
                                     const InterpFilterParams *filter_params_x,
                                     const int subpel_x_qn,
@@ -88,7 +88,7 @@ void av1_convolve_x_sr_intrabc_neon(const uint8_t *src, int src_stride,
   }
 }
 
-void av1_convolve_y_sr_intrabc_neon(const uint8_t *src, int src_stride,
+void av2_convolve_y_sr_intrabc_neon(const uint8_t *src, int src_stride,
                                     uint8_t *dst, int dst_stride, int w, int h,
                                     const InterpFilterParams *filter_params_y,
                                     const int subpel_y_qn) {
@@ -147,7 +147,7 @@ void av1_convolve_y_sr_intrabc_neon(const uint8_t *src, int src_stride,
   }
 }
 
-void av1_convolve_2d_sr_intrabc_neon(const uint8_t *src, int src_stride,
+void av2_convolve_2d_sr_intrabc_neon(const uint8_t *src, int src_stride,
                                      uint8_t *dst, int dst_stride, int w, int h,
                                      const InterpFilterParams *filter_params_x,
                                      const InterpFilterParams *filter_params_y,

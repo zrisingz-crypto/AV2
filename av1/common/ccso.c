@@ -14,15 +14,15 @@
 #include <math.h>
 #include <string.h>
 
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "av1/common/ccso.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/av1_common_int.h"
+#include "avm/avm_integer.h"
+#include "av2/common/ccso.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/av2_common_int.h"
 
 // Derivation of CCSO unit size, ccso unit shall not across tile boundaries
-int get_ccso_unit_size_log2_adaptive_tile(const AV1_COMMON *cm,
+int get_ccso_unit_size_log2_adaptive_tile(const AV2_COMMON *cm,
                                           int sb_size_log2,
                                           int unit_size_log2) {
   if (cm->tiles.cols == 1 && cm->tiles.rows == 1) return unit_size_log2;
@@ -42,11 +42,11 @@ int get_ccso_unit_size_log2_adaptive_tile(const AV1_COMMON *cm,
       e4 += size & 3;
     }
     if (e4 == 0)
-      unit_size = AOMMIN(sb_size_log2 + 2, unit_size_log2);
+      unit_size = AVMMIN(sb_size_log2 + 2, unit_size_log2);
     else if (e2 == 0)
-      unit_size = AOMMIN(sb_size_log2 + 1, unit_size_log2);
+      unit_size = AVMMIN(sb_size_log2 + 1, unit_size_log2);
     else
-      unit_size = AOMMIN(sb_size_log2, unit_size_log2);
+      unit_size = AVMMIN(sb_size_log2, unit_size_log2);
   } else {
     unit_size = sb_size_log2;
   }
@@ -159,10 +159,10 @@ void derive_ccso_sample_pos(int *rec_idx, const int ccso_stride,
 }
 
 /* Derive rect area of a tile for CCSO process */
-INLINE static AV1PixelRect av1_get_tile_rect_ccso(const TileInfo *tile_info,
-                                                  const AV1_COMMON *cm,
+INLINE static AV2PixelRect av2_get_tile_rect_ccso(const TileInfo *tile_info,
+                                                  const AV2_COMMON *cm,
                                                   MACROBLOCKD *xd, int is_uv) {
-  AV1PixelRect r;
+  AV2PixelRect r;
 
   // Calculate position in the Y plane
   r.left = tile_info->mi_col_start * MI_SIZE;
@@ -174,8 +174,8 @@ INLINE static AV1PixelRect av1_get_tile_rect_ccso(const TileInfo *tile_info,
   const int frame_h = xd->plane[0].dst.height;
 
   // Make sure we don't fall off the bottom-right of the frame.
-  r.right = AOMMIN(r.right, frame_w);
-  r.bottom = AOMMIN(r.bottom, frame_h);
+  r.right = AVMMIN(r.right, frame_w);
+  r.bottom = AVMMIN(r.bottom, frame_h);
 
   // Convert to coordinates in the appropriate plane
   const int ss_x = is_uv && cm->seq_params.subsampling_x;
@@ -196,8 +196,8 @@ void ccso_filter_block_hbd_wo_buf_bo_only_c(
     const int src_y_stride, const int dst_stride, const int y_uv_hscale,
     const int y_uv_vscale, const int max_val, const int blk_size_x,
     const int blk_size_y, const bool isSingleBand, const uint8_t shift_bits) {
-  const int y_end = AOMMIN(pic_height - y, blk_size_y);
-  const int x_end = AOMMIN(pic_width - x, blk_size_x);
+  const int y_end = AVMMIN(pic_height - y, blk_size_y);
+  const int x_end = AVMMIN(pic_width - x, blk_size_x);
   for (int y_start = 0; y_start < y_end; y_start++) {
     const int y_pos = y_start;
     for (int x_start = 0; x_start < x_end; x_start++) {
@@ -223,8 +223,8 @@ void ccso_filter_block_hbd_wo_buf_c(
     const int neg_thr, const int *src_loc, const int max_val,
     const int blk_size_x, const int blk_size_y, const bool isSingleBand,
     const uint8_t shift_bits, const int edge_clf, const uint8_t ccso_bo_only) {
-  const int y_end = AOMMIN(pic_height - y, blk_size_y);
-  const int x_end = AOMMIN(pic_width - x, blk_size_x);
+  const int y_end = AVMMIN(pic_height - y, blk_size_y);
+  const int x_end = AVMMIN(pic_width - x, blk_size_x);
   for (int y_start = 0; y_start < y_end; y_start++) {
     const int y_pos = y_start;
     for (int x_start = 0; x_start < x_end; x_start++) {
@@ -258,7 +258,7 @@ void ccso_filter_block_hbd_wo_buf_c(
 // processing, however, for software optimization purpose we have
 // used  full block processing for whole lossy frame.
 void ccso_filter_block_hbd_wo_buf_4x4_c(
-    AV1_COMMON *cm, const uint16_t *src_y, uint16_t *dst_yuv,
+    AV2_COMMON *cm, const uint16_t *src_y, uint16_t *dst_yuv,
     int tile_col_start, int tile_row_start, const int x, const int y,
     const int pic_width, const int pic_height, int *src_cls,
     const int8_t *offset_buf, const int src_y_stride, const int dst_stride,
@@ -268,8 +268,8 @@ void ccso_filter_block_hbd_wo_buf_4x4_c(
     const uint8_t shift_bits, const int edge_clf, const uint8_t ccso_bo_only,
     int plane) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
-  const int y_end = AOMMIN(pic_height - y, blk_size_y);
-  const int x_end = AOMMIN(pic_width - x, blk_size_x);
+  const int y_end = AVMMIN(pic_height - y, blk_size_y);
+  const int x_end = AVMMIN(pic_width - x, blk_size_x);
   int min_b_size_x = (1 << MI_SIZE_LOG2) >> y_uv_hscale;
   int min_b_size_y = (1 << MI_SIZE_LOG2) >> y_uv_vscale;
 
@@ -291,8 +291,8 @@ void ccso_filter_block_hbd_wo_buf_4x4_c(
       const int is_lossless =
           cm->features.lossless_segment[this_mbmi[0]->segment_id];
       if (!is_lossless) {
-        int j_max = AOMMIN(x_pos + min_b_size_x, x + x_start + x_end);
-        int i_max = AOMMIN(y_pos + min_b_size_y, y_end);
+        int j_max = AVMMIN(x_pos + min_b_size_x, x + x_start + x_end);
+        int i_max = AVMMIN(y_pos + min_b_size_y, y_end);
         for (int i_pos_4x4 = y_pos; i_pos_4x4 < i_max; i_pos_4x4++) {
           for (int j_pos_4x4 = x_pos; j_pos_4x4 < j_max; j_pos_4x4++) {
             if (!ccso_bo_only) {
@@ -324,7 +324,7 @@ void ccso_filter_block_hbd_wo_buf_4x4_c(
 }
 
 // Apply CCSO for each process block row
-void av1_apply_ccso_filter_for_row(AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_apply_ccso_filter_for_row(AV2_COMMON *cm, MACROBLOCKD *xd,
                                    const uint16_t *src_y, uint16_t *dst_yuv,
                                    int *src_loc, int *src_cls, int blk_row,
                                    int thr, int blk_size, int blk_size_proc,
@@ -368,14 +368,14 @@ void av1_apply_ccso_filter_for_row(AV1_COMMON *cm, MACROBLOCKD *xd,
 
     if (cm->bru.enabled &&
         mi_params->mi_grid_base[mbmi_idx]->sb_active_mode != BRU_ACTIVE_SB) {
-      aom_internal_error(
-          &cm->error, AOM_CODEC_ERROR,
+      avm_internal_error(
+          &cm->error, AVM_CODEC_ERROR,
           "Invalid BRU activity in CCSO: only active SB can be filtered");
       return;
     }
     if (cm->bridge_frame_info.is_bridge_frame) {
-      aom_internal_error(
-          &cm->error, AOM_CODEC_ERROR,
+      avm_internal_error(
+          &cm->error, AVM_CODEC_ERROR,
           "Invalid Bridge frame activity in CCSO: can not be filtered");
       return;
     }
@@ -408,7 +408,7 @@ void av1_apply_ccso_filter_for_row(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 /* Apply CCSO on luma or chroma component when single or multiple bands are
  * applied */
-void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
+void apply_ccso_filter(AV2_COMMON *cm, MACROBLOCKD *xd, int plane,
                        const uint16_t *src_y, uint16_t *dst_yuv, int dst_stride,
                        int proc_unit_log2, uint16_t thr, uint8_t filter_sup,
                        uint8_t max_band_log2, int edge_clf) {
@@ -426,8 +426,8 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
   const int blk_log2_x = blk_log2 - y_uv_hscale;
   const int blk_log2_y = blk_log2 - y_uv_vscale;
   src_y += CCSO_PADDING_SIZE * ccso_ext_stride + CCSO_PADDING_SIZE;
-  const int unit_log2_x = AOMMIN(proc_unit_log2, blk_log2_x);
-  const int unit_log2_y = AOMMIN(proc_unit_log2, blk_log2_y);
+  const int unit_log2_x = AVMMIN(proc_unit_log2, blk_log2_x);
+  const int unit_log2_y = AVMMIN(proc_unit_log2, blk_log2_y);
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const uint8_t shift_bits = cm->seq_params.bit_depth - max_band_log2;
   const bool is_single_band = !max_band_log2;
@@ -441,12 +441,12 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
     int tile_rows = cm->tiles.rows;
     int tile_cols = cm->tiles.cols;
     TileInfo tile_info_y;
-    AV1PixelRect tile_rect_y;
+    AV2PixelRect tile_rect_y;
     for (int tile_row = 0; tile_row < tile_rows; ++tile_row) {
       int tile_height = 0;
       for (int tile_col = 0; tile_col < tile_cols; ++tile_col) {
-        av1_tile_init(&tile_info_y, cm, tile_row, tile_col);
-        tile_rect_y = av1_get_tile_rect_ccso(&tile_info_y, cm, xd, 0);
+        av2_tile_init(&tile_info_y, cm, tile_row, tile_col);
+        tile_rect_y = av2_get_tile_rect_ccso(&tile_info_y, cm, xd, 0);
 
         int tile_row_start = tile_rect_y.top;
         int tile_col_start = tile_rect_y.left;
@@ -459,7 +459,7 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 
         uint16_t *ext_rec_tile_y = NULL;
         // const uint16_t *rec_y = cm->cur_frame->buf.y_buffer;
-        ext_rec_tile_y = aom_malloc(sizeof(*ext_rec_tile_y) *
+        ext_rec_tile_y = avm_malloc(sizeof(*ext_rec_tile_y) *
                                     (tile_height + (CCSO_PADDING_SIZE << 1)) *
                                     (tile_width + (CCSO_PADDING_SIZE << 1)));
         for (int r = 0; r < tile_height; ++r) {
@@ -478,9 +478,9 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
             CCSO_PADDING_SIZE * ccso_ext_tile_stride + CCSO_PADDING_SIZE;
         if (plane != 0) {
           TileInfo tile_info_uv;
-          AV1PixelRect tile_rect_uv;
-          av1_tile_init(&tile_info_uv, cm, tile_row, tile_col);
-          tile_rect_uv = av1_get_tile_rect_ccso(&tile_info_uv, cm, xd, 1);
+          AV2PixelRect tile_rect_uv;
+          av2_tile_init(&tile_info_uv, cm, tile_row, tile_col);
+          tile_rect_uv = av2_get_tile_rect_ccso(&tile_info_uv, cm, xd, 1);
           tile_row_start = tile_rect_uv.top;
           tile_col_start = tile_rect_uv.left;
           tile_row_end = tile_rect_uv.bottom;
@@ -510,8 +510,8 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
             if (!use_ccso) continue;
             const uint16_t *src_unit_y = src_tile_y;
             uint16_t *dst_unit_yuv = dst_tile_yuv;
-            const int y_end = AOMMIN(tile_row_end - frame_pxl_y, blk_size_y);
-            const int x_end = AOMMIN(tile_col_end - frame_pxl_x, blk_size_x);
+            const int y_end = AVMMIN(tile_row_end - frame_pxl_y, blk_size_y);
+            const int x_end = AVMMIN(tile_col_end - frame_pxl_x, blk_size_x);
             for (int unit_y = 0; unit_y < y_end; unit_y += unit_size_y) {
               for (int unit_x = 0; unit_x < x_end; unit_x += unit_size_x) {
                 // FPU level skip
@@ -527,7 +527,7 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
                 if (cm->bru.enabled &&
                     mi_params->mi_grid_base[mbmi_idx]->sb_active_mode !=
                         BRU_ACTIVE_SB) {
-                  aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+                  avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                                      "Invalid BRU activity in CCSO: only "
                                      "active SB can be filtered");
                   return;
@@ -572,7 +572,7 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
           dst_tile_yuv += (dst_stride << blk_log2_y);
           src_tile_y += (ccso_ext_tile_stride << (blk_log2_y + y_uv_vscale));
         }
-        aom_free(ext_rec_tile_y);
+        avm_free(ext_rec_tile_y);
       }
       dst_yuv += (dst_stride * tile_height);
       // src_y += (ccso_ext_stride * (cm->tiles.height << (MI_SIZE_LOG2)));
@@ -582,7 +582,7 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
   const int blk_log2_proc = CCSO_PROC_BLK_LOG2;
   const int blk_size_proc = 1 << blk_log2_proc;
   for (int blk_row = 0; blk_row < pic_height; blk_row += blk_size_proc) {
-    av1_apply_ccso_filter_for_row(
+    av2_apply_ccso_filter_for_row(
         cm, xd, src_y, dst_yuv, src_loc, src_cls, blk_row, thr, blk_size,
         blk_size_proc, blk_log2_x, blk_log2_y, unit_log2_x, unit_log2_y, plane);
     dst_yuv += dst_stride << blk_log2_proc;
@@ -591,10 +591,10 @@ void apply_ccso_filter(AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
 }
 
 /* Apply CCSO for one frame */
-void ccso_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
+void ccso_frame(YV12_BUFFER_CONFIG *frame, AV2_COMMON *cm, MACROBLOCKD *xd,
                 uint16_t *ext_rec_y) {
-  const int num_planes = av1_num_planes(cm);
-  av1_setup_dst_planes(xd->plane, frame, 0, 0, 0, num_planes, NULL);
+  const int num_planes = av2_num_planes(cm);
+  av2_setup_dst_planes(xd->plane, frame, 0, 0, 0, num_planes, NULL);
 
   for (int plane = 0; plane < num_planes; plane++) {
     const int dst_stride = xd->plane[plane].dst.stride;
@@ -604,7 +604,7 @@ void ccso_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
       apply_ccso_filter(
           cm, xd, plane, ext_rec_y, &(xd->plane[plane].dst.buf)[0], dst_stride,
           cm->mib_size_log2 -
-              AOMMAX(xd->plane[plane].subsampling_x,
+              AVMMAX(xd->plane[plane].subsampling_x,
                      xd->plane[plane].subsampling_y) +
               MI_SIZE_LOG2,
           quant_step_size, cm->ccso_info.ext_filter_support[plane],
@@ -615,7 +615,7 @@ void ccso_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
 
 // This function is to copy ccso filter parameters between frames when
 // ccso_reuse is true.
-void av1_copy_ccso_filters(CcsoInfo *to, CcsoInfo *from, int plane,
+void av2_copy_ccso_filters(CcsoInfo *to, CcsoInfo *from, int plane,
                            bool frame_level, bool block_level, int sb_count) {
   if (frame_level) {
     memcpy(to->filter_offset[plane], from->filter_offset[plane],

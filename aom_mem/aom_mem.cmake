@@ -8,24 +8,24 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_AOM_MEM_AOM_MEM_CMAKE_)
+if(AVM_AVM_MEM_AVM_MEM_CMAKE_)
   return()
-endif() # AOM_AOM_MEM_AOM_MEM_CMAKE_
-set(AOM_AOM_MEM_AOM_MEM_CMAKE_ 1)
+endif() # AVM_AVM_MEM_AVM_MEM_CMAKE_
+set(AVM_AVM_MEM_AVM_MEM_CMAKE_ 1)
 
-list(APPEND AOM_MEM_SOURCES "${AOM_ROOT}/aom_mem/aom_mem.c"
-     "${AOM_ROOT}/aom_mem/aom_mem.h"
-     "${AOM_ROOT}/aom_mem/include/aom_mem_intrnl.h")
+list(APPEND AVM_MEM_SOURCES "${AVM_ROOT}/avm_mem/avm_mem.c"
+     "${AVM_ROOT}/avm_mem/avm_mem.h"
+     "${AVM_ROOT}/avm_mem/include/avm_mem_intrnl.h")
 
-# Creates the aom_mem build target and makes libaom depend on it. The libaom
+# Creates the avm_mem build target and makes libavm depend on it. The libavm
 # target must exist before this function is called.
-function(setup_aom_mem_targets)
-  add_library(aom_mem OBJECT ${AOM_MEM_SOURCES})
-  set(AOM_LIB_TARGETS
-      ${AOM_LIB_TARGETS} aom_mem
+function(setup_avm_mem_targets)
+  add_library(avm_mem OBJECT ${AVM_MEM_SOURCES})
+  set(AVM_LIB_TARGETS
+      ${AVM_LIB_TARGETS} avm_mem
       PARENT_SCOPE)
-  target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_mem>)
+  target_sources(avm PRIVATE $<TARGET_OBJECTS:avm_mem>)
   if(BUILD_SHARED_LIBS)
-    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_mem>)
+    target_sources(avm_static PRIVATE $<TARGET_OBJECTS:avm_mem>)
   endif()
 endfunction()

@@ -13,11 +13,11 @@
 #include <smmintrin.h>  // For SSE4.1
 #include <immintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cfl.h"
+#include "av2/common/cfl.h"
 
-#include "av1/common/reconinter.h"
+#include "av2/common/reconinter.h"
 
 static __m128i read_int64(int64_t x) {
 #ifdef __x86_64__

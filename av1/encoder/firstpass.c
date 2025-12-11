@@ -14,37 +14,37 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/variance.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
-#include "aom_ports/system_state.h"
-#include "aom_scale/aom_scale.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/variance.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
+#include "avm_ports/system_state.h"
+#include "avm_scale/avm_scale.h"
+#include "avm_scale/yv12config.h"
 
-#include "av1/common/entropymv.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/reconinter.h"  // av1_setup_dst_planes()
-#include "av1/common/txb_common.h"
-#include "av1/encoder/aq_variance.h"
-#include "av1/encoder/av1_quantize.h"
-#include "av1/encoder/block.h"
-#include "av1/encoder/dwt.h"
-#include "av1/encoder/encodeframe.h"
-#include "av1/encoder/encodemb.h"
-#include "av1/encoder/encodemv.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/encode_strategy.h"
-#include "av1/encoder/ethread.h"
-#include "av1/encoder/extend.h"
-#include "av1/encoder/firstpass.h"
-#include "av1/encoder/mcomp.h"
-#include "av1/encoder/rd.h"
-#include "av1/encoder/reconinter_enc.h"
-#include "av1/encoder/scale.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/reconinter.h"  // av2_setup_dst_planes()
+#include "av2/common/txb_common.h"
+#include "av2/encoder/aq_variance.h"
+#include "av2/encoder/av2_quantize.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/dwt.h"
+#include "av2/encoder/encodeframe.h"
+#include "av2/encoder/encodemb.h"
+#include "av2/encoder/encodemv.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/encode_strategy.h"
+#include "av2/encoder/ethread.h"
+#include "av2/encoder/extend.h"
+#include "av2/encoder/firstpass.h"
+#include "av2/encoder/mcomp.h"
+#include "av2/encoder/rd.h"
+#include "av2/encoder/reconinter_enc.h"
+#include "av2/encoder/scale.h"
 
 #define OUTPUT_FPF 0
 
@@ -56,13 +56,13 @@
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
 
-static AOM_INLINE void output_stats(FIRSTPASS_STATS *stats,
-                                    struct aom_codec_pkt_list *pktlist) {
-  struct aom_codec_cx_pkt pkt;
-  pkt.kind = AOM_CODEC_STATS_PKT;
+static AVM_INLINE void output_stats(FIRSTPASS_STATS *stats,
+                                    struct avm_codec_pkt_list *pktlist) {
+  struct avm_codec_cx_pkt pkt;
+  pkt.kind = AVM_CODEC_STATS_PKT;
   pkt.data.twopass_stats.buf = stats;
   pkt.data.twopass_stats.sz = sizeof(FIRSTPASS_STATS);
-  if (pktlist != NULL) aom_codec_pkt_list_add(pktlist, &pkt);
+  if (pktlist != NULL) avm_codec_pkt_list_add(pktlist, &pkt);
 
 // TEMP debug code
 #if OUTPUT_FPF
@@ -86,7 +86,7 @@ static AOM_INLINE void output_stats(FIRSTPASS_STATS *stats,
 #endif
 }
 
-void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
+void av2_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->frame = 0.0;
   section->weight = 0.0;
   section->intra_error = 0.0;
@@ -112,7 +112,7 @@ void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->duration = 1.0;
 }
 
-void av1_accumulate_stats(FIRSTPASS_STATS *section,
+void av2_accumulate_stats(FIRSTPASS_STATS *section,
                           const FIRSTPASS_STATS *frame) {
   section->frame += frame->frame;
   section->weight += frame->weight;
@@ -139,36 +139,36 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
   section->duration += frame->duration;
 }
 
-void av1_end_first_pass(AV1_COMP *cpi) {
+void av2_end_first_pass(AV2_COMP *cpi) {
   if (cpi->twopass.stats_buf_ctx->total_stats)
     output_stats(cpi->twopass.stats_buf_ctx->total_stats, cpi->output_pkt_list);
 }
 
-static aom_variance_fn_t highbd_get_block_variance_fn(BLOCK_SIZE bsize,
+static avm_variance_fn_t highbd_get_block_variance_fn(BLOCK_SIZE bsize,
                                                       int bd) {
   switch (bd) {
     default:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_8_mse8x8;
-        case BLOCK_16X8: return aom_highbd_8_mse16x8;
-        case BLOCK_8X16: return aom_highbd_8_mse8x16;
-        default: return aom_highbd_8_mse16x16;
+        case BLOCK_8X8: return avm_highbd_8_mse8x8;
+        case BLOCK_16X8: return avm_highbd_8_mse16x8;
+        case BLOCK_8X16: return avm_highbd_8_mse8x16;
+        default: return avm_highbd_8_mse16x16;
       }
       break;
     case 10:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_10_mse8x8;
-        case BLOCK_16X8: return aom_highbd_10_mse16x8;
-        case BLOCK_8X16: return aom_highbd_10_mse8x16;
-        default: return aom_highbd_10_mse16x16;
+        case BLOCK_8X8: return avm_highbd_10_mse8x8;
+        case BLOCK_16X8: return avm_highbd_10_mse16x8;
+        case BLOCK_8X16: return avm_highbd_10_mse8x16;
+        default: return avm_highbd_10_mse16x16;
       }
       break;
     case 12:
       switch (bsize) {
-        case BLOCK_8X8: return aom_highbd_12_mse8x8;
-        case BLOCK_16X8: return aom_highbd_12_mse16x8;
-        case BLOCK_8X16: return aom_highbd_12_mse8x16;
-        default: return aom_highbd_12_mse16x16;
+        case BLOCK_8X8: return avm_highbd_12_mse8x8;
+        case BLOCK_16X8: return avm_highbd_12_mse16x8;
+        case BLOCK_8X16: return avm_highbd_12_mse8x16;
+        default: return avm_highbd_12_mse16x16;
       }
       break;
   }
@@ -179,7 +179,7 @@ static unsigned int highbd_get_prediction_error(BLOCK_SIZE bsize,
                                                 const struct buf_2d *ref,
                                                 int bd) {
   unsigned int sse;
-  const aom_variance_fn_t fn = highbd_get_block_variance_fn(bsize, bd);
+  const avm_variance_fn_t fn = highbd_get_block_variance_fn(bsize, bd);
   fn(src->buf, src->stride, ref->buf, ref->stride, &sse);
   return sse;
 }
@@ -189,7 +189,7 @@ static unsigned int highbd_get_prediction_error(BLOCK_SIZE bsize,
 static int get_search_range(const InitialDimensions *initial_dimensions,
                             int enable_high_motion) {
   int sr = 0;
-  const int dim = AOMMIN(initial_dimensions->width, initial_dimensions->height);
+  const int dim = AVMMIN(initial_dimensions->width, initial_dimensions->height);
 
   const int max_full_range =
       enable_high_motion ? MAX_FULL_PEL_VAL : LOW_MOTION_MAX_FULL_PEL_VAL;
@@ -197,11 +197,11 @@ static int get_search_range(const InitialDimensions *initial_dimensions,
   return sr;
 }
 
-static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
+static AVM_INLINE void first_pass_motion_search(AV2_COMP *cpi, MACROBLOCK *x,
                                                 const MV *ref_mv,
                                                 FULLPEL_MV *best_mv,
                                                 int *best_motion_err) {
-  const AV1_COMMON *cm = &cpi->common;
+  const AV2_COMMON *cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
   int tmp_err;
@@ -217,31 +217,31 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
       cpi->is_screen_content_type && cm->features.allow_intrabc;
 
   if (fine_search_interval) {
-    av1_set_speed_features_framesize_independent(cpi, cpi->oxcf.speed);
+    av2_set_speed_features_framesize_independent(cpi, cpi->oxcf.speed);
   }
   const MvSubpelPrecision pb_mv_precision = cm->features.fr_mv_precision;
   const int is_ibc_cost = 0;
 
   FULLPEL_MOTION_SEARCH_PARAMS ms_params;
-  av1_make_default_fullpel_ms_params(
+  av2_make_default_fullpel_ms_params(
       &ms_params, cpi, x, bsize, ref_mv, pb_mv_precision, is_ibc_cost,
       first_pass_search_sites, fine_search_interval);
 
-  av1_set_mv_search_method(&ms_params, first_pass_search_sites, NSTEP);
+  av2_set_mv_search_method(&ms_params, first_pass_search_sites, NSTEP);
 
   full_pel_lower_mv_precision(&start_mv, pb_mv_precision);
 
   FULLPEL_MV this_best_mv;
-  tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param, NULL,
+  tmp_err = av2_full_pixel_search(start_mv, &ms_params, step_param, NULL,
                                   &this_best_mv, NULL);
   assert(IMPLIES(!enable_adaptive_mvd_resolution(&cpi->common, xd->mi[0]),
                  is_this_mv_precision_compliant(
                      get_mv_from_fullmv(&this_best_mv), pb_mv_precision)));
 
   if (tmp_err < INT_MAX) {
-    aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
+    avm_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
     const MSBuffers *ms_buffers = &ms_params.ms_buffers;
-    tmp_err = av1_get_mvpred_sse(&ms_params.mv_cost_params, this_best_mv,
+    tmp_err = av2_get_mvpred_sse(&ms_params.mv_cost_params, this_best_mv,
                                  &v_fn_ptr, ms_buffers->src, ms_buffers->ref) +
               new_mv_mode_penalty;
   }
@@ -268,11 +268,11 @@ static BLOCK_SIZE get_bsize(const CommonModeInfoParams *const mi_params,
   }
 }
 
-static int find_fp_qindex(aom_bit_depth_t bit_depth) {
-  aom_clear_system_state();
-  return av1_find_qindex(FIRST_PASS_Q, bit_depth, 0,
-                         bit_depth == AOM_BITS_8    ? QINDEX_RANGE_8_BITS - 1
-                         : bit_depth == AOM_BITS_10 ? QINDEX_RANGE_10_BITS - 1
+static int find_fp_qindex(avm_bit_depth_t bit_depth) {
+  avm_clear_system_state();
+  return av2_find_qindex(FIRST_PASS_Q, bit_depth, 0,
+                         bit_depth == AVM_BITS_8    ? QINDEX_RANGE_8_BITS - 1
+                         : bit_depth == AVM_BITS_10 ? QINDEX_RANGE_10_BITS - 1
                                                     : QINDEX_RANGE - 1);
 }
 
@@ -326,27 +326,27 @@ static double raw_motion_error_stdev(int *raw_motion_err_list,
 // Returns:
 //   this_intra_error.
 static int firstpass_intra_prediction(
-    AV1_COMP *cpi, ThreadData *td, YV12_BUFFER_CONFIG *const this_frame,
+    AV2_COMP *cpi, ThreadData *td, YV12_BUFFER_CONFIG *const this_frame,
     const TileInfo *const tile, const int mb_row, const int mb_col,
     const int y_offset, const int uv_offset, const BLOCK_SIZE fp_block_size,
     const int qindex, FRAME_STATS *const stats) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const SequenceHeader *const seq_params = &cm->seq_params;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   const int mb_scale = mi_size_wide[fp_block_size];
   const int use_dc_pred = (mb_col || mb_row) && (!mb_col || !mb_row);
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   const BLOCK_SIZE bsize = get_bsize(mi_params, mb_row, mb_col);
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   const int x_inside_boundary =
-      AOMMIN(mi_width, mi_params->mi_cols - xd->mi_col);
+      AVMMIN(mi_width, mi_params->mi_cols - xd->mi_col);
   const int y_inside_boundary =
-      AOMMIN(mi_height, mi_params->mi_rows - xd->mi_row);
+      AVMMIN(mi_height, mi_params->mi_rows - xd->mi_row);
 
-  aom_clear_system_state();
+  avm_clear_system_state();
   set_mi_offsets(mi_params, xd, mb_row * mb_scale, mb_col * mb_scale,
                  x_inside_boundary, y_inside_boundary);
   xd->plane[0].dst.buf = this_frame->y_buffer + y_offset;
@@ -365,16 +365,16 @@ static int firstpass_intra_prediction(
   xd->mi[0]->tx_size =
       use_dc_pred ? (bsize >= fp_block_size ? TX_16X16 : TX_8X8) : TX_4X4;
 
-  av1_encode_intra_block_plane(cpi, x, bsize, 0, DRY_RUN_NORMAL, 0);
-  int this_intra_error = aom_get_mb_ss(x->plane[0].src_diff);
+  av2_encode_intra_block_plane(cpi, x, bsize, 0, DRY_RUN_NORMAL, 0);
+  int this_intra_error = avm_get_mb_ss(x->plane[0].src_diff);
   switch (seq_params->bit_depth) {
-    case AOM_BITS_8: break;
-    case AOM_BITS_10: this_intra_error >>= 4; break;
-    case AOM_BITS_12: this_intra_error >>= 8; break;
+    case AVM_BITS_8: break;
+    case AVM_BITS_10: this_intra_error >>= 4; break;
+    case AVM_BITS_12: this_intra_error >>= 8; break;
     default:
       assert(0 &&
-             "seq_params->bit_depth should be AOM_BITS_8, "
-             "AOM_BITS_10 or AOM_BITS_12");
+             "seq_params->bit_depth should be AVM_BITS_8, "
+             "AVM_BITS_10 or AVM_BITS_12");
       return -1;
   }
 
@@ -384,7 +384,7 @@ static int firstpass_intra_prediction(
     stats->image_data_start_row = mb_row;
   }
 
-  aom_clear_system_state();
+  avm_clear_system_state();
   double log_intra = log(this_intra_error + 1.0);
   if (log_intra < 10.0) {
     stats->intra_factor += 1.0 + ((10.0 - log_intra) * 0.05);
@@ -396,13 +396,13 @@ static int firstpass_intra_prediction(
   level_sample = x->plane[0].src.buf[0];
 
   switch (seq_params->bit_depth) {
-    case AOM_BITS_8: break;
-    case AOM_BITS_10: level_sample >>= 2; break;
-    case AOM_BITS_12: level_sample >>= 4; break;
+    case AVM_BITS_8: break;
+    case AVM_BITS_10: level_sample >>= 2; break;
+    case AVM_BITS_12: level_sample >>= 4; break;
     default:
       assert(0 &&
-             "seq_params->bit_depth should be AOM_BITS_8, "
-             "AOM_BITS_10 or AOM_BITS_12");
+             "seq_params->bit_depth should be AVM_BITS_8, "
+             "AVM_BITS_10 or AVM_BITS_12");
       return -1;
   }
   if ((level_sample < DARK_THRESH) && (log_intra < 9.0)) {
@@ -427,7 +427,7 @@ static int firstpass_intra_prediction(
   uint16_t *buf = x->plane[0].src.buf;
   for (int r8 = 0; r8 < 2; ++r8) {
     for (int c8 = 0; c8 < 2; ++c8) {
-      stats->frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
+      stats->frame_avg_wavelet_energy += av2_haar_ac_sad_8x8_uint8_input(
           buf + c8 * 8 + r8 * 8 * stride, stride);
     }
   }
@@ -519,7 +519,7 @@ static void accumulate_mv_stats(const MV best_mv, const FULLPEL_MV mv,
 //  Returns:
 //    this_inter_error
 static int firstpass_inter_prediction(
-    AV1_COMP *cpi, ThreadData *td, const YV12_BUFFER_CONFIG *const last_frame,
+    AV2_COMP *cpi, ThreadData *td, const YV12_BUFFER_CONFIG *const last_frame,
     const YV12_BUFFER_CONFIG *const golden_frame,
     const YV12_BUFFER_CONFIG *const alt_ref_frame, const int mb_row,
     const int mb_col, const int recon_yoffset, const int recon_uvoffset,
@@ -528,7 +528,7 @@ static int firstpass_inter_prediction(
     const int raw_motion_err_counts, int *raw_motion_err_list, MV *best_ref_mv,
     MV *last_mv, FRAME_STATS *stats) {
   int this_inter_error = this_intra_error;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CurrentFrame *const current_frame = &cm->current_frame;
   MACROBLOCK *const x = &td->mb;
@@ -543,7 +543,7 @@ static int firstpass_inter_prediction(
   xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
   // Set up limit values for motion vectors to prevent them extending
   // outside the UMV borders.
-  av1_set_mv_col_limits(mi_params, &x->mv_limits, (mb_col << FP_MIB_SIZE_LOG2),
+  av2_set_mv_col_limits(mi_params, &x->mv_limits, (mb_col << FP_MIB_SIZE_LOG2),
                         (fp_block_size_height >> MI_SIZE_LOG2),
                         cpi->oxcf.border_in_pixels);
 
@@ -597,10 +597,10 @@ static int firstpass_inter_prediction(
     // (just as will be done for) accumulation of "coded_error" for
     // the last frame.
     if ((current_frame->frame_number > 1) && golden_frame != NULL) {
-      stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error);
+      stats->sr_coded_error += AVMMIN(gf_motion_error, this_intra_error);
     } else {
       // TODO(chengchen): I believe logically this should also be changed to
-      // stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error).
+      // stats->sr_coded_error += AVMMIN(gf_motion_error, this_intra_error).
       stats->sr_coded_error += motion_error;
     }
 
@@ -622,10 +622,10 @@ static int firstpass_inter_prediction(
     // (just as will be done for) accumulation of "coded_error" for
     // the last frame.
     if (alt_ref_frame != NULL) {
-      stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
+      stats->tr_coded_error += AVMMIN(alt_motion_error, this_intra_error);
     } else {
       // TODO(chengchen): I believe logically this should also be changed to
-      // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
+      // stats->tr_coded_error += AVMMIN(alt_motion_error, this_intra_error).
       stats->tr_coded_error += motion_error;
     }
 
@@ -643,7 +643,7 @@ static int firstpass_inter_prediction(
   best_ref_mv->col = 0;
 
   if (motion_error <= this_intra_error) {
-    aom_clear_system_state();
+    avm_clear_system_state();
 
     // Keep a count of cases where the inter and intra were very close
     // and very low. This helps with scene cut detection for example in
@@ -667,9 +667,9 @@ static int firstpass_inter_prediction(
     xd->mi[0]->ref_frame[0] = get_closest_pastcur_ref_or_ref0(cm);
     xd->mi[0]->ref_frame[1] = NONE_FRAME;
     xd->mi[0]->cwp_idx = CWP_EQUAL;
-    av1_enc_build_inter_predictor(cm, xd, mb_row * mb_scale, mb_col * mb_scale,
-                                  NULL, bsize, AOM_PLANE_Y, AOM_PLANE_Y);
-    av1_encode_sby_pass1(cpi, x, bsize);
+    av2_enc_build_inter_predictor(cm, xd, mb_row * mb_scale, mb_col * mb_scale,
+                                  NULL, bsize, AVM_PLANE_Y, AVM_PLANE_Y);
+    av2_encode_sby_pass1(cpi, x, bsize);
     stats->sum_mvr += best_mv.row;
     stats->sum_mvr_abs += abs(best_mv.row);
     stats->sum_mvc += best_mv.col;
@@ -700,13 +700,13 @@ static int firstpass_inter_prediction(
 //   twopass->stats_buf_ctx->stats_in_end: the pointer to the current stats,
 //                                         update its value and its position
 //                                         in the buffer.
-static void update_firstpass_stats(AV1_COMP *cpi,
+static void update_firstpass_stats(AV2_COMP *cpi,
                                    const FRAME_STATS *const stats,
                                    const double raw_err_stdev,
                                    const int frame_number,
                                    const int64_t ts_duration) {
   TWO_PASS *twopass = &cpi->twopass;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   FIRSTPASS_STATS *this_frame_stats = twopass->stats_buf_ctx->stats_in_end;
   FIRSTPASS_STATS fps;
@@ -773,7 +773,7 @@ static void update_firstpass_stats(AV1_COMP *cpi,
   *this_frame_stats = fps;
   output_stats(this_frame_stats, cpi->output_pkt_list);
   if (cpi->twopass.stats_buf_ctx->total_stats != NULL) {
-    av1_accumulate_stats(cpi->twopass.stats_buf_ctx->total_stats, &fps);
+    av2_accumulate_stats(cpi->twopass.stats_buf_ctx->total_stats, &fps);
   }
   /*In the case of two pass, first pass uses it as a circular buffer,
    * when LAP is enabled it is used as a linear buffer*/
@@ -843,14 +843,14 @@ static FRAME_STATS accumulate_frame_stats(FRAME_STATS *mb_stats, int mb_rows,
   return stats;
 }
 
-static void setup_firstpass_data(AV1_COMMON *const cm,
+static void setup_firstpass_data(AV2_COMMON *const cm,
                                  FirstPassData *firstpass_data) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CHECK_MEM_ERROR(cm, firstpass_data->raw_motion_err_list,
-                  aom_calloc(mi_params->mb_rows * mi_params->mb_cols,
+                  avm_calloc(mi_params->mb_rows * mi_params->mb_cols,
                              sizeof(*firstpass_data->raw_motion_err_list)));
   CHECK_MEM_ERROR(cm, firstpass_data->mb_stats,
-                  aom_calloc(mi_params->mb_rows * mi_params->mb_cols,
+                  avm_calloc(mi_params->mb_rows * mi_params->mb_cols,
                              sizeof(*firstpass_data->mb_stats)));
   for (int j = 0; j < mi_params->mb_rows; j++) {
     for (int i = 0; i < mi_params->mb_cols; i++) {
@@ -861,11 +861,11 @@ static void setup_firstpass_data(AV1_COMMON *const cm,
 }
 
 static void free_firstpass_data(FirstPassData *firstpass_data) {
-  aom_free(firstpass_data->raw_motion_err_list);
-  aom_free(firstpass_data->mb_stats);
+  avm_free(firstpass_data->raw_motion_err_list);
+  avm_free(firstpass_data->mb_stats);
 }
 
-int av1_get_mb_rows_in_tile(TileInfo tile) {
+int av2_get_mb_rows_in_tile(TileInfo tile) {
   int mi_rows_aligned_to_mb =
       ALIGN_POWER_OF_TWO(tile.mi_row_end - tile.mi_row_start, FP_MIB_SIZE_LOG2);
   int mb_rows = mi_rows_aligned_to_mb >> FP_MIB_SIZE_LOG2;
@@ -873,7 +873,7 @@ int av1_get_mb_rows_in_tile(TileInfo tile) {
   return mb_rows;
 }
 
-int av1_get_mb_cols_in_tile(TileInfo tile) {
+int av2_get_mb_cols_in_tile(TileInfo tile) {
   int mi_cols_aligned_to_mb =
       ALIGN_POWER_OF_TWO(tile.mi_col_end - tile.mi_col_start, FP_MIB_SIZE_LOG2);
   int mb_cols = mi_cols_aligned_to_mb >> FP_MIB_SIZE_LOG2;
@@ -882,17 +882,17 @@ int av1_get_mb_cols_in_tile(TileInfo tile) {
 }
 
 #define FIRST_PASS_ALT_REF_DISTANCE 16
-static void first_pass_tile(AV1_COMP *cpi, ThreadData *td,
+static void first_pass_tile(AV2_COMP *cpi, ThreadData *td,
                             TileDataEnc *tile_data) {
   TileInfo *tile = &tile_data->tile_info;
   for (int mi_row = tile->mi_row_start; mi_row < tile->mi_row_end;
        mi_row += FP_MIB_SIZE) {
-    av1_first_pass_row(cpi, td, tile_data, mi_row >> FP_MIB_SIZE_LOG2);
+    av2_first_pass_row(cpi, td, tile_data, mi_row >> FP_MIB_SIZE_LOG2);
   }
 }
 
-static void first_pass_tiles(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static void first_pass_tiles(AV2_COMP *cpi) {
+  AV2_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
   for (int tile_row = 0; tile_row < tile_rows; ++tile_row) {
@@ -910,14 +910,14 @@ static void first_pass_tiles(AV1_COMP *cpi) {
 #define LAST_FRAME_PROXY 0
 #define GOLDEN_FRAME_PROXY 2  // Any proxy index will do
 
-void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
+void av2_first_pass_row(AV2_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                         int mb_row) {
   MACROBLOCK *const x = &td->mb;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CurrentFrame *const current_frame = &cm->current_frame;
   const SequenceHeader *const seq_params = &cm->seq_params;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   TileInfo *tile = &tile_data->tile_info;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
@@ -928,10 +928,10 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   int raw_motion_err_counts = 0;
   int mb_row_in_tile = mb_row - (tile->mi_row_start >> FP_MIB_SIZE_LOG2);
   int mb_col_start = tile->mi_col_start >> FP_MIB_SIZE_LOG2;
-  int mb_cols_in_tile = av1_get_mb_cols_in_tile(*tile);
+  int mb_cols_in_tile = av2_get_mb_cols_in_tile(*tile);
   MultiThreadInfo *const mt_info = &cpi->mt_info;
-  AV1EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
-  AV1EncRowMultiThreadSync *const row_mt_sync = &tile_data->row_mt_sync;
+  AV2EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
+  AV2EncRowMultiThreadSync *const row_mt_sync = &tile_data->row_mt_sync;
 
   xd->tile = *tile;
   const YV12_BUFFER_CONFIG *const last_frame =
@@ -944,7 +944,7 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       (current_frame->frame_number % FIRST_PASS_ALT_REF_DISTANCE);
   if (alt_ref_offset < FIRST_PASS_ALT_REF_DISTANCE) {
     const struct lookahead_entry *const alt_ref_frame_buffer =
-        av1_lookahead_peek(cpi->lookahead, alt_ref_offset,
+        av2_lookahead_peek(cpi->lookahead, alt_ref_offset,
                            cpi->compressor_stage);
     if (alt_ref_frame_buffer != NULL) {
       alt_ref_frame = &alt_ref_frame_buffer->img;
@@ -993,16 +993,16 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
   // Set up limit values for motion vectors to prevent them extending
   // outside the UMV borders.
-  av1_set_mv_row_limits(mi_params, &x->mv_limits, (mb_row << FP_MIB_SIZE_LOG2),
+  av2_set_mv_row_limits(mi_params, &x->mv_limits, (mb_row << FP_MIB_SIZE_LOG2),
                         (fp_block_size_height >> MI_SIZE_LOG2),
                         cpi->oxcf.border_in_pixels);
 
-  av1_setup_src_planes(x, cpi->source, mb_row << FP_MIB_SIZE_LOG2,
+  av2_setup_src_planes(x, cpi->source, mb_row << FP_MIB_SIZE_LOG2,
                        tile->mi_col_start, num_planes, NULL);
 
   // Fix - zero the 16x16 block first. This ensures correct this_intra_error for
   // block sizes smaller than 16x16.
-  av1_zero_array(x->plane[0].src_diff, 256);
+  av2_zero_array(x->plane[0].src_diff, 256);
 
   for (int mi_col = tile->mi_col_start; mi_col < tile->mi_col_end;
        mi_col += FP_MIB_SIZE) {
@@ -1051,31 +1051,31 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   }
 }
 
-void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
+void av2_first_pass(AV2_COMP *cpi, const int64_t ts_duration) {
   MACROBLOCK *const x = &cpi->td.mb;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CurrentFrame *const current_frame = &cm->current_frame;
   const SequenceHeader *const seq_params = &cm->seq_params;
-  const int num_planes = av1_num_planes(cm);
+  const int num_planes = av2_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
   // Detect if the key frame is screen content type.
   if (frame_is_intra_only(cm)) {
     FeatureFlags *const features = &cm->features;
-    av1_set_screen_content_options(cpi, features);
+    av2_set_screen_content_options(cpi, features);
     cpi->is_screen_content_type = features->allow_screen_content_tools;
   }
 
   const bool compute_ds_filter =
 #if CONFIG_F024_KEYOBU
-      av1_is_shown_keyframe(cpi, cm->current_frame.frame_type);
+      av2_is_shown_keyframe(cpi, cm->current_frame.frame_type);
 #else
-      av1_is_shown_keyframe(cpi, cm->current_frame.frame_type) &&
+      av2_is_shown_keyframe(cpi, cm->current_frame.frame_type) &&
       !cpi->common.show_existing_frame;
 #endif
   if (compute_ds_filter) {
-    av1_set_downsample_filter_options(cpi);
+    av2_set_downsample_filter_options(cpi);
   }
 
   // First pass coding proceeds in raster scan order with unit size of 16x16.
@@ -1087,16 +1087,16 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   // multi threading info
   MultiThreadInfo *const mt_info = &cpi->mt_info;
-  AV1EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
+  AV2EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
 
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
   if (cpi->allocated_tiles < tile_cols * tile_rows) {
-    av1_row_mt_mem_dealloc(cpi);
-    av1_alloc_tile_data(cpi);
+    av2_row_mt_mem_dealloc(cpi);
+    av2_alloc_tile_data(cpi);
   }
 
-  av1_init_tile_data(cpi);
+  av2_init_tile_data(cpi);
 
   const YV12_BUFFER_CONFIG *const last_frame =
       get_ref_frame_yv12_buf(cm, LAST_FRAME_PROXY);
@@ -1107,8 +1107,8 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   assert(this_frame != NULL);
   assert(frame_is_intra_only(cm) || (last_frame != NULL));
 
-  av1_setup_frame_size(cpi);
-  aom_clear_system_state();
+  av2_setup_frame_size(cpi);
+  avm_clear_system_state();
 
   set_mi_offsets(mi_params, xd, 0, 0, 0, 0);
   xd->mi[0]->sb_type[PLANE_TYPE_Y] = fp_block_size;
@@ -1117,36 +1117,36 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   // Do not use periodic key frames.
   cpi->rc.frames_to_key = INT_MAX;
 
-  av1_set_quantizer(cpi, cpi->oxcf.q_cfg.qm_minlevel,
+  av2_set_quantizer(cpi, cpi->oxcf.q_cfg.qm_minlevel,
                     cpi->oxcf.q_cfg.qm_maxlevel, qindex,
                     cpi->oxcf.q_cfg.enable_chroma_deltaq);
 
-  av1_setup_block_planes(xd, seq_params->subsampling_x,
+  av2_setup_block_planes(xd, seq_params->subsampling_x,
                          seq_params->subsampling_y, num_planes);
 
-  av1_setup_src_planes(x, cpi->source, 0, 0, num_planes, NULL);
-  av1_setup_dst_planes(xd->plane, this_frame, 0, 0, 0, num_planes, NULL);
+  av2_setup_src_planes(x, cpi->source, 0, 0, num_planes, NULL);
+  av2_setup_dst_planes(xd->plane, this_frame, 0, 0, 0, num_planes, NULL);
 
   if (!frame_is_intra_only(cm)) {
-    av1_setup_pre_planes(xd, 0, last_frame, 0, 0, NULL, num_planes, NULL);
+    av2_setup_pre_planes(xd, 0, last_frame, 0, 0, NULL, num_planes, NULL);
   }
 
   set_mi_offsets(mi_params, xd, 0, 0, 0, 0);
 
   // Don't store luma on the fist pass since chroma is not computed
   xd->cfl.store_y = 0;
-  av1_frame_init_quantizer(cpi);
+  av2_frame_init_quantizer(cpi);
 
-  av1_init_mv_probs(cm);
-  av1_initialize_rd_consts(cpi);
+  av2_init_mv_probs(cm);
+  av2_initialize_rd_consts(cpi);
 
-  enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
-  enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;
+  enc_row_mt->sync_read_ptr = av2_row_mt_sync_read_dummy;
+  enc_row_mt->sync_write_ptr = av2_row_mt_sync_write_dummy;
 
   if (mt_info->num_workers > 1) {
-    enc_row_mt->sync_read_ptr = av1_row_mt_sync_read;
-    enc_row_mt->sync_write_ptr = av1_row_mt_sync_write;
-    av1_fp_encode_tiles_row_mt(cpi);
+    enc_row_mt->sync_read_ptr = av2_row_mt_sync_read;
+    enc_row_mt->sync_write_ptr = av2_row_mt_sync_write;
+    av2_fp_encode_tiles_row_mt(cpi);
   } else {
     first_pass_tiles(cpi);
   }
@@ -1168,7 +1168,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   // Exclude any image dead zone
   if (stats.image_data_start_row > 0) {
     stats.intra_skip_count =
-        AOMMAX(0, stats.intra_skip_count -
+        AVMMAX(0, stats.intra_skip_count -
                       (stats.image_data_start_row * mi_params->mb_cols * 2));
   }
 
@@ -1200,7 +1200,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
     ++twopass->sr_update_lag;
   }
 
-  aom_extend_frame_borders(this_frame, num_planes, 0);
+  avm_extend_frame_borders(this_frame, num_planes, 0);
 
   // The frame we just compressed now becomes the last frame.
   assign_frame_buffer_p(

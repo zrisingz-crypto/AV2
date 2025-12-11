@@ -9,11 +9,11 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#include "av1/common/common.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/reconintra.h"
-#include "av1/common/seg_common.h"
+#include "av2/common/common.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/reconintra.h"
+#include "av2/common/seg_common.h"
 
 // Comparison function to sort reference frames in ascending score order
 static int compare_score_data_asc(const void *a, const void *b) {
@@ -59,8 +59,8 @@ static int get_unmapped_ref(RefScoreData *scores, int n_bufs) {
   int min_q = INT_MAX;
   int max_q = INT_MIN;
   for (int i = n_bufs - 1; i >= 0; i--) {
-    min_q = AOMMIN(min_q, scores[i].base_qindex);
-    max_q = AOMMAX(max_q, scores[i].base_qindex);
+    min_q = AVMMIN(min_q, scores[i].base_qindex);
+    max_q = AVMMAX(max_q, scores[i].base_qindex);
   }
   const int q_thresh = (max_q + min_q + 1) / 2;
 
@@ -98,7 +98,7 @@ static int get_unmapped_ref(RefScoreData *scores, int n_bufs) {
 }
 
 // Obtain the lists of past/cur/future reference frames and their sizes.
-void av1_get_past_future_cur_ref_lists(AV1_COMMON *cm, RefScoreData *scores) {
+void av2_get_past_future_cur_ref_lists(AV2_COMMON *cm, RefScoreData *scores) {
   int n_future = 0;
   int n_past = 0;
   int n_cur = 0;
@@ -143,7 +143,7 @@ int is_layer_restricted(const int current_layer_id, const int max_layer_id) {
 // reference software. Decoder implementations may skip this check since this
 // function shall not change the reference mapping for different operating
 // points.
-int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+int av2_get_op_constrained_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                                       int key_frame_only,
 #endif  // CONFIG_RANDOM_ACCESS_SWITCH_FRAME
@@ -166,7 +166,7 @@ int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
   for (int i = 0; i < cm->seq_params.ref_frames; i++) {
     RefFrameMapPair cur_ref = ref_frame_map_pairs[i];
     if (cur_ref.ref_frame_for_inference == -1) continue;
-    max_disp = AOMMAX(max_disp, cur_ref.disp_order);
+    max_disp = AVMMAX(max_disp, cur_ref.disp_order);
   }
 
   // Compute a score for each reference buffer
@@ -217,8 +217,8 @@ int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
     const int score =
         (max_disp > cur_frame_disp
              ? (tdist << DIST_WEIGHT_BITS)
-             : (temp_dist_score_lookup[AOMMIN(tdist, DECAY_DIST_CAP)] +
-                AOMMAX(tdist - DECAY_DIST_CAP, 0))) +
+             : (temp_dist_score_lookup[AVMMIN(tdist, DECAY_DIST_CAP)] +
+                AVMMAX(tdist - DECAY_DIST_CAP, 0))) +
         res_ratio_log2 * (1 << RES_RATIO_LOG2_BITS) + ref_base_qindex;
     if (is_in_ref_score(scores, ref_disp, ref_mlayer_id, score, n_ranked))
       continue;
@@ -254,7 +254,7 @@ int av1_get_op_constrained_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
 
 // Determine reference mapping by ranking the reference frames based on a
 // score function.
-int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
+int av2_get_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
                        int resolution_available,
 #if CONFIG_RANDOM_ACCESS_SWITCH_FRAME
                        int key_frame_only,
@@ -293,7 +293,7 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
     if (cur_ref.ref_frame_restricted == 1) continue;
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
     if (cur_ref.ref_frame_for_inference == -1) continue;
-    max_disp = AOMMAX(max_disp, cur_ref.disp_order);
+    max_disp = AVMMAX(max_disp, cur_ref.disp_order);
   }
 
   // Compute a score for each reference buffer
@@ -347,8 +347,8 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
     const int score =
         (max_disp > cur_frame_disp
              ? (tdist << DIST_WEIGHT_BITS)
-             : (temp_dist_score_lookup[AOMMIN(tdist, DECAY_DIST_CAP)] +
-                AOMMAX(tdist - DECAY_DIST_CAP, 0))) +
+             : (temp_dist_score_lookup[AVMMIN(tdist, DECAY_DIST_CAP)] +
+                AVMMAX(tdist - DECAY_DIST_CAP, 0))) +
         res_ratio_log2 * (1 << RES_RATIO_LOG2_BITS) + ref_base_qindex;
     if (is_in_ref_score(scores, ref_disp, ref_mlayer_id, score, n_ranked))
       continue;
@@ -371,8 +371,8 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
   bubble_sort_ref_scores(scores, n_ranked);
 
   const int max_num_ref_frames =
-      AOMMIN(cm->seq_params.ref_frames, INTER_REFS_PER_FRAME);
-  cm->ref_frames_info.num_total_refs = AOMMIN(n_ranked, max_num_ref_frames);
+      AVMMIN(cm->seq_params.ref_frames, INTER_REFS_PER_FRAME);
+  cm->ref_frames_info.num_total_refs = AVMMIN(n_ranked, max_num_ref_frames);
   if (!resolution_available)
     cm->ref_frames_info.num_total_refs_res_indep =
         cm->ref_frames_info.num_total_refs;
@@ -393,12 +393,12 @@ int av1_get_ref_frames(AV1_COMMON *cm, int cur_frame_disp,
   }
   if (cm->bridge_frame_info.is_bridge_frame &&
       !bridge_frame_ref_idx_remapped_found) {
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+    avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                        "Bridge frame index into remapped not found");
   }
 
   // Fill in RefFramesInfo struct according to computed mapping
-  av1_get_past_future_cur_ref_lists(cm, scores);
+  av2_get_past_future_cur_ref_lists(cm, scores);
 
   cm->bru.ref_n_ranked = n_ranked;
   if (n_ranked > 0)
@@ -454,7 +454,7 @@ static int is_ref_better(const OrderHintInfo *oh, int cur_disp, int ref_disp,
 
 // Derive the primary & secondary reference frame from the reference list based
 // on qindex and frame distances.
-void choose_primary_secondary_ref_frame(const AV1_COMMON *const cm,
+void choose_primary_secondary_ref_frame(const AV2_COMMON *const cm,
                                         int *ref_frame) {
   const int intra_only = cm->current_frame.frame_type == KEY_FRAME ||
                          cm->current_frame.frame_type == INTRA_ONLY_FRAME;
@@ -527,7 +527,7 @@ static InterpFilter get_ref_filter_type(const MB_MODE_INFO *ref_mbmi,
   return ref_mbmi->interp_fltr;
 }
 
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
+int av2_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int ctx_offset =
       is_inter_ref_frame(mbmi->ref_frame[1]) * INTER_FILTER_COMP_OFFSET;
@@ -569,7 +569,7 @@ static void palette_add_to_cache(uint16_t *cache, int *n, uint16_t val) {
   cache[(*n)++] = val;
 }
 
-int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
+int av2_get_palette_cache(const MACROBLOCKD *const xd, int plane,
                           uint16_t *cache) {
   const int row = (plane > 0 ? xd->mi[0]->chroma_ref_info.mi_row_chroma_base
                              : xd->mi[0]->mi_row_start)
@@ -620,7 +620,7 @@ int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
 // 1 - intra/inter, inter/intra
 // 2 - intra/--, --/intra
 // 3 - intra/intra
-int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
+int av2_get_intra_inter_context(const MACROBLOCKD *xd) {
   const MB_MODE_INFO *const neighbor0 = xd->neighbors_line_buffer[0];
   const MB_MODE_INFO *const neighbor1 = xd->neighbors_line_buffer[1];
 
@@ -641,7 +641,7 @@ int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
 // This funtion is to check if the 1st mbmi of the current ccso unit is inside
 // the current tile. The 1st mbmi is used to signal the ccso block control flag
 // for the current ccso unit.
-bool av1_check_ccso_mbmi_inside_tile(const AV1_COMMON *cm,
+bool av2_check_ccso_mbmi_inside_tile(const AV2_COMMON *cm,
                                      const MACROBLOCKD *xd,
                                      const MB_MODE_INFO *const mbmi) {
   const TileInfo *const tile = &xd->tile;
@@ -666,7 +666,7 @@ bool av1_check_ccso_mbmi_inside_tile(const AV1_COMMON *cm,
 // neighbor0_ccso_unit==neighbor1_ccso_unit 3 -
 // neighbor0_ccso_true/neighbor1_ccso_true &&
 // neighbor0_ccso_unit!=neighbor1_ccso_unit
-int av1_get_ccso_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int av2_get_ccso_context(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                          int plane) {
   const MB_MODE_INFO *const neighbor0 = xd->neighbors[0];
   const MB_MODE_INFO *const neighbor1 = xd->neighbors[1];
@@ -676,12 +676,12 @@ int av1_get_ccso_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   if (neighbor0) {
     neighbor0_ccso_available =
-        av1_check_ccso_mbmi_inside_tile(cm, xd, neighbor0);
+        av2_check_ccso_mbmi_inside_tile(cm, xd, neighbor0);
   }
 
   if (neighbor1) {
     neighbor1_ccso_available =
-        av1_check_ccso_mbmi_inside_tile(cm, xd, neighbor1);
+        av2_check_ccso_mbmi_inside_tile(cm, xd, neighbor1);
   }
 
   const int ccso_blk_size = get_ccso_unit_size_log2_adaptive_tile(
@@ -740,7 +740,7 @@ int av1_get_ccso_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 // This funtion is to check if the 1st mbmi of the current cdef unit is inside
 // the current tile. The 1st mbmi is used to signal the cdef block control flag
 // for the current cdef unit.
-bool av1_check_cdef_mbmi_inside_tile(const MACROBLOCKD *xd,
+bool av2_check_cdef_mbmi_inside_tile(const MACROBLOCKD *xd,
                                      const MB_MODE_INFO *const mbmi) {
   const TileInfo *const tile = &xd->tile;
   // CDEF unit size is 64x64 irrespective of the superblock size.
@@ -762,7 +762,7 @@ bool av1_check_cdef_mbmi_inside_tile(const MACROBLOCKD *xd,
 // neighbor0_cdef_unit==neighbor1_cdef_unit 3 -
 // neighbor0_cdef_true/neighbor1_cdef_true &&
 // neighbor0_cdef_unit!=neighbor1_cdef_unit
-int av1_get_cdef_context(const AV1_COMMON *const cm,
+int av2_get_cdef_context(const AV2_COMMON *const cm,
                          const MACROBLOCKD *const xd) {
   // CDEF unit size is 64x64 irrespective of the superblock size.
   const int cdef_size = 1 << MI_IN_CDEF_LINEAR_LOG2;
@@ -793,11 +793,11 @@ int av1_get_cdef_context(const AV1_COMMON *const cm,
   bool neighbor1_cdef_available = 0;
 
   if (neighbor0) {
-    neighbor0_cdef_available = av1_check_cdef_mbmi_inside_tile(xd, neighbor0);
+    neighbor0_cdef_available = av2_check_cdef_mbmi_inside_tile(xd, neighbor0);
   }
 
   if (neighbor1) {
-    neighbor1_cdef_available = av1_check_cdef_mbmi_inside_tile(xd, neighbor1);
+    neighbor1_cdef_available = av2_check_cdef_mbmi_inside_tile(xd, neighbor1);
   }
 
   if (neighbor0_cdef_available && neighbor1_cdef_available) {
@@ -831,7 +831,7 @@ int av1_get_cdef_context(const AV1_COMMON *const cm,
 #define IS_BACKWARD_REF_FRAME(ref_frame) \
   (get_dir_rank(cm, ref_frame, NULL) == 1)
 
-int av1_get_reference_mode_context(const AV1_COMMON *cm,
+int av2_get_reference_mode_context(const AV2_COMMON *cm,
                                    const MACROBLOCKD *xd) {
   (void)cm;
   int ctx = 0;
@@ -876,7 +876,7 @@ int av1_get_reference_mode_context(const AV1_COMMON *cm,
 // The context for reference frame is defined by comparing A) the count of
 // rank n references and B) the count of rank > n references in the neighboring
 // blocks. Context will be 0 if A<B, 1 if A=B, and 2 if A>B.
-int av1_get_ref_pred_context(const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref,
+int av2_get_ref_pred_context(const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref,
                              int num_total_refs) {
   const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
   const int this_ref_count = ref_counts[ref];

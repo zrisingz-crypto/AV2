@@ -11,7 +11,7 @@
 
 ;
 
-%include "aom_ports/x86_abi_support.asm"
+%include "avm_ports/x86_abi_support.asm"
 
 ; tabulate_ssim - sums sum_s,sum_r,sum_sq_s,sum_sq_r, sum_sxr
 %macro TABULATE_SSIM 0
@@ -67,8 +67,8 @@ SECTION .text
 ; or pavgb At this point this is just meant to be first pass for calculating
 ; all the parms needed for 16x16 ssim so we can play with dssim as distortion
 ; in mode selection code.
-globalsym(av1_ssim_parms_16x16_sse2)
-sym(av1_ssim_parms_16x16_sse2):
+globalsym(av2_ssim_parms_16x16_sse2)
+sym(av2_ssim_parms_16x16_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 9
@@ -157,8 +157,8 @@ sym(av1_ssim_parms_16x16_sse2):
 ; or pavgb At this point this is just meant to be first pass for calculating
 ; all the parms needed for 16x16 ssim so we can play with dssim as distortion
 ; in mode selection code.
-globalsym(av1_ssim_parms_8x8_sse2)
-sym(av1_ssim_parms_8x8_sse2):
+globalsym(av2_ssim_parms_8x8_sse2)
+sym(av2_ssim_parms_8x8_sse2):
     push        rbp
     mov         rbp, rsp
     SHADOW_ARGS_TO_STACK 9

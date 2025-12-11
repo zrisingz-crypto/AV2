@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_TRANSFORM_SEARCH_H_
-#define AOM_AV1_ENCODER_TRANSFORM_SEARCH_H_
+#ifndef AVM_AV2_ENCODER_TRANSFORM_SEARCH_H_
+#define AVM_AV2_ENCODER_TRANSFORM_SEARCH_H_
 
-#include "av1/common/pred_common.h"
-#include "av1/encoder/encoder.h"
+#include "av2/common/pred_common.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +24,7 @@ extern "C" {
 #define COLLECT_TX_SIZE_DATA 0
 
 #if COLLECT_TX_SIZE_DATA
-static const char av1_tx_size_data_output_file[] = "tx_size_data.txt";
+static const char av2_tx_size_data_output_file[] = "tx_size_data.txt";
 #endif
 
 enum {
@@ -34,7 +34,7 @@ enum {
   FTXS_USE_TRANSFORM_DOMAIN = 1 << 2
 } UENUM1BYTE(FAST_TX_SEARCH_MODE);
 
-static AOM_INLINE int inter_tx_partition_cost(const MACROBLOCK *const x,
+static AVM_INLINE int inter_tx_partition_cost(const MACROBLOCK *const x,
                                               TX_PARTITION_TYPE partition,
                                               BLOCK_SIZE bsize,
                                               TX_SIZE max_tx_size) {
@@ -81,7 +81,7 @@ static AOM_INLINE int inter_tx_partition_cost(const MACROBLOCK *const x,
   return cost;
 }
 
-static AOM_INLINE int intra_tx_partition_cost(const MACROBLOCK *const x,
+static AVM_INLINE int intra_tx_partition_cost(const MACROBLOCK *const x,
                                               TX_PARTITION_TYPE partition,
                                               TX_SIZE max_tx_size) {
   int cost = 0;
@@ -128,7 +128,7 @@ static AOM_INLINE int intra_tx_partition_cost(const MACROBLOCK *const x,
   return cost;
 }
 
-static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
+static AVM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    TX_SIZE tx_size) {
   assert(bsize == x->e_mbd.mi[0]->sb_type[PLANE_TYPE_Y]);
   if (x->txfm_search_params.tx_mode_search_type != TX_MODE_SELECT ||
@@ -144,10 +144,10 @@ static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
   return intra_tx_partition_cost(x, mbmi->tx_partition_type[0], max_tx_size);
 }
 
-static AOM_INLINE int skip_cctx_eval_based_on_eob(int plane, int is_inter,
+static AVM_INLINE int skip_cctx_eval_based_on_eob(int plane, int is_inter,
                                                   uint16_t eob_c1,
                                                   CctxType cctx_type) {
-  if (plane != AOM_PLANE_U) return 0;
+  if (plane != AVM_PLANE_U) return 0;
   if (eob_c1 == 0) return 1;
   if (eob_c1 == 1 && !is_inter && cctx_type != CCTX_NONE) return 1;
   return 0;
@@ -172,7 +172,7 @@ static AOM_INLINE int skip_cctx_eval_based_on_eob(int plane, int is_inter,
                                 should be skipped
  * \return       An int64_t value that is the best RD cost found.
  */
-int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
+int64_t av2_uniform_txfm_yrd(const AV2_COMP *const cpi, MACROBLOCK *x,
                              RD_STATS *rd_stats, int64_t ref_best_rd,
                              BLOCK_SIZE bs, TX_SIZE tx_size,
                              FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis);
@@ -196,7 +196,7 @@ int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
  * Nothing is returned. The selected transform size and type will be saved
  * in the MB_MODE_INFO structure.
  */
-void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
+void av2_pick_recursive_tx_size_type_yrd(const AV2_COMP *cpi, MACROBLOCK *x,
                                          RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                          uint8_t enable_modelrd_tx_prune,
 
@@ -220,7 +220,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
  * Nothing is returned. The selected transform size and type will be saved
  * in the MB_MODE_INFO structure.
  */
-void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
+void av2_pick_uniform_tx_size_type_yrd(const AV2_COMP *const cpi, MACROBLOCK *x,
                                        RD_STATS *rd_stats, BLOCK_SIZE bs,
                                        int64_t ref_best_rd);
 
@@ -238,7 +238,7 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
  * \return       An integer value is returned. 0: early termination triggered,
                  no valid rd cost available; 1: rd cost values are valid.
  */
-int av1_txfm_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x, RD_STATS *rd_stats,
+int av2_txfm_uvrd(const AV2_COMP *const cpi, MACROBLOCK *x, RD_STATS *rd_stats,
                   int64_t ref_best_rd);
 
 /*!\brief Transform type search with fixed transform size.
@@ -265,7 +265,7 @@ int av1_txfm_uvrd(const AV1_COMP *const cpi, MACROBLOCK *x, RD_STATS *rd_stats,
  *
  * Nothing is returned. The RD results will be saved in rd_stats.
  */
-void av1_txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
+void av2_txfm_rd_in_plane(MACROBLOCK *x, const AV2_COMP *cpi,
                           RD_STATS *rd_stats, int64_t ref_best_rd,
                           int64_t current_rd, int plane, BLOCK_SIZE plane_bsize,
                           TX_SIZE tx_size, FAST_TX_SEARCH_MODE ftxs_mode,
@@ -278,8 +278,8 @@ void av1_txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
  * for inter-predicted blocks (including IntraBC), when the prediction is
  * already generated. It first does subtraction to obtain the prediction error.
  * Then it calls
- * av1_pick_recursive_tx_size_type_yrd/av1_pick_uniform_tx_size_type_yrd and
- * av1_txfm_uvrd sequentially and handles possible early terminations.
+ * av2_pick_recursive_tx_size_type_yrd/av2_pick_uniform_tx_size_type_yrd and
+ * av2_txfm_uvrd sequentially and handles possible early terminations.
  * The RD metrics are calculated and stored in rd_stats/_y/_uv.
  *
  * \param[in]    cpi            Top-level encoder structure
@@ -301,7 +301,7 @@ void av1_txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
  * \return       An integer value is returned indicating if a valid transform
                  candidate is found (1) or not (0).
  */
-int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+int av2_txfm_search(const AV2_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                     RD_STATS *rd_stats, RD_STATS *rd_stats_y,
                     RD_STATS *rd_stats_uv, int mode_rate,
                     uint8_t enable_modelrd_tx_prune,
@@ -312,4 +312,4 @@ int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_TRANSFORM_SEARCH_H_
+#endif  // AVM_AV2_ENCODER_TRANSFORM_SEARCH_H_

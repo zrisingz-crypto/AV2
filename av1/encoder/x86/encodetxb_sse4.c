@@ -14,10 +14,10 @@
 #include <emmintrin.h>  // SSE2
 #include <smmintrin.h>  /* SSE4.1 */
 
-#include "aom/aom_integer.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/txb_common.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm/avm_integer.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/txb_common.h"
+#include "avm_dsp/x86/synonyms.h"
 
 static INLINE void _xx_fill_buffer(__m128i *buff, __m128i *end, __m128i zeros) {
   do {
@@ -26,7 +26,7 @@ static INLINE void _xx_fill_buffer(__m128i *buff, __m128i *end, __m128i zeros) {
   } while (buff < end);
 }
 
-void av1_txb_init_levels_skip_sse4_1(const tran_low_t *const coeff,
+void av2_txb_init_levels_skip_sse4_1(const tran_low_t *const coeff,
                                      const int width, const int height,
                                      uint8_t *const levels) {
   const int stride = width + TX_PAD_LEFT;
@@ -107,7 +107,7 @@ void av1_txb_init_levels_skip_sse4_1(const tran_low_t *const coeff,
   }
 }
 
-void av1_txb_init_levels_signs_sse4_1(const tran_low_t *const coeff,
+void av2_txb_init_levels_signs_sse4_1(const tran_low_t *const coeff,
                                       const int width, const int height,
                                       uint8_t *const levels,
                                       int8_t *const signs) {
@@ -213,7 +213,7 @@ void av1_txb_init_levels_signs_sse4_1(const tran_low_t *const coeff,
   }
 }
 
-void av1_txb_init_levels_sse4_1(const tran_low_t *const coeff, const int width,
+void av2_txb_init_levels_sse4_1(const tran_low_t *const coeff, const int width,
                                 const int height, uint8_t *const levels) {
   const int stride = width + TX_PAD_HOR;
   const __m128i zeros = _mm_setzero_si128();

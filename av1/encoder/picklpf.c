@@ -13,20 +13,20 @@
 #include <assert.h>
 #include <limits.h>
 
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/psnr.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/psnr.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/mem.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/av1_loopfilter.h"
-#include "av1/common/quant_common.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/av2_loopfilter.h"
+#include "av2/common/quant_common.h"
 
-#include "av1/encoder/av1_quantize.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/picklpf.h"
+#include "av2/encoder/av2_quantize.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/picklpf.h"
 
 #include <float.h>
 #define CHROMA_LAMBDA_MULT 6
@@ -34,23 +34,23 @@
 static void yv12_copy_plane(const YV12_BUFFER_CONFIG *src_bc,
                             YV12_BUFFER_CONFIG *dst_bc, int plane) {
   switch (plane) {
-    case 0: aom_yv12_copy_y(src_bc, dst_bc); break;
-    case 1: aom_yv12_copy_u(src_bc, dst_bc); break;
-    case 2: aom_yv12_copy_v(src_bc, dst_bc); break;
+    case 0: avm_yv12_copy_y(src_bc, dst_bc); break;
+    case 1: avm_yv12_copy_u(src_bc, dst_bc); break;
+    case 2: avm_yv12_copy_v(src_bc, dst_bc); break;
     default: assert(plane >= 0 && plane <= 2); break;
   }
 }
 static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
-                                AV1_COMP *const cpi, int q_offset,
+                                AV2_COMP *const cpi, int q_offset,
                                 int side_offset, int partial_frame, int plane,
                                 int dir) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   int num_workers = mt_info->num_workers;
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   int64_t filt_err;
 
   assert(plane >= 0 && plane <= 2);
-  // set base filters for use of av1_get_filter_level when searching for delta_q
+  // set base filters for use of av2_get_filter_level when searching for delta_q
   // and delta_side
   switch (plane) {
     case 0:
@@ -77,15 +77,15 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   }
 
   if (num_workers > 1)
-    av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, &cpi->td.mb.e_mbd, plane,
+    av2_loop_filter_frame_mt(&cm->cur_frame->buf, cm, &cpi->td.mb.e_mbd, plane,
                              plane + 1, partial_frame, mt_info->workers,
                              num_workers, &mt_info->lf_row_sync);
   else
-    av1_loop_filter_frame(&cm->cur_frame->buf, cm, &cpi->td.mb.e_mbd, plane,
+    av2_loop_filter_frame(&cm->cur_frame->buf, cm, &cpi->td.mb.e_mbd, plane,
                           plane + 1, partial_frame);
 
   if (cm->bru.enabled) {
-    filt_err = aom_get_sse_plane_available(
+    filt_err = avm_get_sse_plane_available(
         sd, &cm->cur_frame->buf, plane, cm->bru.active_mode_map,
         cm->bru.unit_cols, cm->bru.unit_cols, cm->bru.unit_rows,
         1 << (cm->bru.unit_mi_size_log2 + MI_SIZE_LOG2 -
@@ -93,7 +93,7 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
         1 << (cm->bru.unit_mi_size_log2 + MI_SIZE_LOG2 -
               (plane > 0 ? sd->subsampling_y : 0)));
   } else {
-    filt_err = aom_get_sse_plane(sd, &cm->cur_frame->buf, plane);
+    filt_err = avm_get_sse_plane(sd, &cm->cur_frame->buf, plane);
   }
 
   // Re-instate the unfiltered frame
@@ -102,12 +102,12 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
   return filt_err;
 }
 
-static int search_filter_offsets(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+static int search_filter_offsets(const YV12_BUFFER_CONFIG *sd, AV2_COMP *cpi,
                                  int partial_frame,
                                  const int *last_frame_offsets,
                                  double *best_cost_ret, int plane,
                                  int search_side_offset, int dir) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const uint8_t df_par_bits = cm->seq_params.df_par_bits_minus2 + 2;
   const int df_par_min_val = (-(1 << (df_par_bits - 1)));
   const int df_par_max_val = ((1 << (df_par_bits - 1)) - 1);
@@ -177,8 +177,8 @@ static int search_filter_offsets(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   ss_err[offset_mid + ZERO_DF_OFFSET] = best_err;
 
   while (filter_step > 0) {
-    const int offset_high = AOMMIN(offset_mid + filter_step, max_filter_offset);
-    const int offset_low = AOMMAX(offset_mid - filter_step, min_filter_offset);
+    const int offset_high = AVMMIN(offset_mid + filter_step, max_filter_offset);
+    const int offset_low = AVMMAX(offset_mid - filter_step, min_filter_offset);
 
     int64_t bias = 0;
 
@@ -261,15 +261,15 @@ static int search_filter_offsets(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
       RDCOST_DBL_WITH_NATIVE_BD_DIST(x->rdmult * chroma_lambda_mult, start_bits,
                                      start_err, cm->seq_params.bit_depth);
 
-  if (best_cost_ret) *best_cost_ret = AOMMIN(best_cost, start_cost);
+  if (best_cost_ret) *best_cost_ret = AVMMIN(best_cost, start_cost);
 
   return best_cost < start_cost ? offset_best : offsets[off_ind];
 }
 
-void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
+void av2_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV2_COMP *cpi,
                            LPF_PICK_METHOD method) {
-  AV1_COMMON *const cm = &cpi->common;
-  const int num_planes = av1_num_planes(cm);
+  AV2_COMMON *const cm = &cpi->common;
+  const int num_planes = av2_num_planes(cm);
   struct loopfilter *const lf = &cm->lf;
   (void)sd;
 
@@ -281,7 +281,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     const int chroma_lambda_mult = i ? CHROMA_LAMBDA_MULT : 1;
     const int64_t no_deblocking_sse =
         cm->bru.enabled
-            ? aom_get_sse_plane_available(
+            ? avm_get_sse_plane_available(
                   cpi->source, &cm->cur_frame->buf, i,
                   cpi->common.bru.active_mode_map, cpi->common.bru.unit_cols,
                   cpi->common.bru.unit_cols, cpi->common.bru.unit_rows,
@@ -289,7 +289,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                         (i > 0 ? cpi->source->subsampling_x : 0)),
                   1 << (cm->bru.unit_mi_size_log2 + MI_SIZE_LOG2 -
                         (i > 0 ? cpi->source->subsampling_y : 0)))
-            : aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, i);
+            : avm_get_sse_plane(cpi->source, &cm->cur_frame->buf, i);
     no_deblocking_cost[i] = RDCOST_DBL_WITH_NATIVE_BD_DIST(
         cpi->td.mb.rdmult * chroma_lambda_mult, 0, no_deblocking_sse,
         cm->seq_params.bit_depth);
@@ -354,7 +354,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
                               last_frame_offsets, &best_dual_cost, 0, 1, 1);
     last_frame_offsets[2] = lf->delta_q_luma[1] = lf->delta_side_luma[1];
 
-    if (no_deblocking_cost[0] < AOMMIN(best_single_cost, best_dual_cost)) {
+    if (no_deblocking_cost[0] < AVMMIN(best_single_cost, best_dual_cost)) {
       lf->filter_level[0] = 0;
       lf->filter_level[1] = 0;
       lf->delta_q_luma[0] = lf->delta_side_luma[0] = lf->delta_q_luma[1] =
@@ -466,8 +466,8 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
 }
 
 // Try deblocking filter on TIP frame with a given filter strength
-static double try_filter_tip_frame(AV1_COMP *const cpi, int tip_delta) {
-  AV1_COMMON *const cm = &cpi->common;
+static double try_filter_tip_frame(AV2_COMP *const cpi, int tip_delta) {
+  AV2_COMMON *const cm = &cpi->common;
   const int num_planes = 1;
   double filter_cost = 0;
   int64_t filter_sse = 0;
@@ -479,7 +479,7 @@ static double try_filter_tip_frame(AV1_COMP *const cpi, int tip_delta) {
 
   YV12_BUFFER_CONFIG *tip_frame_buf = &cm->tip_ref.tip_frame->buf;
   for (int i = 0; i < num_planes; i++) {
-    int64_t cur_sse = aom_get_sse_plane(cpi->source, tip_frame_buf, i);
+    int64_t cur_sse = avm_get_sse_plane(cpi->source, tip_frame_buf, i);
     filter_sse += cur_sse;
   }
 
@@ -494,7 +494,7 @@ static double try_filter_tip_frame(AV1_COMP *const cpi, int tip_delta) {
 }
 
 // Search deblocking filter strength for TIP frame
-void search_tip_filter_level(AV1_COMP *cpi, struct AV1Common *cm) {
+void search_tip_filter_level(AV2_COMP *cpi, struct AV2Common *cm) {
   const int num_planes = 1;
   YV12_BUFFER_CONFIG *tip_frame_buf = &cm->tip_ref.tip_frame->buf;
   for (int i = 0; i < num_planes; i++) {
@@ -504,7 +504,7 @@ void search_tip_filter_level(AV1_COMP *cpi, struct AV1Common *cm) {
   // check unfiltered cost
   int64_t unfilter_sse = 0;
   for (int i = 0; i < num_planes; i++) {
-    int64_t cur_sse = aom_get_sse_plane(cpi->source, tip_frame_buf, i);
+    int64_t cur_sse = avm_get_sse_plane(cpi->source, tip_frame_buf, i);
     unfilter_sse += cur_sse;
   }
   double unfilter_cost = RDCOST_DBL_WITH_NATIVE_BD_DIST(

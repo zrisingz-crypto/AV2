@@ -10,18 +10,18 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_COMMON_H_
-#define AOM_AV1_COMMON_COMMON_H_
+#ifndef AVM_AV2_COMMON_COMMON_H_
+#define AVM_AV2_COMMON_COMMON_H_
 
 /* Interface header for common constant data structures and lookup tables */
 
 #include <assert.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_mem/aom_mem.h"
-#include "aom/aom_integer.h"
-#include "aom_ports/bitops.h"
-#include "config/aom_config.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_mem/avm_mem.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/bitops.h"
+#include "config/avm_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,33 +30,33 @@ extern "C" {
 #define PI 3.141592653589793238462643383279502884
 
 // Only need this for fixed-size arrays, for structs just assign.
-#define av1_copy(dest, src)              \
+#define av2_copy(dest, src)              \
   {                                      \
     assert(sizeof(dest) == sizeof(src)); \
     memcpy(dest, src, sizeof(src));      \
   }
 
 // Use this for variably-sized arrays.
-#define av1_copy_array(dest, src, n)           \
+#define av2_copy_array(dest, src, n)           \
   {                                            \
     assert(sizeof(*(dest)) == sizeof(*(src))); \
     memcpy(dest, src, n * sizeof(*(src)));     \
   }
 
-#define av1_zero(dest) memset(&(dest), 0, sizeof(dest))
-#define av1_zero_array(dest, n) memset(dest, 0, n * sizeof(*(dest)))
+#define av2_zero(dest) memset(&(dest), 0, sizeof(dest))
+#define av2_zero_array(dest, n) memset(dest, 0, n * sizeof(*(dest)))
 
 static INLINE int get_unsigned_bits(unsigned int num_values) {
   return num_values > 0 ? get_msb(num_values) + 1 : 0;
 }
 
 #define CHECK_MEM_ERROR(cm, lval, expr) \
-  AOM_CHECK_MEM_ERROR(&cm->error, lval, expr)
+  AVM_CHECK_MEM_ERROR(&cm->error, lval, expr)
 
-#define AV1_MIN_TILE_SIZE_BYTES 1
+#define AV2_MIN_TILE_SIZE_BYTES 1
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_COMMON_H_
+#endif  // AVM_AV2_COMMON_COMMON_H_

@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_ENTCODE_H_
-#define AOM_AOM_DSP_ENTCODE_H_
+#ifndef AVM_AVM_DSP_ENTCODE_H_
+#define AVM_AVM_DSP_ENTCODE_H_
 
 #include <limits.h>
 #include <stddef.h>
-#include "av1/common/odintrin.h"
+#include "av2/common/odintrin.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,9 +32,9 @@ typedef uint64_t od_ec_window;
    16 => 1/65536th bits.*/
 #define OD_BITRES (16)
 
-#define OD_ICDF AOM_ICDF
+#define OD_ICDF AVM_ICDF
 
-extern const uint16_t av1_prob_inc_tbl[15][16];
+extern const uint16_t av2_prob_inc_tbl[15][16];
 
 /*See entcode.c for further documentation.*/
 
@@ -45,4 +45,4 @@ OD_WARN_UNUSED_RESULT uint64_t od_ec_tell_frac(uint32_t nbits_total,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_ENTCODE_H_
+#endif  // AVM_AVM_DSP_ENTCODE_H_

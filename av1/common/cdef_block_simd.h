@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_CDEF_BLOCK_SIMD_H_
-#define AOM_AV1_COMMON_CDEF_BLOCK_SIMD_H_
+#ifndef AVM_AV2_COMMON_CDEF_BLOCK_SIMD_H_
+#define AVM_AV2_COMMON_CDEF_BLOCK_SIMD_H_
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cdef_block.h"
+#include "av2/common/cdef_block.h"
 
 /* partial A is a 16-bit vector of the form:
    [x8 x7 x6 x5 x4 x3 x2 x1] and partial B has the form:
@@ -257,9 +257,9 @@ SIMD_INLINE void filter_block_4x4(uint16_t *const dest, int dstride,
   int i;
 
   if (enable_primary && pri_strength)
-    pri_damping = AOMMAX(0, pri_damping - get_msb(pri_strength));
+    pri_damping = AVMMAX(0, pri_damping - get_msb(pri_strength));
   if (enable_secondary && sec_strength)
-    sec_damping = AOMMAX(0, sec_damping - get_msb(sec_strength));
+    sec_damping = AVMMAX(0, sec_damping - get_msb(sec_strength));
 
   for (i = 0; i < height; i += 4) {
     sum = v256_zero();
@@ -434,9 +434,9 @@ SIMD_INLINE void filter_block_8x8(uint16_t *const dest, int dstride,
   const int *sec_taps = cdef_sec_taps;
 
   if (enable_primary && pri_strength)
-    pri_damping = AOMMAX(0, pri_damping - get_msb(pri_strength));
+    pri_damping = AVMMAX(0, pri_damping - get_msb(pri_strength));
   if (enable_secondary && sec_strength)
-    sec_damping = AOMMAX(0, sec_damping - get_msb(sec_strength));
+    sec_damping = AVMMAX(0, sec_damping - get_msb(sec_strength));
 
   for (i = 0; i < height; i += 2) {
     v256 tap[8];
@@ -687,4 +687,4 @@ void SIMD_FUNC(cdef_copy_rect8_16bit_to_16bit)(uint16_t *const dst, int dstride,
   }
 }
 
-#endif  // AOM_AV1_COMMON_CDEF_BLOCK_SIMD_H_
+#endif  // AVM_AV2_COMMON_CDEF_BLOCK_SIMD_H_

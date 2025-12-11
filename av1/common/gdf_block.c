@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "av1/common/gdf_block.h"
+#include "av2/common/gdf_block.h"
 
 // clang-format off
 const int gdf_guided_sample_coordinates_fwd[GDF_NET_INP_REC_NUM][2] = {
@@ -316,7 +316,7 @@ void gdf_set_lap_and_cls_unit_c(const int i_min, const int i_max,
   const int offset_ver = rec_y_stride, offset_dia0 = rec_y_stride + 1,
             offset_dia1 = rec_y_stride - 1;
   const int clip_mask =
-      (1 << (16 - (GDF_TEST_INP_PREC - AOMMIN(bit_depth, GDF_TEST_INP_PREC)))) -
+      (1 << (16 - (GDF_TEST_INP_PREC - AVMMIN(bit_depth, GDF_TEST_INP_PREC)))) -
       1;
   const int lap_cls_height = (blk_height >> 1);
 
@@ -601,7 +601,7 @@ void gdf_inference_unit_c(const int i_min, const int i_max, const int j_min,
       is_intra ? GDF_NET_LUT_IDX_INTRA_MAX : GDF_NET_LUT_IDX_INTER_MAX;
   const int gdf_idx_min = -(gdf_frm_max >> 1);
   const int gdf_idx_max = gdf_frm_max - 1 + gdf_idx_min;
-  const int gdf_idx_scale = AOMMAX(-gdf_idx_min, gdf_idx_max);
+  const int gdf_idx_scale = AVMMAX(-gdf_idx_min, gdf_idx_max);
   int32_t gdf_shift =
       GDF_TEST_INP_PREC - GDF_TRAIN_INP_PREC + GDF_TRAIN_PAR_SCALE_LOG2;
   int32_t gdf_shift_half = 1 << (gdf_shift - 1);

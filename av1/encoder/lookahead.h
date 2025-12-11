@@ -13,11 +13,11 @@
 /*!\file
  * \brief Describes look ahead buffer operations.
  */
-#ifndef AOM_AV1_ENCODER_LOOKAHEAD_H_
-#define AOM_AV1_ENCODER_LOOKAHEAD_H_
+#ifndef AVM_AV2_ENCODER_LOOKAHEAD_H_
+#define AVM_AV2_ENCODER_LOOKAHEAD_H_
 
-#include "aom_scale/yv12config.h"
-#include "aom/aom_integer.h"
+#include "avm_scale/yv12config.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +33,7 @@ struct lookahead_entry {
   YV12_BUFFER_CONFIG img;
   int64_t ts_start;
   int64_t ts_end;
-  aom_enc_frame_flags_t flags;
+  avm_enc_frame_flags_t flags;
   int disp_order_hint;  // display order hint of this source frame
 };
 
@@ -64,14 +64,14 @@ struct lookahead_ctx {
  * The lookahead stage is a queue of frame buffers on which some analysis
  * may be done when buffers are enqueued.
  */
-struct lookahead_ctx *av1_lookahead_init(
+struct lookahead_ctx *av2_lookahead_init(
     int width, int height, int subsampling_x, int subsampling_y, int depth,
     const int border_in_pixels, int byte_alignment, int num_lap_buffers,
     int num_extra_buffers, bool alloc_pyramid);
 
 /**\brief Destroys the lookahead stage
  */
-void av1_lookahead_destroy(struct lookahead_ctx *ctx);
+void av2_lookahead_destroy(struct lookahead_ctx *ctx);
 
 /**\brief Enqueue a source buffer
  *
@@ -90,9 +90,9 @@ void av1_lookahead_destroy(struct lookahead_ctx *ctx);
  * \param[in] alloc_pyramid     Whether to allocate a downsampling pyramid
  *                              for each frame buffer
  */
-int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
+int av2_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
                        int64_t ts_start, int64_t ts_end, int disp_order_hint,
-                       aom_enc_frame_flags_t flags, bool alloc_pyramid);
+                       avm_enc_frame_flags_t flags, bool alloc_pyramid);
 
 /**\brief Get the next source buffer to encode
  *
@@ -104,7 +104,7 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
  * \retval Return NULL, if drain set and queue is empty, or if drain not set and
  * queue not of the configured depth.
  */
-struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain,
+struct lookahead_entry *av2_lookahead_pop(struct lookahead_ctx *ctx, int drain,
                                           COMPRESSOR_STAGE stage);
 
 /**\brief Get a future source buffer to encode
@@ -115,7 +115,7 @@ struct lookahead_entry *av1_lookahead_pop(struct lookahead_ctx *ctx, int drain,
  *
  * \retval Return NULL, if no buffer exists at the specified index
  */
-struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx, int index,
+struct lookahead_entry *av2_lookahead_peek(struct lookahead_ctx *ctx, int index,
                                            COMPRESSOR_STAGE stage);
 
 /**\brief One entry leave the queue
@@ -126,7 +126,7 @@ struct lookahead_entry *av1_lookahead_peek(struct lookahead_ctx *ctx, int index,
  *
  * \retval Return NULL, if no buffer exists at the specified index
  */
-struct lookahead_entry *av1_lookahead_leave(struct lookahead_ctx *ctx,
+struct lookahead_entry *av2_lookahead_leave(struct lookahead_ctx *ctx,
                                             int left_order_hint,
                                             COMPRESSOR_STAGE stage);
 
@@ -139,14 +139,14 @@ void bru_lookahead_buf_refresh(struct lookahead_ctx *ctx,
 
 /**\brief Get the number of frames currently in the lookahead queue
  */
-int av1_lookahead_depth(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage);
+int av2_lookahead_depth(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage);
 
 /**\brief Get pop_sz value
  */
-int av1_lookahead_pop_sz(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage);
+int av2_lookahead_pop_sz(struct lookahead_ctx *ctx, COMPRESSOR_STAGE stage);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_LOOKAHEAD_H_
+#endif  // AVM_AV2_ENCODER_LOOKAHEAD_H_

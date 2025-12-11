@@ -11,7 +11,7 @@
  */
 
 #include <string.h>
-#include "aom_dsp/mips/macros_msa.h"
+#include "avm_dsp/mips/macros_msa.h"
 
 static void copy_width8_msa(const uint8_t *src, int32_t src_stride,
                             uint8_t *dst, int32_t dst_stride, int32_t height) {
@@ -198,7 +198,7 @@ static void copy_width64_msa(const uint8_t *src, int32_t src_stride,
   copy_16multx8mult_msa(src, src_stride, dst, dst_stride, height, 64);
 }
 
-void aom_convolve_copy_msa(const uint8_t *src, ptrdiff_t src_stride,
+void avm_convolve_copy_msa(const uint8_t *src, ptrdiff_t src_stride,
                            uint8_t *dst, ptrdiff_t dst_stride, int32_t w,
                            int32_t h) {
   switch (w) {

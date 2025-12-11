@@ -10,7 +10,7 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/vmaf.h"
+#include "avm_dsp/vmaf.h"
 
 #include <assert.h>
 #if !CONFIG_USE_VMAF_RC
@@ -24,8 +24,8 @@
 #include <libvmaf/libvmaf.rc.h>
 #endif
 
-#include "aom_dsp/blend.h"
-#include "aom_ports/system_state.h"
+#include "avm_dsp/blend.h"
+#include "avm_ports/system_state.h"
 
 static void vmaf_fatal_error(const char *message) {
   fprintf(stderr, "Fatal error: %s\n", message);
@@ -80,10 +80,10 @@ static int read_frame(float *ref_data, float *main_data, float *temp_data,
   return 2;
 }
 
-void aom_calc_vmaf(const char *model_path, const YV12_BUFFER_CONFIG *source,
+void avm_calc_vmaf(const char *model_path, const YV12_BUFFER_CONFIG *source,
                    const YV12_BUFFER_CONFIG *distorted, const int bit_depth,
                    double *const vmaf) {
-  aom_clear_system_state();
+  avm_clear_system_state();
   const int width = source->y_width;
   const int height = source->y_height;
   FrameData frames = { source, distorted, 0, bit_depth };
@@ -99,17 +99,17 @@ void aom_calc_vmaf(const char *model_path, const YV12_BUFFER_CONFIG *source,
                    /*n_subsample=*/1, /*enable_conf_interval=*/0);
   if (ret) vmaf_fatal_error("Failed to compute VMAF scores.");
 
-  aom_clear_system_state();
+  avm_clear_system_state();
   *vmaf = vmaf_score;
 }
 
-void aom_calc_vmaf_multi_frame(void *user_data, const char *model_path,
+void avm_calc_vmaf_multi_frame(void *user_data, const char *model_path,
                                int (*rd_frm)(float *ref_data, float *main_data,
                                              float *temp_data, int stride_byte,
                                              void *user_data),
                                int frame_width, int frame_height, int bit_depth,
                                double *vmaf) {
-  aom_clear_system_state();
+  avm_clear_system_state();
 
   char *fmt = bit_depth == 10 ? "yuv420p10le" : "yuv420p";
   double vmaf_score;
@@ -144,12 +144,12 @@ void aom_calc_vmaf_multi_frame(void *user_data, const char *model_path,
   }
   fclose(vmaf_log);
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 }
 #endif
 
 #if CONFIG_USE_VMAF_RC
-void aom_init_vmaf_model_rc(VmafModel **vmaf_model, const char *model_path) {
+void avm_init_vmaf_model_rc(VmafModel **vmaf_model, const char *model_path) {
   if (*vmaf_model != NULL) return;
   VmafModelConfig model_cfg;
   model_cfg.flags = VMAF_MODEL_FLAG_DISABLE_CLIP;
@@ -161,7 +161,7 @@ void aom_init_vmaf_model_rc(VmafModel **vmaf_model, const char *model_path) {
   }
 }
 
-void aom_close_vmaf_model_rc(VmafModel *vmaf_model) {
+void avm_close_vmaf_model_rc(VmafModel *vmaf_model) {
   vmaf_model_destroy(vmaf_model);
 }
 
@@ -191,7 +191,7 @@ static void copy_picture(const int bit_depth, const YV12_BUFFER_CONFIG *src,
   }
 }
 
-void aom_init_vmaf_context_rc(VmafContext **vmaf_context, VmafModel *vmaf_model,
+void avm_init_vmaf_context_rc(VmafContext **vmaf_context, VmafModel *vmaf_model,
                               bool cal_vmaf_neg) {
   VmafConfiguration cfg;
   cfg.log_level = VMAF_LOG_LEVEL_NONE;
@@ -228,13 +228,13 @@ void aom_init_vmaf_context_rc(VmafContext **vmaf_context, VmafModel *vmaf_model,
   }
 }
 
-void aom_close_vmaf_context_rc(VmafContext *vmaf_context) {
+void avm_close_vmaf_context_rc(VmafContext *vmaf_context) {
   if (vmaf_close(vmaf_context)) {
     vmaf_fatal_error("Failed to close VMAF context.");
   }
 }
 
-void aom_calc_vmaf_at_index_rc(VmafContext *vmaf_context, VmafModel *vmaf_model,
+void avm_calc_vmaf_at_index_rc(VmafContext *vmaf_context, VmafModel *vmaf_model,
                                const YV12_BUFFER_CONFIG *source,
                                const YV12_BUFFER_CONFIG *distorted,
                                int bit_depth, int frame_index, double *vmaf) {

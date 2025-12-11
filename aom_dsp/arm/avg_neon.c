@@ -10,13 +10,13 @@
 
 #include <arm_neon.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/arm/sum_neon.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_dsp/arm/transpose_neon.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/arm/sum_neon.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_dsp/arm/transpose_neon.h"
 
-int aom_satd_lp_neon(const int16_t *coeff, int length) {
+int avm_satd_lp_neon(const int16_t *coeff, int length) {
   const int16x4_t zero = vdup_n_s16(0);
   int32x4_t accum = vdupq_n_s32(0);
 
@@ -43,7 +43,7 @@ int aom_satd_lp_neon(const int16_t *coeff, int length) {
 
 // coeff: 16 bits, dynamic range [-32640, 32640].
 // length: value range {16, 64, 256, 1024}.
-int aom_satd_neon(const tran_low_t *coeff, int length) {
+int avm_satd_neon(const tran_low_t *coeff, int length) {
   const int32x4_t zero = vdupq_n_s32(0);
   int32x4_t accum = zero;
   do {
@@ -67,7 +67,7 @@ int aom_satd_neon(const tran_low_t *coeff, int length) {
 #endif  // __aarch64__
 }
 
-int aom_vector_var_neon(const int16_t *ref, const int16_t *src, const int bwl) {
+int avm_vector_var_neon(const int16_t *ref, const int16_t *src, const int bwl) {
   int32x4_t v_mean = vdupq_n_s32(0);
   int32x4_t v_sse = v_mean;
   int16x8_t v_ref, v_src;

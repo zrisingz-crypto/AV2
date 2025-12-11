@@ -10,13 +10,13 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_SPEED_FEATURES_H_
-#define AOM_AV1_ENCODER_SPEED_FEATURES_H_
+#ifndef AVM_AV2_ENCODER_SPEED_FEATURES_H_
+#define AVM_AV2_ENCODER_SPEED_FEATURES_H_
 
-#include "av1/common/enums.h"
-#include "av1/encoder/enc_enums.h"
-#include "av1/encoder/mcomp.h"
-#include "av1/encoder/encodemb.h"
+#include "av2/common/enums.h"
+#include "av2/encoder/enc_enums.h"
+#include "av2/encoder/mcomp.h"
+#include "av2/encoder/encodemb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -696,7 +696,7 @@ typedef struct INTER_MODE_SPEED_FEATURES {
 } INTER_MODE_SPEED_FEATURES;
 
 typedef struct INTERP_FILTER_SPEED_FEATURES {
-  // Save results of av1_interpolation_filter_search for a block
+  // Save results of av2_interpolation_filter_search for a block
   // Check mv and ref_frames before search, if they are very close with previous
   // saved results, filter search can be skipped.
   int use_interp_filter;
@@ -792,7 +792,7 @@ typedef struct TX_SPEED_FEATURES {
 } TX_SPEED_FEATURES;
 
 typedef struct RD_CALC_SPEED_FEATURES {
-  // Fast approximation of av1_model_rd_from_var_lapndz
+  // Fast approximation of av2_model_rd_from_var_lapndz
   int simple_model_rd_from_var;
 
   // Use regular scaler quant instead of trellis coded quant
@@ -976,7 +976,7 @@ typedef struct SPEED_FEATURES {
 } SPEED_FEATURES;
 /*!\cond */
 
-struct AV1_COMP;
+struct AV2_COMP;
 
 /*!\endcond */
 /*!\brief Frame size independent speed vs quality trade off flags
@@ -989,7 +989,7 @@ struct AV1_COMP;
  * No return value but configures the various speed trade off flags based
  * on the passed in speed setting. (Higher speed gives lower quality).
  */
-void av1_set_speed_features_framesize_independent(struct AV1_COMP *cpi,
+void av2_set_speed_features_framesize_independent(struct AV2_COMP *cpi,
                                                   int speed);
 
 /*!\brief Frame size dependent speed vs quality trade off flags
@@ -1003,7 +1003,7 @@ void av1_set_speed_features_framesize_independent(struct AV1_COMP *cpi,
  * on the passed in speed setting and frame size. (Higher speed corresponds
  * to lower quality).
  */
-void av1_set_speed_features_framesize_dependent(struct AV1_COMP *cpi,
+void av2_set_speed_features_framesize_dependent(struct AV2_COMP *cpi,
                                                 int speed);
 /*!\brief Q index dependent speed vs quality trade off flags
  *
@@ -1016,10 +1016,10 @@ void av1_set_speed_features_framesize_dependent(struct AV1_COMP *cpi,
  * on the passed in speed setting and current frame's Q index.
  * (Higher speed corresponds to lower quality).
  */
-void av1_set_speed_features_qindex_dependent(struct AV1_COMP *cpi, int speed);
+void av2_set_speed_features_qindex_dependent(struct AV2_COMP *cpi, int speed);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_SPEED_FEATURES_H_
+#endif  // AVM_AV2_ENCODER_SPEED_FEATURES_H_

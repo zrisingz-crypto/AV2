@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_RC_UTILS_H_
-#define AOM_AV1_ENCODER_RC_UTILS_H_
+#ifndef AVM_AV2_ENCODER_RC_UTILS_H_
+#define AVM_AV2_ENCODER_RC_UTILS_H_
 
-#include "av1/encoder/encoder.h"
-#include "aom_dsp/psnr.h"
+#include "av2/encoder/encoder.h"
+#include "avm_dsp/psnr.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static AOM_INLINE void set_rc_buffer_sizes(RATE_CONTROL *rc,
+static AVM_INLINE void set_rc_buffer_sizes(RATE_CONTROL *rc,
                                            const RateControlCfg *rc_cfg) {
   const int64_t bandwidth = rc_cfg->target_bandwidth;
   const int64_t starting = rc_cfg->starting_buffer_level_ms;
@@ -34,11 +34,11 @@ static AOM_INLINE void set_rc_buffer_sizes(RATE_CONTROL *rc,
       (maximum == 0) ? bandwidth / 8 : maximum * bandwidth / 1000;
 }
 
-static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
-                                           AV1_LEVEL target_level, int tier) {
-  aom_clear_system_state();
+static AVM_INLINE void config_target_level(AV2_COMP *const cpi,
+                                           AV2_LEVEL target_level, int tier) {
+  avm_clear_system_state();
 
-  AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  AV2EncoderConfig *const oxcf = &cpi->oxcf;
   SequenceHeader *const seq_params = &cpi->common.seq_params;
   TileConfig *const tile_cfg = &oxcf->tile_cfg;
   RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
@@ -46,9 +46,9 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
   // Adjust target bitrate to be no larger than 70% of level limit.
   const BITSTREAM_PROFILE profile = seq_params->profile;
   const double level_bitrate_limit =
-      av1_get_max_bitrate_for_level(target_level, tier, profile);
+      av2_get_max_bitrate_for_level(target_level, tier, profile);
   const int64_t max_bitrate = (int64_t)(level_bitrate_limit * 0.70);
-  rc_cfg->target_bandwidth = AOMMIN(rc_cfg->target_bandwidth, max_bitrate);
+  rc_cfg->target_bandwidth = AVMMIN(rc_cfg->target_bandwidth, max_bitrate);
   // Also need to update cpi->twopass.bits_left.
   TWO_PASS *const twopass = &cpi->twopass;
   FIRSTPASS_STATS *stats = twopass->stats_buf_ctx->total_stats;
@@ -64,7 +64,7 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
 
   // Adjust number of tiles and tile columns to be under level limit.
   int max_tiles, max_tile_cols;
-  av1_get_max_tiles_for_level(target_level, &max_tiles, &max_tile_cols);
+  av2_get_max_tiles_for_level(target_level, &max_tiles, &max_tile_cols);
   while (tile_cfg->tile_columns > 0 &&
          (1 << tile_cfg->tile_columns) > max_tile_cols) {
     --tile_cfg->tile_columns;
@@ -78,8 +78,8 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
   // Adjust min compression ratio.
   const int still_picture = seq_params->still_picture;
   const double min_cr =
-      av1_get_min_cr_for_level(target_level, tier, still_picture);
-  rc_cfg->min_cr = AOMMAX(rc_cfg->min_cr, (unsigned int)(min_cr * 100));
+      av2_get_min_cr_for_level(target_level, tier, still_picture);
+  rc_cfg->min_cr = AVMMAX(rc_cfg->min_cr, (unsigned int)(min_cr * 100));
 }
 
 /*!\brief Function to test for conditions that indicate we should loop
@@ -98,11 +98,11 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
  * \retval        1           Recode Required
  * \retval        0           No Recode required
  */
-static AOM_INLINE int recode_loop_test(AV1_COMP *cpi, int high_limit,
+static AVM_INLINE int recode_loop_test(AV2_COMP *cpi, int high_limit,
                                        int low_limit, int q, int maxq,
                                        int minq) {
   const RATE_CONTROL *const rc = &cpi->rc;
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const AV2EncoderConfig *const oxcf = &cpi->oxcf;
   const int frame_is_kfgfarf = frame_is_kf_gf_arf(cpi);
   int force_recode = 0;
 
@@ -114,7 +114,7 @@ static AOM_INLINE int recode_loop_test(AV1_COMP *cpi, int high_limit,
     if ((rc->projected_frame_size > high_limit && q < maxq) ||
         (rc->projected_frame_size < low_limit && q > minq)) {
       force_recode = 1;
-    } else if (cpi->oxcf.rc_cfg.mode == AOM_CQ) {
+    } else if (cpi->oxcf.rc_cfg.mode == AVM_CQ) {
       // Deal with frame undershoot and whether or not we are
       // below the automatically set cq level.
       if (q > oxcf->rc_cfg.qp &&
@@ -126,70 +126,70 @@ static AOM_INLINE int recode_loop_test(AV1_COMP *cpi, int high_limit,
   return force_recode;
 }
 
-static AOM_INLINE double av1_get_gfu_boost_projection_factor(double min_factor,
+static AVM_INLINE double av2_get_gfu_boost_projection_factor(double min_factor,
                                                              double max_factor,
                                                              int frame_count) {
   double factor = sqrt((double)frame_count);
-  factor = AOMMIN(factor, max_factor);
-  factor = AOMMAX(factor, min_factor);
+  factor = AVMMIN(factor, max_factor);
+  factor = AVMMAX(factor, min_factor);
   factor = (200.0 + 10.0 * factor);
   return factor;
 }
 
-static AOM_INLINE int get_gfu_boost_from_r0_lap(double min_factor,
+static AVM_INLINE int get_gfu_boost_from_r0_lap(double min_factor,
                                                 double max_factor, double r0,
                                                 int frames_to_key) {
-  double factor = av1_get_gfu_boost_projection_factor(min_factor, max_factor,
+  double factor = av2_get_gfu_boost_projection_factor(min_factor, max_factor,
                                                       frames_to_key);
   const int boost = (int)rint(factor / r0);
   return boost;
 }
 
-static AOM_INLINE double av1_get_kf_boost_projection_factor(int frame_count) {
+static AVM_INLINE double av2_get_kf_boost_projection_factor(int frame_count) {
   double factor = sqrt((double)frame_count);
-  factor = AOMMIN(factor, 10.0);
-  factor = AOMMAX(factor, 4.0);
+  factor = AVMMIN(factor, 10.0);
+  factor = AVMMAX(factor, 4.0);
   factor = (75.0 + 14.0 * factor);
   return factor;
 }
 
-static AOM_INLINE int get_regulated_q_overshoot(AV1_COMP *const cpi, int q_low,
+static AVM_INLINE int get_regulated_q_overshoot(AV2_COMP *const cpi, int q_low,
                                                 int q_high, int top_index,
                                                 int bottom_index) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
 
-  av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+  av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
 
   int q_regulated =
-      av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
-                        AOMMAX(q_high, top_index), cm->width, cm->height);
+      av2_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                        AVMMAX(q_high, top_index), cm->width, cm->height);
 
   int retries = 0;
   while (q_regulated < q_low && retries < 10) {
-    av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+    av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
     q_regulated =
-        av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
-                          AOMMAX(q_high, top_index), cm->width, cm->height);
+        av2_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+                          AVMMAX(q_high, top_index), cm->width, cm->height);
     retries++;
   }
   return q_regulated;
 }
 
-static AOM_INLINE int get_regulated_q_undershoot(AV1_COMP *const cpi,
+static AVM_INLINE int get_regulated_q_undershoot(AV2_COMP *const cpi,
                                                  int q_high, int top_index,
                                                  int bottom_index) {
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;
 
-  av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
-  int q_regulated = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+  av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+  int q_regulated = av2_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
                                       top_index, cm->width, cm->height);
 
   int retries = 0;
   while (q_regulated > q_high && retries < 10) {
-    av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
-    q_regulated = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
+    av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+    q_regulated = av2_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
                                     top_index, cm->width, cm->height);
     retries++;
   }
@@ -218,41 +218,41 @@ static AOM_INLINE int get_regulated_q_undershoot(AV1_COMP *const cpi,
  * \param[in]     loop_count      Loop itterations so far.
  *
  */
-static AOM_INLINE void recode_loop_update_q(
-    AV1_COMP *const cpi, int *const loop, int *const q, int *const q_low,
+static AVM_INLINE void recode_loop_update_q(
+    AV2_COMP *const cpi, int *const loop, int *const q, int *const q_low,
     int *const q_high, const int top_index, const int bottom_index,
     int *const undershoot_seen, int *const overshoot_seen,
     int *const low_cr_seen, const int loop_count) {
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
   *loop = 0;
 
   const int min_cr = rc_cfg->min_cr;
   if (min_cr > 0) {
-    aom_clear_system_state();
+    avm_clear_system_state();
     const double compression_ratio =
-        av1_get_compression_ratio(cm, rc->projected_frame_size >> 3);
+        av2_get_compression_ratio(cm, rc->projected_frame_size >> 3);
     const double target_cr = min_cr / 100.0;
     if (compression_ratio < target_cr) {
       *low_cr_seen = 1;
       if (*q < rc->worst_quality) {
         const double cr_ratio = target_cr / compression_ratio;
-        const int projected_q = AOMMAX(*q + 1, (int)(*q * cr_ratio * cr_ratio));
-        *q = AOMMIN(AOMMIN(projected_q, *q + 32), rc->worst_quality);
-        *q_low = AOMMAX(*q, *q_low);
-        *q_high = AOMMAX(*q, *q_high);
+        const int projected_q = AVMMAX(*q + 1, (int)(*q * cr_ratio * cr_ratio));
+        *q = AVMMIN(AVMMIN(projected_q, *q + 32), rc->worst_quality);
+        *q_low = AVMMAX(*q, *q_low);
+        *q_high = AVMMAX(*q, *q_high);
         *loop = 1;
       }
     }
     if (*low_cr_seen) return;
   }
 
-  if (rc_cfg->mode == AOM_Q) return;
+  if (rc_cfg->mode == AVM_Q) return;
 
   const int last_q = *q;
   int frame_over_shoot_limit = 0, frame_under_shoot_limit = 0;
-  av1_rc_compute_frame_size_bounds(cpi, rc->this_frame_target,
+  av2_rc_compute_frame_size_bounds(cpi, rc->this_frame_target,
                                    &frame_under_shoot_limit,
                                    &frame_over_shoot_limit);
   if (frame_over_shoot_limit == 0) frame_over_shoot_limit = 1;
@@ -263,7 +263,7 @@ static AOM_INLINE void recode_loop_update_q(
     const int64_t high_err_target = cpi->ambient_err;
     const int64_t low_err_target = cpi->ambient_err >> 1;
 
-    kf_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
+    kf_err = avm_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
 
     // Prevent possible divide by zero error below for perfect KF
     kf_err += !kf_err;
@@ -275,20 +275,20 @@ static AOM_INLINE void recode_loop_update_q(
         (kf_err > low_err_target &&
          rc->projected_frame_size <= frame_under_shoot_limit)) {
       // Lower q_high
-      *q_high = AOMMAX(*q - 1, *q_low);
+      *q_high = AVMMAX(*q - 1, *q_low);
 
       // Adjust Q
       *q = (int)((*q * high_err_target) / kf_err);
-      *q = AOMMIN(*q, (*q_high + *q_low) >> 1);
+      *q = AVMMIN(*q, (*q_high + *q_low) >> 1);
     } else if (kf_err < low_err_target &&
                rc->projected_frame_size >= frame_under_shoot_limit) {
       // The key frame is much better than the previous frame
       // Raise q_low
-      *q_low = AOMMIN(*q + 1, *q_high);
+      *q_low = AVMMIN(*q + 1, *q_high);
 
       // Adjust Q
       *q = (int)((*q * low_err_target) / kf_err);
-      *q = AOMMIN(*q, (*q_high + *q_low + 1) >> 1);
+      *q = AVMMIN(*q, (*q_high + *q_low + 1) >> 1);
     }
 
     // Clamp Q to upper and lower limits:
@@ -298,7 +298,7 @@ static AOM_INLINE void recode_loop_update_q(
   }
 
   if (recode_loop_test(cpi, frame_over_shoot_limit, frame_under_shoot_limit, *q,
-                       AOMMAX(*q_high, top_index), bottom_index)) {
+                       AVMMAX(*q_high, top_index), bottom_index)) {
     // Is the projected frame size out of range and are we allowed
     // to attempt to recode.
 
@@ -310,20 +310,20 @@ static AOM_INLINE void recode_loop_update_q(
       if (*q == *q_high &&
           rc->projected_frame_size >= rc->max_frame_bandwidth) {
         const double q_val_high_current =
-            av1_convert_qindex_to_q(*q_high, cm->seq_params.bit_depth);
+            av2_convert_qindex_to_q(*q_high, cm->seq_params.bit_depth);
         const double q_val_high_new =
             q_val_high_current *
             ((double)rc->projected_frame_size / rc->max_frame_bandwidth);
-        *q_high = av1_find_qindex(q_val_high_new, cm->seq_params.bit_depth,
+        *q_high = av2_find_qindex(q_val_high_new, cm->seq_params.bit_depth,
                                   rc->best_quality, rc->worst_quality);
       }
 
       // Raise Qlow as to at least the current value
-      *q_low = AOMMIN(*q + 1, *q_high);
+      *q_low = AVMMIN(*q + 1, *q_high);
 
       if (*undershoot_seen || loop_count > 2 ||
           (loop_count == 2 && !frame_is_intra_only(cm))) {
-        av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+        av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
 
         *q = (*q_high + *q_low + 1) / 2;
       } else if (loop_count == 2 && frame_is_intra_only(cm)) {
@@ -341,11 +341,11 @@ static AOM_INLINE void recode_loop_update_q(
       *overshoot_seen = 1;
     } else {
       // Frame is too small
-      *q_high = AOMMAX(*q - 1, *q_low);
+      *q_high = AVMMAX(*q - 1, *q_low);
 
       if (*overshoot_seen || loop_count > 2 ||
           (loop_count == 2 && !frame_is_intra_only(cm))) {
-        av1_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
+        av2_rc_update_rate_correction_factors(cpi, cm->width, cm->height);
         *q = (*q_high + *q_low) / 2;
       } else if (loop_count == 2 && frame_is_intra_only(cm)) {
         const int q_mid = (*q_high + *q_low) / 2;
@@ -359,7 +359,7 @@ static AOM_INLINE void recode_loop_update_q(
         // This should only trigger where there is very substantial
         // undershoot on a frame and the auto cq level is above
         // the user passsed in value.
-        if (rc_cfg->mode == AOM_CQ && q_regulated < *q_low) {
+        if (rc_cfg->mode == AVM_CQ && q_regulated < *q_low) {
           *q_low = *q;
         }
       } else {
@@ -369,7 +369,7 @@ static AOM_INLINE void recode_loop_update_q(
         // This should only trigger where there is very substantial
         // undershoot on a frame and the auto cq level is above
         // the user passsed in value.
-        if (rc_cfg->mode == AOM_CQ && *q < *q_low) {
+        if (rc_cfg->mode == AVM_CQ && *q < *q_low) {
           *q_low = *q;
         }
       }
@@ -388,4 +388,4 @@ static AOM_INLINE void recode_loop_update_q(
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_RC_UTILS_H_
+#endif  // AVM_AV2_ENCODER_RC_UTILS_H_

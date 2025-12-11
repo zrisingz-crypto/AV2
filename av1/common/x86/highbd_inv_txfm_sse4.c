@@ -12,13 +12,13 @@
 #include <assert.h>
 #include <smmintrin.h> /* SSE4.1 */
 
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
-#include "av1/common/idct.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
+#include "av2/common/idct.h"
 
-void av1_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint16_t *dest,
+void av2_highbd_inv_txfm_add_sse4_1(const tran_low_t *input, uint16_t *dest,
                                     int stride, const TxfmParam *txfm_param) {
-  assert(av1_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
+  assert(av2_ext_tx_used[txfm_param->tx_set_type][txfm_param->tx_type]);
   inv_txfm_c(input, dest, stride, txfm_param);
 }
 

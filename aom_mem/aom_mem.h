@@ -10,11 +10,11 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_MEM_AOM_MEM_H_
-#define AOM_AOM_MEM_AOM_MEM_H_
+#ifndef AVM_AVM_MEM_AVM_MEM_H_
+#define AVM_AVM_MEM_AVM_MEM_H_
 
-#include "aom/aom_integer.h"
-#include "config/aom_config.h"
+#include "avm/avm_integer.h"
+#include "config/avm_config.h"
 
 #if defined(__uClinux__)
 #include <lddk.h>
@@ -24,47 +24,47 @@
 extern "C" {
 #endif
 
-#ifndef AOM_MAX_ALLOCABLE_MEMORY
+#ifndef AVM_MAX_ALLOCABLE_MEMORY
 #if SIZE_MAX > (1ULL << 32)
-#define AOM_MAX_ALLOCABLE_MEMORY 8589934592  // 8 GB
+#define AVM_MAX_ALLOCABLE_MEMORY 8589934592  // 8 GB
 #else
 // For 32-bit targets keep this below INT_MAX to avoid valgrind warnings.
-#define AOM_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))
+#define AVM_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))
 #endif
 #endif
 
-void *aom_memalign(size_t align, size_t size);
-void *aom_malloc(size_t size);
-void *aom_calloc(size_t num, size_t size);
-void aom_free(void *memblk);
-void *aom_memset16(void *dest, int val, size_t length);
-void *aom_memset_int16(void *dest, int16_t val, size_t length);
+void *avm_memalign(size_t align, size_t size);
+void *avm_malloc(size_t size);
+void *avm_calloc(size_t num, size_t size);
+void avm_free(void *memblk);
+void *avm_memset16(void *dest, int val, size_t length);
+void *avm_memset_int16(void *dest, int16_t val, size_t length);
 
 /*returns an addr aligned to the byte boundary specified by align*/
-#define aom_align_addr(addr, align) \
+#define avm_align_addr(addr, align) \
   (void *)(((uintptr_t)(addr) + ((align) - 1)) & ~(uintptr_t)((align) - 1))
 
 #include <string.h>
 
-#ifdef AOM_MEM_PLTFRM
-#include AOM_MEM_PLTFRM
+#ifdef AVM_MEM_PLTFRM
+#include AVM_MEM_PLTFRM
 #endif
 
 #if CONFIG_DEBUG
-#define AOM_CHECK_MEM_ERROR(error_info, lval, expr)                         \
+#define AVM_CHECK_MEM_ERROR(error_info, lval, expr)                         \
   do {                                                                      \
     lval = (expr);                                                          \
     if (!lval)                                                              \
-      aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,                   \
+      avm_internal_error(error_info, AVM_CODEC_MEM_ERROR,                   \
                          "Failed to allocate " #lval " at %s:%d", __FILE__, \
                          __LINE__);                                         \
   } while (0)
 #else
-#define AOM_CHECK_MEM_ERROR(error_info, lval, expr)       \
+#define AVM_CHECK_MEM_ERROR(error_info, lval, expr)       \
   do {                                                    \
     lval = (expr);                                        \
     if (!lval)                                            \
-      aom_internal_error(error_info, AOM_CODEC_MEM_ERROR, \
+      avm_internal_error(error_info, AVM_CODEC_MEM_ERROR, \
                          "Failed to allocate " #lval);    \
   } while (0)
 #endif
@@ -73,4 +73,4 @@ void *aom_memset_int16(void *dest, int16_t val, size_t length);
 }
 #endif
 
-#endif  // AOM_AOM_MEM_AOM_MEM_H_
+#endif  // AVM_AVM_MEM_AVM_MEM_H_

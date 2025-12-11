@@ -14,53 +14,53 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include "aom/aom_encoder.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/binary_codes_writer.h"
-#include "aom_dsp/bitwriter_buffer.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/bitops.h"
-#include "aom_ports/mem_ops.h"
-#include "aom_ports/system_state.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "avm/avm_encoder.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/binary_codes_writer.h"
+#include "avm_dsp/bitwriter_buffer.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/bitops.h"
+#include "avm_ports/mem_ops.h"
+#include "avm_ports/system_state.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 #if CONFIG_BITSTREAM_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
 #include "common/md5_utils.h"
 #include "common/rawenc.h"
 
-#include "av1/common/blockd.h"
-#include "av1/common/cdef.h"
-#include "av1/common/ccso.h"
-#include "av1/common/cfl.h"
-#include "av1/common/entropy.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/entropymv.h"
-#include "av1/common/intra_dip.h"
-#include "av1/common/mvref_common.h"
-#include "av1/common/pred_common.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/reconinter.h"
-#include "av1/common/reconintra.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/tile_common.h"
+#include "av2/common/blockd.h"
+#include "av2/common/cdef.h"
+#include "av2/common/ccso.h"
+#include "av2/common/cfl.h"
+#include "av2/common/entropy.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/intra_dip.h"
+#include "av2/common/mvref_common.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/reconinter.h"
+#include "av2/common/reconintra.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/tile_common.h"
 
-#include "av1/encoder/bitstream.h"
-#include "av1/common/cost.h"
-#include "av1/encoder/encodemv.h"
-#include "av1/encoder/encodetxb.h"
-#include "av1/encoder/mcomp.h"
-#include "av1/encoder/palette.h"
-#include "av1/encoder/pickrst.h"
-#include "av1/encoder/segmentation.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/encoder/bitstream.h"
+#include "av2/common/cost.h"
+#include "av2/encoder/encodemv.h"
+#include "av2/encoder/encodetxb.h"
+#include "av2/encoder/mcomp.h"
+#include "av2/encoder/palette.h"
+#include "av2/encoder/pickrst.h"
+#include "av2/encoder/segmentation.h"
+#include "av2/encoder/tokenize.h"
 #if CONFIG_F153_FGM_OBU
-void set_film_grain_model(const AV1_COMP *const cpi,
+void set_film_grain_model(const AV2_COMP *const cpi,
                           struct film_grain_model *fgm_current) {
-  const aom_film_grain_t *const pars = &cpi->common.film_grain_params;
+  const avm_film_grain_t *const pars = &cpi->common.film_grain_params;
   const SequenceHeader *const seq_params = &cpi->common.seq_params;
 
   fgm_current->fgm_id = 0;
@@ -170,15 +170,15 @@ int film_grain_model_decision(int fgm_pos, struct film_grain_model *fgm_in_list,
   return fgm_pos;
 }
 
-int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
+int write_fgm_obu(AV2_COMP *cpi, struct film_grain_model *fgm,
                   uint8_t *const dst) {
-  struct aom_write_bit_buffer wb = { dst, 0 };
+  struct avm_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
 
-  AV1_COMMON *cm = &cpi->common;
+  AV2_COMMON *cm = &cpi->common;
 
   int fgm_bit_map = 1 << (fgm->fgm_id);
-  aom_wb_write_literal(&wb, fgm_bit_map, MAX_FGM_NUM);
+  avm_wb_write_literal(&wb, fgm_bit_map, MAX_FGM_NUM);
   int chroma_format_idc = CHROMA_FORMAT_420;
   if (cm->seq_params.monochrome)
     chroma_format_idc = CHROMA_FORMAT_400;
@@ -188,14 +188,14 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
   else if (cm->seq_params.subsampling_x == 1 &&
            cm->seq_params.subsampling_y == 0)
     chroma_format_idc = CHROMA_FORMAT_422;
-  aom_wb_write_uvlc(&wb, chroma_format_idc);
+  avm_wb_write_uvlc(&wb, chroma_format_idc);
 
   for (int fgm_pos = 0; fgm_pos < 1; fgm_pos++) {
     // Scaling functions parameters
     int fgmNumChannels = cm->seq_params.monochrome ? 1 : 3;
 
     if (fgmNumChannels > 1) {
-      aom_wb_write_bit(&wb, fgm->fgm_scale_from_channel0_flag);
+      avm_wb_write_bit(&wb, fgm->fgm_scale_from_channel0_flag);
     } else {
       assert(!fgm->fgm_scale_from_channel0_flag);
     }
@@ -204,7 +204,7 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
         fgm->fgm_scale_from_channel0_flag ? 1 : fgmNumChannels;
 
     for (int c = 0; c < fgmNumScalingChannels; c++) {
-      aom_wb_write_literal(&wb, fgm->fgm_points[c], 4);  // max 14
+      avm_wb_write_literal(&wb, fgm->fgm_points[c], 4);  // max 14
 
       if (fgm->fgm_points[c]) {
         // search for the max
@@ -216,32 +216,32 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
             maxScal = fgm->fgm_scaling_points[c][i][1];
         }
         // ceillog2
-        int bitsIncr = maxIncr == -1 ? 0 : aom_ceil_log2(maxIncr + 1);
-        int bitsScal = maxScal == -1 ? 0 : aom_ceil_log2(maxScal + 1);
-        aom_wb_write_literal(&wb, bitsIncr - 1, 3);
-        aom_wb_write_literal(&wb, bitsScal - 5, 2);
+        int bitsIncr = maxIncr == -1 ? 0 : avm_ceil_log2(maxIncr + 1);
+        int bitsScal = maxScal == -1 ? 0 : avm_ceil_log2(maxScal + 1);
+        avm_wb_write_literal(&wb, bitsIncr - 1, 3);
+        avm_wb_write_literal(&wb, bitsScal - 5, 2);
         for (int i = 0; i < fgm->fgm_points[c]; i++) {
           if (i == 0)
-            aom_wb_write_literal(&wb, fgm->fgm_scaling_points[c][i][0],
+            avm_wb_write_literal(&wb, fgm->fgm_scaling_points[c][i][0],
                                  bitsIncr);
           else {
-            aom_wb_write_literal(&wb,
+            avm_wb_write_literal(&wb,
                                  fgm->fgm_scaling_points[c][i][0] -
                                      fgm->fgm_scaling_points[c][i - 1][0],
                                  bitsIncr);
           }
-          aom_wb_write_literal(&wb, fgm->fgm_scaling_points[c][i][1], bitsScal);
+          avm_wb_write_literal(&wb, fgm->fgm_scaling_points[c][i][1], bitsScal);
         }
       }
     }
 
-    aom_wb_write_literal(&wb, fgm->scaling_shift - 8, 2);  // 8 + value
+    avm_wb_write_literal(&wb, fgm->scaling_shift - 8, 2);  // 8 + value
 
     // AR coefficients
     // Only sent if the corresponsing scaling function has
     // more than 0 points
 
-    aom_wb_write_literal(&wb, fgm->ar_coeff_lag, 2);
+    avm_wb_write_literal(&wb, fgm->ar_coeff_lag, 2);
 
     int num_pos_luma = 2 * fgm->ar_coeff_lag * (fgm->ar_coeff_lag + 1);
     int num_pos_chroma = num_pos_luma;
@@ -252,10 +252,10 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
         if (maxAr < fgm->ar_coeffs_y[i]) maxAr = fgm->ar_coeffs_y[i];
       }
       // ceillog2
-      int bitArY = maxAr == -1 ? 0 : aom_ceil_log2(maxAr + 1 + 128);
-      aom_wb_write_literal(&wb, bitArY - 5, 2);
+      int bitArY = maxAr == -1 ? 0 : avm_ceil_log2(maxAr + 1 + 128);
+      avm_wb_write_literal(&wb, bitArY - 5, 2);
       for (int i = 0; i < num_pos_luma; i++)
-        aom_wb_write_literal(&wb, fgm->ar_coeffs_y[i] + 128, bitArY);
+        avm_wb_write_literal(&wb, fgm->ar_coeffs_y[i] + 128, bitArY);
     }
     if (fgm->fgm_points[1] || fgm->fgm_scale_from_channel0_flag) {
       int maxAr = -1;
@@ -263,10 +263,10 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
         if (maxAr < fgm->ar_coeffs_cb[i]) maxAr = fgm->ar_coeffs_cb[i];
       }
       // ceillog2
-      int bitsArCb = maxAr == -1 ? 0 : aom_ceil_log2(maxAr + 1 + 128);
-      aom_wb_write_literal(&wb, bitsArCb - 5, 2);
+      int bitsArCb = maxAr == -1 ? 0 : avm_ceil_log2(maxAr + 1 + 128);
+      avm_wb_write_literal(&wb, bitsArCb - 5, 2);
       for (int i = 0; i < num_pos_chroma; i++)
-        aom_wb_write_literal(&wb, fgm->ar_coeffs_cb[i] + 128, bitsArCb);
+        avm_wb_write_literal(&wb, fgm->ar_coeffs_cb[i] + 128, bitsArCb);
     }
 
     if (fgm->fgm_points[2] || fgm->fgm_scale_from_channel0_flag) {
@@ -275,38 +275,38 @@ int write_fgm_obu(AV1_COMP *cpi, struct film_grain_model *fgm,
         if (maxAr < fgm->ar_coeffs_cr[i]) maxAr = fgm->ar_coeffs_cr[i];
       }
       // ceillog2
-      int bitsArCr = maxAr == -1 ? 0 : aom_ceil_log2(maxAr + 1 + 128);
-      aom_wb_write_literal(&wb, bitsArCr - 5, 2);
+      int bitsArCr = maxAr == -1 ? 0 : avm_ceil_log2(maxAr + 1 + 128);
+      avm_wb_write_literal(&wb, bitsArCr - 5, 2);
       for (int i = 0; i < num_pos_chroma; i++)
-        aom_wb_write_literal(&wb, fgm->ar_coeffs_cr[i] + 128, bitsArCr);
+        avm_wb_write_literal(&wb, fgm->ar_coeffs_cr[i] + 128, bitsArCr);
     }
 
-    aom_wb_write_literal(&wb, fgm->ar_coeff_shift - 6, 2);  // 8 + value
+    avm_wb_write_literal(&wb, fgm->ar_coeff_shift - 6, 2);  // 8 + value
 
-    aom_wb_write_literal(&wb, fgm->grain_scale_shift, 2);
+    avm_wb_write_literal(&wb, fgm->grain_scale_shift, 2);
     if (fgm->fgm_points[1]) {
-      aom_wb_write_literal(&wb, fgm->cb_mult, 8);
-      aom_wb_write_literal(&wb, fgm->cb_luma_mult, 8);
-      aom_wb_write_literal(&wb, fgm->cb_offset, 9);
+      avm_wb_write_literal(&wb, fgm->cb_mult, 8);
+      avm_wb_write_literal(&wb, fgm->cb_luma_mult, 8);
+      avm_wb_write_literal(&wb, fgm->cb_offset, 9);
     }
     if (fgm->fgm_points[2]) {
-      aom_wb_write_literal(&wb, fgm->cr_mult, 8);
-      aom_wb_write_literal(&wb, fgm->cr_luma_mult, 8);
-      aom_wb_write_literal(&wb, fgm->cr_offset, 9);
+      avm_wb_write_literal(&wb, fgm->cr_mult, 8);
+      avm_wb_write_literal(&wb, fgm->cr_luma_mult, 8);
+      avm_wb_write_literal(&wb, fgm->cr_offset, 9);
     }
 
-    aom_wb_write_bit(&wb, fgm->overlap_flag);
+    avm_wb_write_bit(&wb, fgm->overlap_flag);
 
-    aom_wb_write_bit(&wb, fgm->clip_to_restricted_range);
+    avm_wb_write_bit(&wb, fgm->clip_to_restricted_range);
 #if CONFIG_FGS_IDENT
-    if (fgm->clip_to_restricted_range) aom_wb_write_bit(&wb, fgm->mc_identity);
+    if (fgm->clip_to_restricted_range) avm_wb_write_bit(&wb, fgm->mc_identity);
 #endif  // CONFIG_FGS_IDENT
 
-    aom_wb_write_bit(&wb, fgm->block_size);
+    avm_wb_write_bit(&wb, fgm->block_size);
   }
 
-  av1_add_trailing_bits(&wb);
-  size = aom_wb_bytes_written(&wb);
+  av2_add_trailing_bits(&wb);
+  size = avm_wb_bytes_written(&wb);
   return size;
 }
 #endif  // CONFIG_F153_FGM_OBU

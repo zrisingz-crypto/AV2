@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_DECODER_DECODEFRAME_H_
-#define AOM_AV1_DECODER_DECODEFRAME_H_
+#ifndef AVM_AV2_DECODER_DECODEFRAME_H_
+#define AVM_AV2_DECODER_DECODEFRAME_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,150 +29,150 @@ extern int64_t total_context_switch;
 extern int64_t total_total_hits;
 #endif  // CONFIG_THROUGHPUT_ANALYSIS
 
-struct AV1Decoder;
-struct aom_read_bit_buffer;
+struct AV2Decoder;
+struct avm_read_bit_buffer;
 struct ThreadData;
 
 #if CONFIG_CROP_WIN_CWG_F220
-void av1_read_conformance_window(struct aom_read_bit_buffer *rb,
+void av2_read_conformance_window(struct avm_read_bit_buffer *rb,
                                  struct SequenceHeader *seq_params);
 #endif  // CONFIG_CROP_WIN_CWG_F220
 
-uint32_t av1_read_layer_configuration_record_obu(
-    struct AV1Decoder *pbi, int obu_xlayer_id, struct aom_read_bit_buffer *rb);
+uint32_t av2_read_layer_configuration_record_obu(
+    struct AV2Decoder *pbi, int obu_xlayer_id, struct avm_read_bit_buffer *rb);
 
-uint32_t av1_read_operating_point_set_obu(struct AV1Decoder *pbi,
+uint32_t av2_read_operating_point_set_obu(struct AV2Decoder *pbi,
                                           int obu_xlayer_id,
-                                          struct aom_read_bit_buffer *rb);
+                                          struct avm_read_bit_buffer *rb);
 
-uint32_t av1_read_atlas_segment_info_obu(struct AV1Decoder *pbi,
+uint32_t av2_read_atlas_segment_info_obu(struct AV2Decoder *pbi,
                                          int obu_xLayer_id,
-                                         struct aom_read_bit_buffer *rb);
+                                         struct avm_read_bit_buffer *rb);
 
 #if CONFIG_F153_FGM_OBU
-void copy_fgm_from_list(AV1_COMMON *cm, aom_film_grain_t *pars,
+void copy_fgm_from_list(AV2_COMMON *cm, avm_film_grain_t *pars,
                         const struct film_grain_model *fgm);
 #endif  // CONFIG_F153_FGM_OBU
 // Reads the middle part of the sequence header OBU (from
 // frame_width_bits_minus_1 to enable_restoration) into seq_params.
-// Reports errors by calling rb->error_handler() or aom_internal_error().
-void av1_read_sequence_header(struct aom_read_bit_buffer *rb,
+// Reports errors by calling rb->error_handler() or avm_internal_error().
+void av2_read_sequence_header(struct avm_read_bit_buffer *rb,
                               SequenceHeader *seq_params
 #if CONFIG_IMPROVED_REORDER_SEQ_FLAGS && !CONFIG_F255_QMOBU
                               ,
                               CommonQuantParams *quant_params,
-                              struct aom_internal_error_info *error_info
+                              struct avm_internal_error_info *error_info
 #endif  // CONFIG_IMPROVED_REORDER_SEQ_FLAGS && !CONFIG_F255_QMOBU
 );
 
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
 // Reads the tile information in the sequence header
 void read_sequence_tile_info(struct SequenceHeader *seq_params,
-                             struct aom_read_bit_buffer *rb);
+                             struct avm_read_bit_buffer *rb);
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 
 #if !CONFIG_IMPROVED_REORDER_SEQ_FLAGS
 // this function can be removed with CONFIG_IMPROVED_REORDER_SEQ_FLAGS == 1
-// Reads additional sequence header for coding tools beyond AV1
-void av1_read_sequence_header_beyond_av1(
-    struct aom_read_bit_buffer *rb, SequenceHeader *seq_params
+// Reads additional sequence header for coding tools beyond AV2
+void av2_read_sequence_header_beyond_av2(
+    struct avm_read_bit_buffer *rb, SequenceHeader *seq_params
 #if !CONFIG_F255_QMOBU
     ,
-    CommonQuantParams *quant_params, struct aom_internal_error_info *error_info
+    CommonQuantParams *quant_params, struct avm_internal_error_info *error_info
 #endif  // !CONFIG_F255_QMOBU
 );
 #endif  // !CONFIG_IMPROVED_REORDER_SEQ_FLAGS
 
 #if CONFIG_F255_QMOBU
 void alloc_qmatrix(struct quantization_matrix_set *qm_set);
-void av1_copy_predefined_qmatrices_to_list(struct AV1Decoder *pbi,
+void av2_copy_predefined_qmatrices_to_list(struct AV2Decoder *pbi,
                                            int num_planes);
 #endif  // CONFIG_F255_QMOBU
 
 #if CONFIG_MULTI_FRAME_HEADER
 // Reads multi-frame header
-void av1_read_multi_frame_header(AV1_COMMON *cm,
-                                 struct aom_read_bit_buffer *rb);
+void av2_read_multi_frame_header(AV2_COMMON *cm,
+                                 struct avm_read_bit_buffer *rb);
 #endif  // CONFIG_MULTI_FRAME_HEADER
 
-void av1_read_frame_size(struct aom_read_bit_buffer *rb, int num_bits_width,
+void av2_read_frame_size(struct avm_read_bit_buffer *rb, int num_bits_width,
                          int num_bits_height, int *width, int *height);
-BITSTREAM_PROFILE av1_read_profile(struct aom_read_bit_buffer *rb);
-int av1_check_byte_alignment(AV1_COMMON *const cm,
-                             struct aom_read_bit_buffer *const rb);
+BITSTREAM_PROFILE av2_read_profile(struct avm_read_bit_buffer *rb);
+int av2_check_byte_alignment(AV2_COMMON *const cm,
+                             struct avm_read_bit_buffer *const rb);
 
 // Returns 0 on success. Sets pbi->common.error.error_code and returns -1 on
 // failure.
-int av1_check_trailing_bits(struct AV1Decoder *pbi,
-                            struct aom_read_bit_buffer *rb);
+int av2_check_trailing_bits(struct AV2Decoder *pbi,
+                            struct avm_read_bit_buffer *rb);
 #if CONFIG_F024_KEYOBU
 int are_seq_headers_consistent(const SequenceHeader *seq_params_old,
                                const SequenceHeader *seq_params_new);
 #endif  // CONFIG_F024_KEYOBU
 
 // On success, returns the tilegroup header size. On failure, calls
-// aom_internal_error and does not return.
-int32_t av1_read_tilegroup_header(
-    struct AV1Decoder *pbi, struct aom_read_bit_buffer *rb, const uint8_t *data,
+// avm_internal_error and does not return.
+int32_t av2_read_tilegroup_header(
+    struct AV2Decoder *pbi, struct avm_read_bit_buffer *rb, const uint8_t *data,
     const uint8_t **p_data_end, int *first_tile_group_in_frame, int *start_tile,
     int *end_tile, OBU_TYPE obu_type);
 
-void av1_decode_tg_tiles_and_wrapup(struct AV1Decoder *pbi, const uint8_t *data,
+void av2_decode_tg_tiles_and_wrapup(struct AV2Decoder *pbi, const uint8_t *data,
                                     const uint8_t *data_end,
                                     const uint8_t **p_data_end, int start_tile,
                                     int end_tile, int initialize_flag);
 
 #if CONFIG_CWG_F270_CI_OBU
-uint32_t av1_read_content_interpretation_obu(struct AV1Decoder *pbi,
-                                             struct aom_read_bit_buffer *rb);
+uint32_t av2_read_content_interpretation_obu(struct AV2Decoder *pbi,
+                                             struct avm_read_bit_buffer *rb);
 #endif  // CONFIG_CWG_F270_CI_OBU
 
 #if CONFIG_CWG_F270_CI_OBU
 // Reads the chroma format and bitdepth in the sequence header. Reports errors
-// by calling rb->error_handler() or aom_internal_error().
-void av1_read_chroma_format_bitdepth(
-    struct aom_read_bit_buffer *rb, SequenceHeader *seq_params,
-    struct aom_internal_error_info *error_info);
+// by calling rb->error_handler() or avm_internal_error().
+void av2_read_chroma_format_bitdepth(
+    struct avm_read_bit_buffer *rb, SequenceHeader *seq_params,
+    struct avm_internal_error_info *error_info);
 #else
 // Implements the color_config() function in the spec. Reports errors by
-// calling rb->error_handler() or aom_internal_error().
-void av1_read_color_config(struct aom_read_bit_buffer *rb,
+// calling rb->error_handler() or avm_internal_error().
+void av2_read_color_config(struct avm_read_bit_buffer *rb,
                            SequenceHeader *seq_params,
-                           struct aom_internal_error_info *error_info);
+                           struct avm_internal_error_info *error_info);
 #endif  // CONFIG_CWG_F270_CI_OBU
 
 // Implements the timing_info() function in the spec. Reports errors by calling
-// rb->error_handler() or aom_internal_error().
-void av1_read_timing_info_header(aom_timing_info_t *timing_info,
-                                 struct aom_internal_error_info *error,
-                                 struct aom_read_bit_buffer *rb);
+// rb->error_handler() or avm_internal_error().
+void av2_read_timing_info_header(avm_timing_info_t *timing_info,
+                                 struct avm_internal_error_info *error,
+                                 struct avm_read_bit_buffer *rb);
 
 // Implements the decoder_model_info() function in the spec. Reports errors by
 // calling rb->error_handler().
-void av1_read_decoder_model_info(aom_dec_model_info_t *decoder_model_info,
-                                 struct aom_read_bit_buffer *rb);
+void av2_read_decoder_model_info(avm_dec_model_info_t *decoder_model_info,
+                                 struct avm_read_bit_buffer *rb);
 
 // Implements the operating_parameters_info() function in the spec. Reports
 // errors by calling rb->error_handler().
-void av1_read_op_parameters_info(aom_dec_model_op_parameters_t *op_params,
+void av2_read_op_parameters_info(avm_dec_model_op_parameters_t *op_params,
                                  int buffer_delay_length,
-                                 struct aom_read_bit_buffer *rb);
+                                 struct avm_read_bit_buffer *rb);
 
-struct aom_read_bit_buffer *av1_init_read_bit_buffer(
-    struct AV1Decoder *pbi, struct aom_read_bit_buffer *rb, const uint8_t *data,
+struct avm_read_bit_buffer *av2_init_read_bit_buffer(
+    struct AV2Decoder *pbi, struct avm_read_bit_buffer *rb, const uint8_t *data,
     const uint8_t *data_end);
 
-void av1_free_mc_tmp_buf(struct ThreadData *thread_data);
-void av1_free_opfl_tmp_bufs(struct ThreadData *thread_data);
+void av2_free_mc_tmp_buf(struct ThreadData *thread_data);
+void av2_free_opfl_tmp_bufs(struct ThreadData *thread_data);
 
 #if CONFIG_CROP_WIN_CWG_F220
-void av1_validate_frame_level_conformance(
+void av2_validate_frame_level_conformance(
     const struct SequenceHeader *seq_params, int frame_width, int frame_height,
-    struct aom_internal_error_info *error_info);
+    struct avm_internal_error_info *error_info);
 #endif  // CONFIG_CROP_WIN_CWG_F220
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_DECODER_DECODEFRAME_H_
+#endif  // AVM_AV2_DECODER_DECODEFRAME_H_

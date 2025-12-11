@@ -13,10 +13,10 @@
 #include <assert.h>
 #include <math.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "av1/encoder/ml.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "av2/encoder/ml.h"
 
-void av1_nn_output_prec_reduce(float *const output, int num_output) {
+void av2_nn_output_prec_reduce(float *const output, int num_output) {
   const int prec_bits = 9;
   const int prec = 1 << prec_bits;
   const float inv_prec = (float)(1.0 / prec);
@@ -28,7 +28,7 @@ void av1_nn_output_prec_reduce(float *const output, int num_output) {
 // Calculate prediction based on the given input features and neural net config.
 // Assume there are no more than NN_MAX_NODES_PER_LAYER nodes in each hidden
 // layer.
-void av1_nn_predict_c(const float *input_nodes,
+void av2_nn_predict_c(const float *input_nodes,
                       const NN_CONFIG *const nn_config, int reduce_prec,
                       float *const output) {
   int num_input_nodes = nn_config->num_inputs;
@@ -49,7 +49,7 @@ void av1_nn_predict_c(const float *input_nodes,
       for (int i = 0; i < num_input_nodes; ++i)
         val += layer_weights[node * num_input_nodes + i] * input_nodes[i];
       // ReLU as activation function.
-      val = val > 0.0f ? val : 0.0f;  // Could use AOMMAX().
+      val = val > 0.0f ? val : 0.0f;  // Could use AVMMAX().
       output_nodes[node] = val;
     }
     num_input_nodes = num_output_nodes;
@@ -66,7 +66,7 @@ void av1_nn_predict_c(const float *input_nodes,
       val += layer_weights[node * num_input_nodes + i] * input_nodes[i];
     output[node] = val;
   }
-  if (reduce_prec) av1_nn_output_prec_reduce(output, nn_config->num_outputs);
+  if (reduce_prec) av2_nn_output_prec_reduce(output, nn_config->num_outputs);
 }
 
 #if CONFIG_NN_V2
@@ -74,7 +74,7 @@ void av1_nn_predict_c(const float *input_nodes,
 // output[i] = Max(input[i],0.0f)
 static float *nn_relu(const float *input, FC_LAYER *layer) {
   for (int i = 0; i < layer->num_outputs; ++i) {
-    layer->output[i] = AOMMAX(input[i], 0.0f);
+    layer->output[i] = AVMMAX(input[i], 0.0f);
   }
 
   return layer->output;
@@ -84,14 +84,14 @@ static float *nn_relu(const float *input, FC_LAYER *layer) {
 // output[i] = 1/(1+exp(input[i]))
 static float *nn_sigmoid(const float *input, FC_LAYER *layer) {
   for (int i = 0; i < layer->num_outputs; ++i) {
-    const float tmp = AOMMIN(AOMMAX(input[i], -10.0f), 10.0f);
+    const float tmp = AVMMIN(AVMMAX(input[i], -10.0f), 10.0f);
     layer->output[i] = 1.0f / (1.0f + expf(-tmp));
   }
 
   return layer->output;
 }
 
-// Forward prediction in one fc layer, used in function av1_nn_predict_V2
+// Forward prediction in one fc layer, used in function av2_nn_predict_V2
 static float *nn_fc_forward(const float *input, FC_LAYER *layer) {
   const float *weights = layer->weights;
   const float *bias = layer->bias;
@@ -118,7 +118,7 @@ static float *nn_fc_forward(const float *input, FC_LAYER *layer) {
   }
 }
 
-void av1_nn_predict_v2(const float *feature, NN_CONFIG_V2 *nn_config,
+void av2_nn_predict_v2(const float *feature, NN_CONFIG_V2 *nn_config,
                        int reduce_prec, float *output) {
   const float *input_nodes = feature;
 
@@ -136,20 +136,20 @@ void av1_nn_predict_v2(const float *feature, NN_CONFIG_V2 *nn_config,
   assert(nn_config->layer[num_layers].num_outputs == nn_config->num_logits);
   // Copy the final layer output
   memcpy(output, input_nodes, sizeof(*input_nodes) * nn_config->num_logits);
-  if (reduce_prec) av1_nn_output_prec_reduce(output, nn_config->num_logits);
+  if (reduce_prec) av2_nn_output_prec_reduce(output, nn_config->num_logits);
 }
 #endif  // CONFIG_NN_V2
 
-void av1_nn_softmax(const float *input, float *output, int n) {
+void av2_nn_softmax(const float *input, float *output, int n) {
   // Softmax function is invariant to adding the same constant
   // to all input values, so we subtract the maximum input to avoid
   // possible overflow.
   float max_inp = input[0];
-  for (int i = 1; i < n; i++) max_inp = AOMMAX(max_inp, input[i]);
+  for (int i = 1; i < n; i++) max_inp = AVMMAX(max_inp, input[i]);
   float sum_out = 0.0f;
   for (int i = 0; i < n; i++) {
     // Clamp to range [-10.0, 0.0] to prevent FE_UNDERFLOW errors.
-    const float normalized_input = AOMMAX(input[i] - max_inp, -10.0f);
+    const float normalized_input = AVMMAX(input[i] - max_inp, -10.0f);
     output[i] = (float)exp(normalized_input);
     sum_out += output[i];
   }

@@ -10,42 +10,42 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_DECODER_DECODETXB_H_
-#define AOM_AV1_DECODER_DECODETXB_H_
+#ifndef AVM_AV2_DECODER_DECODETXB_H_
+#define AVM_AV2_DECODER_DECODETXB_H_
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
-struct aom_reader;
-struct AV1Common;
+struct avm_reader;
+struct AV2Common;
 struct DecoderCodingBlock;
 struct txb_ctx;
 
-uint8_t av1_read_coeffs_txb(const struct AV1Common *const cm,
+uint8_t av2_read_coeffs_txb(const struct AV2Common *const cm,
                             struct DecoderCodingBlock *dcb,
-                            struct aom_reader *const r, const int blk_row,
+                            struct avm_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const struct txb_ctx *const txb_ctx,
                             const TX_SIZE tx_size
 
 );
 
-void av1_read_coeffs_txb_facade(const struct AV1Common *const cm,
+void av2_read_coeffs_txb_facade(const struct AV2Common *const cm,
                                 struct DecoderCodingBlock *dcb,
-                                struct aom_reader *const r, const int plane,
+                                struct avm_reader *const r, const int plane,
                                 const int row, const int col,
                                 const TX_SIZE tx_size);
 
-uint8_t av1_read_sig_txtype(const struct AV1Common *const cm,
+uint8_t av2_read_sig_txtype(const struct AV2Common *const cm,
                             struct DecoderCodingBlock *dcb,
-                            struct aom_reader *const r, const int blk_row,
+                            struct avm_reader *const r, const int blk_row,
                             const int blk_col, const int plane,
                             const struct txb_ctx *const txb_ctx,
                             const TX_SIZE tx_size);
 
-uint8_t av1_read_coeffs_txb_skip(const struct AV1Common *const cm,
+uint8_t av2_read_coeffs_txb_skip(const struct AV2Common *const cm,
                                  struct DecoderCodingBlock *dcb,
-                                 struct aom_reader *const r, const int blk_row,
+                                 struct avm_reader *const r, const int blk_row,
                                  const int blk_col, const int plane,
                                  const TX_SIZE tx_size);
 
-#endif  // AOM_AV1_DECODER_DECODETXB_H_
+#endif  // AVM_AV2_DECODER_DECODETXB_H_

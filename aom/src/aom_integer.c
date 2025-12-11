@@ -11,7 +11,7 @@
  */
 #include <assert.h>
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 static const size_t kMaximumLeb128Size = 8;
 static const uint8_t kLeb128ByteMask = 0x7f;  // Binary: 01111111
@@ -21,7 +21,7 @@ static const uint8_t kLeb128ByteMask = 0x7f;  // Binary: 01111111
 // when decoded.
 static const uint64_t kMaximumLeb128Value = UINT32_MAX;
 
-size_t aom_uleb_size_in_bytes(uint64_t value) {
+size_t avm_uleb_size_in_bytes(uint64_t value) {
   size_t size = 0;
   do {
     ++size;
@@ -29,7 +29,7 @@ size_t aom_uleb_size_in_bytes(uint64_t value) {
   return size;
 }
 
-int aom_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
+int avm_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
                     size_t *length) {
   if (buffer && value) {
     *value = 0;
@@ -56,9 +56,9 @@ int aom_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
   return -1;
 }
 
-int aom_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
+int avm_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
                     size_t *coded_size) {
-  const size_t leb_size = aom_uleb_size_in_bytes(value);
+  const size_t leb_size = avm_uleb_size_in_bytes(value);
   if (value > kMaximumLeb128Value || leb_size > kMaximumLeb128Size ||
       leb_size > available || !coded_value || !coded_size) {
     return -1;
@@ -77,7 +77,7 @@ int aom_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
   return 0;
 }
 
-int aom_uleb_encode_fixed_size(uint64_t value, size_t available,
+int avm_uleb_encode_fixed_size(uint64_t value, size_t available,
                                size_t pad_to_size, uint8_t *coded_value,
                                size_t *coded_size) {
   if (value > kMaximumLeb128Value || !coded_value || !coded_size ||

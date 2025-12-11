@@ -11,8 +11,8 @@
  */
 
 #include <assert.h>
-#include "aom_dsp/entdec.h"
-#include "aom_dsp/prob.h"
+#include "avm_dsp/entdec.h"
+#include "avm_dsp/prob.h"
 
 /*A range decoder.
   This is an entropy decoder based upon \cite{Mar79}, which is itself a

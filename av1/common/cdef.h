@@ -9,24 +9,24 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_COMMON_CDEF_H_
-#define AOM_AV1_COMMON_CDEF_H_
+#ifndef AVM_AV2_COMMON_CDEF_H_
+#define AVM_AV2_COMMON_CDEF_H_
 
 #define CDEF_STRENGTH_BITS 6
 
 #define CDEF_PRI_STRENGTHS 16
 #define CDEF_SEC_STRENGTHS 4
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/cdef_block.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/cdef_block.h"
 
 enum { TOP, LEFT, BOTTOM, RIGHT, BOUNDARIES } UENUM1BYTE(BOUNDARY);
 
-struct AV1CdefSyncData;
+struct AV2CdefSyncData;
 
 /*!\brief Parameters related to CDEF Block
  * Stores buffers and parameters used while filtering a block. Unlike CdefInfo
@@ -66,25 +66,25 @@ static INLINE int sign_int(int i) { return i < 0 ? -1 : 1; }
 static INLINE int constrain(int diff, int threshold, int damping) {
   if (!threshold) return 0;
 
-  const int shift = AOMMAX(0, damping - get_msb(threshold));
+  const int shift = AVMMAX(0, damping - get_msb(threshold));
   return sign_int(diff) *
-         AOMMIN(abs(diff), AOMMAX(0, threshold - (abs(diff) >> shift)));
+         AVMMIN(abs(diff), AVMMAX(0, threshold - (abs(diff) >> shift)));
 }
 
 #if defined(__clang__) && defined(__has_attribute)
 #if __has_attribute(no_sanitize)
-#define AOM_NO_UNSIGNED_OVERFLOW_CHECK \
+#define AVM_NO_UNSIGNED_OVERFLOW_CHECK \
   __attribute__((                      \
       no_sanitize("unsigned-integer-overflow", "unsigned-shift-base")))
 #endif
 #endif
 
-#ifndef AOM_NO_UNSIGNED_OVERFLOW_CHECK
-#define AOM_NO_UNSIGNED_OVERFLOW_CHECK
+#ifndef AVM_NO_UNSIGNED_OVERFLOW_CHECK
+#define AVM_NO_UNSIGNED_OVERFLOW_CHECK
 #endif
 
-AOM_NO_UNSIGNED_OVERFLOW_CHECK static AOM_INLINE int
-av1_get_cdef_transmitted_index(int mi_row, int mi_col) {
+AVM_NO_UNSIGNED_OVERFLOW_CHECK static AVM_INLINE int
+av2_get_cdef_transmitted_index(int mi_row, int mi_col) {
   // Find index of this CDEF unit in this superblock.
   const int index_mask = (UINT32_MAX << (32 - CDEF_SB_SHIFT)) >>
                          (32 - CDEF_SB_SHIFT - MI_IN_CDEF_LINEAR_LOG2);
@@ -95,24 +95,24 @@ av1_get_cdef_transmitted_index(int mi_row, int mi_col) {
   return CDEF_IN_SB_STRIDE * cdef_unit_row_in_sb + cdef_unit_col_in_sb;
 }
 
-#undef AOM_NO_UNSIGNED_OVERFLOW_CHECK
+#undef AVM_NO_UNSIGNED_OVERFLOW_CHECK
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int av1_cdef_compute_sb_list(const AV1_COMMON *const cm,
+int av2_cdef_compute_sb_list(const AV2_COMMON *const cm,
                              const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
                              BLOCK_SIZE bsize, int num_planes);
 
-typedef void (*cdef_init_fb_row_t)(AV1_COMMON *cm, MACROBLOCKD *const xd,
+typedef void (*cdef_init_fb_row_t)(AV2_COMMON *cm, MACROBLOCKD *const xd,
                                    CdefBlockInfo *fb_info,
                                    uint16_t **const linebuf,
                                    uint16_t *const src,
-                                   struct AV1CdefSyncData *cdef_sync, int fbr);
+                                   struct AV2CdefSyncData *cdef_sync, int fbr);
 
-static INLINE int fetch_cdef_mi_grid_index(const AV1_COMMON *const cm,
+static INLINE int fetch_cdef_mi_grid_index(const AV2_COMMON *const cm,
                                            const MACROBLOCKD *const xd) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mi_row = xd->mi_row;
@@ -141,7 +141,7 @@ static INLINE int fetch_cdef_mi_grid_index(const AV1_COMMON *const cm,
  *
  * Nothing is returned. Instead, the filtered frame is output in \c frame.
  */
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_cdef_frame(YV12_BUFFER_CONFIG *frame, AV2_COMMON *cm, MACROBLOCKD *xd,
                     cdef_init_fb_row_t cdef_init_fb_row_fn);
 
 /*!\brief Apply CDEF filtering for one row of 64x64 filter blocks
@@ -166,11 +166,11 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
  * Nothing is returned. Instead, the filtered row is written into \c src
  * and intermediate buffers (\c linebuf and \c colbuf).
  */
-void av1_cdef_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void av2_cdef_fb_row(AV2_COMMON *const cm, MACROBLOCKD *const xd,
                      uint16_t **const linebuf, uint16_t **const colbuf,
                      uint16_t *const src, int fbr,
                      cdef_init_fb_row_t cdef_init_fb_row_fn,
-                     struct AV1CdefSyncData *const cdef_sync);
+                     struct AV2CdefSyncData *const cdef_sync);
 
 /*!\brief Initialize parameters for one row of 64x64 filter blocks
  *
@@ -185,12 +185,12 @@ void av1_cdef_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
  * Nothing is returned. Instead, the row-level filter block information is
  * stored in \c fb_info and supporting line buffers are updated.
  */
-void av1_cdef_init_fb_row(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void av2_cdef_init_fb_row(AV2_COMMON *const cm, MACROBLOCKD *const xd,
                           CdefBlockInfo *const fb_info,
                           uint16_t **const linebuf, uint16_t *const src,
-                          struct AV1CdefSyncData *const cdef_sync, int fbr);
+                          struct AV2CdefSyncData *const cdef_sync, int fbr);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-#endif  // AOM_AV1_COMMON_CDEF_H_
+#endif  // AVM_AV2_COMMON_CDEF_H_

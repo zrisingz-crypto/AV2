@@ -12,13 +12,13 @@
 
 #include <limits.h>
 
-#include "av1/common/reconintra.h"
+#include "av2/common/reconintra.h"
 
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/speed_features.h"
-#include "av1/encoder/rdopt.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/speed_features.h"
+#include "av2/encoder/rdopt.h"
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 #define MAX_MESH_SPEED 5  // Max speed setting for mesh motion method
 // Max speed setting for tx domain evaluation
@@ -124,17 +124,17 @@ static unsigned int predict_dc_levels[3][MODE_EVAL_TYPES] = { { 0, 0, 0 },
 
 // Intra only frames, golden frames (except alt ref overlays) and
 // alt ref frames tend to be coded at a higher than ambient quality
-static int frame_is_boosted(const AV1_COMP *cpi) {
+static int frame_is_boosted(const AV2_COMP *cpi) {
   return frame_is_kf_gf_arf(cpi);
 }
 
 static void set_good_speed_feature_framesize_dependent(
-    const AV1_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
-  const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
-  const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
-  const int is_4k_or_larger = AOMMIN(cm->width, cm->height) >= 2160;
+    const AV2_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
+  const AV2_COMMON *const cm = &cpi->common;
+  const int is_480p_or_larger = AVMMIN(cm->width, cm->height) >= 480;
+  const int is_720p_or_larger = AVMMIN(cm->width, cm->height) >= 720;
+  const int is_1080p_or_larger = AVMMIN(cm->width, cm->height) >= 1080;
+  const int is_4k_or_larger = AVMMIN(cm->width, cm->height) >= 2160;
   if (cm->seq_params.enable_flex_mvres) {
     if (is_1080p_or_larger) {
       sf->hl_sf.high_precision_mv_usage = QTR_ONLY;
@@ -269,8 +269,8 @@ static void set_good_speed_feature_framesize_dependent(
 }
 
 static void set_good_speed_features_framesize_independent(
-    const AV1_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
-  const AV1_COMMON *const cm = &cpi->common;
+    const AV2_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
+  const AV2_COMMON *const cm = &cpi->common;
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const int boosted = frame_is_boosted(cpi);
   const int is_boosted_arf2_bwd_type =
@@ -597,7 +597,7 @@ static void set_good_speed_features_framesize_independent(
       !sf->tx_sf.use_intra_txb_hash));
 }
 
-static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
+static AVM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   // best quality defaults
   hl_sf->frame_parameter_update = 1;
   hl_sf->recode_loop = ALLOW_RECODE;
@@ -607,7 +607,7 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->high_precision_mv_usage = CURRENT_Q;
 }
 
-static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
+static AVM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->disable_gop_length_decision = 0;
   tpl_sf->prune_intra_modes = 0;
   tpl_sf->prune_starting_mv = 0;
@@ -619,7 +619,7 @@ static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->prune_ref_frames_in_tpl = 0;
 }
 
-static AOM_INLINE void init_gm_sf(GLOBAL_MOTION_SPEED_FEATURES *gm_sf) {
+static AVM_INLINE void init_gm_sf(GLOBAL_MOTION_SPEED_FEATURES *gm_sf) {
   gm_sf->max_ref_frames = INTER_REFS_PER_FRAME;
   gm_sf->prune_ref_frame_for_gm_search = 0;
   gm_sf->downsample_level = 0;
@@ -627,7 +627,7 @@ static AOM_INLINE void init_gm_sf(GLOBAL_MOTION_SPEED_FEATURES *gm_sf) {
   gm_sf->disable_gm_search_based_on_stats = 0;
 }
 
-static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
+static AVM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->partition_search_type = SEARCH_PARTITION;
   part_sf->less_rectangular_check_level = 0;
   part_sf->use_square_partition_only_threshold = BLOCK_128X128;
@@ -674,7 +674,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
 #endif  // CONFIG_ML_PART_SPLIT
 }
 
-static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
+static AVM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->full_pixel_search_level = 0;
   mv_sf->auto_mv_step_size = 0;
   mv_sf->exhaustive_searches_thresh = 0;
@@ -694,7 +694,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->fast_motion_estimation_on_block_256 = 0;
 }
 
-static AOM_INLINE void init_flexmv_sf(
+static AVM_INLINE void init_flexmv_sf(
     FLEXMV_PRECISION_SPEED_FEATURES *flexmv_sf) {
   flexmv_sf->do_not_search_4_pel_precision = 0;
   flexmv_sf->do_not_search_8_pel_precision = 0;
@@ -706,7 +706,7 @@ static AOM_INLINE void init_flexmv_sf(
   flexmv_sf->prune_mv_prec_using_best_mv_prec_so_far = 0;
 }
 
-static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
+static AVM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->comp_inter_joint_search_thresh = BLOCK_4X4;
   inter_sf->adaptive_rd_thresh = 0;
   inter_sf->model_based_post_interp_filter_breakout = 0;
@@ -753,11 +753,11 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->prune_warpmv_prob_thresh = 32;
 }
 
-static AOM_INLINE void init_interp_sf(INTERP_FILTER_SPEED_FEATURES *interp_sf) {
+static AVM_INLINE void init_interp_sf(INTERP_FILTER_SPEED_FEATURES *interp_sf) {
   interp_sf->use_interp_filter = 0;
 }
 
-static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
+static AVM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   intra_sf->skip_intra_in_interframe = 1;
   intra_sf->intra_pruning_with_hog = 0;
   intra_sf->src_var_thresh_intra_skip = 1;
@@ -772,7 +772,7 @@ static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   intra_sf->disable_smooth_intra = 0;
 }
 
-static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
+static AVM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->model_based_prune_tx_search_level = 0;
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_1;
   tx_sf->tx_type_search.use_skip_flag_prediction = 1;
@@ -795,8 +795,8 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->enable_tx_partition = true;
 }
 
-static AOM_INLINE void init_rd_sf(RD_CALC_SPEED_FEATURES *rd_sf,
-                                  const AV1EncoderConfig *oxcf) {
+static AVM_INLINE void init_rd_sf(RD_CALC_SPEED_FEATURES *rd_sf,
+                                  const AV2EncoderConfig *oxcf) {
   const int enable_trellis_quant = oxcf->algo_cfg.enable_trellis_quant;
   if (enable_trellis_quant == 3) {
     rd_sf->optimize_coefficients = !is_lossless_requested(&oxcf->rc_cfg)
@@ -826,7 +826,7 @@ static AOM_INLINE void init_rd_sf(RD_CALC_SPEED_FEATURES *rd_sf,
   rd_sf->perform_coeff_opt_based_on_satd = 0;
 }
 
-static AOM_INLINE void init_winner_mode_sf(
+static AVM_INLINE void init_winner_mode_sf(
     WINNER_MODE_SPEED_FEATURES *winner_mode_sf) {
   winner_mode_sf->motion_mode_for_winner_cand = 0;
   // Set this at the appropriate speed levels
@@ -838,7 +838,7 @@ static AOM_INLINE void init_winner_mode_sf(
   winner_mode_sf->dc_blk_pred_level = 0;
 }
 
-static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
+static AVM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
   lpf_sf->disable_loop_restoration_chroma = 0;
   lpf_sf->lpf_pick = LPF_PICK_FROM_FULL_IMAGE;
   lpf_sf->cdef_pick_method = CDEF_FULL_SEARCH;
@@ -846,11 +846,11 @@ static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
   lpf_sf->wienerns_refine_iters = 2;
 }
 
-static void av1_disable_ml_based_transform_sf(TX_SPEED_FEATURES *const tx_sf) {
+static void av2_disable_ml_based_transform_sf(TX_SPEED_FEATURES *const tx_sf) {
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_0;
 }
 
-static void av1_disable_ml_based_partition_sf(
+static void av2_disable_ml_based_partition_sf(
     PARTITION_SPEED_FEATURES *const part_sf) {
   part_sf->ml_early_term_after_part_split_level = 0;
   part_sf->auto_max_partition_based_on_simple_motion = NOT_IN_USE;
@@ -864,26 +864,26 @@ static void av1_disable_ml_based_partition_sf(
   }
 }
 
-static AOM_INLINE void set_erp_speed_features_framesize_dependent(
-    AV1_COMP *cpi) {
+static AVM_INLINE void set_erp_speed_features_framesize_dependent(
+    AV2_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
 #if CONFIG_ML_PART_SPLIT
-  const int is_2k_or_larger = AOMMIN(cm->width, cm->height) >= 2160;
+  const int is_2k_or_larger = AVMMIN(cm->width, cm->height) >= 2160;
 #endif  // CONFIG_ML_PART_SPLIT
-  const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
+  const int is_1080p_or_larger = AVMMIN(cm->width, cm->height) >= 1080;
   const unsigned int erp_pruning_level = cpi->oxcf.part_cfg.erp_pruning_level;
-  const int is_720p_or_lesser = AOMMIN(cm->width, cm->height) <= 720;
+  const int is_720p_or_lesser = AVMMIN(cm->width, cm->height) <= 720;
 
   switch (erp_pruning_level) {
-    case 6: AOM_FALLTHROUGH_INTENDED;
+    case 6: AVM_FALLTHROUGH_INTENDED;
     case 5:
       if (is_1080p_or_larger) {
         sf->part_sf.partition_search_breakout_dist_thr = (1 << 22) + (1 << 21);
       } else {
         sf->part_sf.partition_search_breakout_dist_thr = (1 << 22);
       }
-      const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
+      const int is_720p_or_larger = AVMMIN(cm->width, cm->height) >= 720;
       if (is_720p_or_larger) {
         sf->part_sf.prune_rect_with_split_depth = 1;
       }
@@ -903,11 +903,11 @@ static AOM_INLINE void set_erp_speed_features_framesize_dependent(
       sf->part_sf.prune_split_ml_level_inter =
           sf->part_sf.prune_none_with_ml ? -1 : 0;
 #endif  // CONFIG_ML_PART_SPLIT
-      AOM_FALLTHROUGH_INTENDED;
-    case 4: AOM_FALLTHROUGH_INTENDED;
-    case 3: AOM_FALLTHROUGH_INTENDED;
-    case 2: AOM_FALLTHROUGH_INTENDED;
-    case 1: AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
+    case 4: AVM_FALLTHROUGH_INTENDED;
+    case 3: AVM_FALLTHROUGH_INTENDED;
+    case 2: AVM_FALLTHROUGH_INTENDED;
+    case 1: AVM_FALLTHROUGH_INTENDED;
     case 0: break;
     default: assert(0 && "Invalid ERP pruning level.");
   }
@@ -924,9 +924,9 @@ static AOM_INLINE void set_erp_speed_features_framesize_dependent(
   }
 }
 
-void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
+void av2_set_speed_features_framesize_dependent(AV2_COMP *cpi, int speed) {
   SPEED_FEATURES *const sf = &cpi->sf;
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const AV2EncoderConfig *const oxcf = &cpi->oxcf;
 
   if (oxcf->mode == GOOD) {
     set_good_speed_feature_framesize_dependent(cpi, sf, speed);
@@ -934,24 +934,24 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
 
   // This is only used in motion vector unit test.
   if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 1)
-    cpi->mv_search_params.find_fractional_mv_step = av1_return_max_sub_pixel_mv;
+    cpi->mv_search_params.find_fractional_mv_step = av2_return_max_sub_pixel_mv;
   else if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 2)
-    cpi->mv_search_params.find_fractional_mv_step = av1_return_min_sub_pixel_mv;
+    cpi->mv_search_params.find_fractional_mv_step = av2_return_min_sub_pixel_mv;
 
   if (oxcf->part_cfg.disable_ml_partition_speed_features)
-    av1_disable_ml_based_partition_sf(&sf->part_sf);
+    av2_disable_ml_based_partition_sf(&sf->part_sf);
 
   if (oxcf->txfm_cfg.disable_ml_transform_speed_features)
-    av1_disable_ml_based_transform_sf(&sf->tx_sf);
+    av2_disable_ml_based_transform_sf(&sf->tx_sf);
 
   if (oxcf->txfm_cfg.enable_tx_partition == 0) {
     sf->tx_sf.enable_tx_partition = false;
   }
 }
 
-static AOM_INLINE void set_erp_speed_features(AV1_COMP *cpi) {
+static AVM_INLINE void set_erp_speed_features(AV2_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
-  const AV1_COMMON *const cm = &cpi->common;
+  const AV2_COMMON *const cm = &cpi->common;
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const int boosted = frame_is_boosted(cpi);
   const int is_boosted_arf2_bwd_type =
@@ -969,7 +969,7 @@ static AOM_INLINE void set_erp_speed_features(AV1_COMP *cpi) {
       sf->part_sf.ext_recur_depth_level = 2;
       sf->part_sf.simple_motion_search_split = 1;
       sf->part_sf.simple_motion_search_early_term_none = 1;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 5:
       sf->part_sf.prune_part_h_with_partition_boundary = true;
       sf->part_sf.adaptive_partition_search_order = true;
@@ -981,25 +981,25 @@ static AOM_INLINE void set_erp_speed_features(AV1_COMP *cpi) {
       // the loss.
       // sf->part_sf.end_part_search_after_consec_failures = 1;
       sf->part_sf.prune_part_4b_with_part_4a = 1;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 4:
       sf->part_sf.prune_ext_part_with_part_rect = 1;
       sf->part_sf.prune_part_4_horz_or_vert = 1;
       sf->part_sf.prune_part_4_with_part_3 = 1;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 3:
       sf->part_sf.prune_ext_part_with_part_none = 1;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 2:
       sf->inter_sf.prune_ref_frames = (boosted || (allow_screen_content_tools))
                                           ? 0
                                           : (is_boosted_arf2_bwd_type ? 1 : 2);
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 1:
       sf->inter_sf.reuse_erp_mode_flag =
           (REUSE_PARTITION_MODE_FLAG | REUSE_INTERFRAME_FLAG);
       sf->part_sf.prune_rect_with_none_rd = 1;
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case 0: break;
     default: assert(0 && "Invalid ERP pruning level.");
   }
@@ -1030,10 +1030,10 @@ static AOM_INLINE void set_erp_speed_features(AV1_COMP *cpi) {
 #endif  // CONFIG_ML_PART_SPLIT
 }
 
-void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
+void av2_set_speed_features_framesize_independent(AV2_COMP *cpi, int speed) {
   SPEED_FEATURES *const sf = &cpi->sf;
   WinnerModeParams *const winner_mode_params = &cpi->winner_mode_params;
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const AV2EncoderConfig *const oxcf = &cpi->oxcf;
   int i;
 
   init_hl_sf(&sf->hl_sf);
@@ -1079,7 +1079,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
         2 * (MAX_SB_SIZE_LOG2 - 6);
   }
 
-  const int mesh_speed = AOMMIN(speed, MAX_MESH_SPEED);
+  const int mesh_speed = AVMMIN(speed, MAX_MESH_SPEED);
   for (i = 0; i < MAX_MESH_STEP; ++i) {
     sf->mv_sf.mesh_patterns[i].range =
         good_quality_mesh_patterns[mesh_speed][i].range;
@@ -1108,23 +1108,23 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
   MotionVectorSearchParams *const mv_search_params = &cpi->mv_search_params;
   if (sf->mv_sf.subpel_search_method == SUBPEL_TREE) {
-    mv_search_params->find_fractional_mv_step = av1_find_best_sub_pixel_tree;
+    mv_search_params->find_fractional_mv_step = av2_find_best_sub_pixel_tree;
   } else if (sf->mv_sf.subpel_search_method == SUBPEL_TREE_PRUNED) {
     mv_search_params->find_fractional_mv_step =
-        av1_find_best_sub_pixel_tree_pruned;
+        av2_find_best_sub_pixel_tree_pruned;
   } else if (sf->mv_sf.subpel_search_method == SUBPEL_TREE_PRUNED_MORE) {
     mv_search_params->find_fractional_mv_step =
-        av1_find_best_sub_pixel_tree_pruned_more;
+        av2_find_best_sub_pixel_tree_pruned_more;
   } else if (sf->mv_sf.subpel_search_method == SUBPEL_TREE_PRUNED_EVENMORE) {
     mv_search_params->find_fractional_mv_step =
-        av1_find_best_sub_pixel_tree_pruned_evenmore;
+        av2_find_best_sub_pixel_tree_pruned_evenmore;
   }
 
   // This is only used in motion vector unit test.
   if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 1)
-    mv_search_params->find_fractional_mv_step = av1_return_max_sub_pixel_mv;
+    mv_search_params->find_fractional_mv_step = av2_return_max_sub_pixel_mv;
   else if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 2)
-    mv_search_params->find_fractional_mv_step = av1_return_min_sub_pixel_mv;
+    mv_search_params->find_fractional_mv_step = av2_return_min_sub_pixel_mv;
 
   // assert ensures that tx_domain_dist_level is accessed correctly
   assert(cpi->sf.rd_sf.tx_domain_dist_thres_level >= 0 &&
@@ -1187,10 +1187,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   }
 }
 
-static AOM_INLINE void set_erp_speed_features_qindex_dependent(AV1_COMP *cpi) {
+static AVM_INLINE void set_erp_speed_features_qindex_dependent(AV2_COMP *cpi) {
   SPEED_FEATURES *const sf = &cpi->sf;
-  const AV1_COMMON *const cm = &cpi->common;
-  const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
+  const AV2_COMMON *const cm = &cpi->common;
+  const int is_1080p_or_larger = AVMMIN(cm->width, cm->height) >= 1080;
   const unsigned int erp_pruning_level = cpi->oxcf.part_cfg.erp_pruning_level;
   const int boosted = frame_is_boosted(cpi);
 
@@ -1199,18 +1199,18 @@ static AOM_INLINE void set_erp_speed_features_qindex_dependent(AV1_COMP *cpi) {
   const int qindex_thresh3 = 135 + qindex_offset;
 
   switch (erp_pruning_level) {
-    case 6: AOM_FALLTHROUGH_INTENDED;
+    case 6: AVM_FALLTHROUGH_INTENDED;
     case 5:
       if (is_1080p_or_larger &&
           cm->quant_params.base_qindex <= qindex_thresh2 &&
           !frame_is_intra_only(cm)) {
         sf->part_sf.two_pass_partition_search = 1;
       }
-      AOM_FALLTHROUGH_INTENDED;
-    case 4: AOM_FALLTHROUGH_INTENDED;
-    case 3: AOM_FALLTHROUGH_INTENDED;
-    case 2: AOM_FALLTHROUGH_INTENDED;
-    case 1: AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
+    case 4: AVM_FALLTHROUGH_INTENDED;
+    case 3: AVM_FALLTHROUGH_INTENDED;
+    case 2: AVM_FALLTHROUGH_INTENDED;
+    case 1: AVM_FALLTHROUGH_INTENDED;
     case 0: break;
     default: assert(0 && "Invalid ERP pruning level.");
   }
@@ -1223,13 +1223,13 @@ static AOM_INLINE void set_erp_speed_features_qindex_dependent(AV1_COMP *cpi) {
 }
 
 // Override some speed features based on qindex
-void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
-  AV1_COMMON *const cm = &cpi->common;
+void av2_set_speed_features_qindex_dependent(AV2_COMP *cpi, int speed) {
+  AV2_COMMON *const cm = &cpi->common;
   SPEED_FEATURES *const sf = &cpi->sf;
   WinnerModeParams *const winner_mode_params = &cpi->winner_mode_params;
   const int boosted = frame_is_boosted(cpi);
-  const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
-  const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
+  const int is_720p_or_larger = AVMMIN(cm->width, cm->height) >= 720;
+  const int is_1080p_or_larger = AVMMIN(cm->width, cm->height) >= 1080;
 
   const int qindex_offset = MAXQ_OFFSET * (cm->seq_params.bit_depth - 8);
 

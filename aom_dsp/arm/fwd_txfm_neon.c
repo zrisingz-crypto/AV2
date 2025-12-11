@@ -12,13 +12,13 @@
 
 #include <arm_neon.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/txfm_common.h"
-#include "aom_dsp/arm/mem_neon.h"
-#include "aom_dsp/arm/transpose_neon.h"
+#include "avm_dsp/txfm_common.h"
+#include "avm_dsp/arm/mem_neon.h"
+#include "avm_dsp/arm/transpose_neon.h"
 
-static void aom_fdct4x4_helper(const int16_t *input, int stride,
+static void avm_fdct4x4_helper(const int16_t *input, int stride,
                                int16x4_t *input_0, int16x4_t *input_1,
                                int16x4_t *input_2, int16x4_t *input_3) {
   *input_0 = vshl_n_s16(vld1_s16(input + 0 * stride), 4);
@@ -79,12 +79,12 @@ static void aom_fdct4x4_helper(const int16_t *input, int stride,
   }
 }
 
-void aom_fdct4x4_neon(const int16_t *input, tran_low_t *final_output,
+void avm_fdct4x4_neon(const int16_t *input, tran_low_t *final_output,
                       int stride) {
   // input[M * stride] * 16
   int16x4_t input_0, input_1, input_2, input_3;
 
-  aom_fdct4x4_helper(input, stride, &input_0, &input_1, &input_2, &input_3);
+  avm_fdct4x4_helper(input, stride, &input_0, &input_1, &input_2, &input_3);
 
   // Not quite a rounding shift. Only add 1 despite shifting by 2.
   const int16x8_t one = vdupq_n_s16(1);
@@ -96,12 +96,12 @@ void aom_fdct4x4_neon(const int16_t *input, tran_low_t *final_output,
   store_s16q_to_tran_low(final_output + 1 * 8, out_23);
 }
 
-void aom_fdct4x4_lp_neon(const int16_t *input, int16_t *final_output,
+void avm_fdct4x4_lp_neon(const int16_t *input, int16_t *final_output,
                          int stride) {
   // input[M * stride] * 16
   int16x4_t input_0, input_1, input_2, input_3;
 
-  aom_fdct4x4_helper(input, stride, &input_0, &input_1, &input_2, &input_3);
+  avm_fdct4x4_helper(input, stride, &input_0, &input_1, &input_2, &input_3);
 
   // Not quite a rounding shift. Only add 1 despite shifting by 2.
   const int16x8_t one = vdupq_n_s16(1);

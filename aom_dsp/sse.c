@@ -12,12 +12,12 @@
 
 /* Sum the difference between every corresponding element of the buffers. */
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
-int64_t aom_highbd_sse_c(const uint16_t *a, int a_stride, const uint16_t *b,
+int64_t avm_highbd_sse_c(const uint16_t *a, int a_stride, const uint16_t *b,
                          int b_stride, int width, int height) {
   int y, x;
   int64_t sse = 0;

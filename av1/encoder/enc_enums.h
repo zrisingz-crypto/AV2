@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ENC_ENUMS_H_
-#define AOM_AV1_ENCODER_ENC_ENUMS_H_
+#ifndef AVM_AV2_ENCODER_ENC_ENUMS_H_
+#define AVM_AV2_ENCODER_ENC_ENUMS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ enum {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ENC_ENUMS_H_
+#endif  // AVM_AV2_ENCODER_ENC_ENUMS_H_

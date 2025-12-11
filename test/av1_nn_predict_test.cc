@@ -14,12 +14,12 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/aom_timer.h"
-#include "av1/encoder/ml.h"
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/avm_timer.h"
+#include "av2/encoder/ml.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 #include "test/util.h"
 #include "test/register_state_check.h"
 #include "test/acm_random.h"
@@ -40,10 +40,10 @@ class NnPredictTest : public ::testing::TestWithParam<NnPredictTestParam> {
     const int MAX_NODES2 = NN_MAX_NODES_PER_LAYER * NN_MAX_NODES_PER_LAYER;
     // Allocate two massive buffers on the heap for edge weights and node bias
     // Then set-up the double-dimension arrays pointing into the big buffers
-    weights_buf = (float *)aom_malloc(MAX_NODES2 * (NN_MAX_HIDDEN_LAYERS + 1) *
+    weights_buf = (float *)avm_malloc(MAX_NODES2 * (NN_MAX_HIDDEN_LAYERS + 1) *
                                       sizeof(*weights_buf));
     bias_buf =
-        (float *)aom_malloc(NN_MAX_NODES_PER_LAYER *
+        (float *)avm_malloc(NN_MAX_NODES_PER_LAYER *
                             (NN_MAX_HIDDEN_LAYERS + 1) * sizeof(*bias_buf));
     ASSERT_NE(weights_buf, nullptr);
     ASSERT_NE(bias_buf, nullptr);
@@ -54,8 +54,8 @@ class NnPredictTest : public ::testing::TestWithParam<NnPredictTestParam> {
     target_func_ = GET_PARAM(0);
   }
   virtual void TearDown() {
-    aom_free(weights_buf);
-    aom_free(bias_buf);
+    avm_free(weights_buf);
+    avm_free(bias_buf);
   }
   void RunNnPredictTest(const NN_CONFIG *const shape);
   void RunNnPredictSpeedTest(const NN_CONFIG *const shape, const int run_times);
@@ -66,7 +66,7 @@ class NnPredictTest : public ::testing::TestWithParam<NnPredictTestParam> {
 
  private:
   NnPredict_Func target_func_;
-  libaom_test::ACMRandom rng_;
+  libavm_test::ACMRandom rng_;
   float *weights[NN_MAX_HIDDEN_LAYERS + 1] = { 0 };
   float *bias[NN_MAX_HIDDEN_LAYERS + 1] = { 0 };
   float *weights_buf = nullptr, *bias_buf = nullptr;
@@ -74,7 +74,7 @@ class NnPredictTest : public ::testing::TestWithParam<NnPredictTestParam> {
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(NnPredictTest);
 
 void NnPredictTest::RunNnPredictTest(const NN_CONFIG *const shape) {
-  libaom_test::ClearSystemState();
+  libavm_test::ClearSystemState();
   float inputs[NN_MAX_NODES_PER_LAYER] = { 0 };
   float outputs_test[NN_MAX_NODES_PER_LAYER] = { 0 };
   float outputs_ref[NN_MAX_NODES_PER_LAYER] = { 0 };
@@ -119,9 +119,9 @@ void NnPredictTest::RunNnPredictTest(const NN_CONFIG *const shape) {
       weights[layer][node] = ((float)rng_.Rand31() - (1 << 30)) / (1u << 31);
     }
 
-    av1_nn_predict_c(inputs, &nn_config, 0, outputs_ref);
+    av2_nn_predict_c(inputs, &nn_config, 0, outputs_ref);
     target_func_(inputs, &nn_config, 0, outputs_test);
-    libaom_test::ClearSystemState();
+    libavm_test::ClearSystemState();
 
     for (int node = 0; node < shape->num_outputs; node++) {
       if (outputs_ref[node] < epsilon) {
@@ -141,7 +141,7 @@ void NnPredictTest::RunNnPredictTest(const NN_CONFIG *const shape) {
 
 void NnPredictTest::RunNnPredictSpeedTest(const NN_CONFIG *const shape,
                                           const int run_times) {
-  libaom_test::ClearSystemState();
+  libavm_test::ClearSystemState();
   float inputs[NN_MAX_NODES_PER_LAYER] = { 0 };
   float outputs_test[NN_MAX_NODES_PER_LAYER] = { 0 };
   float outputs_ref[NN_MAX_NODES_PER_LAYER] = { 0 };
@@ -156,20 +156,20 @@ void NnPredictTest::RunNnPredictSpeedTest(const NN_CONFIG *const shape,
   // Don't bother actually changing the values for inputs/weights/bias: it
   // shouldn't make any difference for a speed test.
 
-  aom_usec_timer timer;
-  aom_usec_timer_start(&timer);
+  avm_usec_timer timer;
+  avm_usec_timer_start(&timer);
   for (int i = 0; i < run_times; ++i) {
-    av1_nn_predict_c(inputs, &nn_config, 0, outputs_ref);
+    av2_nn_predict_c(inputs, &nn_config, 0, outputs_ref);
   }
-  aom_usec_timer_mark(&timer);
-  const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
-  aom_usec_timer_start(&timer);
+  avm_usec_timer_mark(&timer);
+  const double time1 = static_cast<double>(avm_usec_timer_elapsed(&timer));
+  avm_usec_timer_start(&timer);
   for (int i = 0; i < run_times; ++i) {
     target_func_(inputs, &nn_config, 0, outputs_test);
   }
-  aom_usec_timer_mark(&timer);
-  libaom_test::ClearSystemState();
-  const double time2 = static_cast<double>(aom_usec_timer_elapsed(&timer));
+  avm_usec_timer_mark(&timer);
+  libavm_test::ClearSystemState();
+  const double time2 = static_cast<double>(avm_usec_timer_elapsed(&timer));
 
   printf("%d", shape->num_inputs);
   for (int layer = 0; layer < shape->num_hidden_layers; layer++)
@@ -213,12 +213,12 @@ TEST_P(NnPredictTest, DISABLED_Speed) {
 
 #if HAVE_SSE3 && !CONFIG_EXCLUDE_SIMD_MISMATCH
 INSTANTIATE_TEST_SUITE_P(SSE3, NnPredictTest,
-                         ::testing::Values(av1_nn_predict_sse3));
+                         ::testing::Values(av2_nn_predict_sse3));
 #endif
 
 #if HAVE_NEON && !CONFIG_EXCLUDE_SIMD_MISMATCH
 INSTANTIATE_TEST_SUITE_P(NEON, NnPredictTest,
-                         ::testing::Values(av1_nn_predict_neon));
+                         ::testing::Values(av2_nn_predict_neon));
 #endif
 
 }  // namespace

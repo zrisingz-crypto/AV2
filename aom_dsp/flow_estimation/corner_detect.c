@@ -17,17 +17,17 @@
 
 #include "third_party/fastfeat/fast.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_mem/aom_mem.h"
-#include "av1/common/common.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/flow_estimation/corner_detect.h"
+#include "avm_mem/avm_mem.h"
+#include "av2/common/common.h"
 
 #define FAST_BARRIER 18
 
-size_t av1_get_corner_list_size(void) { return sizeof(CornerList); }
+size_t av2_get_corner_list_size(void) { return sizeof(CornerList); }
 
-CornerList *av1_alloc_corner_list(void) {
-  CornerList *corners = (CornerList *)aom_calloc(1, sizeof(*corners));
+CornerList *av2_alloc_corner_list(void) {
+  CornerList *corners = (CornerList *)avm_calloc(1, sizeof(*corners));
   if (!corners) {
     return NULL;
   }
@@ -43,7 +43,7 @@ static bool compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                                 int downsample_level, CornerList *corners) {
   ImagePyramid *pyr = frame->y_pyramid;
   const int layers =
-      aom_compute_pyramid(frame, bit_depth, downsample_level + 1, pyr);
+      avm_compute_pyramid(frame, bit_depth, downsample_level + 1, pyr);
 
   if (layers < 0) {
     return false;
@@ -60,7 +60,7 @@ static bool compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 
   int *scores = NULL;
   int num_corners;
-  xy *const frame_corners_xy = aom_fast9_detect_nonmax(
+  xy *const frame_corners_xy = avm_fast9_detect_nonmax(
       buf, width, height, stride, FAST_BARRIER, &scores, &num_corners);
   if (num_corners < 0) return false;
 
@@ -78,7 +78,7 @@ static bool compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
     // of the sharpest corners, as these will be the most useful for flow
     // estimation
     int histogram[256];
-    av1_zero(histogram);
+    av2_zero(histogram);
     for (int i = 0; i < num_corners; i++) {
       assert(FAST_BARRIER <= scores[i] && scores[i] <= 255);
       histogram[scores[i]] += 1;
@@ -116,7 +116,7 @@ static bool compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
   return true;
 }
 
-bool av1_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
+bool av2_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                              int downsample_level, CornerList *corners) {
   assert(corners);
 
@@ -142,8 +142,8 @@ bool av1_compute_corner_list(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 // while reading the valid flag, we cannot just write:
 //   assert(corners->valid);
 // This function allows the check to be correctly written as:
-//   assert(aom_is_corner_list_valid(corners));
-bool aom_is_corner_list_valid(CornerList *corners) {
+//   assert(avm_is_corner_list_valid(corners));
+bool avm_is_corner_list_valid(CornerList *corners) {
   assert(corners);
 
   // Per the comments in the CornerList struct, we must take this mutex
@@ -164,7 +164,7 @@ bool aom_is_corner_list_valid(CornerList *corners) {
 }
 #endif
 
-void av1_invalidate_corner_list(CornerList *corners) {
+void av2_invalidate_corner_list(CornerList *corners) {
   if (corners) {
 #if CONFIG_MULTITHREAD
     pthread_mutex_lock(&corners->mutex);
@@ -176,11 +176,11 @@ void av1_invalidate_corner_list(CornerList *corners) {
   }
 }
 
-void av1_free_corner_list(CornerList *corners) {
+void av2_free_corner_list(CornerList *corners) {
   if (corners) {
 #if CONFIG_MULTITHREAD
     pthread_mutex_destroy(&corners->mutex);
 #endif  // CONFIG_MULTITHREAD
-    aom_free(corners);
+    avm_free(corners);
   }
 }

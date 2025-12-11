@@ -21,11 +21,11 @@
 /****************************************************************************
  *  Header Files
  ****************************************************************************/
-#include "config/aom_scale_rtcd.h"
+#include "config/avm_scale_rtcd.h"
 
-#include "aom_mem/aom_mem.h"
-#include "aom_scale/aom_scale.h"
-#include "aom_scale/yv12config.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_scale/avm_scale.h"
+#include "avm_scale/yv12config.h"
 
 typedef struct {
   int expanded_frame_width;
@@ -278,15 +278,15 @@ static void Scale2D(
   switch (hratio * 10 / hscale) {
     case 8:
       /* 4-5 Scale in Width direction */
-      horiz_line_scale = aom_horizontal_line_5_4_scale;
+      horiz_line_scale = avm_horizontal_line_5_4_scale;
       break;
     case 6:
       /* 3-5 Scale in Width direction */
-      horiz_line_scale = aom_horizontal_line_5_3_scale;
+      horiz_line_scale = avm_horizontal_line_5_3_scale;
       break;
     case 5:
       /* 1-2 Scale in Width direction */
-      horiz_line_scale = aom_horizontal_line_2_1_scale;
+      horiz_line_scale = avm_horizontal_line_2_1_scale;
       break;
     default:
       /* The ratio is not acceptable now */
@@ -298,13 +298,13 @@ static void Scale2D(
   switch (vratio * 10 / vscale) {
     case 8:
       /* 4-5 Scale in vertical direction */
-      vert_band_scale = aom_vertical_band_5_4_scale;
+      vert_band_scale = avm_vertical_band_5_4_scale;
       source_band_height = 5;
       dest_band_height = 4;
       break;
     case 6:
       /* 3-5 Scale in vertical direction */
-      vert_band_scale = aom_vertical_band_5_3_scale;
+      vert_band_scale = avm_vertical_band_5_3_scale;
       source_band_height = 5;
       dest_band_height = 3;
       break;
@@ -313,11 +313,11 @@ static void Scale2D(
 
       if (interlaced) {
         /* if the content is interlaced, point sampling is used */
-        vert_band_scale = aom_vertical_band_2_1_scale;
+        vert_band_scale = avm_vertical_band_2_1_scale;
       } else {
         interpolation = 1;
         /* if the content is progressive, interplo */
-        vert_band_scale = aom_vertical_band_2_1_scale_i;
+        vert_band_scale = avm_vertical_band_2_1_scale_i;
       }
 
       source_band_height = 2;
@@ -445,7 +445,7 @@ static void Scale2D(
 
 /****************************************************************************
  *
- *  ROUTINE       : aom_scale_frame
+ *  ROUTINE       : avm_scale_frame
  *
  *  INPUTS        : YV12_BUFFER_CONFIG *src        : Pointer to frame to be
  *                                                   scaled.
@@ -473,7 +473,7 @@ static void Scale2D(
  *                  caching.
  *
  ****************************************************************************/
-void aom_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
+void avm_scale_frame(YV12_BUFFER_CONFIG *src, YV12_BUFFER_CONFIG *dst,
                      unsigned char *temp_area, unsigned char temp_height,
                      unsigned int hscale, unsigned int hratio,
                      unsigned int vscale, unsigned int vratio,

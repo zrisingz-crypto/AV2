@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_ENTROPY_H_
-#define AOM_AV1_COMMON_ENTROPY_H_
+#ifndef AVM_AV2_COMMON_ENTROPY_H_
+#define AVM_AV2_COMMON_ENTROPY_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/prob.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/prob.h"
 
-#include "av1/common/common.h"
-#include "av1/common/common_data.h"
-#include "av1/common/enums.h"
+#include "av2/common/common.h"
+#include "av2/common/common_data.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,10 +113,10 @@ enum {
  * REF_TYPES, COEF_BANDS and COEF_CONTEXTS. */
 #define REF_TYPES 2  // intra=0, inter=1
 
-struct AV1Common;
+struct AV2Common;
 struct frame_contexts;
-void av1_reset_cdf_symbol_counters(struct frame_contexts *fc);
-void av1_default_coef_probs(struct AV1Common *cm);
+void av2_reset_cdf_symbol_counters(struct frame_contexts *fc);
+void av2_default_coef_probs(struct AV2Common *cm);
 
 struct frame_contexts;
 
@@ -170,4 +170,4 @@ static INLINE int get_eob_plane_ctx(int plane, int is_inter) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_ENTROPY_H_
+#endif  // AVM_AV2_COMMON_ENTROPY_H_

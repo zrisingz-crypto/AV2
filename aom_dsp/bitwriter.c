@@ -11,15 +11,15 @@
  */
 
 #include <string.h>
-#include "aom_dsp/bitwriter.h"
+#include "avm_dsp/bitwriter.h"
 
-void aom_start_encode(aom_writer *w, uint8_t *source) {
+void avm_start_encode(avm_writer *w, uint8_t *source) {
   w->buffer = source;
   w->pos = 0;
   od_ec_enc_init(&w->ec, 62025);
 }
 
-int aom_stop_encode(aom_writer *w) {
+int avm_stop_encode(avm_writer *w) {
   int nb_bits;
   uint32_t bytes;
   unsigned char *data;

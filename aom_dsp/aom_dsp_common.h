@@ -10,21 +10,21 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_AOM_DSP_COMMON_H_
-#define AOM_AOM_DSP_AOM_DSP_COMMON_H_
+#ifndef AVM_AVM_DSP_AVM_DSP_COMMON_H_
+#define AVM_AVM_DSP_AVM_DSP_COMMON_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define AOMMIN(x, y) (((x) < (y)) ? (x) : (y))
-#define AOMMAX(x, y) (((x) > (y)) ? (x) : (y))
-#define AOMSIGN(x) ((x) < 0 ? -1 : 0)
+#define AVMMIN(x, y) (((x) < (y)) ? (x) : (y))
+#define AVMMAX(x, y) (((x) > (y)) ? (x) : (y))
+#define AVMSIGN(x) ((x) < 0 ? -1 : 0)
 
 #define NELEMENTS(x) (int)(sizeof(x) / sizeof(x[0]))
 
@@ -35,7 +35,7 @@ extern "C" {
 /* Left shifting a negative value became undefined behavior in C99 (downgraded
    from merely implementation-defined in C89). This should still compile to the
    correct thing on any two's-complement machine, but avoid ubsan warnings.*/
-#define AOM_SIGNED_SHL(x, shift) ((x) * (((x) * 0 + 1) << (shift)))
+#define AVM_SIGNED_SHL(x, shift) ((x) * (((x) * 0 + 1) << (shift)))
 
 // These can be used to give a hint about branch outcomes.
 // This can have an effect, even if your target processor has a
@@ -50,7 +50,7 @@ extern "C" {
 #endif
 
 typedef uint8_t qm_val_t;
-#define AOM_QM_BITS 5
+#define AVM_QM_BITS 5
 
 #define QUANT_TABLE_BITS 3
 #define QUANT_FP_BITS 4
@@ -102,4 +102,4 @@ static INLINE unsigned int negative_to_zero(int value) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_AOM_DSP_COMMON_H_
+#endif  // AVM_AVM_DSP_AVM_DSP_COMMON_H_

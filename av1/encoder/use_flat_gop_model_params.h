@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_
-#define AOM_AV1_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_
+#ifndef AVM_AV2_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_
+#define AVM_AV2_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/encoder/ml.h"
+#include "av2/encoder/ml.h"
 
 // A binary classifier that returns true (score > 0) if it is better to use a
 // flat GOP structure, rather than a GOP structure that uses ALT-REFs and
@@ -29,7 +29,7 @@ extern "C" {
 #define NUM_LABELS 1
 
 static const float
-    av1_use_flat_gop_nn_weights_layer0[NUM_FEATURES *
+    av2_use_flat_gop_nn_weights_layer0[NUM_FEATURES *
                                        NUM_HIDDEN_NODES_LAYER0] = {
       0.3801f,  -2.1832f, 1.7469f,  2.0130f,  2.1264f,  -0.7293f, -0.2814f,
       0.0692f,  -4.6589f, -1.4591f, 0.3023f,  -0.4310f, -0.1911f, -0.8284f,
@@ -178,7 +178,7 @@ static const float
     };
 
 static const float
-    av1_use_flat_gop_nn_biases_layer0[NUM_HIDDEN_NODES_LAYER0] = {
+    av2_use_flat_gop_nn_biases_layer0[NUM_HIDDEN_NODES_LAYER0] = {
       -1.113218f, 0.f,        -0.268537f, -0.268537f, 0.f,        -0.268534f,
       -0.40681f,  -0.268537f, -0.061835f, -0.614956f, 0.984277f,  -0.280228f,
       -0.354716f, -0.202312f, -0.772829f, -0.464005f, -0.230795f, 0.f,
@@ -190,7 +190,7 @@ static const float
     };
 
 static const float
-    av1_use_flat_gop_nn_weights_layer1[NUM_HIDDEN_NODES_LAYER0 * NUM_LABELS] = {
+    av2_use_flat_gop_nn_weights_layer1[NUM_HIDDEN_NODES_LAYER0 * NUM_LABELS] = {
       -0.024695f, 0.146668f,  -0.02723f,  0.034577f,  -0.255426f, 0.22402f,
       -0.112595f, -0.131262f, 0.091164f,  -0.045294f, 0.028304f,  -0.051683f,
       0.310497f,  -0.077786f, -0.047873f, -0.057205f, -0.065119f, 0.227417f,
@@ -201,11 +201,11 @@ static const float
       -0.192244f, -0.064764f, -0.237655f, 0.1852f,    -0.084281f, -0.010434f,
     };
 
-static const float av1_use_flat_gop_nn_biases_layer1[NUM_LABELS] = {
+static const float av2_use_flat_gop_nn_biases_layer1[NUM_LABELS] = {
   -0.672434f,
 };
 
-static const NN_CONFIG av1_use_flat_gop_nn_config = {
+static const NN_CONFIG av2_use_flat_gop_nn_config = {
   NUM_FEATURES,
   NUM_LABELS,
   NUM_HIDDEN_LAYERS,
@@ -213,12 +213,12 @@ static const NN_CONFIG av1_use_flat_gop_nn_config = {
       NUM_HIDDEN_NODES_LAYER0,
   },
   {
-      av1_use_flat_gop_nn_weights_layer0,
-      av1_use_flat_gop_nn_weights_layer1,
+      av2_use_flat_gop_nn_weights_layer0,
+      av2_use_flat_gop_nn_weights_layer1,
   },
   {
-      av1_use_flat_gop_nn_biases_layer0,
-      av1_use_flat_gop_nn_biases_layer1,
+      av2_use_flat_gop_nn_biases_layer0,
+      av2_use_flat_gop_nn_biases_layer1,
   },
 };
 
@@ -231,4 +231,4 @@ static const NN_CONFIG av1_use_flat_gop_nn_config = {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_
+#endif  // AVM_AV2_ENCODER_USE_FLAT_GOP_MODEL_PARAMS_H_

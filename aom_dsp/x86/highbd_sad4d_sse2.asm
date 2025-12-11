@@ -212,7 +212,7 @@ SECTION .text
   HIGH_PROCESS_32x2x4  0, %4, %5, (%4 + 32), (%5 + 32), %6
 %endmacro
 
-; void aom_highbd_sadNxNx4d_sse2(uint8_t *src,    int src_stride,
+; void avm_highbd_sadNxNx4d_sse2(uint8_t *src,    int src_stride,
 ;                         uint8_t *ref[4], int ref_stride,
 ;                         uint32_t res[4]);
 ; Macro Arguments:

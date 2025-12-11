@@ -8,10 +8,10 @@ x264/libav's framework for x86 assembly. Contains a variety of macros and
 defines that help automatically allow assembly to work cross-platform.
 
 Local Modifications:
-Get configuration from config/aom_config.asm.
-Prefix functions with aom by default.
+Get configuration from config/avm_config.asm.
+Prefix functions with avm by default.
 Manage name mangling (prefixing with '_') manually because 'PREFIX' does not
-  exist in libaom.
+  exist in libavm.
 Copy PIC 'GLOBAL' macros from x86_abi_support.asm
 Use .text instead of .rodata on macho to avoid broken tables in PIC mode.
 Use .text with no alignment for aout.

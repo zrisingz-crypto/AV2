@@ -13,14 +13,14 @@
 #include <assert.h>
 #include <math.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/psnr.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/psnr.h"
+#include "avm_scale/yv12config.h"
 
 #define MIN_SSE 0.5
 
-double aom_sse_to_psnr(double samples, double peak, double sse) {
+double avm_sse_to_psnr(double samples, double peak, double sse) {
   const bool zero_sse = (sse < MIN_SSE);
   if (zero_sse) sse = MIN_SSE;
   assert(sse > 0.0);
@@ -107,7 +107,7 @@ static int64_t highbd_get_sse(const uint16_t *a, int a_stride,
     const uint16_t *pa = a;
     const uint16_t *pb = b;
     for (x = 0; x < width / 16; ++x) {
-      aom_highbd_8_mse16x16(pa, a_stride, pb, b_stride, &sse);
+      avm_highbd_8_mse16x16(pa, a_stride, pb, b_stride, &sse);
       total_sse += sse;
       pa += 16;
       pb += 16;
@@ -118,28 +118,28 @@ static int64_t highbd_get_sse(const uint16_t *a, int a_stride,
   return total_sse;
 }
 
-uint64_t aom_highbd_get_y_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_y_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height) {
-  return aom_var_2d_u16(a->y_buffer + vstart * a->y_stride + hstart,
+  return avm_var_2d_u16(a->y_buffer + vstart * a->y_stride + hstart,
                         a->y_stride, width, height) /
          (width * height);
 }
 
-uint64_t aom_highbd_get_u_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_u_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height) {
-  return aom_var_2d_u16(a->u_buffer + vstart * a->uv_stride + hstart,
+  return avm_var_2d_u16(a->u_buffer + vstart * a->uv_stride + hstart,
                         a->uv_stride, width, height) /
          (width * height);
 }
 
-uint64_t aom_highbd_get_v_var(const YV12_BUFFER_CONFIG *a, int hstart,
+uint64_t avm_highbd_get_v_var(const YV12_BUFFER_CONFIG *a, int hstart,
                               int width, int vstart, int height) {
-  return aom_var_2d_u16(a->v_buffer + vstart * a->uv_stride + hstart,
+  return avm_var_2d_u16(a->v_buffer + vstart * a->uv_stride + hstart,
                         a->uv_stride, width, height) /
          (width * height);
 }
 
-int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height) {
   return highbd_get_sse(
@@ -147,7 +147,7 @@ int64_t aom_highbd_get_y_sse_part(const YV12_BUFFER_CONFIG *a,
       b->y_buffer + vstart * b->y_stride + hstart, b->y_stride, width, height);
 }
 
-int64_t aom_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b) {
   assert(a->y_crop_width == b->y_crop_width);
   assert(a->y_crop_height == b->y_crop_height);
@@ -156,7 +156,7 @@ int64_t aom_highbd_get_y_sse(const YV12_BUFFER_CONFIG *a,
                         a->y_crop_width, a->y_crop_height);
 }
 
-int64_t aom_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height) {
   return highbd_get_sse(a->u_buffer + vstart * a->uv_stride + hstart,
@@ -165,7 +165,7 @@ int64_t aom_highbd_get_u_sse_part(const YV12_BUFFER_CONFIG *a,
                         b->uv_stride, width, height);
 }
 
-int64_t aom_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b) {
   assert(a->uv_crop_width == b->uv_crop_width);
   assert(a->uv_crop_height == b->uv_crop_height);
@@ -174,7 +174,7 @@ int64_t aom_highbd_get_u_sse(const YV12_BUFFER_CONFIG *a,
                         a->uv_crop_width, a->uv_crop_height);
 }
 
-int64_t aom_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
                                   const YV12_BUFFER_CONFIG *b, int hstart,
                                   int width, int vstart, int height) {
   return highbd_get_sse(a->v_buffer + vstart * a->uv_stride + hstart,
@@ -183,7 +183,7 @@ int64_t aom_highbd_get_v_sse_part(const YV12_BUFFER_CONFIG *a,
                         b->uv_stride, width, height);
 }
 
-int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
+int64_t avm_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
                              const YV12_BUFFER_CONFIG *b) {
   assert(a->uv_crop_width == b->uv_crop_width);
   assert(a->uv_crop_height == b->uv_crop_height);
@@ -192,17 +192,17 @@ int64_t aom_highbd_get_v_sse(const YV12_BUFFER_CONFIG *a,
                         a->uv_crop_width, a->uv_crop_height);
 }
 
-int64_t aom_get_sse_plane(const YV12_BUFFER_CONFIG *a,
+int64_t avm_get_sse_plane(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, int plane) {
   switch (plane) {
-    case 0: return aom_highbd_get_y_sse(a, b);
-    case 1: return aom_highbd_get_u_sse(a, b);
-    case 2: return aom_highbd_get_v_sse(a, b);
+    case 0: return avm_highbd_get_y_sse(a, b);
+    case 1: return avm_highbd_get_u_sse(a, b);
+    case 2: return avm_highbd_get_v_sse(a, b);
     default: assert(plane >= 0 && plane <= 2); return 0;
   }
 }
 
-int64_t aom_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
+int64_t avm_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
                                     const YV12_BUFFER_CONFIG *b, int plane,
                                     const uint8_t *active_map,
                                     const int active_map_stride,
@@ -218,22 +218,22 @@ int64_t aom_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
       if (act[c]) {
         const int h_start = c * unit_w;
         const int v_start = r * unit_h;
-        const int width = AOMMIN(
+        const int width = AVMMIN(
             unit_w, (plane > 0 ? a->uv_crop_width : a->y_crop_width) - h_start);
         const int height =
-            AOMMIN(unit_h, (plane > 0 ? a->uv_crop_height : a->y_crop_height) -
+            AVMMIN(unit_h, (plane > 0 ? a->uv_crop_height : a->y_crop_height) -
                                v_start);
         switch (plane) {
           case 0:
-            total_err += aom_highbd_get_y_sse_part(a, b, h_start, width,
+            total_err += avm_highbd_get_y_sse_part(a, b, h_start, width,
                                                    v_start, height);
             break;
           case 1:
-            total_err += aom_highbd_get_u_sse_part(a, b, h_start, width,
+            total_err += avm_highbd_get_u_sse_part(a, b, h_start, width,
                                                    v_start, height);
             break;
           case 2:
-            total_err += aom_highbd_get_v_sse_part(a, b, h_start, width,
+            total_err += avm_highbd_get_v_sse_part(a, b, h_start, width,
                                                    v_start, height);
             break;
           default: assert(plane >= 0 && plane <= 2); break;
@@ -244,7 +244,7 @@ int64_t aom_get_sse_plane_available(const YV12_BUFFER_CONFIG *a,
   }
   return total_err;
 }
-void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
+void avm_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                           const YV12_BUFFER_CONFIG *b, PSNR_STATS *psnr,
                           uint32_t bit_depth, uint32_t in_bit_depth,
                           bool lossless) {
@@ -278,7 +278,7 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
 
     psnr->sse[1 + i] = sse;
     psnr->samples[1 + i] = samples;
-    psnr->psnr[1 + i] = aom_sse_to_psnr(samples, peak, (double)sse);
+    psnr->psnr[1 + i] = avm_sse_to_psnr(samples, peak, (double)sse);
 
     total_sse += sse;
     total_samples += samples;
@@ -294,7 +294,7 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
   psnr->sse[0] = total_sse;
   psnr->samples[0] = total_samples;
   psnr->psnr[0] =
-      aom_sse_to_psnr((double)total_samples, peak, (double)total_sse);
+      avm_sse_to_psnr((double)total_samples, peak, (double)total_sse);
 
   // Compute PSNR based on stream bit depth
   if (in_bit_depth < bit_depth) {
@@ -310,7 +310,7 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
                            b_strides[i], w, h);
       psnr->sse_hbd[1 + i] = sse;
       psnr->samples_hbd[1 + i] = samples;
-      psnr->psnr_hbd[1 + i] = aom_sse_to_psnr(samples, peak, (double)sse);
+      psnr->psnr_hbd[1 + i] = avm_sse_to_psnr(samples, peak, (double)sse);
       total_sse += sse;
       total_samples += samples;
     }
@@ -323,6 +323,6 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
     psnr->sse_hbd[0] = total_sse;
     psnr->samples_hbd[0] = total_samples;
     psnr->psnr_hbd[0] =
-        aom_sse_to_psnr((double)total_samples, peak, (double)total_sse);
+        avm_sse_to_psnr((double)total_samples, peak, (double)total_sse);
   }
 }

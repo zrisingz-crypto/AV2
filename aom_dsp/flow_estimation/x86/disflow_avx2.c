@@ -14,12 +14,12 @@
 #include <math.h>
 #include <immintrin.h>
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/flow_estimation/disflow.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/flow_estimation/disflow.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 #if DISFLOW_PATCH_SIZE != 8
 #error "Need to change disflow_avx2.c if DISFLOW_PATCH_SIZE != 8"
@@ -383,7 +383,7 @@ static INLINE void invert_2x2(const double *M, double *M_inv) {
   M_inv[3] = M[0] * det_inv;
 }
 
-void aom_compute_flow_at_point_avx2(const uint8_t *src, const uint8_t *ref,
+void avm_compute_flow_at_point_avx2(const uint8_t *src, const uint8_t *ref,
                                     int x, int y, int width, int height,
                                     int stride, double *u, double *v) {
   DECLARE_ALIGNED(32, double, M[4]);

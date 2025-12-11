@@ -9,17 +9,17 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_DECODER_ACCOUNTING_H_
-#define AOM_AV1_DECODER_ACCOUNTING_H_
+#ifndef AVM_AV2_DECODER_ACCOUNTING_H_
+#define AVM_AV2_DECODER_ACCOUNTING_H_
 #include <stdlib.h>
-#include "aom/aomdx.h"
-#include "av1/common/enums.h"
+#include "avm/avmdx.h"
+#include "av2/common/enums.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-#define AOM_ACCOUNTING_HASH_SIZE (1021)
+#define AVM_ACCOUNTING_HASH_SIZE (1021)
 
 /* Max number of entries for symbol types in the dictionary (increase as
    necessary). */
@@ -27,9 +27,9 @@ extern "C" {
 
 /*The resolution of fractional-precision bit usage measurements, i.e.,
    16 => 1/65536th bits.*/
-#define AOM_ACCT_BITRES (16)
+#define AVM_ACCT_BITRES (16)
 
-#define AOM_ACCOUNTING_MAX_TAGS (4)
+#define AVM_ACCOUNTING_MAX_TAGS (4)
 
 enum {
   SYMBOL_BIT,
@@ -59,23 +59,23 @@ typedef struct {
   const char *c_func;
   const char *c_file;
   int c_line;
-  const char *tags[AOM_ACCOUNTING_MAX_TAGS];
+  const char *tags[AVM_ACCOUNTING_MAX_TAGS];
 } AccountingSymbolInfo;
 
-AccountingSymbolInfo aom_accounting_make_info(
+AccountingSymbolInfo avm_accounting_make_info(
     const char *c_func, const char *c_file, int c_line, const char *tag0,
     const char *tag1, const char *tag2, const char *tag3);
 
 #define ACCT_INFO0() \
-  aom_accounting_make_info(__func__, __FILE__, __LINE__, NULL, NULL, NULL, NULL)
+  avm_accounting_make_info(__func__, __FILE__, __LINE__, NULL, NULL, NULL, NULL)
 #define ACCT_INFO1(tag0) \
-  aom_accounting_make_info(__func__, __FILE__, __LINE__, tag0, NULL, NULL, NULL)
+  avm_accounting_make_info(__func__, __FILE__, __LINE__, tag0, NULL, NULL, NULL)
 #define ACCT_INFO2(tag0, tag1) \
-  aom_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, NULL, NULL)
+  avm_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, NULL, NULL)
 #define ACCT_INFO3(tag0, tag1, tag2) \
-  aom_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, tag2, NULL)
+  avm_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, tag2, NULL)
 #define ACCT_INFO4(tag0, tag1, tag2, tag3) \
-  aom_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, tag2, tag3)
+  avm_accounting_make_info(__func__, __FILE__, __LINE__, tag0, tag1, tag2, tag3)
 
 #define GET_ACCT_INFO_MACRO(_0, _1, _2, _3, _4, NAME, ...) NAME
 #define ACCT_INFO(...)                                                       \
@@ -113,24 +113,24 @@ struct Accounting {
   AccountingSymbols syms;
   /** Size allocated for symbols (not all may be used). */
   int num_syms_allocated;
-  int16_t hash_dictionary[AOM_ACCOUNTING_HASH_SIZE];
+  int16_t hash_dictionary[AVM_ACCOUNTING_HASH_SIZE];
   AccountingSymbolContext context;
   uint64_t last_tell_frac;
 };
 
-void aom_accounting_init(Accounting *accounting);
-void aom_accounting_reset(Accounting *accounting);
-void aom_accounting_clear(Accounting *accounting);
+void avm_accounting_init(Accounting *accounting);
+void avm_accounting_reset(Accounting *accounting);
+void avm_accounting_clear(Accounting *accounting);
 
-void aom_accounting_set_context(Accounting *accounting, int16_t x, int16_t y,
+void avm_accounting_set_context(Accounting *accounting, int16_t x, int16_t y,
                                 TREE_TYPE tree_type);
-int aom_accounting_dictionary_lookup(Accounting *accounting,
+int avm_accounting_dictionary_lookup(Accounting *accounting,
                                      AccountingSymbolInfo *acct_info);
-void aom_accounting_record(Accounting *accounting, int value,
+void avm_accounting_record(Accounting *accounting, int value,
                            SYMBOL_CODING_MODE coding_mode,
                            AccountingSymbolInfo acct_info, uint64_t bits);
-void aom_accounting_dump(Accounting *accounting);
+void avm_accounting_dump(Accounting *accounting);
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus
-#endif  // AOM_AV1_DECODER_ACCOUNTING_H_
+#endif  // AVM_AV2_DECODER_ACCOUNTING_H_

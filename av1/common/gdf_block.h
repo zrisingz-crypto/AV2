@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_GDF_BLOCK_H
-#define AOM_AV1_COMMON_GDF_BLOCK_H
-#include "av1/common/odintrin.h"
-#include "av1/common/gdf.h"
+#ifndef AVM_AV2_COMMON_GDF_BLOCK_H
+#define AVM_AV2_COMMON_GDF_BLOCK_H
+#include "av2/common/odintrin.h"
+#include "av2/common/gdf.h"
 
 #define GDF_OPTS_INP_TOT (GDF_NET_INP_REC_NUM + GDF_NET_INP_GRD_NUM)
 
@@ -74,4 +74,4 @@ extern const int8_t gdf_inter_error_table[GDF_TRAIN_REFDST_NUM]
                                           GDF_NET_LUT_IDX_INTER_MAX *
                                           GDF_NET_LUT_IDX_INTER_MAX];
 
-#endif  // AOM_AV1_COMMON_GDF_BLOCK_H
+#endif  // AVM_AV2_COMMON_GDF_BLOCK_H

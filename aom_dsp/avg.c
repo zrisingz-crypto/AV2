@@ -12,10 +12,10 @@
 
 #include <stdlib.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom_ports/mem.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm_ports/mem.h"
 
-unsigned int aom_highbd_avg_8x8_c(const uint16_t *s, int p) {
+unsigned int avm_highbd_avg_8x8_c(const uint16_t *s, int p) {
   int i, j;
   int sum = 0;
   for (i = 0; i < 8; ++i, s += p)
@@ -25,7 +25,7 @@ unsigned int aom_highbd_avg_8x8_c(const uint16_t *s, int p) {
   return (sum + 32) >> 6;
 }
 
-unsigned int aom_highbd_avg_4x4_c(const uint16_t *s, int p) {
+unsigned int avm_highbd_avg_4x4_c(const uint16_t *s, int p) {
   int i, j;
   int sum = 0;
   for (i = 0; i < 4; ++i, s += p)
@@ -35,7 +35,7 @@ unsigned int aom_highbd_avg_4x4_c(const uint16_t *s, int p) {
   return (sum + 8) >> 4;
 }
 
-void aom_highbd_minmax_8x8_c(const uint16_t *s, int p, const uint16_t *d,
+void avm_highbd_minmax_8x8_c(const uint16_t *s, int p, const uint16_t *d,
                              int dp, int *min, int *max) {
   int i, j;
   *min = 255;
@@ -115,7 +115,7 @@ static void hadamard_highbd_col8_second_pass(const int16_t *src_diff,
 
 // The order of the output coeff of the hadamard is not important. For
 // optimization purposes the final transpose may be skipped.
-void aom_highbd_hadamard_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
+void avm_highbd_hadamard_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
                                tran_low_t *coeff) {
   int idx;
   int16_t buffer[64];
@@ -141,14 +141,14 @@ void aom_highbd_hadamard_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
 }
 
 // In place 16x16 2D Hadamard transform
-void aom_highbd_hadamard_16x16_c(const int16_t *src_diff, ptrdiff_t src_stride,
+void avm_highbd_hadamard_16x16_c(const int16_t *src_diff, ptrdiff_t src_stride,
                                  tran_low_t *coeff) {
   int idx;
   for (idx = 0; idx < 4; ++idx) {
     // src_diff: 13 bit, dynamic range [-4095, 4095]
     const int16_t *src_ptr =
         src_diff + (idx >> 1) * 8 * src_stride + (idx & 0x01) * 8;
-    aom_highbd_hadamard_8x8_c(src_ptr, src_stride, coeff + idx * 64);
+    avm_highbd_hadamard_8x8_c(src_ptr, src_stride, coeff + idx * 64);
   }
 
   // coeff: 19 bit, dynamic range [-262080, 262080]
@@ -173,14 +173,14 @@ void aom_highbd_hadamard_16x16_c(const int16_t *src_diff, ptrdiff_t src_stride,
   }
 }
 
-void aom_highbd_hadamard_32x32_c(const int16_t *src_diff, ptrdiff_t src_stride,
+void avm_highbd_hadamard_32x32_c(const int16_t *src_diff, ptrdiff_t src_stride,
                                  tran_low_t *coeff) {
   int idx;
   for (idx = 0; idx < 4; ++idx) {
     // src_diff: 13 bit, dynamic range [-4095, 4095]
     const int16_t *src_ptr =
         src_diff + (idx >> 1) * 16 * src_stride + (idx & 0x01) * 16;
-    aom_highbd_hadamard_16x16_c(src_ptr, src_stride, coeff + idx * 256);
+    avm_highbd_hadamard_16x16_c(src_ptr, src_stride, coeff + idx * 256);
   }
 
   // coeff: 20 bit
@@ -207,7 +207,7 @@ void aom_highbd_hadamard_32x32_c(const int16_t *src_diff, ptrdiff_t src_stride,
 
 // coeff: 16 bits, dynamic range [-32640, 32640].
 // length: value range {16, 64, 256, 1024}.
-int aom_satd_c(const tran_low_t *coeff, int length) {
+int avm_satd_c(const tran_low_t *coeff, int length) {
   int i;
   int satd = 0;
   for (i = 0; i < length; ++i) satd += abs(coeff[i]);
@@ -216,7 +216,7 @@ int aom_satd_c(const tran_low_t *coeff, int length) {
   return satd;
 }
 
-int aom_satd_lp_c(const int16_t *coeff, int length) {
+int avm_satd_lp_c(const int16_t *coeff, int length) {
   int satd = 0;
   for (int i = 0; i < length; ++i) satd += abs(coeff[i]);
 
@@ -225,7 +225,7 @@ int aom_satd_lp_c(const int16_t *coeff, int length) {
 }
 
 // bwl: {2, 3, 4, 5}
-int aom_vector_var_c(const int16_t *ref, const int16_t *src, const int bwl) {
+int avm_vector_var_c(const int16_t *ref, const int16_t *src, const int bwl) {
   int i;
   int width = 4 << bwl;
   int mean = 0, var;

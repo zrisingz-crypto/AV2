@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_TUNE_VMAF_H_
-#define AOM_AV1_ENCODER_TUNE_VMAF_H_
+#ifndef AVM_AV2_ENCODER_TUNE_VMAF_H_
+#define AVM_AV2_ENCODER_TUNE_VMAF_H_
 
-#include "aom_dsp/vmaf.h"
-#include "aom_scale/yv12config.h"
-#include "av1/common/enums.h"
-#include "av1/encoder/ratectrl.h"
-#include "av1/encoder/block.h"
+#include "avm_dsp/vmaf.h"
+#include "avm_scale/yv12config.h"
+#include "av2/common/enums.h"
+#include "av2/encoder/ratectrl.h"
+#include "av2/encoder/block.h"
 
 typedef struct {
   // Stores the scaling factors for rdmult when tuning for VMAF.
@@ -46,23 +46,23 @@ typedef struct {
 #endif
 } TuneVMAFInfo;
 
-typedef struct AV1_COMP AV1_COMP;
+typedef struct AV2_COMP AV2_COMP;
 
-void av1_vmaf_blk_preprocessing(AV1_COMP *cpi, YV12_BUFFER_CONFIG *source);
+void av2_vmaf_blk_preprocessing(AV2_COMP *cpi, YV12_BUFFER_CONFIG *source);
 
-void av1_vmaf_frame_preprocessing(AV1_COMP *cpi, YV12_BUFFER_CONFIG *source);
+void av2_vmaf_frame_preprocessing(AV2_COMP *cpi, YV12_BUFFER_CONFIG *source);
 
 #ifdef CONFIG_USE_VMAF_RC
-void av1_vmaf_neg_preprocessing(AV1_COMP *cpi, YV12_BUFFER_CONFIG *source);
+void av2_vmaf_neg_preprocessing(AV2_COMP *cpi, YV12_BUFFER_CONFIG *source);
 #endif
 
-void av1_set_mb_vmaf_rdmult_scaling(AV1_COMP *cpi);
+void av2_set_mb_vmaf_rdmult_scaling(AV2_COMP *cpi);
 
-void av1_set_vmaf_rdmult(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
+void av2_set_vmaf_rdmult(const AV2_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                          int mi_row, int mi_col, int *rdmult);
 
-int av1_get_vmaf_base_qindex(const AV1_COMP *cpi, int current_qindex);
+int av2_get_vmaf_base_qindex(const AV2_COMP *cpi, int current_qindex);
 
-void av1_update_vmaf_curve(AV1_COMP *cpi);
+void av2_update_vmaf_curve(AV2_COMP *cpi);
 
-#endif  // AOM_AV1_ENCODER_TUNE_VMAF_H_
+#endif  // AVM_AV2_ENCODER_TUNE_VMAF_H_

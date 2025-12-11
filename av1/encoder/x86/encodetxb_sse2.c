@@ -13,10 +13,10 @@
 #include <assert.h>
 #include <emmintrin.h>  // SSE2
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/mem_sse2.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/txb_common.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/mem_sse2.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/txb_common.h"
 
 static INLINE void load_levels_4x4x5_sse2(const uint8_t *const src,
                                           const int stride,
@@ -561,7 +561,7 @@ static INLINE void get_4_nz_map_contexts_2d_chroma(const uint8_t *levels,
                                                    const int plane) {
   const int stride = 4 + TX_PAD_HOR;
   const __m128i pos_to_offset =
-      (plane == AOM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
+      (plane == AVM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
   __m128i pos_to_clip =
       _mm_setr_epi8(5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
   const __m128i pos_to_clip_large = _mm_set1_epi8(3);
@@ -590,7 +590,7 @@ static INLINE void get_8_coeff_contexts_2d_chroma(const uint8_t *levels,
                                                   const int plane) {
   const int stride = 8 + TX_PAD_HOR;
   const __m128i pos_to_offset =
-      (plane == AOM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
+      (plane == AVM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
   __m128i pos_to_clip =
       _mm_setr_epi8(5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
   const __m128i pos_to_clip_large = _mm_set1_epi8(3);
@@ -620,7 +620,7 @@ static INLINE void get_16n_coeff_contexts_2d_chroma(const uint8_t *levels,
                                                     const int plane) {
   const int stride = width + TX_PAD_HOR;
   const __m128i pos_to_offset =
-      (plane == AOM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
+      (plane == AVM_PLANE_U) ? _mm_set1_epi8(0) : _mm_set1_epi8(4);
   __m128i pos_to_clip =
       _mm_setr_epi8(5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3);
   const __m128i pos_to_clip_large = _mm_set1_epi8(3);
@@ -834,7 +834,7 @@ static INLINE void get_16n_coeff_contexts_ver_chroma(const uint8_t *levels,
 }
 
 // Note: levels[] must be in the range [0, 127], inclusive.
-void av1_get_nz_map_contexts_sse2(const uint8_t *const levels,
+void av2_get_nz_map_contexts_sse2(const uint8_t *const levels,
                                   const int16_t *const scan, const uint16_t eob,
                                   const TX_SIZE tx_size,
                                   const TX_CLASS tx_class,

@@ -10,25 +10,25 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_BLOCKD_H_
-#define AOM_AV1_COMMON_BLOCKD_H_
+#ifndef AVM_AV2_COMMON_BLOCKD_H_
+#define AVM_AV2_COMMON_BLOCKD_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem.h"
-#include "aom_scale/yv12config.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_ports/mem.h"
+#include "avm_scale/yv12config.h"
 
-#include "av1/common/alloccommon.h"
-#include "av1/common/cdef_block.h"
-#include "av1/common/common_data.h"
-#include "av1/common/quant_common.h"
-#include "av1/common/entropy.h"
-#include "av1/common/entropymode.h"
-#include "av1/common/mv.h"
-#include "av1/common/scale.h"
-#include "av1/common/seg_common.h"
-#include "av1/common/tile_common.h"
+#include "av2/common/alloccommon.h"
+#include "av2/common/cdef_block.h"
+#include "av2/common/common_data.h"
+#include "av2/common/quant_common.h"
+#include "av2/common/entropy.h"
+#include "av2/common/entropymode.h"
+#include "av2/common/mv.h"
+#include "av2/common/scale.h"
+#include "av2/common/seg_common.h"
+#include "av2/common/tile_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,15 +76,15 @@ enum { LCR_GLOBAL = 0, LCR_LOCAL = 1, NUM_LCR_TYPES = 2 } UENUM1BYTE(LCR_TYPES);
 
 // Check if the block is 4xn or nx4 block
 static INLINE int is_thin_4xn_nx4_block(BLOCK_SIZE bsize) {
-  int min_size = AOMMIN(block_size_wide[bsize], block_size_high[bsize]);
-  int max_size = AOMMAX(block_size_wide[bsize], block_size_high[bsize]);
+  int min_size = AVMMIN(block_size_wide[bsize], block_size_high[bsize]);
+  int max_size = AVMMAX(block_size_wide[bsize], block_size_high[bsize]);
   int max_4xn_th = 16;
   return (min_size == 4 && max_size >= max_4xn_th);
 }
 
 static INLINE int is_comp_ref_allowed(BLOCK_SIZE bsize) {
   return is_thin_4xn_nx4_block(bsize) ||
-         AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
+         AVMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 }
 
 static INLINE int is_inter_mode(PREDICTION_MODE mode) {
@@ -325,11 +325,11 @@ typedef struct {
 } INTERINTER_COMPOUND_BORDER_DATA;
 
 #define REF_BUFFER_WIDTH                                                   \
-  (REFINEMV_SUBBLOCK_WIDTH + (AOM_INTERP_EXTEND - 1) + AOM_INTERP_EXTEND + \
+  (REFINEMV_SUBBLOCK_WIDTH + (AVM_INTERP_EXTEND - 1) + AVM_INTERP_EXTEND + \
    2 * (SUBBLK_REF_EXT_LINES + DMVR_SEARCH_EXT_LINES))
 
 #define REF_BUFFER_HEIGHT                                                   \
-  (REFINEMV_SUBBLOCK_HEIGHT + (AOM_INTERP_EXTEND - 1) + AOM_INTERP_EXTEND + \
+  (REFINEMV_SUBBLOCK_HEIGHT + (AVM_INTERP_EXTEND - 1) + AVM_INTERP_EXTEND + \
    2 * (SUBBLK_REF_EXT_LINES + DMVR_SEARCH_EXT_LINES))
 
 typedef struct PadOffset {
@@ -729,8 +729,8 @@ typedef struct PARTITION_TREE {
   int sb_root_partition_info;
 } PARTITION_TREE;
 
-PARTITION_TREE *av1_alloc_ptree_node(PARTITION_TREE *parent, int index);
-void av1_free_ptree_recursive(PARTITION_TREE *ptree);
+PARTITION_TREE *av2_alloc_ptree_node(PARTITION_TREE *parent, int index);
+void av2_free_ptree_recursive(PARTITION_TREE *ptree);
 
 typedef struct SB_INFO {
   int mi_row;
@@ -740,7 +740,7 @@ typedef struct SB_INFO {
   MvSubpelPrecision sb_mv_precision;
 } SB_INFO;
 
-void av1_reset_ptree_in_sbi(SB_INFO *sbi, TREE_TYPE tree_type);
+void av2_reset_ptree_in_sbi(SB_INFO *sbi, TREE_TYPE tree_type);
 
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi, int tree_type) {
   return mbmi->use_intrabc[tree_type == CHROMA_PART];
@@ -786,7 +786,7 @@ static INLINE int is_inter_block(const MB_MODE_INFO *mbmi, int tree_type) {
 // Get the intra mode for luma or chroma plane depending on whether it needs to
 // be mapped.
 static INLINE int get_intra_mode(const MB_MODE_INFO *mbmi, int plane) {
-  if (plane == AOM_PLANE_Y)
+  if (plane == AVM_PLANE_Y)
     return mbmi->is_wide_angle[0][mbmi->txb_idx]
                ? mbmi->mapped_intra_mode[0][mbmi->txb_idx]
                : mbmi->mode;
@@ -836,7 +836,7 @@ static INLINE bool is_wide_block(BLOCK_SIZE bsize) {
 }
 
 /*!\brief Checks whether extended partition is allowed for current bsize. */
-static AOM_INLINE bool is_ext_partition_allowed_at_bsize(BLOCK_SIZE bsize,
+static AVM_INLINE bool is_ext_partition_allowed_at_bsize(BLOCK_SIZE bsize,
                                                          TREE_TYPE tree_type) {
   if (bsize >= BLOCK_SIZES) return false;
   // Extended partition is disabled above BLOCK_64X64 to avoid crossing the
@@ -869,7 +869,7 @@ static AOM_INLINE bool is_ext_partition_allowed_at_bsize(BLOCK_SIZE bsize,
 
 /*!\brief Checks whether extended partition is allowed for current bsize and
  * rect_type. */
-static AOM_INLINE bool is_ext_partition_allowed(BLOCK_SIZE bsize,
+static AVM_INLINE bool is_ext_partition_allowed(BLOCK_SIZE bsize,
                                                 RECT_PART_TYPE rect_type,
                                                 TREE_TYPE tree_type) {
   if (!is_ext_partition_allowed_at_bsize(bsize, tree_type)) {
@@ -912,7 +912,7 @@ static AOM_INLINE bool is_ext_partition_allowed(BLOCK_SIZE bsize,
 
 /*!\brief Checks whether uneven 4-way partition is allowed for current bsize.*/
 // TODO(now): Refactor with is_uneven_4way_partition_allowed().
-static AOM_INLINE bool is_uneven_4way_partition_allowed_at_bsize(
+static AVM_INLINE bool is_uneven_4way_partition_allowed_at_bsize(
     BLOCK_SIZE bsize, TREE_TYPE tree_type) {
   if (!is_ext_partition_allowed_at_bsize(bsize, tree_type)) return false;
   if (bsize > BLOCK_LARGEST) {
@@ -940,7 +940,7 @@ static AOM_INLINE bool is_uneven_4way_partition_allowed_at_bsize(
 
 /*!\brief Checks whether uneven 4-way partition is allowed for current bsize and
  * rect_type. */
-static AOM_INLINE bool is_uneven_4way_partition_allowed(
+static AVM_INLINE bool is_uneven_4way_partition_allowed(
     BLOCK_SIZE bsize, RECT_PART_TYPE rect_type, TREE_TYPE tree_type) {
   if (!is_ext_partition_allowed(bsize, rect_type, tree_type)) {
     return false;
@@ -964,7 +964,7 @@ static AOM_INLINE bool is_uneven_4way_partition_allowed(
 
 /*!\brief Returns the rect_type that's implied by the bsize. If the rect_type
  * cannot be derived from bsize, returns RECT_INVALID. */
-static AOM_INLINE RECT_PART_TYPE
+static AVM_INLINE RECT_PART_TYPE
 rect_type_implied_by_bsize(BLOCK_SIZE bsize, TREE_TYPE tree_type) {
   // Handle luma part first
   if (bsize == BLOCK_128X256) {
@@ -993,7 +993,7 @@ rect_type_implied_by_bsize(BLOCK_SIZE bsize, TREE_TYPE tree_type) {
 }
 
 /*!\brief Returns whether square split is allowed for current bsize. */
-static AOM_INLINE bool is_square_split_eligible(BLOCK_SIZE bsize,
+static AVM_INLINE bool is_square_split_eligible(BLOCK_SIZE bsize,
                                                 BLOCK_SIZE sb_size) {
   (void)sb_size;
   return bsize == BLOCK_128X128 || bsize == BLOCK_256X256;
@@ -1001,7 +1001,7 @@ static AOM_INLINE bool is_square_split_eligible(BLOCK_SIZE bsize,
 
 /*!\brief Returns whether the current partition is horizontal type or vertical
  * type. */
-static AOM_INLINE RECT_PART_TYPE get_rect_part_type(PARTITION_TYPE partition) {
+static AVM_INLINE RECT_PART_TYPE get_rect_part_type(PARTITION_TYPE partition) {
   if (partition == PARTITION_HORZ || partition == PARTITION_HORZ_3 ||
       partition == PARTITION_HORZ_4A || partition == PARTITION_HORZ_4B) {
     return HORZ;
@@ -1029,14 +1029,14 @@ static INLINE int get_ref_mv_idx(const MB_MODE_INFO *mbmi, int ref_idx) {
   return has_second_drl(mbmi) ? mbmi->ref_mv_idx[ref_idx] : mbmi->ref_mv_idx[0];
 }
 
-PREDICTION_MODE av1_get_joint_mode(const MB_MODE_INFO *mi);
+PREDICTION_MODE av2_get_joint_mode(const MB_MODE_INFO *mi);
 
 static INLINE int is_global_mv_block(const MB_MODE_INFO *const mbmi,
                                      TransformationType type) {
   const PREDICTION_MODE mode = mbmi->mode;
   const BLOCK_SIZE bsize = mbmi->sb_type[PLANE_TYPE_Y];
   const int block_size_allowed =
-      AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
+      AVMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
   return (mode == GLOBALMV || mode == GLOBAL_GLOBALMV) && type > TRANSLATION &&
          block_size_allowed;
 }
@@ -2192,7 +2192,7 @@ typedef struct macroblockd {
    * same as cm->quant_params.base_qindex (if not explicitly set yet).
    * For a frame, initially current_base_qindex is set to the frame base qindex
    * and then updated after adding delta of each superblock. Note: This is
-   * 'CurrentQIndex' in the AV1 spec.
+   * 'CurrentQIndex' in the AV2 spec.
    */
   int current_base_qindex;
 
@@ -2204,7 +2204,7 @@ typedef struct macroblockd {
   /*!
    * Pointer to cm->error.
    */
-  struct aom_internal_error_info *error_info;
+  struct avm_internal_error_info *error_info;
 
   /*!
    * Same as cm->global_motion.
@@ -2297,7 +2297,7 @@ typedef struct macroblockd {
   /** ccso blk v */
   uint8_t ccso_blk_v;
 
-  /** buffer to store AOM_PLANE_U txfm coefficient signs */
+  /** buffer to store AVM_PLANE_U txfm coefficient signs */
   int32_t tmp_sign[1024];
   /** variable to store eob_u flag */
   uint8_t eob_u_flag;
@@ -2387,16 +2387,16 @@ static INLINE int block_signals_txsize(BLOCK_SIZE bsize) {
 }
 
 // Number of transform types in each set type for intra blocks
-static const int av1_num_ext_tx_set_intra[EXT_TX_SET_TYPES] = { 1, 1, 7,  12,
+static const int av2_num_ext_tx_set_intra[EXT_TX_SET_TYPES] = { 1, 1, 7,  12,
                                                                 4, 6, 11, 15,
                                                                 7, 3 };
-static const int av1_num_reduced_tx_set[EXT_TX_SETS_INTRA] = { 2, 1, 2 };
+static const int av2_num_reduced_tx_set[EXT_TX_SETS_INTRA] = { 2, 1, 2 };
 
 // Number of transform types in each set type
-static const int av1_num_ext_tx_set[EXT_TX_SET_TYPES] = { 1, 2,  7,  12, 5,
+static const int av2_num_ext_tx_set[EXT_TX_SET_TYPES] = { 1, 2,  7,  12, 5,
                                                           7, 12, 16, -1, 4 };
 
-static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
+static const int av2_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
   { 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 },
@@ -2409,7 +2409,7 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 },
 };
 
-static const uint16_t av1_reduced_intra_tx_used_flag[INTRA_MODES] = {
+static const uint16_t av2_reduced_intra_tx_used_flag[INTRA_MODES] = {
   0x080F,  // DC_PRED:       0000 1000 0000 1111
   0x040F,  // V_PRED:        0000 0100 0000 1111
   0x080F,  // H_PRED:        0000 1000 0000 1111
@@ -2425,7 +2425,7 @@ static const uint16_t av1_reduced_intra_tx_used_flag[INTRA_MODES] = {
   0x0C0E,  // PAETH_PRED:    0000 1100 0000 1110
 };
 
-static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
+static const uint16_t av2_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0001,  // 0000 0000 0000 0001
   0x0201,  // 0000 0010 0000 0001
   0x0C37,  // 0000 1100 0011 0111
@@ -2438,7 +2438,7 @@ static const uint16_t av1_ext_tx_used_flag[EXT_TX_SET_TYPES] = {
   0x0E01,  // 0000 1110 0000 0001
 };
 
-static const uint16_t av1_md_trfm_used_flag[EXT_TX_SIZES][INTRA_MODES] = {
+static const uint16_t av2_md_trfm_used_flag[EXT_TX_SIZES][INTRA_MODES] = {
   {
       0x218F,
       0x148F,
@@ -2501,12 +2501,12 @@ static const uint16_t av1_md_trfm_used_flag[EXT_TX_SIZES][INTRA_MODES] = {
   },  // size_class: 3
 };
 
-static const TxSetType av1_ext_tx_set_lookup[2][2] = {
+static const TxSetType av2_ext_tx_set_lookup[2][2] = {
   { EXT_TX_SET_DTT4_IDTX_1DDCT, EXT_TX_SET_DTT4_IDTX },
   { EXT_TX_SET_ALL16, EXT_TX_SET_DTT9_IDTX_1DDCT },
 };
 
-static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
+static INLINE TxSetType av2_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
                                                 int use_reduced_set) {
   const TX_SIZE tx_size_sqr_up = txsize_sqr_up_map[tx_size];
   const TX_SIZE tx_size_sqr = txsize_sqr_map[tx_size];
@@ -2526,7 +2526,7 @@ static INLINE TxSetType av1_get_ext_tx_set_type(TX_SIZE tx_size, int is_inter,
   if (use_reduced_set)
     return reduced_set_map[is_inter ? 1 : 0][use_reduced_set - 1];
   if (is_inter) {
-    return av1_ext_tx_set_lookup[is_inter][tx_size_sqr == TX_16X16];
+    return av2_ext_tx_set_lookup[is_inter][tx_size_sqr == TX_16X16];
   } else {
     return EXT_NEW_TX_SET;
   }
@@ -2543,23 +2543,23 @@ static const int ext_tx_set_index[2][EXT_TX_SET_TYPES] = {
 static INLINE int get_ext_tx_set(TX_SIZE tx_size, int is_inter,
                                  int use_reduced_set) {
   const TxSetType set_type =
-      av1_get_ext_tx_set_type(tx_size, is_inter, use_reduced_set);
+      av2_get_ext_tx_set_type(tx_size, is_inter, use_reduced_set);
   return ext_tx_set_index[is_inter][set_type];
 }
 
 static INLINE int get_ext_tx_types(TX_SIZE tx_size, int is_inter,
                                    int use_reduced_set) {
   const int set_type =
-      av1_get_ext_tx_set_type(tx_size, is_inter, use_reduced_set);
-  return is_inter ? av1_num_ext_tx_set[set_type]
-                  : av1_num_ext_tx_set_intra[set_type];
+      av2_get_ext_tx_set_type(tx_size, is_inter, use_reduced_set);
+  return is_inter ? av2_num_ext_tx_set[set_type]
+                  : av2_num_ext_tx_set_intra[set_type];
 }
 
 static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode) {
   const TX_SIZE largest_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
   const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bsize];
   if (bsize == BLOCK_4X4)
-    return AOMMIN(max_txsize_lookup[bsize], largest_tx_size);
+    return AVMMIN(max_txsize_lookup[bsize], largest_tx_size);
   if (txsize_sqr_map[max_rect_tx_size] <= largest_tx_size)
     return max_rect_tx_size;
   else
@@ -2634,9 +2634,9 @@ static INLINE int get_plane_tx_unit_height(const MACROBLOCKD *xd,
   const bool lossless = xd->lossless[mbmi->segment_id];
   const int max_plane_blocks_high = max_block_high(xd, plane_bsize, plane);
   const int mu_plane_blocks_high =
-      AOMMIN(mi_size_high[BLOCK_64X64] >> (lossless ? ss_y : 0),
+      AVMMIN(mi_size_high[BLOCK_64X64] >> (lossless ? ss_y : 0),
              max_plane_blocks_high);
-  return AOMMIN(mu_plane_blocks_high + (row >> ss_y), max_plane_blocks_high);
+  return AVMMIN(mu_plane_blocks_high + (row >> ss_y), max_plane_blocks_high);
 }
 
 static INLINE int get_plane_tx_unit_width(const MACROBLOCKD *xd,
@@ -2646,16 +2646,16 @@ static INLINE int get_plane_tx_unit_width(const MACROBLOCKD *xd,
   const bool lossless = xd->lossless[mbmi->segment_id];
   const int max_plane_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   const int mu_plane_blocks_wide =
-      AOMMIN(mi_size_wide[BLOCK_64X64] >> (lossless ? ss_x : 0),
+      AVMMIN(mi_size_wide[BLOCK_64X64] >> (lossless ? ss_x : 0),
              max_plane_blocks_wide);
-  return AOMMIN(mu_plane_blocks_wide + (col >> ss_x), max_plane_blocks_wide);
+  return AVMMIN(mu_plane_blocks_wide + (col >> ss_x), max_plane_blocks_wide);
 }
 
 /*!\brief Returns the index of luma/chroma based on the current partition tree
  * type.
  *
  * If the tree_type includes luma, returns 0, else returns 1. */
-static INLINE int av1_get_sdp_idx(TREE_TYPE tree_type) {
+static INLINE int av2_get_sdp_idx(TREE_TYPE tree_type) {
   switch (tree_type) {
     case SHARED_PART:
     case LUMA_PART: return 0;
@@ -2666,7 +2666,7 @@ static INLINE int av1_get_sdp_idx(TREE_TYPE tree_type) {
 
 /*!\brief Returns bsize at which the current block needs to be coded.
  *
- * If the current plane is AOM_PLANE_Y, returns the current block size.
+ * If the current plane is AVM_PLANE_Y, returns the current block size.
  * If the luma and chroma trees are shared, and the current plane is chroma,
  * then the corresponding luma block size is stored in
  * CHROMA_REF_INFO::bsize_base.
@@ -2680,7 +2680,7 @@ static INLINE BLOCK_SIZE get_bsize_base(const MACROBLOCKD *xd,
     bsize_base =
         plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type[PLANE_TYPE_Y];
   } else {
-    bsize_base = mbmi->sb_type[av1_get_sdp_idx(xd->tree_type)];
+    bsize_base = mbmi->sb_type[av2_get_sdp_idx(xd->tree_type)];
   }
   return bsize_base;
 }
@@ -2706,7 +2706,7 @@ static INLINE BLOCK_SIZE get_bsize_base_from_tree_type(const MB_MODE_INFO *mbmi,
     bsize_base =
         plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type[PLANE_TYPE_Y];
   } else {
-    bsize_base = mbmi->sb_type[av1_get_sdp_idx(tree_type)];
+    bsize_base = mbmi->sb_type[av2_get_sdp_idx(tree_type)];
   }
   return bsize_base;
 }
@@ -2722,7 +2722,7 @@ static INLINE BLOCK_SIZE get_mb_plane_block_size_from_tree_type(
 }
 
 // Get the index into the `mbmi->tx_partition_type` array for this block.
-static INLINE int av1_get_txb_size_index(BLOCK_SIZE bsize, int blk_row,
+static INLINE int av2_get_txb_size_index(BLOCK_SIZE bsize, int blk_row,
                                          int blk_col) {
   (void)bsize;
   int txhl = tx_size_high_log2[TX_64X64];
@@ -2736,7 +2736,7 @@ static INLINE int av1_get_txb_size_index(BLOCK_SIZE bsize, int blk_row,
 }
 
 #if CONFIG_INSPECTION
-static INLINE int av1_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
+static INLINE int av2_get_txk_type_index(BLOCK_SIZE bsize, int blk_row,
                                          int blk_col) {
   int index = 0;
   assert(bsize < BLOCK_SIZES_ALL);
@@ -2795,7 +2795,7 @@ static INLINE void update_cctx_array(MACROBLOCKD *const xd, int blk_row,
                                      int blk_col_offset, TX_SIZE tx_size,
                                      CctxType cctx_type) {
   const int stride = xd->cctx_type_map_stride;
-  const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
+  const struct macroblockd_plane *const pd = &xd->plane[AVM_PLANE_U];
   const int ss_x = pd->subsampling_x;
   const int ss_y = pd->subsampling_y;
   assert(xd->is_chroma_ref);
@@ -2816,9 +2816,9 @@ static INLINE void update_cctx_array(MACROBLOCKD *const xd, int blk_row,
            txw * sizeof(xd->cctx_type_map[0]));
 }
 
-static INLINE CctxType av1_get_cctx_type(const MACROBLOCKD *xd, int blk_row,
+static INLINE CctxType av2_get_cctx_type(const MACROBLOCKD *xd, int blk_row,
                                          int blk_col) {
-  const struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_U];
+  const struct macroblockd_plane *const pd = &xd->plane[AVM_PLANE_U];
   const int br = blk_row << pd->subsampling_y;
   const int bc = blk_col << pd->subsampling_x;
   return xd->cctx_type_map[br * xd->cctx_type_map_stride + bc];
@@ -2992,7 +2992,7 @@ static INLINE int block_signals_sec_tx_type(const MACROBLOCKD *xd,
   if (is_inter_block(xd->mi[0], xd->tree_type) ? (eob <= 3) : (eob <= 1))
     return 0;
   const MB_MODE_INFO *mbmi = xd->mi[0];
-  PREDICTION_MODE intra_dir = get_intra_mode(mbmi, AOM_PLANE_Y);
+  PREDICTION_MODE intra_dir = get_intra_mode(mbmi, AVM_PLANE_Y);
   const TX_TYPE primary_tx_type = get_primary_tx_type(tx_type);
   const int width = tx_size_wide[tx_size];
   const int height = tx_size_high[tx_size];
@@ -3054,7 +3054,7 @@ static INLINE void adjust_ext_tx_used_flag(TX_SIZE tx_size,
  * Bits 4~5 of tx_type stores secondary tx_type
  * Bits 0~3 of tx_type stores primary tx_type
  */
-static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
+static INLINE TX_TYPE av2_get_tx_type(const MACROBLOCKD *xd,
                                       PLANE_TYPE plane_type, int blk_row,
                                       int blk_col, TX_SIZE tx_size,
                                       int reduced_tx_set) {
@@ -3124,13 +3124,13 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
         // plane, so the tx_type should not be shared
         tx_type = intra_mode_to_tx_type(mbmi, PLANE_TYPE_UV);
       }
-      const TxSetType tx_set_type = av1_get_ext_tx_set_type(
+      const TxSetType tx_set_type = av2_get_ext_tx_set_type(
           tx_size, is_inter_block(mbmi, xd->tree_type), reduced_tx_set);
-      if (!av1_ext_tx_used[tx_set_type][get_primary_tx_type(tx_type)])
+      if (!av2_ext_tx_used[tx_set_type][get_primary_tx_type(tx_type)])
         tx_type = DCT_DCT;
       if (tx_set_type == EXT_TX_SET_LONG_SIDE_64 ||
           tx_set_type == EXT_TX_SET_LONG_SIDE_32) {
-        uint16_t ext_tx_used_flag = av1_ext_tx_used_flag[tx_set_type];
+        uint16_t ext_tx_used_flag = av2_ext_tx_used_flag[tx_set_type];
         adjust_ext_tx_used_flag(tx_size, tx_set_type, &ext_tx_used_flag);
 
         if (!(ext_tx_used_flag & (1 << get_primary_tx_type(tx_type)))) {
@@ -3139,7 +3139,7 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
       }
     }
   }
-  assert(av1_ext_tx_used[av1_get_ext_tx_set_type(
+  assert(av2_ext_tx_used[av2_get_ext_tx_set_type(
       tx_size, is_inter_block(mbmi, xd->tree_type), reduced_tx_set)]
                         [get_primary_tx_type(tx_type)]);
   if (txsize_sqr_up_map[tx_size] > TX_32X32 &&
@@ -3153,10 +3153,10 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
   return tx_type;
 }
 
-void av1_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
+void av2_setup_block_planes(MACROBLOCKD *xd, int ss_x, int ss_y,
                             const int num_planes);
 
-static INLINE TX_SIZE av1_get_adjusted_tx_size(TX_SIZE tx_size) {
+static INLINE TX_SIZE av2_get_adjusted_tx_size(TX_SIZE tx_size) {
   switch (tx_size) {
     case TX_64X64:
     case TX_64X32:
@@ -3183,7 +3183,7 @@ static INLINE TX_SIZE get_lossless_tx_size(const MACROBLOCKD *xd,
     return mbmi->tx_size;
 }
 
-static INLINE TX_SIZE av1_get_max_uv_txsize(BLOCK_SIZE bsize, int subsampling_x,
+static INLINE TX_SIZE av2_get_max_uv_txsize(BLOCK_SIZE bsize, int subsampling_x,
                                             int subsampling_y) {
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(bsize, subsampling_x, subsampling_y);
@@ -3195,17 +3195,17 @@ static INLINE TX_SIZE av1_get_max_uv_txsize(BLOCK_SIZE bsize, int subsampling_x,
 // This function is required for MHCCP mode because its applicable coding block
 // size differs from CfL. In CfL, the maximum chroma transform block size is set
 // to 64×64. In MHCCP, the maximum chroma transform block size remains 32×32.
-static INLINE TX_SIZE av1_get_max_uv_txsize_adjusted(BLOCK_SIZE bsize,
+static INLINE TX_SIZE av2_get_max_uv_txsize_adjusted(BLOCK_SIZE bsize,
                                                      int subsampling_x,
                                                      int subsampling_y) {
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(bsize, subsampling_x, subsampling_y);
   assert(plane_bsize < BLOCK_SIZES_ALL);
   const TX_SIZE uv_tx = max_txsize_rect_lookup[plane_bsize];
-  return av1_get_adjusted_tx_size(uv_tx);
+  return av2_get_adjusted_tx_size(uv_tx);
 }
 
-static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
+static INLINE TX_SIZE av2_get_tx_size(int plane, const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
 
   if (xd->lossless[mbmi->segment_id]) {
@@ -3215,16 +3215,16 @@ static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {
   if (plane == 0) return mbmi->tx_size;
   const MACROBLOCKD_PLANE *pd = &xd->plane[plane];
   const BLOCK_SIZE bsize_base = get_bsize_base(xd, mbmi, plane);
-  return av1_get_max_uv_txsize(bsize_base, pd->subsampling_x,
+  return av2_get_max_uv_txsize(bsize_base, pd->subsampling_x,
                                pd->subsampling_y);
 }
 
-void av1_reset_entropy_context(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+void av2_reset_entropy_context(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                                const int num_planes);
 
 // Resets the bank data structure holding LR_BANK_SIZE nonseparable Wiener
 // filters. The bank holds a rootating buffer of filters.
-void av1_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
+void av2_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
                              int num_classes, int chroma);
 
 // Adds the nonseparable Wiener filter in info into the bank of rotating
@@ -3232,23 +3232,23 @@ void av1_reset_wienerns_bank(WienerNonsepInfoBank *bank, int qindex,
 // filter in the bank is discarded, filters in slots two  through LR_BANK_SIZE
 // are moved to slots one through LR_BANK_SIZE - 1 numbered slots, and the
 // filter in info is added to the last slot.
-void av1_add_to_wienerns_bank(WienerNonsepInfoBank *bank,
+void av2_add_to_wienerns_bank(WienerNonsepInfoBank *bank,
                               const WienerNonsepInfo *info,
                               int wiener_class_id);
 
 // Returns the filter that is at slot ndx from last. When ndx is zero the last
 // filter added is returned. When ndx is one the filter added before the last
 // and so on.
-WienerNonsepInfo *av1_ref_from_wienerns_bank(WienerNonsepInfoBank *bank,
+WienerNonsepInfo *av2_ref_from_wienerns_bank(WienerNonsepInfoBank *bank,
                                              int ndx, int wiener_class_id);
 
-const WienerNonsepInfo *av1_constref_from_wienerns_bank(
+const WienerNonsepInfo *av2_constref_from_wienerns_bank(
     const WienerNonsepInfoBank *bank, int ndx, int wiener_class_id);
-void av1_upd_to_wienerns_bank(WienerNonsepInfoBank *bank, int ndx,
+void av2_upd_to_wienerns_bank(WienerNonsepInfoBank *bank, int ndx,
                               const WienerNonsepInfo *info,
                               int wiener_class_id);
 
-void av1_reset_loop_restoration(MACROBLOCKD *xd, int plane_start, int plane_end,
+void av2_reset_loop_restoration(MACROBLOCKD *xd, int plane_start, int plane_end,
                                 const int *num_filter_classes);
 
 typedef void (*foreach_transformed_block_visitor)(int plane, int block,
@@ -3256,24 +3256,24 @@ typedef void (*foreach_transformed_block_visitor)(int plane, int block,
                                                   BLOCK_SIZE plane_bsize,
                                                   TX_SIZE tx_size, void *arg);
 
-void av1_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride);
+void av2_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride);
 
-void av1_set_entropy_contexts(const MACROBLOCKD *xd,
+void av2_set_entropy_contexts(const MACROBLOCKD *xd,
                               struct macroblockd_plane *pd, int plane,
                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
                               int has_eob, int aoff, int loff);
 
-void av1_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride);
-void av1_mark_block_as_coded(MACROBLOCKD *xd, BLOCK_SIZE bsize,
+void av2_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride);
+void av2_mark_block_as_coded(MACROBLOCKD *xd, BLOCK_SIZE bsize,
                              BLOCK_SIZE sb_size);
-void av1_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av2_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
                                  BLOCK_SIZE bsize, BLOCK_SIZE sb_size);
 // For a superblock partly outside the frame boundary,
 // if a block in the superblock is outside the frame boundary and hence not
 // coded, but it should have been visited before the current CU according to
 // decoding/partitioning order, mark it as 'pseudo coded' to help determine
 // local intraBC range
-void av1_mark_block_as_pseudo_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+void av2_mark_block_as_pseudo_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
                                     BLOCK_SIZE bsize, BLOCK_SIZE sb_size);
 #define MAX_INTERINTRA_SB_SQUARE 64 * 64
 static INLINE int is_interintra_mode(const MB_MODE_INFO *mbmi) {
@@ -3289,12 +3289,12 @@ static INLINE int is_tip_allowed_bsize(const MB_MODE_INFO *mbmi) {
   assert(bsize < BLOCK_SIZES_ALL);
   assert(chroma_bsize_base < BLOCK_SIZES_ALL);
   return is_chroma_ref && (bsize == chroma_bsize_base) &&
-         (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8);
+         (AVMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8);
 }
 
 static INLINE int is_interintra_allowed_bsize(const BLOCK_SIZE bsize) {
   return bsize >= BLOCK_8X8 &&
-         AOMMAX(block_size_wide[bsize], block_size_high[bsize]) <= 64;
+         AVMMAX(block_size_wide[bsize], block_size_high[bsize]) <= 64;
 }
 
 static INLINE int is_interintra_allowed_mode(const PREDICTION_MODE mode) {
@@ -3333,7 +3333,7 @@ static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize,
                                                     int mi_row, int mi_col) {
   assert(bsize < BLOCK_SIZES_ALL);
 
-  if (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8) {
+  if (AVMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8) {
     return 0;
   }
   (void)mi_row;
@@ -3347,7 +3347,7 @@ static INLINE int is_motion_variation_allowed_compound(
   return !has_second_ref(mbmi);
 }
 
-static INLINE int av1_allow_palette(int plane_type,
+static INLINE int av2_allow_palette(int plane_type,
                                     int allow_screen_content_tools,
                                     BLOCK_SIZE sb_type) {
   assert(sb_type < BLOCK_SIZES_ALL);
@@ -3361,7 +3361,7 @@ static INLINE int av1_allow_palette(int plane_type,
 // differ from 'height' and 'width' when part of the block is outside the
 // right
 // and/or bottom image boundary.
-static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
+static INLINE void av2_get_block_dimensions(BLOCK_SIZE bsize, int plane,
                                             const MACROBLOCKD *xd, int *width,
                                             int *height,
                                             int *rows_within_bounds,
@@ -3406,13 +3406,13 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
 }
 
 /* clang-format off */
-typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
+typedef avm_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
                               [CDF_SIZE(PALETTE_COLORS)];
 typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
                               [PALETTE_COLORS];
 /* clang-format on */
 
-typedef aom_cdf_prob (*IdentityRowCdf)[CDF_SIZE(3)];
+typedef avm_cdf_prob (*IdentityRowCdf)[CDF_SIZE(3)];
 typedef const int (*IdentityRowCost)[PALETTE_ROW_FLAG_CONTEXTS][3];
 
 typedef struct {
@@ -3426,7 +3426,7 @@ typedef struct {
   ColorCost color_cost;
   IdentityRowCdf identity_row_cdf;
   IdentityRowCost identity_row_cost;
-} Av1ColorMapParam;
+} Av2ColorMapParam;
 
 static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd,
                                             const MB_MODE_INFO *mbmi) {
@@ -3437,7 +3437,7 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd,
 
   // First check if all modes are GLOBALMV
   if (mbmi->mode != GLOBALMV && mbmi->mode != GLOBAL_GLOBALMV) return 0;
-  if (AOMMIN(mi_size_wide[mbmi->sb_type[PLANE_TYPE_Y]],
+  if (AVMMIN(mi_size_wide[mbmi->sb_type[PLANE_TYPE_Y]],
              mi_size_high[mbmi->sb_type[PLANE_TYPE_Y]]) < 2)
     return 0;
 
@@ -3452,7 +3452,7 @@ static INLINE PLANE_TYPE get_plane_type(int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
 }
 
-static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
+static INLINE int av2_get_max_eob(TX_SIZE tx_size) {
   if (tx_size == TX_64X64 || tx_size == TX_64X32 || tx_size == TX_32X64) {
     return 1024;
   }
@@ -3468,7 +3468,7 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   return tx_size_2d[tx_size];
 }
 
-static AOM_INLINE PARTITION_TREE *get_partition_subtree_const(
+static AVM_INLINE PARTITION_TREE *get_partition_subtree_const(
     const PARTITION_TREE *partition_tree, int idx) {
   if (!partition_tree) {
     return NULL;
@@ -3500,4 +3500,4 @@ static INLINE int8_t get_cwp_idx(const MB_MODE_INFO *mbmi) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_BLOCKD_H_
+#endif  // AVM_AV2_COMMON_BLOCKD_H_

@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_GDF_H
-#define AOM_AV1_COMMON_GDF_H
-#include "av1/common/av1_common_int.h"
-#include "av1/common/bru.h"
+#ifndef AVM_AV2_COMMON_GDF_H
+#define AVM_AV2_COMMON_GDF_H
+#include "av2/common/av2_common_int.h"
+#include "av2/common/bru.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,7 +29,7 @@ enum Direction { GDF_VER, GDF_HOR, GDF_DIAG0, GDF_DIAG1, GDF_NUM_DIRS };
 
 /*!\brief Function to initialize information of GDF from cm
  */
-void init_gdf(AV1_COMMON *cm);
+void init_gdf(AV2_COMMON *cm);
 
 /*!\brief Function to initialize information of GDF for tests
  */
@@ -46,7 +46,7 @@ void free_gdf_buffers(GdfInfo *gi);
 
 /*!\brief Function to print paramters of GDF
  */
-void gdf_print_info(AV1_COMMON *cm, char *info, int poc);
+void gdf_print_info(AV2_COMMON *cm, char *info, int poc);
 
 /*!\brief Function to extend - pad - the copy guided frame of GDF
  */
@@ -55,51 +55,51 @@ void gdf_extend_frame_highbd(uint16_t *data, int width, int height, int stride,
 
 /*!\brief Function to setup reference lines for filtering stripe
  */
-void gdf_setup_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
+void gdf_setup_reference_lines(AV2_COMMON *cm, int i_min, int i_max,
                                int frame_stripe, int copy_above,
                                int copy_below);
 
 /*!\brief Function to unset reference lines for filtering stripe
  */
-void gdf_unset_reference_lines(AV1_COMMON *cm, int i_min, int i_max,
+void gdf_unset_reference_lines(AV2_COMMON *cm, int i_min, int i_max,
                                int copy_above, int copy_below);
 
 /*!\brief Function to allocate memory and copy guided frame of GDF
  */
-void gdf_copy_guided_frame(AV1_COMMON *cm);
+void gdf_copy_guided_frame(AV2_COMMON *cm);
 /*!\brief Function to free memory for guided frame of GDF
  */
-void gdf_free_guided_frame(AV1_COMMON *cm);
+void gdf_free_guided_frame(AV2_COMMON *cm);
 
 /*!\brief Function to calculate block index in list of block on/off flags
  */
-int gdf_get_block_idx(const AV1_COMMON *cm, int y_h, int y_w);
+int gdf_get_block_idx(const AV2_COMMON *cm, int y_h, int y_w);
 
 /*!\brief Function to calculate indices for lookup tables of GDF
  *        in which index is calculated based on distances to references frames
  *        and tables are weight, bias, clipping, and expected coding error
  */
-int gdf_get_ref_dst_idx(const AV1_COMMON *cm);
+int gdf_get_ref_dst_idx(const AV2_COMMON *cm);
 
 /*!\brief Function to calculate indices for lookup weight+bias+clipping tables
  * of GDF in which index is calculated based on QP and tables are weight, bias,
  * clipping, and expected coding error
  */
-int gdf_get_qp_idx_base(const AV1_COMMON *cm);
+int gdf_get_qp_idx_base(const AV2_COMMON *cm);
 
 /*!\brief Function to apply GDF to whole frame
  */
-void gdf_filter_frame(AV1_COMMON *cm);
+void gdf_filter_frame(AV2_COMMON *cm);
 
 /*!\brief Function to check whether GDF allowed.
  */
-static inline int is_allow_gdf(const AV1_COMMON *cm) {
+static inline int is_allow_gdf(const AV2_COMMON *cm) {
   return !cm->features.coded_lossless;
 }
 
 /*!\brief Function to check whether GDF enabled.
  */
-static inline int is_gdf_enabled(const AV1_COMMON *cm) {
+static inline int is_gdf_enabled(const AV2_COMMON *cm) {
   return is_allow_gdf(cm) && cm->gdf_info.gdf_mode > 0;
 }
 
@@ -141,4 +141,4 @@ void gdf_restore_processing_stripe_leftright_boundary(GdfInfo *gdf, int i_min,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_GDF_H
+#endif  // AVM_AV2_COMMON_GDF_H

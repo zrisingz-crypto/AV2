@@ -12,12 +12,12 @@
 
 #include <stdlib.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/loopfilter.h"
-#include "aom_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/loopfilter.h"
+#include "avm_ports/mem.h"
 
 static INLINE void filt_generic_asym_highbd(int q_threshold, int width_neg,
                                             int width_pos, uint16_t *s,
@@ -29,7 +29,7 @@ static INLINE void filt_generic_asym_highbd(int q_threshold, int width_neg,
   if (width_neg < 1) return;
   if (width_pos < 1) return;
 
-  int width = AOMMAX(width_neg, width_pos);
+  int width = AVMMAX(width_neg, width_pos);
   int delta_m2 = (3 * (s[0] - s[-1 * pitch]) - (s[pitch] - s[-2 * pitch])) * 4;
 
   int q_thresh_clamp = q_threshold * q_thresh_mults[width - 1];
@@ -55,7 +55,7 @@ static INLINE void filt_generic_asym_highbd(int q_threshold, int width_neg,
   }
 }
 
-void aom_highbd_lpf_horizontal_generic_c(uint16_t *s, int pitch,
+void avm_highbd_lpf_horizontal_generic_c(uint16_t *s, int pitch,
                                          int filt_width_neg, int filt_width_pos,
                                          const uint16_t *q_thresh,
                                          const uint16_t *side_thresh, int bd,
@@ -70,13 +70,13 @@ void aom_highbd_lpf_horizontal_generic_c(uint16_t *s, int pitch,
                                   *q_thresh, *side_thresh, s + count - 1);
 
   for (i = 0; i < count; ++i) {
-    filt_generic_asym_highbd(*q_thresh, AOMMIN(filter, filt_neg), filter, s,
+    filt_generic_asym_highbd(*q_thresh, AVMMIN(filter, filt_neg), filter, s,
                              pitch, bd, is_lossless_neg, is_lossless_pos);
     ++s;
   }
 }
 
-void aom_highbd_lpf_vertical_generic_c(uint16_t *s, int pitch,
+void avm_highbd_lpf_vertical_generic_c(uint16_t *s, int pitch,
                                        int filt_width_neg, int filt_width_pos,
                                        const uint16_t *q_thresh,
                                        const uint16_t *side_thresh, int bd,
@@ -93,7 +93,7 @@ void aom_highbd_lpf_vertical_generic_c(uint16_t *s, int pitch,
   // loop filter designed to work using chars so that we can make maximum use
   // of 8 bit simd instructions.
   for (i = 0; i < count; ++i) {
-    filt_generic_asym_highbd(*q_thresh, AOMMIN(filter, filt_neg), filter, s, 1,
+    filt_generic_asym_highbd(*q_thresh, AVMMIN(filter, filt_neg), filter, s, 1,
                              bd, is_lossless_neg, is_lossless_pos);
     s += pitch;
   }

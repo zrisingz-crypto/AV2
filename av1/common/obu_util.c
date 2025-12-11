@@ -11,12 +11,12 @@
  */
 #include <assert.h>
 
-#include "av1/common/obu_util.h"
+#include "av2/common/obu_util.h"
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/bitreader_buffer.h"
-#include "av1/common/enums.h"
+#include "avm_dsp/bitreader_buffer.h"
+#include "av2/common/enums.h"
 
 // Returns 1 when OBU type is valid, and 0 otherwise.
 static int valid_obu_type(int obu_type) {
@@ -73,43 +73,43 @@ static int valid_obu_type(int obu_type) {
   return valid_type;
 }
 
-static aom_codec_err_t read_obu_size(const uint8_t *data,
+static avm_codec_err_t read_obu_size(const uint8_t *data,
                                      size_t bytes_available,
                                      size_t *const obu_size,
                                      size_t *const length_field_size) {
   uint64_t u_obu_size = 0;
-  if (aom_uleb_decode(data, bytes_available, &u_obu_size, length_field_size) !=
+  if (avm_uleb_decode(data, bytes_available, &u_obu_size, length_field_size) !=
       0) {
-    return AOM_CODEC_CORRUPT_FRAME;
+    return AVM_CODEC_CORRUPT_FRAME;
   }
 
-  if (u_obu_size > UINT32_MAX) return AOM_CODEC_CORRUPT_FRAME;
+  if (u_obu_size > UINT32_MAX) return AVM_CODEC_CORRUPT_FRAME;
   *obu_size = (size_t)u_obu_size;
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 
 // Parses OBU header and stores values in 'header'.
-static aom_codec_err_t read_obu_header(struct aom_read_bit_buffer *rb,
+static avm_codec_err_t read_obu_header(struct avm_read_bit_buffer *rb,
                                        ObuHeader *header) {
-  if (!rb || !header) return AOM_CODEC_INVALID_PARAM;
+  if (!rb || !header) return AVM_CODEC_INVALID_PARAM;
 
   const ptrdiff_t bit_buffer_byte_length = rb->bit_buffer_end - rb->bit_buffer;
 
-  if (bit_buffer_byte_length < 1) return AOM_CODEC_CORRUPT_FRAME;
+  if (bit_buffer_byte_length < 1) return AVM_CODEC_CORRUPT_FRAME;
   header->size = 1;
 
-  header->obu_extension_flag = aom_rb_read_bit(rb);
-  header->type = (OBU_TYPE)aom_rb_read_literal(rb, 5);  // obu_type
-  if (!valid_obu_type(header->type)) return AOM_CODEC_CORRUPT_FRAME;
+  header->obu_extension_flag = avm_rb_read_bit(rb);
+  header->type = (OBU_TYPE)avm_rb_read_literal(rb, 5);  // obu_type
+  if (!valid_obu_type(header->type)) return AVM_CODEC_CORRUPT_FRAME;
 
-  header->obu_tlayer_id = aom_rb_read_literal(rb, TLAYER_BITS);
+  header->obu_tlayer_id = avm_rb_read_literal(rb, TLAYER_BITS);
 
   if (header->obu_extension_flag) {
-    if (bit_buffer_byte_length == 1) return AOM_CODEC_CORRUPT_FRAME;
+    if (bit_buffer_byte_length == 1) return AVM_CODEC_CORRUPT_FRAME;
     header->size += 1;
 
-    header->obu_mlayer_id = aom_rb_read_literal(rb, MLAYER_BITS);
-    header->obu_xlayer_id = aom_rb_read_literal(rb, XLAYER_BITS);
+    header->obu_mlayer_id = avm_rb_read_literal(rb, MLAYER_BITS);
+    header->obu_xlayer_id = avm_rb_read_literal(rb, XLAYER_BITS);
   } else {
     header->obu_mlayer_id = 0;
     if (header->type == OBU_MSDO)
@@ -117,34 +117,34 @@ static aom_codec_err_t read_obu_header(struct aom_read_bit_buffer *rb,
     else
       header->obu_xlayer_id = 0;
   }
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }
 
-aom_codec_err_t aom_read_obu_header_and_size(const uint8_t *data,
+avm_codec_err_t avm_read_obu_header_and_size(const uint8_t *data,
                                              size_t bytes_available,
                                              ObuHeader *obu_header,
                                              size_t *const payload_size,
                                              size_t *const bytes_read) {
   size_t length_field_size_obu = 0;
   size_t obu_size = 0;
-  aom_codec_err_t status;
+  avm_codec_err_t status;
 
   // Size field comes before the OBU header, and includes the OBU header
   status =
       read_obu_size(data, bytes_available, &obu_size, &length_field_size_obu);
 
-  if (status != AOM_CODEC_OK) return status;
+  if (status != AVM_CODEC_OK) return status;
 
-  struct aom_read_bit_buffer rb = { data + length_field_size_obu,
+  struct avm_read_bit_buffer rb = { data + length_field_size_obu,
                                     data + bytes_available, 0, NULL, NULL };
 
   status = read_obu_header(&rb, obu_header);
-  if (status != AOM_CODEC_OK) return status;
+  if (status != AVM_CODEC_OK) return status;
 
   // Derive the payload size from the data we've already read
-  if (obu_size < obu_header->size) return AOM_CODEC_CORRUPT_FRAME;
+  if (obu_size < obu_header->size) return AVM_CODEC_CORRUPT_FRAME;
   *payload_size = obu_size - obu_header->size;
   *bytes_read = length_field_size_obu + obu_header->size;
 
-  return AOM_CODEC_OK;
+  return AVM_CODEC_OK;
 }

@@ -12,18 +12,18 @@
 
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/blend.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/avm_dsp_common.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 // Blending with alpha mask. Mask values come from the range [0, 64],
-// as described for AOM_BLEND_A64 in aom_dsp/blend.h. src0 or src1 can
+// as described for AVM_BLEND_A64 in avm_dsp/blend.h. src0 or src1 can
 // be the same as dst, or dst can be different from both sources.
 
-// NOTE(rachelbarker): The input and output of aom_blend_a64_d16_mask_c() are
+// NOTE(rachelbarker): The input and output of avm_blend_a64_d16_mask_c() are
 // in a higher intermediate precision, and will later be rounded down to pixel
 // precision.
 // Thus, in order to avoid double-rounding, we want to use normal right shifts
@@ -34,7 +34,7 @@
 // In contrast, the output of the non-d16 functions will not be further rounded,
 // so we *should* use ROUND_POWER_OF_TWO there.
 
-void aom_highbd_blend_a64_d16_mask_c(
+void avm_highbd_blend_a64_d16_mask_c(
     uint16_t *dst, uint32_t dst_stride, const CONV_BUF_TYPE *src0,
     uint32_t src0_stride, const CONV_BUF_TYPE *src1, uint32_t src1_stride,
     const uint8_t *mask, uint32_t mask_stride, int w, int h, int subw, int subh,
@@ -68,11 +68,11 @@ void aom_highbd_blend_a64_d16_mask_c(
       for (int j = 0; j < w; ++j) {
         int32_t res;
         const int m = mask[j];
-        res = ((m * src0[j] + (AOM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
-               AOM_BLEND_A64_ROUND_BITS);
+        res = ((m * src0[j] + (AVM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
+               AVM_BLEND_A64_ROUND_BITS);
         res -= round_offset;
         unsigned int v = negative_to_zero(ROUND_POWER_OF_TWO(res, round_bits));
-        dst[j] = AOMMIN(v, saturation_value);
+        dst[j] = AVMMIN(v, saturation_value);
       }
       mask += mask_stride;
       src0 += src0_stride;
@@ -87,11 +87,11 @@ void aom_highbd_blend_a64_d16_mask_c(
             mask[2 * j] + mask[mask_stride + 2 * j] + mask[2 * j + 1] +
                 mask[mask_stride + 2 * j + 1],
             2);
-        res = (m * src0[j] + (AOM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
-              AOM_BLEND_A64_ROUND_BITS;
+        res = (m * src0[j] + (AVM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
+              AVM_BLEND_A64_ROUND_BITS;
         res -= round_offset;
         unsigned int v = negative_to_zero(ROUND_POWER_OF_TWO(res, round_bits));
-        dst[j] = AOMMIN(v, saturation_value);
+        dst[j] = AVMMIN(v, saturation_value);
       }
       mask += 2 * mask_stride;
       src0 += src0_stride;
@@ -102,12 +102,12 @@ void aom_highbd_blend_a64_d16_mask_c(
     for (int i = 0; i < h; ++i) {
       for (int j = 0; j < w; ++j) {
         int32_t res;
-        const int m = AOM_BLEND_AVG(mask[2 * j], mask[2 * j + 1]);
-        res = (m * src0[j] + (AOM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
-              AOM_BLEND_A64_ROUND_BITS;
+        const int m = AVM_BLEND_AVG(mask[2 * j], mask[2 * j + 1]);
+        res = (m * src0[j] + (AVM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
+              AVM_BLEND_A64_ROUND_BITS;
         res -= round_offset;
         unsigned int v = negative_to_zero(ROUND_POWER_OF_TWO(res, round_bits));
-        dst[j] = AOMMIN(v, saturation_value);
+        dst[j] = AVMMIN(v, saturation_value);
       }
       mask += mask_stride;
       src0 += src0_stride;
@@ -118,12 +118,12 @@ void aom_highbd_blend_a64_d16_mask_c(
     for (int i = 0; i < h; ++i) {
       for (int j = 0; j < w; ++j) {
         int32_t res;
-        const int m = AOM_BLEND_AVG(mask[j], mask[mask_stride + j]);
-        res = (m * src0[j] + (AOM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
-              AOM_BLEND_A64_ROUND_BITS;
+        const int m = AVM_BLEND_AVG(mask[j], mask[mask_stride + j]);
+        res = (m * src0[j] + (AVM_BLEND_A64_MAX_ALPHA - m) * src1[j]) >>
+              AVM_BLEND_A64_ROUND_BITS;
         res -= round_offset;
         unsigned int v = negative_to_zero(ROUND_POWER_OF_TWO(res, round_bits));
-        dst[j] = AOMMIN(v, saturation_value);
+        dst[j] = AVMMIN(v, saturation_value);
       }
       mask += 2 * mask_stride;
       src0 += src0_stride;
@@ -134,10 +134,10 @@ void aom_highbd_blend_a64_d16_mask_c(
 }
 
 // Blending with alpha mask. Mask values come from the range [0, 64],
-// as described for AOM_BLEND_A64 in aom_dsp/blend.h. src0 or src1 can
+// as described for AVM_BLEND_A64 in avm_dsp/blend.h. src0 or src1 can
 // be the same as dst, or dst can be different from both sources.
 
-void aom_highbd_blend_a64_mask_c(uint16_t *dst, uint32_t dst_stride,
+void avm_highbd_blend_a64_mask_c(uint16_t *dst, uint32_t dst_stride,
                                  const uint16_t *src0, uint32_t src0_stride,
                                  const uint16_t *src1, uint32_t src1_stride,
                                  const uint8_t *mask, uint32_t mask_stride,
@@ -159,7 +159,7 @@ void aom_highbd_blend_a64_mask_c(uint16_t *dst, uint32_t dst_stride,
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; ++j) {
         const int m = mask[i * mask_stride + j];
-        dst[i * dst_stride + j] = AOM_BLEND_A64(m, src0[i * src0_stride + j],
+        dst[i * dst_stride + j] = AVM_BLEND_A64(m, src0[i * src0_stride + j],
                                                 src1[i * src1_stride + j]);
       }
     }
@@ -172,25 +172,25 @@ void aom_highbd_blend_a64_mask_c(uint16_t *dst, uint32_t dst_stride,
                 mask[(2 * i) * mask_stride + (2 * j + 1)] +
                 mask[(2 * i + 1) * mask_stride + (2 * j + 1)],
             2);
-        dst[i * dst_stride + j] = AOM_BLEND_A64(m, src0[i * src0_stride + j],
+        dst[i * dst_stride + j] = AVM_BLEND_A64(m, src0[i * src0_stride + j],
                                                 src1[i * src1_stride + j]);
       }
     }
   } else if (subw == 1 && subh == 0) {
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; ++j) {
-        const int m = AOM_BLEND_AVG(mask[i * mask_stride + (2 * j)],
+        const int m = AVM_BLEND_AVG(mask[i * mask_stride + (2 * j)],
                                     mask[i * mask_stride + (2 * j + 1)]);
-        dst[i * dst_stride + j] = AOM_BLEND_A64(m, src0[i * src0_stride + j],
+        dst[i * dst_stride + j] = AVM_BLEND_A64(m, src0[i * src0_stride + j],
                                                 src1[i * src1_stride + j]);
       }
     }
   } else {
     for (i = 0; i < h; ++i) {
       for (j = 0; j < w; ++j) {
-        const int m = AOM_BLEND_AVG(mask[(2 * i) * mask_stride + j],
+        const int m = AVM_BLEND_AVG(mask[(2 * i) * mask_stride + j],
                                     mask[(2 * i + 1) * mask_stride + j]);
-        dst[i * dst_stride + j] = AOM_BLEND_A64(m, src0[i * src0_stride + j],
+        dst[i * dst_stride + j] = AVM_BLEND_A64(m, src0[i * src0_stride + j],
                                                 src1[i * src1_stride + j]);
       }
     }

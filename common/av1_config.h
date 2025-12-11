@@ -9,19 +9,19 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_COMMON_AV1_CONFIG_H_
-#define AOM_COMMON_AV1_CONFIG_H_
+#ifndef AVM_COMMON_AV2_CONFIG_H_
+#define AVM_COMMON_AV2_CONFIG_H_
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Struct representing ISOBMFF/Matroska AV1 config. See:
-// https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-syntax
+// Struct representing ISOBMFF/Matroska AV2 config. See:
+// https://aomediacodec.github.io/av2-isobmff/#av2codecconfigurationbox-syntax
 //
-// The AV1 config has the following format:
+// The AV2 config has the following format:
 //
 // unsigned int (1) marker = 1;
 // unsigned int (7) version = 1;
@@ -49,9 +49,9 @@ extern "C" {
 //
 // unsigned int (8)[] configOBUs;
 //
-// Note: get_av1config_from_obu() does not currently store 'configOBUs' data, so
+// Note: get_av2config_from_obu() does not currently store 'configOBUs' data, so
 // the field is omitted.
-typedef struct _Av1Config {
+typedef struct _Av2Config {
   uint8_t marker;
   uint8_t version;
 #if CONFIG_CWG_E242_SEQ_HDR_ID
@@ -102,27 +102,27 @@ typedef struct _Av1Config {
   uint8_t ci_sar_width;
   uint8_t ci_sar_height;
 #endif  // CONFIG_CWG_F270_CI_OBU
-} Av1Config;
+} Av2Config;
 
 // Attempts to parse a Sequence Header OBU and set the paramenters of 'config'.
 // Returns 0 upon success, and -1 upon failure. 'buffer' can contain multiple
 // OBUs, but the Sequence Header OBU must be the first OBU within the buffer.
-int get_av1config_from_obu(const uint8_t *buffer, size_t length,
-                           Av1Config *config);
+int get_av2config_from_obu(const uint8_t *buffer, size_t length,
+                           Av2Config *config);
 
-// Attempts to parse an AV1 config from 'buffer'. Returns 0 upon success.
+// Attempts to parse an AV2 config from 'buffer'. Returns 0 upon success.
 // Returns -1 when 'buffer_length' is less than 4, when passed NULL pointers, or
 // when parsing of 'buffer' fails.
-int read_av1config(const uint8_t *buffer, size_t buffer_length,
-                   size_t *bytes_read, Av1Config *config);
+int read_av2config(const uint8_t *buffer, size_t buffer_length,
+                   size_t *bytes_read, Av2Config *config);
 
 // Writes 'config' to 'buffer'. Returns 0 upon successful write to 'buffer'.
 // Returns -1 when passed NULL pointers or when 'capacity' insufficient.
-int write_av1config(const Av1Config *config, size_t capacity,
+int write_av2config(const Av2Config *config, size_t capacity,
                     size_t *bytes_written, uint8_t *buffer);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  // AOM_COMMON_AV1_CONFIG_H_
+#endif  // AVM_COMMON_AV2_CONFIG_H_

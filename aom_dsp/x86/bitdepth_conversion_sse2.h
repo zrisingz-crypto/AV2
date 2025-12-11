@@ -12,9 +12,9 @@
 
 #include <xmmintrin.h>
 
-#include "config/aom_config.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_dsp_common.h"
+#include "config/avm_config.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 // Load 8 16 bit values. If the source is 32 bits then pack down with
 // saturation.

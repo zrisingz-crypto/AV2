@@ -9,15 +9,15 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #define RTCD_C
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_ports/aom_once.h"
+#include "avm_ports/avm_once.h"
 
-void av1_rtcd() {
-  // TODO(JBB): Remove this aom_once, by insuring that both the encoder and
-  // decoder setup functions are protected by aom_once();
-  aom_once(setup_rtcd_internal);
+void av2_rtcd() {
+  // TODO(JBB): Remove this avm_once, by insuring that both the encoder and
+  // decoder setup functions are protected by avm_once();
+  avm_once(setup_rtcd_internal);
 }

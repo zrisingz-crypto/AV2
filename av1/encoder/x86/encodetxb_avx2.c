@@ -15,12 +15,12 @@
 #include <smmintrin.h>  /* SSE4.1 */
 #include <immintrin.h>  /* AVX2 */
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/mem_sse2.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/txb_common.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/synonyms_avx2.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/mem_sse2.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/txb_common.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/synonyms_avx2.h"
 
 static INLINE void _yy256_fill_buffer(__m256i *buff, __m256i *end,
                                       __m256i zeros) {
@@ -30,7 +30,7 @@ static INLINE void _yy256_fill_buffer(__m256i *buff, __m256i *end,
   } while (buff < end);
 }
 
-void av1_txb_init_levels_skip_avx2(const tran_low_t *const coeff,
+void av2_txb_init_levels_skip_avx2(const tran_low_t *const coeff,
                                    const int width, const int height,
                                    uint8_t *const levels) {
   const int stride = width + TX_PAD_LEFT;
@@ -129,7 +129,7 @@ void av1_txb_init_levels_skip_avx2(const tran_low_t *const coeff,
   }
 }
 
-void av1_txb_init_levels_signs_avx2(const tran_low_t *const coeff,
+void av2_txb_init_levels_signs_avx2(const tran_low_t *const coeff,
                                     const int width, const int height,
                                     uint8_t *const levels,
                                     int8_t *const signs) {
@@ -290,7 +290,7 @@ void av1_txb_init_levels_signs_avx2(const tran_low_t *const coeff,
   }
 }
 
-void av1_txb_init_levels_avx2(const tran_low_t *const coeff, const int width,
+void av2_txb_init_levels_avx2(const tran_low_t *const coeff, const int width,
                               const int height, uint8_t *const levels) {
   const int stride = width + TX_PAD_HOR;
   const __m256i y_zeros = _mm256_setzero_si256();

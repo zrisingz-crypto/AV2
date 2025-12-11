@@ -12,34 +12,34 @@
 
 #include <limits.h>
 
-#include "aom_mem/aom_mem.h"
+#include "avm_mem/avm_mem.h"
 
-#include "av1/common/pred_common.h"
-#include "av1/common/tile_common.h"
+#include "av2/common/pred_common.h"
+#include "av2/common/tile_common.h"
 
-#include "av1/common/cost.h"
-#include "av1/encoder/segmentation.h"
+#include "av2/common/cost.h"
+#include "av2/encoder/segmentation.h"
 
-void av1_enable_segmentation(struct segmentation *seg) {
+void av2_enable_segmentation(struct segmentation *seg) {
   seg->enabled = 1;
   seg->update_map = 1;
   seg->update_data = 1;
   seg->temporal_update = 0;
 }
 
-void av1_disable_segmentation(struct segmentation *seg) {
+void av2_disable_segmentation(struct segmentation *seg) {
   seg->enabled = 0;
   seg->update_map = 0;
   seg->update_data = 0;
   seg->temporal_update = 0;
 }
 
-void av1_disable_segfeature(struct segmentation *seg, int segment_id,
+void av2_disable_segfeature(struct segmentation *seg, int segment_id,
                             SEG_LVL_FEATURES feature_id) {
   seg->feature_mask[segment_id] &= ~(1 << feature_id);
 }
 
-static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
+static void count_segs(const AV2_COMMON *cm, MACROBLOCKD *xd,
                        const TileInfo *tile, MB_MODE_INFO **mi,
                        unsigned *no_pred_segcounts,
                        unsigned (*temporal_predictor_count)[2],
@@ -68,7 +68,7 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
                              mi_col)
             : 0;
     const int pred_flag = pred_segment_id == segment_id;
-    const int pred_context = av1_get_pred_context_seg_id(xd);
+    const int pred_context = av2_get_pred_context_seg_id(xd);
 
     // Store the prediction status for this mb and update counts
     // as appropriate
@@ -80,7 +80,7 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 }
 
-static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
+static void count_segs_sb(const AV2_COMMON *cm, MACROBLOCKD *xd,
                           const TileInfo *tile, MB_MODE_INFO **mi,
                           unsigned *no_pred_segcounts,
                           unsigned (*temporal_predictor_count)[2],
@@ -183,7 +183,7 @@ static void count_segs_sb(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #undef CSEGS
 }
 
-void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
+void av2_choose_segmap_coding_method(AV2_COMMON *cm, MACROBLOCKD *xd) {
   struct segmentation *seg = &cm->seg;
   struct segmentation_probs *segp = &cm->fc->seg;
   int no_pred_cost;
@@ -200,10 +200,10 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   if (!scale_up) {
     for (tile_row = 0; tile_row < cm->tiles.rows; tile_row++) {
       TileInfo tile_info;
-      av1_tile_set_row(&tile_info, cm, tile_row);
+      av2_tile_set_row(&tile_info, cm, tile_row);
       for (tile_col = 0; tile_col < cm->tiles.cols; tile_col++) {
         MB_MODE_INFO **mi_ptr;
-        av1_tile_set_col(&tile_info, cm, tile_col);
+        av2_tile_set_col(&tile_info, cm, tile_col);
         mi_ptr = cm->mi_params.mi_grid_base +
                  tile_info.mi_row_start * cm->mi_params.mi_stride +
                  tile_info.mi_col_start;
@@ -213,8 +213,8 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
           MB_MODE_INFO **mi = mi_ptr;
           for (mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
                mi_col += cm->mib_size, mi += cm->mib_size) {
-            const SB_INFO *sbi = av1_get_sb_info(cm, mi_row, mi_col);
-            const PARTITION_TREE *ptree = sbi->ptree_root[AOM_PLANE_Y];
+            const SB_INFO *sbi = av2_get_sb_info(cm, mi_row, mi_col);
+            const PARTITION_TREE *ptree = sbi->ptree_root[AVM_PLANE_Y];
             count_segs_sb(cm, xd, &tile_info, mi, no_pred_segcounts,
                           temporal_predictor_count, t_unpred_seg_counts, mi_row,
                           mi_col, ptree);
@@ -227,11 +227,11 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   int seg_id_cost[MAX_SEGMENTS] = { 0 };
 
   if (seg->enable_ext_seg == 1) {
-    av1_cost_tokens_from_cdf(seg_id_cost, segp->tree_cdf, MAX_SEGMENTS_8, NULL);
-    av1_cost_tokens_from_cdf(seg_id_cost + MAX_SEGMENTS_8, segp->tree_cdf1,
+    av2_cost_tokens_from_cdf(seg_id_cost, segp->tree_cdf, MAX_SEGMENTS_8, NULL);
+    av2_cost_tokens_from_cdf(seg_id_cost + MAX_SEGMENTS_8, segp->tree_cdf1,
                              MAX_SEGMENTS_8, NULL);
   } else {
-    av1_cost_tokens_from_cdf(seg_id_cost, segp->tree_cdf, MAX_SEGMENTS_8, NULL);
+    av2_cost_tokens_from_cdf(seg_id_cost, segp->tree_cdf, MAX_SEGMENTS_8, NULL);
   }
 
   no_pred_cost = 0;
@@ -242,7 +242,7 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
   if (cm->features.primary_ref_frame != PRIMARY_REF_NONE) {
     int pred_flag_cost[SEG_TEMPORAL_PRED_CTXS][2];
     for (int i = 0; i < SEG_TEMPORAL_PRED_CTXS; ++i)
-      av1_cost_tokens_from_cdf(pred_flag_cost[i], segp->pred_cdf[i], 2, NULL);
+      av2_cost_tokens_from_cdf(pred_flag_cost[i], segp->pred_cdf[i], 2, NULL);
     t_pred_cost = 0;
     // Cost for signaling the prediction flag.
     for (int i = 0; i < SEG_TEMPORAL_PRED_CTXS; ++i) {
@@ -266,13 +266,13 @@ void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd) {
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
 }
 
-void av1_reset_segment_features(AV1_COMMON *cm) {
+void av2_reset_segment_features(AV2_COMMON *cm) {
   struct segmentation *seg = &cm->seg;
 
   // Set up default state for MB feature flags
   seg->enabled = 0;
   seg->update_map = 0;
   seg->update_data = 0;
-  av1_clearall_segfeatures(seg);
+  av2_clearall_segfeatures(seg);
   seg->enable_ext_seg = cm->seq_params.enable_ext_seg;
 }

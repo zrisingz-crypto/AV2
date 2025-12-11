@@ -10,17 +10,17 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_GOP_STRUCTURE_H_
-#define AOM_AV1_ENCODER_GOP_STRUCTURE_H_
+#ifndef AVM_AV2_ENCODER_GOP_STRUCTURE_H_
+#define AVM_AV2_ENCODER_GOP_STRUCTURE_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/encoder/ratectrl.h"
-#include "config/aom_config.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/encoder/ratectrl.h"
+#include "config/avm_config.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 /*!\cond */
-struct AV1_COMP;
+struct AV2_COMP;
 struct EncodeFrameParams;
 
 #define NORMAL_BOOST 100
@@ -40,7 +40,7 @@ struct EncodeFrameParams;
  *
  * No return value but this function updates group data structures.
  */
-void av1_gop_setup_structure(struct AV1_COMP *cpi);
+void av2_gop_setup_structure(struct AV2_COMP *cpi);
 
 /*!\brief Distributes bits to frames in a group
  *
@@ -61,7 +61,7 @@ void av1_gop_setup_structure(struct AV1_COMP *cpi);
  * No return but updates the rate control and group data structures
  * to reflect the allocation of bits.
  */
-void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
+void av2_gop_bit_allocation(const AV2_COMP *cpi, RATE_CONTROL *const rc,
                             GF_GROUP *gf_group, int is_key_frame, int use_arf,
                             int64_t gf_group_bits);
 
@@ -81,7 +81,7 @@ static INLINE int has_enough_frames_for_key_filtering(int frames_to_key,
 }
 
 /*!\cond */
-int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
+int av2_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                        FRAME_INFO *frame_info, int offset, int f_frames,
                        int b_frames, int *num_fpstats_used,
                        int *num_fpstats_required);
@@ -91,4 +91,4 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_GOP_STRUCTURE_H_
+#endif  // AVM_AV2_ENCODER_GOP_STRUCTURE_H_

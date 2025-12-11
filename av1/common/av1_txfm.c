@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/av1_txfm.h"
+#include "av2/common/av2_txfm.h"
 
 /*!
  * Secondary transform coeffs in 32-bit precision
@@ -28,7 +28,7 @@ DECLARE_ALIGNED(32, int32_t,
                 ist_8x8_kernel_int32[IST_8x8_SET_SIZE][STX_TYPES - 1]
                                     [IST_8x8_HEIGHT_MAX][IST_8x8_WIDTH]);
 
-void av1_init_stxfm_kernels(void) {
+void av2_init_stxfm_kernels(void) {
   const int type_max = STX_TYPES - 1;
 
   const int row_max_4x4 = 16;

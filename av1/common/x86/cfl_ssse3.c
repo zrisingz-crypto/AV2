@@ -12,11 +12,11 @@
 
 #include <tmmintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cfl.h"
+#include "av2/common/cfl.h"
 
-#include "av1/common/x86/cfl_simd.h"
+#include "av2/common/x86/cfl_simd.h"
 
 // Store 32-bit integer from the first element of a into memory.
 static INLINE void _mm_storeh_epi32(__m128i const *mem_addr, __m128i a) {

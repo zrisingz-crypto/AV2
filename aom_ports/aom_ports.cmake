@@ -8,87 +8,87 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_AOM_PORTS_AOM_PORTS_CMAKE_)
+if(AVM_AVM_PORTS_AVM_PORTS_CMAKE_)
   return()
-endif() # AOM_AOM_PORTS_AOM_PORTS_CMAKE_
-set(AOM_AOM_PORTS_AOM_PORTS_CMAKE_ 1)
+endif() # AVM_AVM_PORTS_AVM_PORTS_CMAKE_
+set(AVM_AVM_PORTS_AVM_PORTS_CMAKE_ 1)
 
 list(
   APPEND
-  AOM_PORTS_INCLUDES
-  "${AOM_ROOT}/aom_ports/aom_once.h"
-  "${AOM_ROOT}/aom_ports/aom_timer.h"
-  "${AOM_ROOT}/aom_ports/bitops.h"
-  "${AOM_ROOT}/aom_ports/emmintrin_compat.h"
-  "${AOM_ROOT}/aom_ports/mem.h"
-  "${AOM_ROOT}/aom_ports/mem_ops.h"
-  "${AOM_ROOT}/aom_ports/mem_ops_aligned.h"
-  "${AOM_ROOT}/aom_ports/msvc.h"
-  "${AOM_ROOT}/aom_ports/sanitizer.h"
-  "${AOM_ROOT}/aom_ports/system_state.h")
+  AVM_PORTS_INCLUDES
+  "${AVM_ROOT}/avm_ports/avm_once.h"
+  "${AVM_ROOT}/avm_ports/avm_timer.h"
+  "${AVM_ROOT}/avm_ports/bitops.h"
+  "${AVM_ROOT}/avm_ports/emmintrin_compat.h"
+  "${AVM_ROOT}/avm_ports/mem.h"
+  "${AVM_ROOT}/avm_ports/mem_ops.h"
+  "${AVM_ROOT}/avm_ports/mem_ops_aligned.h"
+  "${AVM_ROOT}/avm_ports/msvc.h"
+  "${AVM_ROOT}/avm_ports/sanitizer.h"
+  "${AVM_ROOT}/avm_ports/system_state.h")
 
-list(APPEND AOM_PORTS_ASM_X86 "${AOM_ROOT}/aom_ports/emms.asm")
+list(APPEND AVM_PORTS_ASM_X86 "${AVM_ROOT}/avm_ports/emms.asm")
 
-list(APPEND AOM_PORTS_INCLUDES_X86 "${AOM_ROOT}/aom_ports/x86_abi_support.asm")
+list(APPEND AVM_PORTS_INCLUDES_X86 "${AVM_ROOT}/avm_ports/x86_abi_support.asm")
 
-list(APPEND AOM_PORTS_SOURCES_ARM "${AOM_ROOT}/aom_ports/arm.h"
-     "${AOM_ROOT}/aom_ports/arm_cpudetect.c")
+list(APPEND AVM_PORTS_SOURCES_ARM "${AVM_ROOT}/avm_ports/arm.h"
+     "${AVM_ROOT}/avm_ports/arm_cpudetect.c")
 
-list(APPEND AOM_PORTS_SOURCES_PPC "${AOM_ROOT}/aom_ports/ppc.h"
-     "${AOM_ROOT}/aom_ports/ppc_cpudetect.c")
+list(APPEND AVM_PORTS_SOURCES_PPC "${AVM_ROOT}/avm_ports/ppc.h"
+     "${AVM_ROOT}/avm_ports/ppc_cpudetect.c")
 
 # For arm and x86 targets:
 #
-# * Creates the aom_ports build target, adds the includes in aom_ports to the
-#   target, and makes libaom depend on it.
+# * Creates the avm_ports build target, adds the includes in avm_ports to the
+#   target, and makes libavm depend on it.
 #
 # Otherwise:
 #
-# * Adds the includes in aom_ports to the libaom target.
+# * Adds the includes in avm_ports to the libavm target.
 #
 # For all target platforms:
 #
-# * The libaom target must exist before this function is called.
-function(setup_aom_ports_targets)
-  if(XCODE AND "${AOM_TARGET_CPU}" STREQUAL "x86_64")
-    add_asm_library("aom_ports" "AOM_PORTS_ASM_X86")
+# * The libavm target must exist before this function is called.
+function(setup_avm_ports_targets)
+  if(XCODE AND "${AVM_TARGET_CPU}" STREQUAL "x86_64")
+    add_asm_library("avm_ports" "AVM_PORTS_ASM_X86")
     # Xcode is the only one
-    set(aom_ports_is_embedded 1)
-    set(aom_ports_has_symbols 1)
-  elseif("${AOM_TARGET_CPU}" MATCHES "^x86")
-    add_asm_library("aom_ports" "AOM_PORTS_ASM_X86")
-    set(aom_ports_has_symbols 1)
-  elseif("${AOM_TARGET_CPU}" MATCHES "arm")
-    add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_ARM})
-    set(aom_ports_has_symbols 1)
-  elseif("${AOM_TARGET_CPU}" MATCHES "ppc")
-    add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_PPC})
-    set(aom_ports_has_symbols 1)
+    set(avm_ports_is_embedded 1)
+    set(avm_ports_has_symbols 1)
+  elseif("${AVM_TARGET_CPU}" MATCHES "^x86")
+    add_asm_library("avm_ports" "AVM_PORTS_ASM_X86")
+    set(avm_ports_has_symbols 1)
+  elseif("${AVM_TARGET_CPU}" MATCHES "arm")
+    add_library(avm_ports OBJECT ${AVM_PORTS_SOURCES_ARM})
+    set(avm_ports_has_symbols 1)
+  elseif("${AVM_TARGET_CPU}" MATCHES "ppc")
+    add_library(avm_ports OBJECT ${AVM_PORTS_SOURCES_PPC})
+    set(avm_ports_has_symbols 1)
   endif()
 
-  if("${AOM_TARGET_CPU}" MATCHES "arm|ppc")
-    target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_ports>)
+  if("${AVM_TARGET_CPU}" MATCHES "arm|ppc")
+    target_sources(avm PRIVATE $<TARGET_OBJECTS:avm_ports>)
     if(BUILD_SHARED_LIBS)
-      target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_ports>)
+      target_sources(avm_static PRIVATE $<TARGET_OBJECTS:avm_ports>)
     endif()
   endif()
 
-  # Note AOM_PORTS_INCLUDES_X86 are not added to the aom_ports, aom or
-  # aom_static targets to avoid compilation issues in projects that enable ASM
+  # Note AVM_PORTS_INCLUDES_X86 are not added to the avm_ports, avm or
+  # avm_static targets to avoid compilation issues in projects that enable ASM
   # language support in project(). These sources were never included in
-  # libaom_srcs.*; if it becomes necessary for a particular generator another
+  # libavm_srcs.*; if it becomes necessary for a particular generator another
   # method should be used.
-  if(aom_ports_has_symbols)
-    if(NOT aom_ports_is_embedded)
-      target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES})
+  if(avm_ports_has_symbols)
+    if(NOT avm_ports_is_embedded)
+      target_sources(avm_ports PRIVATE ${AVM_PORTS_INCLUDES})
     endif()
-    set(AOM_LIB_TARGETS
-        ${AOM_LIB_TARGETS}
+    set(AVM_LIB_TARGETS
+        ${AVM_LIB_TARGETS}
         PARENT_SCOPE)
   else()
-    target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES})
+    target_sources(avm PRIVATE ${AVM_PORTS_INCLUDES})
     if(BUILD_SHARED_LIBS)
-      target_sources(aom_static PRIVATE ${AOM_PORTS_INCLUDES})
+      target_sources(avm_static PRIVATE ${AVM_PORTS_INCLUDES})
     endif()
   endif()
 endfunction()

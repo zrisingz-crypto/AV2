@@ -13,10 +13,10 @@
 /*!\file
  * \brief Declares high level functions to search through intra modes.
  */
-#ifndef AOM_AV1_ENCODER_INTRA_MODE_SEARCH_H_
-#define AOM_AV1_ENCODER_INTRA_MODE_SEARCH_H_
+#ifndef AVM_AV2_ENCODER_INTRA_MODE_SEARCH_H_
+#define AVM_AV2_ENCODER_INTRA_MODE_SEARCH_H_
 
-#include "av1/encoder/encoder.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +73,7 @@ typedef struct IntraModeSearchState {
 
   /** \name Chroma mode search cache
    * A cache of the best chroma prediction mode to avoid having to search for
-   * chroma predictions repeatedly in \ref av1_handle_intra_mode()
+   * chroma predictions repeatedly in \ref av2_handle_intra_mode()
    */
   /**@{*/
   int rate_uv_intra;          /*!< \brief Total rate to transmit uv_mode */
@@ -103,12 +103,12 @@ typedef struct {
   bool mode_evaluated[LUMA_MODE_COUNT];
   /*!
    * For a given partition block, save the rate corresponds to each
-   * chroma intra mode in av1_handle_intra_mode().
+   * chroma intra mode in av2_handle_intra_mode().
    */
   int rate_info[LUMA_MODE_COUNT];
   /*!
    * For a given partition block, save the distortion corresponds
-   * to each chroma intra mode in av1_handle_intra_mode().
+   * to each chroma intra mode in av2_handle_intra_mode().
    */
   int64_t dist_info[LUMA_MODE_COUNT];
 } ModeRDInfoUV;
@@ -141,10 +141,10 @@ typedef struct {
  * inter frame. This is the intra-mode counterpart of handle_inter_mode. This
  * function first performs an intra prediction using the mode specified by
  * x->e_mbd.mi[0]->mode, then it searches over *all* available chroma intra
- * predictions by calling av1_rd_pick_intra_sbuv_mode. To avoid repeated
+ * predictions by calling av2_rd_pick_intra_sbuv_mode. To avoid repeated
  * computation for chroma mode search, a cache of the best chroma mode and its
  * rd statistics is kept in intra_search_state that is retrieved when
- * av1_handle_intra_mode is called more than once. This function does *not*
+ * av2_handle_intra_mode is called more than once. This function does *not*
  * support palette mode prediction in the luma channel, but it does search for
  * palette mode in the chroma channel.
  *
@@ -180,8 +180,8 @@ typedef struct {
  * with directional mode, a prune_mask computed with histogram of gradient is
  * also stored in intra_search_state.
  */
-int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
-                              const AV1_COMP *cpi, MACROBLOCK *x,
+int64_t av2_handle_intra_mode(IntraModeSearchState *intra_search_state,
+                              const AV2_COMP *cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, unsigned int ref_frame_cost,
                               const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
                               RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
@@ -219,7 +219,7 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
  * \param[in]    best_mbmi          Pointer to structure holding
  *                                  the mode info for the best macroblock.
  */
-void search_fsc_mode(const AV1_COMP *const cpi, MACROBLOCK *x, int *rate,
+void search_fsc_mode(const AV2_COMP *const cpi, MACROBLOCK *x, int *rate,
                      int *rate_tokenonly, int64_t *distortion, int *skippable,
                      BLOCK_SIZE bsize, int mode_costs, uint8_t *dir_skip_mask,
                      int64_t *best_rd, int64_t *best_model_rd,
@@ -231,8 +231,8 @@ void search_fsc_mode(const AV1_COMP *const cpi, MACROBLOCK *x, int *rate,
  * \callergraph
  * \callgraph
  * This function handles luma palette mode when the current frame is an
- * inter frame. This is similar to \ref av1_handle_intra_mode(), but is
- * specialized for palette mode. See \ref av1_handle_intra_mode() for the
+ * inter frame. This is similar to \ref av2_handle_intra_mode(), but is
+ * specialized for palette mode. See \ref av2_handle_intra_mode() for the
  * details.
  *
  * \param[in]    intra_search_state Structure to hold the best luma intra mode
@@ -253,8 +253,8 @@ void search_fsc_mode(const AV1_COMP *const cpi, MACROBLOCK *x, int *rate,
  * corresponding mbmi, this_rd_costs, intra_search_state, and tx_type arrays in
  * ctx are also updated.
  */
-int av1_search_palette_mode(IntraModeSearchState *intra_search_state,
-                            const AV1_COMP *cpi, MACROBLOCK *x,
+int av2_search_palette_mode(IntraModeSearchState *intra_search_state,
+                            const AV2_COMP *cpi, MACROBLOCK *x,
                             BLOCK_SIZE bsize, unsigned int ref_frame_cost,
                             PICK_MODE_CONTEXT *ctx, RD_STATS *this_rd_cost,
                             int64_t best_rd);
@@ -290,7 +290,7 @@ int av1_search_palette_mode(IntraModeSearchState *intra_search_state,
  * best_rd, otherwise returns INT64_MAX. This also updates the mbmi, the rate
  * and distortion, and the tx_type arrays in ctx.
  */
-int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, ThreadData *td,
+int64_t av2_rd_pick_intra_sby_mode(const AV2_COMP *const cpi, ThreadData *td,
                                    MACROBLOCK *x, int *rate,
                                    int *rate_tokenonly, int64_t *distortion,
                                    int *skippable, BLOCK_SIZE bsize,
@@ -302,9 +302,9 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, ThreadData *td,
  * \callergraph
  * \callgraph
  * This function performs intra-mode search on the chroma channels. Just like
- * \ref av1_rd_pick_intra_sby_mode(), this function searches over palette mode
+ * \ref av2_rd_pick_intra_sby_mode(), this function searches over palette mode
  * (filter_intra is not available on chroma planes). Unlike \ref
- * av1_rd_pick_intra_sby_mode() this function is used by both inter and intra
+ * av2_rd_pick_intra_sby_mode() this function is used by both inter and intra
  * frames.
  *
  * \param[in]    cpi                Top-level encoder structure.
@@ -328,7 +328,7 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, ThreadData *td,
  * \return Returns the rd_cost of the best uv mode found. This also updates the
  * mbmi, the rate and distortion, distortion.
  */
-int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
+int64_t av2_rd_pick_intra_sbuv_mode(const AV2_COMP *const cpi, MACROBLOCK *x,
                                     int *rate, int *rate_tokenonly,
                                     int64_t *distortion, int *skippable,
                                     const PICK_MODE_CONTEXT *ctx,
@@ -337,7 +337,7 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 /*! \brief Return the number of colors in src. Used by palette mode.
  */
-void av1_count_colors_highbd(const uint16_t *src, int stride, int rows,
+void av2_count_colors_highbd(const uint16_t *src, int stride, int rows,
                              int cols, int bit_depth, int *val_count,
                              int *val_count_8bit, int *num_color_bins,
                              int *num_colors);
@@ -355,4 +355,4 @@ int prune_intra_y_mode(int64_t this_model_rd, int64_t *best_model_rd,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_INTRA_MODE_SEARCH_H_
+#endif  // AVM_AV2_ENCODER_INTRA_MODE_SEARCH_H_

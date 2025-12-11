@@ -12,18 +12,18 @@
 ;
 
 
-%include "aom_ports/x86_abi_support.asm"
+%include "avm_ports/x86_abi_support.asm"
 
 section .text
-globalsym(aom_reset_mmx_state)
-sym(aom_reset_mmx_state):
+globalsym(avm_reset_mmx_state)
+sym(avm_reset_mmx_state):
     emms
     ret
 
 
-%if LIBAOM_YASM_WIN64
-globalsym(aom_winx64_fldcw)
-sym(aom_winx64_fldcw):
+%if LIBAVM_YASM_WIN64
+globalsym(avm_winx64_fldcw)
+sym(avm_winx64_fldcw):
     sub   rsp, 8
     mov   [rsp], rcx ; win x64 specific
     fldcw [rsp]
@@ -31,8 +31,8 @@ sym(aom_winx64_fldcw):
     ret
 
 
-globalsym(aom_winx64_fstcw)
-sym(aom_winx64_fstcw):
+globalsym(avm_winx64_fstcw)
+sym(avm_winx64_fstcw):
     sub   rsp, 8
     fstcw [rsp]
     mov   rax, [rsp]

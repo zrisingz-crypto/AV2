@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_RECENTER_H_
-#define AOM_AOM_DSP_RECENTER_H_
+#ifndef AVM_AVM_DSP_RECENTER_H_
+#define AVM_AVM_DSP_RECENTER_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom/aom_integer.h"
+#include "avm/avm_integer.h"
 
 // Inverse recenters a non-negative literal v around a reference r
 static INLINE uint16_t inv_recenter_nonneg(uint16_t r, uint16_t v) {
@@ -59,4 +59,4 @@ static INLINE uint16_t recenter_finite_nonneg(uint16_t n, uint16_t r,
   }
 }
 
-#endif  // AOM_AOM_DSP_RECENTER_H_
+#endif  // AVM_AVM_DSP_RECENTER_H_

@@ -11,11 +11,11 @@
  */
 #include <immintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/cfl.h"
+#include "av2/common/cfl.h"
 
-#include "av1/common/x86/cfl_simd.h"
+#include "av2/common/x86/cfl_simd.h"
 
 #define CFL_GET_SUBSAMPLE_FUNCTION_AVX2(sub, bd)                        \
   CFL_SUBSAMPLE(avx2, sub, bd, 32, 32)                                  \
@@ -235,7 +235,7 @@ static void cfl_luma_subsampling_420_hbd_121_avx2_w8(const uint16_t *input,
       _mm_set_epi8(-1, -1, -1, -1, -1, -1, -1, -1, 13, 12, 9, 8, 5, 4, 1, 0);
 
   // Shuffle mask to clamp left edge: [p0, p0, p1, p2, p3, p4, p5, p6]
-  // This mimics the C code's 'left = AOMMAX(0, i - 1)' for i=0
+  // This mimics the C code's 'left = AVMMAX(0, i - 1)' for i=0
   const __m128i left_edge_mask =
       _mm_set_epi8(13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 1, 0);
 
@@ -1632,7 +1632,7 @@ static INLINE int64_t hsum_epi64_to_i32_avx2(__m256i v) {
 #define NON_LINEAR(V, M, BD) ((V * V + M) >> BD)
 // Derives multi-parameter chroma prediction coefficients from neighboring luma
 // and chroma reference samples.
-void av1_mhccp_derive_multi_param_hv_avx2(MACROBLOCKD *const xd, int plane,
+void av2_mhccp_derive_multi_param_hv_avx2(MACROBLOCKD *const xd, int plane,
                                           int above_lines, int left_lines,
                                           int ref_width, int ref_height,
                                           int dir, int is_top_sb_boundary) {
@@ -1645,7 +1645,7 @@ void av1_mhccp_derive_multi_param_hv_avx2(MACROBLOCKD *const xd, int plane,
 
   if (above_lines || left_lines) {
     const int16_t mid = 1 << (xd->bd - 1);
-    const uint16_t *l = cfl->mhccp_ref_buf_q3[AOM_PLANE_Y];
+    const uint16_t *l = cfl->mhccp_ref_buf_q3[AVM_PLANE_Y];
     const uint16_t *c = cfl->mhccp_ref_buf_q3[plane];
     const int ref_stride = CFL_BUF_LINE * 2;
     assert(dir >= 0 && dir <= 2);
@@ -1662,7 +1662,7 @@ void av1_mhccp_derive_multi_param_hv_avx2(MACROBLOCKD *const xd, int plane,
 
       const int base = (j + ref_h_offset) * ref_stride;
       int lines = ref_width - 1;
-      if (j >= above_lines) lines = AOMMIN(lines, left_lines);
+      if (j >= above_lines) lines = AVMMIN(lines, left_lines);
 
       const uint16_t *ptrl = l + base + 1;                   // for NON_LINEAR
       const uint16_t *ptrl_dir = l + base + 1 + dir_offset;  // for A0

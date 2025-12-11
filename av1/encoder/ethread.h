@@ -10,68 +10,68 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_ETHREAD_H_
-#define AOM_AV1_ENCODER_ETHREAD_H_
+#ifndef AVM_AV2_ENCODER_ETHREAD_H_
+#define AVM_AV2_ENCODER_ETHREAD_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct AV1_COMP;
+struct AV2_COMP;
 struct ThreadData;
 
 typedef struct EncWorkerData {
-  struct AV1_COMP *cpi;
+  struct AV2_COMP *cpi;
   struct ThreadData *td;
   int start;
   int thread_id;
 } EncWorkerData;
 
-void av1_row_mt_sync_read(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c);
-void av1_row_mt_sync_write(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c,
+void av2_row_mt_sync_read(AV2EncRowMultiThreadSync *row_mt_sync, int r, int c);
+void av2_row_mt_sync_write(AV2EncRowMultiThreadSync *row_mt_sync, int r, int c,
                            int cols);
 
-void av1_row_mt_sync_read_dummy(AV1EncRowMultiThreadSync *row_mt_sync, int r,
+void av2_row_mt_sync_read_dummy(AV2EncRowMultiThreadSync *row_mt_sync, int r,
                                 int c);
-void av1_row_mt_sync_write_dummy(AV1EncRowMultiThreadSync *row_mt_sync, int r,
+void av2_row_mt_sync_write_dummy(AV2EncRowMultiThreadSync *row_mt_sync, int r,
                                  int c, int cols);
 
-void av1_encode_tiles_mt(struct AV1_COMP *cpi);
-void av1_encode_tiles_row_mt(struct AV1_COMP *cpi);
+void av2_encode_tiles_mt(struct AV2_COMP *cpi);
+void av2_encode_tiles_row_mt(struct AV2_COMP *cpi);
 
-void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi);
+void av2_fp_encode_tiles_row_mt(AV2_COMP *cpi);
 
-int av1_fp_compute_num_enc_workers(AV1_COMP *cpi);
+int av2_fp_compute_num_enc_workers(AV2_COMP *cpi);
 
-void av1_accumulate_frame_counts(struct FRAME_COUNTS *acc_counts,
+void av2_accumulate_frame_counts(struct FRAME_COUNTS *acc_counts,
                                  const struct FRAME_COUNTS *counts);
 
-void av1_row_mt_mem_dealloc(AV1_COMP *cpi);
+void av2_row_mt_mem_dealloc(AV2_COMP *cpi);
 
-void av1_global_motion_estimation_mt(AV1_COMP *cpi);
+void av2_global_motion_estimation_mt(AV2_COMP *cpi);
 
-void av1_gm_dealloc(AV1GlobalMotionSync *gm_sync_data);
+void av2_gm_dealloc(AV2GlobalMotionSync *gm_sync_data);
 
-void av1_tpl_row_mt_sync_read_dummy(AV1TplRowMultiThreadSync *tpl_mt_sync,
+void av2_tpl_row_mt_sync_read_dummy(AV2TplRowMultiThreadSync *tpl_mt_sync,
                                     int r, int c);
-void av1_tpl_row_mt_sync_write_dummy(AV1TplRowMultiThreadSync *tpl_mt_sync,
+void av2_tpl_row_mt_sync_write_dummy(AV2TplRowMultiThreadSync *tpl_mt_sync,
                                      int r, int c, int cols);
 
-void av1_tpl_row_mt_sync_read(AV1TplRowMultiThreadSync *tpl_mt_sync, int r,
+void av2_tpl_row_mt_sync_read(AV2TplRowMultiThreadSync *tpl_mt_sync, int r,
                               int c);
-void av1_tpl_row_mt_sync_write(AV1TplRowMultiThreadSync *tpl_mt_sync, int r,
+void av2_tpl_row_mt_sync_write(AV2TplRowMultiThreadSync *tpl_mt_sync, int r,
                                int c, int cols);
 
-void av1_mc_flow_dispenser_mt(AV1_COMP *cpi);
+void av2_mc_flow_dispenser_mt(AV2_COMP *cpi);
 
-void av1_tpl_dealloc(AV1TplRowMultiThreadSync *tpl_sync);
+void av2_tpl_dealloc(AV2TplRowMultiThreadSync *tpl_sync);
 
-int av1_compute_num_enc_workers(AV1_COMP *cpi, int max_workers);
+int av2_compute_num_enc_workers(AV2_COMP *cpi, int max_workers);
 
-void av1_create_workers(AV1_COMP *cpi, int num_workers);
+void av2_create_workers(AV2_COMP *cpi, int num_workers);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_ETHREAD_H_
+#endif  // AVM_AV2_ENCODER_ETHREAD_H_

@@ -10,10 +10,10 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_BANDING_METADATA_H_
-#define AOM_AV1_COMMON_BANDING_METADATA_H_
+#ifndef AVM_AV2_COMMON_BANDING_METADATA_H_
+#define AVM_AV2_COMMON_BANDING_METADATA_H_
 
-#include "aom/aom_codec.h"
+#include "avm/avm_codec.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ extern "C" {
 #define MAX_BAND_UNITS_COLS 32
 
 /*!\brief Banding hints metadata structure */
-typedef struct aom_banding_hints_metadata {
+typedef struct avm_banding_hints_metadata {
   uint8_t coding_banding_present_flag;
   uint8_t source_banding_present_flag;
 
@@ -53,7 +53,7 @@ typedef struct aom_banding_hints_metadata {
   // Per-tile banding flags
   uint8_t banding_in_band_unit_present_flag[MAX_BAND_UNITS_ROWS]
                                            [MAX_BAND_UNITS_COLS];
-} aom_banding_hints_metadata_t;
+} avm_banding_hints_metadata_t;
 
 /*!\brief Encode banding hints metadata to payload
  *
@@ -64,8 +64,8 @@ typedef struct aom_banding_hints_metadata {
  *
  * \return 0 on success, -1 on error
  */
-int aom_encode_banding_hints_metadata(
-    const aom_banding_hints_metadata_t *metadata, uint8_t *payload,
+int avm_encode_banding_hints_metadata(
+    const avm_banding_hints_metadata_t *metadata, uint8_t *payload,
     size_t *payload_size);
 
 /*!\brief Decode banding hints metadata from payload
@@ -76,9 +76,9 @@ int aom_encode_banding_hints_metadata(
  *
  * \return 0 on success, -1 on error
  */
-int aom_decode_banding_hints_metadata(const uint8_t *payload,
+int avm_decode_banding_hints_metadata(const uint8_t *payload,
                                       size_t payload_size,
-                                      aom_banding_hints_metadata_t *metadata);
+                                      avm_banding_hints_metadata_t *metadata);
 
 /*!\brief Add banding hints metadata to an image
  *
@@ -88,12 +88,12 @@ int aom_decode_banding_hints_metadata(const uint8_t *payload,
  *
  * \return 0 on success, -1 on error
  */
-int aom_img_add_banding_hints_metadata(
-    aom_image_t *img, const aom_banding_hints_metadata_t *banding_metadata,
-    aom_metadata_insert_flags_t insert_flag);
+int avm_img_add_banding_hints_metadata(
+    avm_image_t *img, const avm_banding_hints_metadata_t *banding_metadata,
+    avm_metadata_insert_flags_t insert_flag);
 
 // Forward declaration for encoder
-struct AV1_COMP;
+struct AV2_COMP;
 
 /*!\brief Write banding hints metadata to bitstream
  *
@@ -103,9 +103,9 @@ struct AV1_COMP;
  *
  * \return Number of bytes written, 0 on error
  */
-size_t av1_write_banding_hints_metadata(
-    struct AV1_COMP *const cpi, uint8_t *dst,
-    const aom_banding_hints_metadata_t *const banding_metadata);
+size_t av2_write_banding_hints_metadata(
+    struct AV2_COMP *const cpi, uint8_t *dst,
+    const avm_banding_hints_metadata_t *const banding_metadata);
 
 #endif  // CONFIG_BAND_METADATA
 
@@ -113,4 +113,4 @@ size_t av1_write_banding_hints_metadata(
 }
 #endif
 
-#endif  // AOM_AV1_COMMON_BANDING_METADATA_H_
+#endif  // AVM_AV2_COMMON_BANDING_METADATA_H_

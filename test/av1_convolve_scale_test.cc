@@ -15,15 +15,15 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom_ports/aom_timer.h"
+#include "avm_ports/avm_timer.h"
 #include "test/acm_random.h"
 #include "test/clear_system_state.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
 
-#include "av1/common/common_data.h"
+#include "av2/common/common_data.h"
 
 namespace {
 const int kTestIters = 10;
@@ -34,7 +34,7 @@ const int kHPad = 32;
 const int kXStepQn = 16;
 const int kYStepQn = 20;
 
-using libaom_test::ACMRandom;
+using libavm_test::ACMRandom;
 using std::make_tuple;
 using std::tuple;
 
@@ -259,7 +259,7 @@ class ConvolveScaleTestBase : public ::testing::Test {
  public:
   ConvolveScaleTestBase() : image_(NULL) {}
   virtual ~ConvolveScaleTestBase() { delete image_; }
-  virtual void TearDown() { libaom_test::ClearSystemState(); }
+  virtual void TearDown() { libavm_test::ClearSystemState(); }
 
   // Implemented by subclasses (SetUp depends on the parameters passed
   // in and RunOne depends on the function to be tested. These can't
@@ -327,17 +327,17 @@ class ConvolveScaleTestBase : public ::testing::Test {
     ACMRandom rnd(ACMRandom::DeterministicSeed());
     Prep(&rnd);
 
-    aom_usec_timer ref_timer;
-    aom_usec_timer_start(&ref_timer);
+    avm_usec_timer ref_timer;
+    avm_usec_timer_start(&ref_timer);
     for (int i = 0; i < kPerfIters; ++i) RunOne(true);
-    aom_usec_timer_mark(&ref_timer);
-    const int64_t ref_time = aom_usec_timer_elapsed(&ref_timer);
+    avm_usec_timer_mark(&ref_timer);
+    const int64_t ref_time = avm_usec_timer_elapsed(&ref_timer);
 
-    aom_usec_timer tst_timer;
-    aom_usec_timer_start(&tst_timer);
+    avm_usec_timer tst_timer;
+    avm_usec_timer_start(&tst_timer);
     for (int i = 0; i < kPerfIters; ++i) RunOne(false);
-    aom_usec_timer_mark(&tst_timer);
-    const int64_t tst_time = aom_usec_timer_elapsed(&tst_timer);
+    avm_usec_timer_mark(&tst_timer);
+    const int64_t tst_time = avm_usec_timer_elapsed(&tst_timer);
 
     std::cout << "[          ] C time = " << ref_time / 1000
               << " ms, SIMD time = " << tst_time / 1000 << " ms\n";
@@ -432,7 +432,7 @@ class HighBDConvolveScaleTest
     const int dst_stride = image_->dst_stride();
 
     if (ref) {
-      av1_highbd_convolve_2d_scale_c(
+      av2_highbd_convolve_2d_scale_c(
           src, src_stride, dst, dst_stride, width_, height_, &filter_x_.params_,
           &filter_y_.params_, subpel_x_, kXStepQn, subpel_y_, kYStepQn,
           &convolve_params_, bd_);
@@ -455,7 +455,7 @@ TEST_P(HighBDConvolveScaleTest, DISABLED_Speed) { SpeedTest(); }
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, HighBDConvolveScaleTest,
-    ::testing::Combine(::testing::Values(av1_highbd_convolve_2d_scale_sse4_1),
+    ::testing::Combine(::testing::Values(av2_highbd_convolve_2d_scale_sse4_1),
                        ::testing::ValuesIn(kBlockDim),
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::Bool(), ::testing::ValuesIn(kBDs)));

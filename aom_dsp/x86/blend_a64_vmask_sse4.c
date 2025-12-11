@@ -14,15 +14,15 @@
 
 #include <assert.h>
 
-#include "aom/aom_integer.h"
-#include "aom_ports/mem.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/blend.h"
+#include "avm/avm_integer.h"
+#include "avm_ports/mem.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/blend.h"
 
-#include "aom_dsp/x86/synonyms.h"
-#include "aom_dsp/x86/blend_sse4.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/blend_sse4.h"
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Implementation - No sub-sampling
@@ -32,7 +32,7 @@ static INLINE void blend_a64_vmask_bn_w4_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
     const uint8_t *mask, int h, blend_unit_fn blend) {
-  const __m128i v_maxval_w = _mm_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m128i v_maxval_w = _mm_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
 
   do {
     const __m128i v_m0_w = _mm_set1_epi16(*mask);
@@ -75,7 +75,7 @@ static INLINE void blend_a64_vmask_bn_w8n_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
     const uint8_t *mask, int w, int h, blend_unit_fn blend) {
-  const __m128i v_maxval_w = _mm_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+  const __m128i v_maxval_w = _mm_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
 
   do {
     int c;
@@ -117,7 +117,7 @@ static void blend_a64_vmask_b12_w8n_sse4_1(uint16_t *dst, uint32_t dst_stride,
 // Dispatch
 //////////////////////////////////////////////////////////////////////////////
 
-void aom_highbd_blend_a64_vmask_sse4_1(
+void avm_highbd_blend_a64_vmask_sse4_1(
     uint16_t *dst, uint32_t dst_stride, const uint16_t *src0,
     uint32_t src0_stride, const uint16_t *src1, uint32_t src1_stride,
     const uint8_t *mask, int w, int h, int bd) {
@@ -151,7 +151,7 @@ void aom_highbd_blend_a64_vmask_sse4_1(
   assert(bd == 8 || bd == 10 || bd == 12);
 
   if (UNLIKELY((h | w) & 3)) {  // if (w <= 2 || h <= 2)
-    aom_highbd_blend_a64_vmask_c(dst, dst_stride, src0, src0_stride, src1,
+    avm_highbd_blend_a64_vmask_c(dst, dst_stride, src0, src0_stride, src1,
                                  src1_stride, mask, w, h, bd);
   } else {
     blend[bd == 12][(w >> 2) & 1](dst, dst_stride, src0, src0_stride, src1,

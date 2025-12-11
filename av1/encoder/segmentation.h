@@ -10,27 +10,27 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_SEGMENTATION_H_
-#define AOM_AV1_ENCODER_SEGMENTATION_H_
+#ifndef AVM_AV2_ENCODER_SEGMENTATION_H_
+#define AVM_AV2_ENCODER_SEGMENTATION_H_
 
-#include "av1/common/blockd.h"
-#include "av1/encoder/encoder.h"
+#include "av2/common/blockd.h"
+#include "av2/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void av1_enable_segmentation(struct segmentation *seg);
-void av1_disable_segmentation(struct segmentation *seg);
+void av2_enable_segmentation(struct segmentation *seg);
+void av2_disable_segmentation(struct segmentation *seg);
 
-void av1_disable_segfeature(struct segmentation *seg, int segment_id,
+void av2_disable_segfeature(struct segmentation *seg, int segment_id,
                             SEG_LVL_FEATURES feature_id);
-void av1_choose_segmap_coding_method(AV1_COMMON *cm, MACROBLOCKD *xd);
+void av2_choose_segmap_coding_method(AV2_COMMON *cm, MACROBLOCKD *xd);
 
-void av1_reset_segment_features(AV1_COMMON *cm);
+void av2_reset_segment_features(AV2_COMMON *cm);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_SEGMENTATION_H_
+#endif  // AVM_AV2_ENCODER_SEGMENTATION_H_

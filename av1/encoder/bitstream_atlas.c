@@ -14,54 +14,54 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include "aom/aom_encoder.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/binary_codes_writer.h"
-#include "aom_dsp/bitwriter_buffer.h"
-#include "aom_mem/aom_mem.h"
-#include "aom_ports/bitops.h"
-#include "aom_ports/mem_ops.h"
-#include "aom_ports/system_state.h"
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
+#include "avm/avm_encoder.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/binary_codes_writer.h"
+#include "avm_dsp/bitwriter_buffer.h"
+#include "avm_mem/avm_mem.h"
+#include "avm_ports/bitops.h"
+#include "avm_ports/mem_ops.h"
+#include "avm_ports/system_state.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
 #if CONFIG_BITSTREAM_DEBUG
-#include "aom_util/debug_util.h"
+#include "avm_util/debug_util.h"
 #endif  // CONFIG_BITSTREAM_DEBUG
 
 #include "common/md5_utils.h"
 #include "common/rawenc.h"
-#include "av1/encoder/bitstream.h"
-#include "av1/encoder/tokenize.h"
+#include "av2/encoder/bitstream.h"
+#include "av2/encoder/tokenize.h"
 
 static uint32_t write_ats_region_info(struct AtlasRegionInfo *atlas_reg_params,
                                       int xlayerId, int xAId,
-                                      struct aom_write_bit_buffer *wb) {
-  aom_wb_write_uvlc(
+                                      struct avm_write_bit_buffer *wb) {
+  avm_wb_write_uvlc(
       wb, atlas_reg_params->ats_num_region_columns_minus_1[xlayerId][xAId]);
-  aom_wb_write_uvlc(
+  avm_wb_write_uvlc(
       wb, atlas_reg_params->ats_num_region_rows_minus_1[xlayerId][xAId]);
 
-  aom_wb_write_bit(wb,
+  avm_wb_write_bit(wb,
                    atlas_reg_params->ats_uniform_spacing_flag[xlayerId][xAId]);
   if (!atlas_reg_params->ats_uniform_spacing_flag[xlayerId][xAId]) {
     for (int i = 0;
          i <
          atlas_reg_params->ats_num_region_columns_minus_1[xlayerId][xAId] + 1;
          i++) {
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb, atlas_reg_params->ats_column_width_minus_1[xlayerId][xAId][i]);
     }
     for (int i = 0;
          i < atlas_reg_params->ats_num_region_rows_minus_1[xlayerId][xAId] + 1;
          i++) {
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb, atlas_reg_params->ats_row_height_minus_1[xlayerId][xAId][i]);
     }
   } else {
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, atlas_reg_params->ats_region_width_minus_1[xlayerId][xAId]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, atlas_reg_params->ats_region_height_minus_1[xlayerId][xAId]);
   }
   return 0;
@@ -70,25 +70,25 @@ static uint32_t write_ats_region_info(struct AtlasRegionInfo *atlas_reg_params,
 #if CONFIG_ATLAS_ALPHA_SEGMENT
 static uint32_t write_ats_multistream_alpha_atlas_info(
     struct AtlasBasicInfo *ats_basic_info, int obu_xLayer_id, int xAId,
-    struct aom_write_bit_buffer *wb) {
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(
+    struct avm_write_bit_buffer *wb) {
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(
       wb, ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId]);
 
-  aom_wb_write_bit(
+  avm_wb_write_bit(
       wb, ats_basic_info->ats_alpha_segments_present_flag[obu_xLayer_id][xAId]);
 #if CONFIG_ATLAS_BACKGROUND_COLOR
-  aom_wb_write_bit(
+  avm_wb_write_bit(
       wb,
       ats_basic_info->ats_background_info_present_flag[obu_xLayer_id][xAId]);
   if (ats_basic_info->ats_background_info_present_flag[obu_xLayer_id][xAId] ==
       1) {
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_red_value[obu_xLayer_id][xAId], 8);
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_green_value[obu_xLayer_id][xAId], 8);
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_blue_value[obu_xLayer_id][xAId], 8);
   }
 #endif  // CONFIG_ATLAS_BACKGROUND_COLOR
@@ -96,20 +96,20 @@ static uint32_t write_ats_multistream_alpha_atlas_info(
   const int NumSegments =
       ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] + 1;
   for (int i = 0; i < NumSegments; i++) {
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_input_stream_id[obu_xLayer_id][xAId][i], 5);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_x[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_y[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_width[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_height[obu_xLayer_id][xAId][i]);
     if (ats_basic_info->ats_alpha_segments_present_flag[obu_xLayer_id][xAId] ==
             1 &&
         i < NumSegments - 1)
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb, ats_basic_info->ats_alpha_segment_flag[obu_xLayer_id][xAId][i]);
   }
   return 0;
@@ -118,23 +118,23 @@ static uint32_t write_ats_multistream_alpha_atlas_info(
 
 static uint32_t write_ats_multistream_atlas_info(
     struct AtlasBasicInfo *ats_basic_info, int obu_xLayer_id, int xAId,
-    struct aom_write_bit_buffer *wb) {
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(
+    struct avm_write_bit_buffer *wb) {
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(
       wb, ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId]);
 
 #if CONFIG_ATLAS_BACKGROUND_COLOR
-  aom_wb_write_bit(
+  avm_wb_write_bit(
       wb,
       ats_basic_info->ats_background_info_present_flag[obu_xLayer_id][xAId]);
   if (ats_basic_info->ats_background_info_present_flag[obu_xLayer_id][xAId] ==
       1) {
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_red_value[obu_xLayer_id][xAId], 8);
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_green_value[obu_xLayer_id][xAId], 8);
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_background_blue_value[obu_xLayer_id][xAId], 8);
   }
 #endif  // CONFIG_ATLAS_BACKGROUND_COLOR
@@ -142,15 +142,15 @@ static uint32_t write_ats_multistream_atlas_info(
   const int NumSegments =
       ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] + 1;
   for (int i = 0; i < NumSegments; i++) {
-    aom_wb_write_literal(
+    avm_wb_write_literal(
         wb, ats_basic_info->ats_input_stream_id[obu_xLayer_id][xAId][i], 5);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_x[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_y[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_width[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_height[obu_xLayer_id][xAId][i]);
   }
   return 0;
@@ -158,29 +158,29 @@ static uint32_t write_ats_multistream_atlas_info(
 
 static uint32_t write_ats_basic_info(struct AtlasBasicInfo *ats_basic_info,
                                      int obu_xLayer_id, int xAId,
-                                     struct aom_write_bit_buffer *wb) {
-  aom_wb_write_bit(wb,
+                                     struct avm_write_bit_buffer *wb) {
+  avm_wb_write_bit(wb,
                    ats_basic_info->ats_stream_id_present[obu_xLayer_id][xAId]);
 
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
-  aom_wb_write_uvlc(
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_width[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(wb, ats_basic_info->ats_atlas_height[obu_xLayer_id][xAId]);
+  avm_wb_write_uvlc(
       wb, ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId]);
 
   const int NumSegments =
       ats_basic_info->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] + 1;
   for (int i = 0; i < NumSegments; i++) {
     if (ats_basic_info->ats_stream_id_present[obu_xLayer_id][xAId]) {
-      aom_wb_write_literal(
+      avm_wb_write_literal(
           wb, ats_basic_info->ats_input_stream_id[obu_xLayer_id][xAId][i], 5);
     }
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_x[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_top_left_pos_y[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_width[obu_xLayer_id][xAId][i]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb, ats_basic_info->ats_segment_height[obu_xLayer_id][xAId][i]);
   }
   return 0;
@@ -188,24 +188,24 @@ static uint32_t write_ats_basic_info(struct AtlasBasicInfo *ats_basic_info,
 
 static uint32_t write_ats_region_to_segment_mapping(
     struct AtlasRegionToSegmentMapping *ats_reg_seg_map, int obu_xLayer_id,
-    int xAId, int NumRegionsInAtlas, struct aom_write_bit_buffer *wb) {
-  aom_wb_write_bit(
+    int xAId, int NumRegionsInAtlas, struct avm_write_bit_buffer *wb) {
+  avm_wb_write_bit(
       wb, ats_reg_seg_map
               ->ats_single_region_per_atlas_segment_flag[obu_xLayer_id][xAId]);
 
   if (!ats_reg_seg_map
            ->ats_single_region_per_atlas_segment_flag[obu_xLayer_id][xAId]) {
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         wb,
         ats_reg_seg_map->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId]);
     const int NumSegments =
         ats_reg_seg_map->ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] +
         1;
     for (int i = 0; i < NumSegments; i++) {
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb,
           ats_reg_seg_map->ats_top_left_region_column[obu_xLayer_id][xAId][i]);
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb, ats_reg_seg_map->ats_top_left_region_row[obu_xLayer_id][xAId][i]);
       // check if ats_bottom_right_region_column is derived correctly
       assert(
@@ -214,7 +214,7 @@ static uint32_t write_ats_region_to_segment_mapping(
           (ats_reg_seg_map->ats_top_left_region_column[obu_xLayer_id][xAId][i] +
            ats_reg_seg_map->ats_bottom_right_region_column_offset[obu_xLayer_id]
                                                                  [xAId][i]));
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb,
           ats_reg_seg_map
               ->ats_bottom_right_region_column_offset[obu_xLayer_id][xAId][i]);
@@ -224,7 +224,7 @@ static uint32_t write_ats_region_to_segment_mapping(
              (ats_reg_seg_map->ats_top_left_region_row[obu_xLayer_id][xAId][i] +
               ats_reg_seg_map->ats_bottom_right_region_row_offset[obu_xLayer_id]
                                                                  [xAId][i]));
-      aom_wb_write_uvlc(
+      avm_wb_write_uvlc(
           wb, ats_reg_seg_map
                   ->ats_bottom_right_region_row_offset[obu_xLayer_id][xAId][i]);
     }
@@ -234,34 +234,34 @@ static uint32_t write_ats_region_to_segment_mapping(
   return 0;
 }
 
-static uint32_t write_ats_label_segment_info(AV1_COMP *cpi, int xLayerId,
+static uint32_t write_ats_label_segment_info(AV2_COMP *cpi, int xLayerId,
                                              int xAId, int NumSegments,
-                                             struct aom_write_bit_buffer *wb) {
+                                             struct avm_write_bit_buffer *wb) {
   assert(NumSegments >= 0);
   struct AtlasLabelSegmentInfo *ats_label =
       &cpi->common.atlas_params.ats_label_seg;
 
-  aom_wb_write_bit(
+  avm_wb_write_bit(
       wb, ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId]);
   if (ats_label->ats_signalled_atlas_segment_ids_flag[xLayerId][xAId]) {
     for (int i = 0; i < NumSegments; i++) {
-      aom_wb_write_literal(wb, ats_label->ats_atlas_segment_id[i],
+      avm_wb_write_literal(wb, ats_label->ats_atlas_segment_id[i],
                            ATLAS_LABEL_SEG_ID_BITS);
     }
   }
   return 0;
 }
 
-uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
+uint32_t av2_write_atlas_segment_info_obu(AV2_COMP *cpi, int obu_xLayer_id,
                                           uint8_t *const dst) {
-  struct aom_write_bit_buffer wb = { dst, 0 };
+  struct avm_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
 
   struct AtlasSegmentInfo *atlas_params = &cpi->common.atlas_params;
 
-  aom_wb_write_literal(&wb, atlas_params->atlas_segment_id[obu_xLayer_id], 3);
+  avm_wb_write_literal(&wb, atlas_params->atlas_segment_id[obu_xLayer_id], 3);
   int xAId = atlas_params->atlas_segment_id[obu_xLayer_id];
-  aom_wb_write_uvlc(&wb,
+  avm_wb_write_uvlc(&wb,
                     atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId]);
   int num_segments = -1;  // invalid
   if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
@@ -287,9 +287,9 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
     atlas_params->ats_reg_seg_map
         .ats_num_atlas_segments_minus_1[obu_xLayer_id][xAId] = 0;
     num_segments = 0;
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         &wb, atlas_params->ats_nominal_width_minus1[obu_xLayer_id][xAId]);
-    aom_wb_write_uvlc(
+    avm_wb_write_uvlc(
         &wb, atlas_params->ats_nominal_height_minus1[obu_xLayer_id][xAId]);
   } else if (atlas_params->atlas_segment_mode_idc[obu_xLayer_id][xAId] ==
              MULTISTREAM_ATLAS) {
@@ -311,16 +311,16 @@ uint32_t av1_write_atlas_segment_info_obu(AV1_COMP *cpi, int obu_xLayer_id,
   // Label each atlas segment
   write_ats_label_segment_info(cpi, obu_xLayer_id, xAId, num_segments, &wb);
 
-  av1_add_trailing_bits(&wb);
-  size = aom_wb_bytes_written(&wb);
+  av2_add_trailing_bits(&wb);
+  size = avm_wb_bytes_written(&wb);
   return size;
 }
 
-int av1_set_atlas_segment_info_params(AV1_COMP *cpi,
+int av2_set_atlas_segment_info_params(AV2_COMP *cpi,
                                       struct AtlasSegmentInfo *atlas,
                                       int xlayer_id) {
   (void)xlayer_id;
-  AV1_COMMON *cm = &cpi->common;
+  AV2_COMMON *cm = &cpi->common;
   memcpy(atlas, cm->atlas, sizeof(struct AtlasSegmentInfo));
   atlas->atlas_segment_id[0] = 1;
   return 0;

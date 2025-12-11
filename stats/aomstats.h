@@ -10,12 +10,12 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_STATS_AOMSTATS_H_
-#define AOM_STATS_AOMSTATS_H_
+#ifndef AVM_STATS_AVMSTATS_H_
+#define AVM_STATS_AVMSTATS_H_
 
 #include <stdio.h>
 
-#include "aom/aom_encoder.h"
+#include "avm/avm_encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +25,7 @@ extern "C" {
  * first pass statistics
  */
 typedef struct {
-  aom_fixed_buf_t buf;
+  avm_fixed_buf_t buf;
   int pass;
   FILE *file;
   char *buf_ptr;
@@ -36,10 +36,10 @@ int stats_open_file(stats_io_t *stats, const char *fpf, int pass);
 int stats_open_mem(stats_io_t *stats, int pass);
 void stats_close(stats_io_t *stats, int last_pass);
 void stats_write(stats_io_t *stats, const void *pkt, size_t len);
-aom_fixed_buf_t stats_get(stats_io_t *stats);
+avm_fixed_buf_t stats_get(stats_io_t *stats);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_STATS_AOMSTATS_H_
+#endif  // AVM_STATS_AVMSTATS_H_

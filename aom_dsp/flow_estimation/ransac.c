@@ -17,13 +17,13 @@
 #include <string.h>
 #include <assert.h>
 
-#include "aom_dsp/flow_estimation/ransac.h"
-#include "aom_dsp/mathutils.h"
-#include "aom_mem/aom_mem.h"
+#include "avm_dsp/flow_estimation/ransac.h"
+#include "avm_dsp/mathutils.h"
+#include "avm_mem/avm_mem.h"
 
-// TODO(rachelbarker): Remove dependence on code in av1/encoder/
-#include "av1/common/mv.h"
-#include "av1/encoder/random.h"
+// TODO(rachelbarker): Remove dependence on code in av2/encoder/
+#include "av2/common/mv.h"
+#include "av2/encoder/random.h"
 
 #define MAX_MINPTS 4
 #define MINPTS_MULTIPLIER 5
@@ -40,7 +40,7 @@
 // Flag to enable functions for finding TRANSLATION type models.
 //
 // These modes are not considered currently due to a spec bug (see comments
-// in gm_get_motion_vector() in av1/common/mv.h). Thus we don't need to compile
+// in gm_get_motion_vector() in av2/common/mv.h). Thus we don't need to compile
 // the corresponding search functions, but it is nice to keep the source around
 // but disabled, for completeness.
 #define ALLOW_TRANSLATION_MODELS 0
@@ -490,10 +490,10 @@ static bool ransac_internal(const Correspondence *matched_points, int npoints,
     return false;
   }
 
-  int min_inliers = AOMMAX((int)(MIN_INLIER_PROB * npoints), minpts);
+  int min_inliers = AVMMAX((int)(MIN_INLIER_PROB * npoints), minpts);
 
   motions =
-      (RANSAC_MOTION *)aom_calloc(num_desired_motions, sizeof(RANSAC_MOTION));
+      (RANSAC_MOTION *)avm_calloc(num_desired_motions, sizeof(RANSAC_MOTION));
 
   // Allocate one large buffer which will be carved up to store the inlier
   // indices for the current motion plus the num_desired_motions many
@@ -501,7 +501,7 @@ static bool ransac_internal(const Correspondence *matched_points, int npoints,
   // This allows us to keep the allocation/deallocation logic simple, without
   // having to (for example) check that `motions` is non-null before allocating
   // the inlier arrays
-  int *inlier_buffer = (int *)aom_malloc(sizeof(*inlier_buffer) * npoints *
+  int *inlier_buffer = (int *)avm_malloc(sizeof(*inlier_buffer) * npoints *
                                          (num_desired_motions + 1));
 
   if (!(motions && inlier_buffer)) {
@@ -646,8 +646,8 @@ static bool ransac_internal(const Correspondence *matched_points, int npoints,
   }
 
 finish_ransac:
-  aom_free(inlier_buffer);
-  aom_free(motions);
+  avm_free(inlier_buffer);
+  avm_free(motions);
 
   return ret_val;
 }

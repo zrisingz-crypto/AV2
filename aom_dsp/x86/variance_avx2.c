@@ -12,10 +12,10 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/x86/masked_variance_intrin_ssse3.h"
-#include "aom_dsp/x86/synonyms.h"
+#include "avm_dsp/x86/masked_variance_intrin_ssse3.h"
+#include "avm_dsp/x86/synonyms.h"
 
 static INLINE __m256i mm256_loadu2(const uint8_t *p0, const uint8_t *p1) {
   const __m256i d =
@@ -32,8 +32,8 @@ static INLINE __m256i mm256_loadu2_16(const uint16_t *p0, const uint16_t *p1) {
 static INLINE void comp_mask_pred_line_avx2(const __m256i s0, const __m256i s1,
                                             const __m256i a,
                                             uint8_t *comp_pred) {
-  const __m256i alpha_max = _mm256_set1_epi8(AOM_BLEND_A64_MAX_ALPHA);
-  const int16_t round_bits = 15 - AOM_BLEND_A64_ROUND_BITS;
+  const __m256i alpha_max = _mm256_set1_epi8(AVM_BLEND_A64_MAX_ALPHA);
+  const int16_t round_bits = 15 - AVM_BLEND_A64_ROUND_BITS;
   const __m256i round_offset = _mm256_set1_epi16(1 << (round_bits));
 
   const __m256i ma = _mm256_sub_epi8(alpha_max, a);
@@ -52,7 +52,7 @@ static INLINE void comp_mask_pred_line_avx2(const __m256i s0, const __m256i s1,
   _mm256_storeu_si256((__m256i *)(comp_pred), roundA);
 }
 
-void aom_comp_mask_pred_avx2(uint8_t *comp_pred, const uint8_t *pred, int width,
+void avm_comp_mask_pred_avx2(uint8_t *comp_pred, const uint8_t *pred, int width,
                              int height, const uint8_t *ref, int ref_stride,
                              const uint8_t *mask, int mask_stride,
                              int invert_mask) {
@@ -107,29 +107,29 @@ void aom_comp_mask_pred_avx2(uint8_t *comp_pred, const uint8_t *pred, int width,
 static INLINE __m256i highbd_comp_mask_pred_line_avx2(const __m256i s0,
                                                       const __m256i s1,
                                                       const __m256i a) {
-  const __m256i alpha_max = _mm256_set1_epi16((1 << AOM_BLEND_A64_ROUND_BITS));
+  const __m256i alpha_max = _mm256_set1_epi16((1 << AVM_BLEND_A64_ROUND_BITS));
   const __m256i round_const =
-      _mm256_set1_epi32((1 << AOM_BLEND_A64_ROUND_BITS) >> 1);
+      _mm256_set1_epi32((1 << AVM_BLEND_A64_ROUND_BITS) >> 1);
   const __m256i a_inv = _mm256_sub_epi16(alpha_max, a);
 
   const __m256i s_lo = _mm256_unpacklo_epi16(s0, s1);
   const __m256i a_lo = _mm256_unpacklo_epi16(a, a_inv);
   const __m256i pred_lo = _mm256_madd_epi16(s_lo, a_lo);
   const __m256i pred_l = _mm256_srai_epi32(
-      _mm256_add_epi32(pred_lo, round_const), AOM_BLEND_A64_ROUND_BITS);
+      _mm256_add_epi32(pred_lo, round_const), AVM_BLEND_A64_ROUND_BITS);
 
   const __m256i s_hi = _mm256_unpackhi_epi16(s0, s1);
   const __m256i a_hi = _mm256_unpackhi_epi16(a, a_inv);
   const __m256i pred_hi = _mm256_madd_epi16(s_hi, a_hi);
   const __m256i pred_h = _mm256_srai_epi32(
-      _mm256_add_epi32(pred_hi, round_const), AOM_BLEND_A64_ROUND_BITS);
+      _mm256_add_epi32(pred_hi, round_const), AVM_BLEND_A64_ROUND_BITS);
 
   const __m256i comp = _mm256_packs_epi32(pred_l, pred_h);
 
   return comp;
 }
 
-void aom_highbd_comp_mask_pred_avx2(uint16_t *comp_pred, const uint16_t *pred,
+void avm_highbd_comp_mask_pred_avx2(uint16_t *comp_pred, const uint16_t *pred,
                                     int width, int height, const uint16_t *ref,
                                     int ref_stride, const uint8_t *mask,
                                     int mask_stride, int invert_mask) {

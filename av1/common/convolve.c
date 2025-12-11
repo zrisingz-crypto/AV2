@@ -13,19 +13,19 @@
 #include <assert.h>
 #include <string.h>
 
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/convolve.h"
-#include "av1/common/filter.h"
-#include "av1/common/resize.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_ports/mem.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/convolve.h"
+#include "av2/common/filter.h"
+#include "av2/common/resize.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_ports/mem.h"
 
-void av1_highbd_convolve_horiz_rs_c(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_horiz_rs_c(const uint16_t *src, int src_stride,
                                     uint16_t *dst, int dst_stride, int w, int h,
                                     const int16_t *x_filters, int x0_qn,
                                     int x_step_qn, int bd) {
@@ -50,7 +50,7 @@ void av1_highbd_convolve_horiz_rs_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_convolve_x_sr_c(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_x_sr_c(const uint16_t *src, int src_stride,
                                 uint16_t *dst, int dst_stride, int w, int h,
                                 const InterpFilterParams *filter_params_x,
                                 const int subpel_x_qn,
@@ -63,7 +63,7 @@ void av1_highbd_convolve_x_sr_c(const uint16_t *src, int src_stride,
          ((conv_params->round_0 + conv_params->round_1) == 2 * FILTER_BITS));
 
   // horizontal filter
-  const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *x_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_x, subpel_x_qn & SUBPEL_MASK);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -78,13 +78,13 @@ void av1_highbd_convolve_x_sr_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_convolve_y_sr_c(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_y_sr_c(const uint16_t *src, int src_stride,
                                 uint16_t *dst, int dst_stride, int w, int h,
                                 const InterpFilterParams *filter_params_y,
                                 const int subpel_y_qn, int bd) {
   const int fo_vert = filter_params_y->taps / 2 - 1;
   // vertical filter
-  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *y_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_y, subpel_y_qn & SUBPEL_MASK);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -98,7 +98,7 @@ void av1_highbd_convolve_y_sr_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
                                  uint16_t *dst, int dst_stride, int w, int h,
                                  const InterpFilterParams *filter_params_x,
                                  const InterpFilterParams *filter_params_y,
@@ -116,7 +116,7 @@ void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
 
   // horizontal filter
   const uint16_t *src_horiz = src - fo_vert * src_stride;
-  const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *x_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_x, subpel_x_qn & SUBPEL_MASK);
   for (int y = 0; y < im_h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -132,7 +132,7 @@ void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
 
   // vertical filter
   int16_t *src_vert = im_block + fo_vert * im_stride;
-  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *y_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_y, subpel_y_qn & SUBPEL_MASK);
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   for (int y = 0; y < h; ++y) {
@@ -151,7 +151,7 @@ void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_dist_wtd_convolve_2d_c(
+void av2_highbd_dist_wtd_convolve_2d_c(
     const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w,
     int h, const InterpFilterParams *filter_params_x,
     const InterpFilterParams *filter_params_y, const int subpel_x_qn,
@@ -171,7 +171,7 @@ void av1_highbd_dist_wtd_convolve_2d_c(
 
   // horizontal filter
   const uint16_t *src_horiz = src - fo_vert * src_stride;
-  const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *x_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_x, subpel_x_qn & SUBPEL_MASK);
   for (y = 0; y < im_h; ++y) {
     for (x = 0; x < w; ++x) {
@@ -189,7 +189,7 @@ void av1_highbd_dist_wtd_convolve_2d_c(
   // vertical filter
   int16_t *src_vert = im_block + fo_vert * im_stride;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
-  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *y_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_y, subpel_y_qn & SUBPEL_MASK);
   for (y = 0; y < h; ++y) {
     for (x = 0; x < w; ++x) {
@@ -219,7 +219,7 @@ void av1_highbd_dist_wtd_convolve_2d_c(
   }
 }
 
-void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
+void av2_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
                                       uint16_t *dst, int dst_stride, int w,
                                       int h,
                                       const InterpFilterParams *filter_params_x,
@@ -239,7 +239,7 @@ void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
   assert(bits >= 0);
 
   // horizontal filter
-  const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *x_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_x, subpel_x_qn & SUBPEL_MASK);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -269,7 +269,7 @@ void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
+void av2_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
                                       uint16_t *dst, int dst_stride, int w,
                                       int h,
                                       const InterpFilterParams *filter_params_y,
@@ -288,7 +288,7 @@ void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
   assert(round_bits >= 0);
   assert(bits >= 0);
   // vertical filter
-  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+  const int16_t *y_filter = av2_get_interp_filter_subpel_kernel(
       filter_params_y, subpel_y_qn & SUBPEL_MASK);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -318,7 +318,7 @@ void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_dist_wtd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
+void av2_highbd_dist_wtd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
                                             uint16_t *dst, int dst_stride,
                                             int w, int h,
                                             ConvolveParams *conv_params,
@@ -356,7 +356,7 @@ void av1_highbd_dist_wtd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
   }
 }
 
-void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
                                     uint16_t *dst, int dst_stride, int w, int h,
                                     const InterpFilterParams *filter_params_x,
                                     const InterpFilterParams *filter_params_y,
@@ -384,7 +384,7 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
       const int x_filter_idx = (x_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
       assert(x_filter_idx < SUBPEL_SHIFTS);
       const int16_t *x_filter =
-          av1_get_interp_filter_subpel_kernel(filter_params_x, x_filter_idx);
+          av2_get_interp_filter_subpel_kernel(filter_params_x, x_filter_idx);
       int32_t sum = (1 << (bd + FILTER_BITS - 1));
       for (int k = 0; k < filter_params_x->taps; ++k) {
         sum += x_filter[k] * src_x[k - fo_horiz];
@@ -406,7 +406,7 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
       const int y_filter_idx = (y_qn & SCALE_SUBPEL_MASK) >> SCALE_EXTRA_BITS;
       assert(y_filter_idx < SUBPEL_SHIFTS);
       const int16_t *y_filter =
-          av1_get_interp_filter_subpel_kernel(filter_params_y, y_filter_idx);
+          av2_get_interp_filter_subpel_kernel(filter_params_y, y_filter_idx);
       int32_t sum = 1 << offset_bits;
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_y[(k - fo_vert) * im_stride];
@@ -451,19 +451,19 @@ static void highbd_convolve_2d_facade_compound(
   const bool need_x = subpel_x_qn != 0;
   const bool need_y = subpel_y_qn != 0;
   if (!need_x && !need_y) {
-    av1_highbd_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
+    av2_highbd_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
                                          conv_params, bd);
   } else if (need_x && !need_y) {
-    av1_highbd_dist_wtd_convolve_x(src, src_stride, dst, dst_stride, w, h,
+    av2_highbd_dist_wtd_convolve_x(src, src_stride, dst, dst_stride, w, h,
                                    filter_params_x, subpel_x_qn, conv_params,
                                    bd);
   } else if (!need_x && need_y) {
-    av1_highbd_dist_wtd_convolve_y(src, src_stride, dst, dst_stride, w, h,
+    av2_highbd_dist_wtd_convolve_y(src, src_stride, dst, dst_stride, w, h,
                                    filter_params_y, subpel_y_qn, conv_params,
                                    bd);
   } else {
     assert(need_x && need_y);
-    av1_highbd_dist_wtd_convolve_2d(src, src_stride, dst, dst_stride, w, h,
+    av2_highbd_dist_wtd_convolve_2d(src, src_stride, dst, dst_stride, w, h,
                                     filter_params_x, filter_params_y,
                                     subpel_x_qn, subpel_y_qn, conv_params, bd);
   }
@@ -484,25 +484,25 @@ static void highbd_convolve_2d_facade_single(
       (filter_params_y == NULL) ? 0 : ((filter_params_y->taps > 8) ? 1 : 0);
 
   if (!need_x && !need_y) {
-    aom_highbd_convolve_copy(src, src_stride, dst, dst_stride, w, h);
+    avm_highbd_convolve_copy(src, src_stride, dst, dst_stride, w, h);
   } else if (need_x && !need_y) {
     // TODO(any): need SIMD for > 8 taps filters
     assert(IMPLIES(is_intrabc, filter_params_x != NULL));
     if (filter_x_taps_gt8 || filter_y_taps_gt8 || is_intrabc) {
-      av1_highbd_convolve_x_sr_c(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_x_sr_c(src, src_stride, dst, dst_stride, w, h,
                                  filter_params_x, subpel_x_qn, conv_params, bd);
 
     } else {
-      av1_highbd_convolve_x_sr(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_x_sr(src, src_stride, dst, dst_stride, w, h,
                                filter_params_x, subpel_x_qn, conv_params, bd);
     }
   } else if (!need_x && need_y) {
     assert(IMPLIES(is_intrabc, filter_params_y != NULL));
     if (filter_x_taps_gt8 || filter_y_taps_gt8 || is_intrabc) {
-      av1_highbd_convolve_y_sr_c(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_y_sr_c(src, src_stride, dst, dst_stride, w, h,
                                  filter_params_y, subpel_y_qn, bd);
     } else {
-      av1_highbd_convolve_y_sr(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_y_sr(src, src_stride, dst, dst_stride, w, h,
                                filter_params_y, subpel_y_qn, bd);
     }
   } else {
@@ -510,18 +510,18 @@ static void highbd_convolve_2d_facade_single(
     assert(IMPLIES(is_intrabc,
                    filter_params_x != NULL && filter_params_y != NULL));
     if (filter_x_taps_gt8 || filter_y_taps_gt8 || is_intrabc) {
-      av1_highbd_convolve_2d_sr_c(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_2d_sr_c(src, src_stride, dst, dst_stride, w, h,
                                   filter_params_x, filter_params_y, subpel_x_qn,
                                   subpel_y_qn, conv_params, bd);
     } else {
-      av1_highbd_convolve_2d_sr(src, src_stride, dst, dst_stride, w, h,
+      av2_highbd_convolve_2d_sr(src, src_stride, dst, dst_stride, w, h,
                                 filter_params_x, filter_params_y, subpel_x_qn,
                                 subpel_y_qn, conv_params, bd);
     }
   }
 }
 
-void av1_highbd_convolve_2d_facade(const uint16_t *src, int src_stride,
+void av2_highbd_convolve_2d_facade(const uint16_t *src, int src_stride,
                                    uint16_t *dst, int dst_stride, int w, int h,
                                    const InterpFilterParams *interp_filters[2],
                                    const int subpel_x_qn, int x_step_q4,
@@ -543,7 +543,7 @@ void av1_highbd_convolve_2d_facade(const uint16_t *src, int src_stride,
     if (conv_params->is_compound) {
       assert(conv_params->dst != NULL);
     }
-    av1_highbd_convolve_2d_scale(src, src_stride, dst, dst_stride, w, h,
+    av2_highbd_convolve_2d_scale(src, src_stride, dst, dst_stride, w, h,
                                  filter_params_x, filter_params_y, subpel_x_qn,
                                  x_step_q4, subpel_y_qn, y_step_q4, conv_params,
                                  bd);
@@ -644,7 +644,7 @@ static void highbd_convolve_add_src_vert_hip(
   }
 }
 
-void av1_highbd_wiener_convolve_add_src_c(
+void av2_highbd_wiener_convolve_add_src_c(
     const uint16_t *src, ptrdiff_t src_stride, uint16_t *dst,
     ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4,
     const int16_t *filter_y, int y_step_q4, int w, int h,
@@ -702,12 +702,12 @@ void av1_highbd_wiener_convolve_add_src_c(
 // multiply is carried out in 32-bits. The filter tap precisions should
 // guarantee that the result of the convolution, i.e., the result of the entire
 // multiply-add, fits into 32-bits prior to the down-shit and round.
-// - Calling av1_convolve_symmetric_subtract_center_highbd_c allows passing the
+// - Calling av2_convolve_symmetric_subtract_center_highbd_c allows passing the
 // difference wrto the center pixel through a nonlinearity if one wishes to do
 // so.
 // - Current NonsepFilterConfig supports arbitrary filters and hence the loop
 // over every other tap, e.g., filter_config->config[2 * k].
-void av1_convolve_symmetric_highbd_c(const uint16_t *dgd, int stride,
+void av2_convolve_symmetric_highbd_c(const uint16_t *dgd, int stride,
                                      const NonsepFilterConfig *filter_config,
                                      const int16_t *filter, uint16_t *dst,
                                      int dst_stride, int bit_depth,
@@ -774,7 +774,7 @@ void av1_convolve_symmetric_highbd_c(const uint16_t *dgd, int stride,
   // End core-functionality.
 }
 
-void av1_convolve_mixedsymmetric_highbd_c(
+void av2_convolve_mixedsymmetric_highbd_c(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *nsfilter,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
@@ -802,9 +802,9 @@ void av1_convolve_mixedsymmetric_highbd_c(
   }
 }
 
-// Same as av1_convolve_symmetric_highbd_c except for the subtraction of the
+// Same as av2_convolve_symmetric_highbd_c except for the subtraction of the
 // center-pixel and the addition of an offset.
-void av1_convolve_symmetric_subtract_center_highbd_c(
+void av2_convolve_symmetric_subtract_center_highbd_c(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
@@ -865,19 +865,19 @@ void av1_convolve_symmetric_subtract_center_highbd_c(
 }
 
 // Symmetric convolution filtering for an 8x8 block.
-void av1_convolve_symmetric_blk8x8_highbd_c(
+void av2_convolve_symmetric_blk8x8_highbd_c(
     const uint16_t *dgd, int stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
     int block_row_begin, int block_row_end, int block_col_begin,
     int block_col_end) {
-  av1_convolve_symmetric_highbd_c(
+  av2_convolve_symmetric_highbd_c(
       dgd, stride, filter_config, filter, dst, dst_stride, bit_depth,
       block_row_begin, block_row_end, block_col_begin, block_col_end);
 }
 
 // The function provides support for non-separable convolution filtering for an
 // 8x8 block.
-void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
+void av2_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
                                        int height, int stride,
                                        const NonsepFilterConfig *nsfilter,
                                        const int16_t *filter, uint16_t *dst,
@@ -886,18 +886,18 @@ void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
   const int is_sym = (nsfilter->asymmetric == 0);
   if (USE_CONV_SYM_VERSIONS && !nsfilter->strict_bounds && is_sym) {
     if (nsfilter->subtract_center)
-      av1_convolve_symmetric_subtract_center_highbd_c(
+      av2_convolve_symmetric_subtract_center_highbd_c(
           dgd, stride, nsfilter, filter, dst, dst_stride, bit_depth, 0, height,
           0, width);
     else
-      av1_convolve_symmetric_blk8x8_highbd(dgd, stride, nsfilter, filter, dst,
+      av2_convolve_symmetric_blk8x8_highbd(dgd, stride, nsfilter, filter, dst,
                                            dst_stride, bit_depth, 0, height, 0,
                                            width);
     return;
   }
   if (!is_sym && !nsfilter->strict_bounds) {
     if (!nsfilter->subtract_center) {
-      av1_convolve_mixedsymmetric_highbd_c(dgd, stride, nsfilter, filter, dst,
+      av2_convolve_mixedsymmetric_highbd_c(dgd, stride, nsfilter, filter, dst,
                                            dst_stride, bit_depth, 0, height, 0,
                                            width);
       return;
@@ -917,10 +917,10 @@ void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
           continue;
         }
         const int ir = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(i + r, height - 1), 0)
+                           ? AVMMAX(AVMMIN(i + r, height - 1), 0)
                            : i + r;
         const int jc = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(j + c, width - 1), 0)
+                           ? AVMMAX(AVMMIN(j + c, width - 1), 0)
                            : j + c;
         int16_t sample;
         if (nsfilter->subtract_center) {
@@ -940,7 +940,7 @@ void av1_convolve_nonsep_blk8x8_highbd(const uint16_t *dgd, int width,
 
 // The function provides support for non-separable convolution filtering for a
 // 4x4 block.
-void av1_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
+void av2_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
                                        int height, int stride,
                                        const NonsepFilterConfig *nsfilter,
                                        const int16_t *filter, uint16_t *dst,
@@ -948,17 +948,17 @@ void av1_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
   const int is_sym = (nsfilter->asymmetric == 0);
   if (USE_CONV_SYM_VERSIONS && !nsfilter->strict_bounds && is_sym) {
     if (nsfilter->subtract_center)
-      av1_convolve_symmetric_subtract_center_highbd(
+      av2_convolve_symmetric_subtract_center_highbd(
           dgd, stride, nsfilter, filter, dst, dst_stride, bit_depth, 0, height,
           0, width);
     else
-      av1_convolve_symmetric_highbd(dgd, stride, nsfilter, filter, dst,
+      av2_convolve_symmetric_highbd(dgd, stride, nsfilter, filter, dst,
                                     dst_stride, bit_depth, 0, height, 0, width);
     return;
   }
   if (!is_sym && !nsfilter->strict_bounds) {
     if (!nsfilter->subtract_center) {
-      av1_convolve_mixedsymmetric_highbd(dgd, stride, nsfilter, filter, dst,
+      av2_convolve_mixedsymmetric_highbd(dgd, stride, nsfilter, filter, dst,
                                          dst_stride, bit_depth, 0, height, 0,
                                          width);
       return;
@@ -978,10 +978,10 @@ void av1_convolve_nonsep_blk4x4_highbd(const uint16_t *dgd, int width,
           continue;
         }
         const int ir = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(i + r, height - 1), 0)
+                           ? AVMMAX(AVMMIN(i + r, height - 1), 0)
                            : i + r;
         const int jc = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(j + c, width - 1), 0)
+                           ? AVMMAX(AVMMIN(j + c, width - 1), 0)
                            : j + c;
         int16_t sample;
         if (nsfilter->subtract_center) {
@@ -1038,9 +1038,9 @@ void calc_gradient_in_various_directions_c(int16_t *feature_line_buffers[],
 #endif
   for (int col = col_begin; col < col_end; ++col, ++buffer_col) {
     // Fix an issue with odd-sized rows/columns. (If the right/lower extension
-    // of the frame is extended by 4 pixels instead of the current 3 AOMMIN can
+    // of the frame is extended by 4 pixels instead of the current 3 AVMMIN can
     // be discarded.
-    const int dgd_col = AOMMIN(col, width + 3 - 2);
+    const int dgd_col = AVMMIN(col, width + 3 - 2);
     const int dgd_id = row * dgd_stride + dgd_col;
     const int prev_row = dgd_id - dgd_stride;
     const int next_row = dgd_id + dgd_stride;
@@ -1125,7 +1125,7 @@ void fill_directional_feature_buffers_highbd_c(
 // feature is obtained by taking the previous box-filtered value, subtracting
 // the contribution of the out-of-scop column on the left and adding the
 // contribution of the newly in-scope column on the right.
-void av1_fill_directional_feature_accumulators_c(
+void av2_fill_directional_feature_accumulators_c(
     int dir_feature_accum[NUM_PC_WIENER_FEATURES][PC_WIENER_FEATURE_ACC_SIZE],
     int *feature_sum_bufs[NUM_PC_WIENER_FEATURES], int width, int col_offset,
     int feature_lead, int feature_lag) {
@@ -1165,7 +1165,7 @@ void av1_fill_directional_feature_accumulators_c(
 // feature is obtained by taking the previous box-filtered value, subtracting
 // the contribution of the out-of-scop column on the left and adding the
 // contribution of the newly in-scope column on the right.
-void av1_fill_tskip_feature_accumulator_c(
+void av2_fill_tskip_feature_accumulator_c(
     int16_t tskip_feature_accum[PC_WIENER_FEATURE_ACC_SIZE],
     int8_t *tskip_sum_buf, int width, int col_offset, int tskip_lead,
     int tskip_lag) {
@@ -1203,7 +1203,7 @@ void av1_fill_tskip_feature_accumulator_c(
 //    row_begin = row - PC_WIENER_TSKIP_LENGTH / 2
 //    row_end = row + PC_WIENER_TSKIP_LENGTH / 2 + 1.
 // This version of the routine assumes use_strict_bounds is true.
-void av1_fill_tskip_sum_buffer_c(int row, const uint8_t *tskip,
+void av2_fill_tskip_sum_buffer_c(int row, const uint8_t *tskip,
                                  int tskip_stride, int8_t *tx_skip_sum_buffer,
                                  int width, int height, int tskip_lead,
                                  int tskip_lag, bool use_strict_bounds) {
@@ -1219,7 +1219,7 @@ void av1_fill_tskip_sum_buffer_c(int row, const uint8_t *tskip,
   assert((tskip_length + height) <= 127);
   const int col_begin = -tskip_lead;
   const int col_end = width + tskip_lag;
-  const int clamped_row = AOMMAX(AOMMIN(row, height - 1), 0);
+  const int clamped_row = AVMMAX(AVMMIN(row, height - 1), 0);
 
   int buffer_col = 0;
   int tskip_id_base = (clamped_row >> MI_SIZE_LOG2) * tskip_stride;
@@ -1287,7 +1287,7 @@ void av1_fill_tskip_sum_buffer_c(int row, const uint8_t *tskip,
   }
 }
 
-void av1_convolve_symmetric_dual_highbd_c(
+void av2_convolve_symmetric_dual_highbd_c(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -1402,7 +1402,7 @@ void av1_convolve_symmetric_dual_highbd_c(
 // subtracting the center pixel during filtering with non-zero taps only.
 // Subtracting the center-pixel also allows for the use of nonlinearities that
 // can regulate differences from the center-pixel during filtering.
-void av1_convolve_symmetric_dual_subtract_center_highbd_c(
+void av2_convolve_symmetric_dual_subtract_center_highbd_c(
     const uint16_t *dgd, int dgd_stride, const uint16_t *dgd_dual,
     int dgd_dual_stride, const NonsepFilterConfig *filter_config,
     const int16_t *filter, uint16_t *dst, int dst_stride, int bit_depth,
@@ -1459,14 +1459,14 @@ void av1_convolve_symmetric_dual_subtract_center_highbd_c(
 // filtering.
 //
 // Depending on the filter configuration:
-// (i) Calls av1_convolve_symmetric_dual_subtract_center_highbd(), i.e.,
+// (i) Calls av2_convolve_symmetric_dual_subtract_center_highbd(), i.e.,
 // filtering with zero-sum filters implemented by subtracting the center-pixel
 // value.
-// (ii) Calls av1_convolve_symmetric_dual_highbd(), i.e.,
+// (ii) Calls av2_convolve_symmetric_dual_highbd(), i.e.,
 // filtering with potentially unconstrained filters implemented by using a
 // center-tap.
 // (iii) Implements general non-symmetric filtering.
-void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
+void av2_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
                                      int stride, const uint16_t *dgd2,
                                      int stride2,
                                      const NonsepFilterConfig *nsfilter,
@@ -1478,11 +1478,11 @@ void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
     // below assume config2 to be already not symmetric
     assert(nsfilter->strict_bounds == false);
     if (nsfilter->subtract_center)
-      av1_convolve_symmetric_dual_subtract_center_highbd_c(
+      av2_convolve_symmetric_dual_subtract_center_highbd_c(
           dgd, stride, dgd2, stride2, nsfilter, filter, dst, dst_stride,
           bit_depth, 0, height, 0, width);
     else
-      av1_convolve_symmetric_dual_highbd(dgd, stride, dgd2, stride2, nsfilter,
+      av2_convolve_symmetric_dual_highbd(dgd, stride, dgd2, stride2, nsfilter,
                                          filter, dst, dst_stride, bit_depth, 0,
                                          height, 0, width);
     return;
@@ -1502,10 +1502,10 @@ void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
           continue;
         }
         const int ir = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(i + r, height - 1), 0)
+                           ? AVMMAX(AVMMIN(i + r, height - 1), 0)
                            : i + r;
         const int jc = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(j + c, width - 1), 0)
+                           ? AVMMAX(AVMMIN(j + c, width - 1), 0)
                            : j + c;
         int16_t sample;
         if (nsfilter->subtract_center) {
@@ -1522,10 +1522,10 @@ void av1_convolve_nonsep_dual_highbd(const uint16_t *dgd, int width, int height,
         const int r = nsfilter->config2[k][NONSEP_ROW_ID];
         const int c = nsfilter->config2[k][NONSEP_COL_ID];
         const int ir = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(i + r, height - 1), 0)
+                           ? AVMMAX(AVMMIN(i + r, height - 1), 0)
                            : i + r;
         const int jc = nsfilter->strict_bounds
-                           ? AOMMAX(AOMMIN(j + c, width - 1), 0)
+                           ? AVMMAX(AVMMIN(j + c, width - 1), 0)
                            : j + c;
         int16_t sample;
         if (nsfilter->subtract_center) {

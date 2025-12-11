@@ -8,12 +8,12 @@
 # for Open Media Patent License 1.0 was not distributed with this source code in
 # the PATENTS file, you can obtain it at aomedia.org/license/patent-license/.
 #
-if(AOM_BUILD_CMAKE_AOM_EXPERIMENT_DEPS_CMAKE_)
+if(AVM_BUILD_CMAKE_AVM_EXPERIMENT_DEPS_CMAKE_)
   return()
-endif() # AOM_BUILD_CMAKE_AOM_EXPERIMENT_DEPS_CMAKE_
-set(AOM_BUILD_CMAKE_AOM_EXPERIMENT_DEPS_CMAKE_ 1)
+endif() # AVM_BUILD_CMAKE_AVM_EXPERIMENT_DEPS_CMAKE_
+set(AVM_BUILD_CMAKE_AVM_EXPERIMENT_DEPS_CMAKE_ 1)
 
-# Adjusts CONFIG_* CMake variables to address conflicts between active AV1
+# Adjusts CONFIG_* CMake variables to address conflicts between active AV2
 # experiments.
 macro(fix_experiment_configs)
 

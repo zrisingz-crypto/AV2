@@ -9,22 +9,22 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#include "av1/decoder/decoder.h"
-#include "av1/decoder/inspection.h"
-#include "av1/common/blockd.h"
-#include "av1/common/enums.h"
-#include "av1/common/cdef.h"
+#include "av2/decoder/decoder.h"
+#include "av2/decoder/inspection.h"
+#include "av2/common/blockd.h"
+#include "av2/common/enums.h"
+#include "av2/common/cdef.h"
 
 static void ifd_init_mi_rc(insp_frame_data *fd, int mi_cols, int mi_rows) {
   fd->mi_cols = mi_cols;
   fd->mi_rows = mi_rows;
-  fd->mi_grid = (insp_mi_data *)aom_malloc(sizeof(insp_mi_data) * fd->mi_rows *
+  fd->mi_grid = (insp_mi_data *)avm_malloc(sizeof(insp_mi_data) * fd->mi_rows *
                                            fd->mi_cols);
   fd->max_sb_rows =
       (mi_rows + (1 << MIN_MIB_SIZE_LOG2) - 1) / (1 << MIN_MIB_SIZE_LOG2);
   fd->max_sb_cols =
       (mi_cols + (1 << MIN_MIB_SIZE_LOG2) - 1) / (1 << MIN_MIB_SIZE_LOG2);
-  fd->sb_grid = (insp_sb_data *)aom_calloc(sizeof(insp_sb_data),
+  fd->sb_grid = (insp_sb_data *)avm_calloc(sizeof(insp_sb_data),
                                            fd->max_sb_rows * fd->max_sb_cols);
 }
 
@@ -35,23 +35,23 @@ void ifd_init(insp_frame_data *fd, int frame_width, int frame_height) {
 }
 
 void ifd_clear(insp_frame_data *fd) {
-  aom_free(fd->mi_grid);
+  avm_free(fd->mi_grid);
   fd->mi_grid = NULL;
   for (int i = 0; i < fd->max_sb_rows; i++) {
     for (int j = 0; j < fd->max_sb_cols; j++) {
       insp_sb_data *sb = &fd->sb_grid[i * fd->max_sb_cols + j];
-      // Note: NULL checking happens within av1_free_ptree_recursive
-      av1_free_ptree_recursive(sb->partition_tree_luma);
-      av1_free_ptree_recursive(sb->partition_tree_chroma);
+      // Note: NULL checking happens within av2_free_ptree_recursive
+      av2_free_ptree_recursive(sb->partition_tree_luma);
+      av2_free_ptree_recursive(sb->partition_tree_chroma);
     }
   }
-  aom_free(fd->sb_grid);
+  avm_free(fd->sb_grid);
   fd->sb_grid = NULL;
 }
 
 PARTITION_TREE *copy_partition_tree(PARTITION_TREE *orig,
                                     PARTITION_TREE *parent) {
-  PARTITION_TREE *copy = av1_alloc_ptree_node(NULL, 0);
+  PARTITION_TREE *copy = av2_alloc_ptree_node(NULL, 0);
   memcpy(copy, orig, sizeof(PARTITION_TREE));
   copy->parent = parent;
   for (size_t i = 0; i < sizeof(copy->sub_tree) / sizeof(copy->sub_tree[0]);
@@ -64,8 +64,8 @@ PARTITION_TREE *copy_partition_tree(PARTITION_TREE *orig,
 }
 
 int ifd_inspect_superblock(insp_frame_data *fd, void *decoder) {
-  struct AV1Decoder *pbi = (struct AV1Decoder *)decoder;
-  AV1_COMMON *const cm = &pbi->common;
+  struct AV2Decoder *pbi = (struct AV2Decoder *)decoder;
+  AV2_COMMON *const cm = &pbi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   if (fd->mi_rows != mi_params->mi_rows || fd->mi_cols != mi_params->mi_cols) {
     ifd_clear(fd);
@@ -110,8 +110,8 @@ int ifd_inspect_superblock(insp_frame_data *fd, void *decoder) {
 /* TODO(negge) This function may be called by more than one thread when using
                a multi-threaded decoder and this may cause a data race. */
 int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
-  struct AV1Decoder *pbi = (struct AV1Decoder *)decoder;
-  AV1_COMMON *const cm = &pbi->common;
+  struct AV2Decoder *pbi = (struct AV2Decoder *)decoder;
+  AV2_COMMON *const cm = &pbi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const CommonQuantParams *quant_params = &cm->quant_params;
   fd->recon_frame_buffer = cm->cur_frame->buf;
@@ -139,8 +139,8 @@ int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
   fd->superblock_size = sb_size;
   // Set width and height of the first tile until generic support can be added
   TileInfo tile_info;
-  av1_tile_set_row(&tile_info, cm, 0);
-  av1_tile_set_col(&tile_info, cm, 0);
+  av2_tile_set_row(&tile_info, cm, 0);
+  av2_tile_set_col(&tile_info, cm, 0);
   fd->tile_mi_cols = tile_info.mi_col_end - tile_info.mi_col_start;
   fd->tile_mi_rows = tile_info.mi_row_end - tile_info.mi_row_start;
   fd->delta_q_present_flag = cm->delta_q_info.delta_q_present_flag;
@@ -231,11 +231,11 @@ int ifd_inspect(insp_frame_data *fd, void *decoder, int skip_not_transform) {
           tx_type_row * mi_params->mi_stride + tx_type_col;
       mi->tx_type = mi_params->tx_type_map[tx_type_map_idx];
 
-      bool skip = mbmi->tx_skip[av1_get_txk_type_index(bsize, r, c)];
+      bool skip = mbmi->tx_skip[av2_get_txk_type_index(bsize, r, c)];
       mi->skip |= skip;
 
       if (skip_not_transform &&
-          (mi->skip || mbmi->tx_skip[av1_get_txk_type_index(bsize, r, c)])) {
+          (mi->skip || mbmi->tx_skip[av2_get_txk_type_index(bsize, r, c)])) {
         mi->tx_type = -1;
       }
 

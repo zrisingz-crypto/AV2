@@ -9,12 +9,12 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AV1_COMMON_MVREF_COMMON_H_
-#define AOM_AV1_COMMON_MVREF_COMMON_H_
+#ifndef AVM_AV2_COMMON_MVREF_COMMON_H_
+#define AVM_AV2_COMMON_MVREF_COMMON_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/blockd.h"
-#include "av1/common/mv.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/blockd.h"
+#include "av2/common/mv.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,7 @@ typedef struct position {
 #define MAX_OFFSET_HEIGHT_LOG2 (MAX_OFFSET_HEIGHT >> TMVP_MI_SZ_LOG2)
 #define MAX_OFFSET_WIDTH_LOG2 (MAX_OFFSET_WIDTH >> TMVP_MI_SZ_LOG2)
 
-static AOM_INLINE int get_mf_sb_size_log2(int sb_size, int mib_size_log2,
+static AVM_INLINE int get_mf_sb_size_log2(int sb_size, int mib_size_log2,
                                           int tmvp_sample_step) {
   (void)mib_size_log2;
 
@@ -49,7 +49,7 @@ static AOM_INLINE int get_mf_sb_size_log2(int sb_size, int mib_size_log2,
   return mi_size_log2 + MI_SIZE_LOG2;
 }
 
-static AOM_INLINE int get_block_position(const AV1_COMMON *cm, int *mi_r,
+static AVM_INLINE int get_block_position(const AV2_COMMON *cm, int *mi_r,
                                          int *mi_c, int blk_row, int blk_col,
                                          MV mv, int sign_bias) {
   const int sb_tmvp_size = cm->tmvp_proc_size;
@@ -85,7 +85,7 @@ static AOM_INLINE int get_block_position(const AV1_COMMON *cm, int *mi_r,
   return 1;
 }
 
-static AOM_INLINE void get_proc_size_and_offset(AV1_COMMON *cm) {
+static AVM_INLINE void get_proc_size_and_offset(AV2_COMMON *cm) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   const int sb_size = block_size_high[seq_params->sb_size];
   const int mf_sb_size_log2 =
@@ -105,7 +105,7 @@ static AOM_INLINE void get_proc_size_and_offset(AV1_COMMON *cm) {
   }
 }
 
-static AOM_INLINE int check_block_position(const AV1_COMMON *cm, int row,
+static AVM_INLINE int check_block_position(const AV2_COMMON *cm, int row,
                                            int col, int blk_row, int blk_col) {
   const int sb_tmvp_size = cm->tmvp_proc_size;
   const int sb_tmvp_size_log2 = cm->tmvp_proc_sizel2;
@@ -125,7 +125,7 @@ static AOM_INLINE int check_block_position(const AV1_COMMON *cm, int row,
   return 1;
 }
 
-static AOM_INLINE int get_block_position_no_constraint(const AV1_COMMON *cm,
+static AVM_INLINE int get_block_position_no_constraint(const AV2_COMMON *cm,
                                                        int *mi_r, int *mi_c,
                                                        int blk_row, int blk_col,
                                                        MV mv, int sign_bias) {
@@ -174,14 +174,14 @@ static INLINE int opfl_get_subblock_size(int bw, int bh, int plane,
 static INLINE void opfl_subblock_size_plane(const MACROBLOCKD *xd, int plane,
                                             int use_4x4, int *opfl_sub_bw,
                                             int *opfl_sub_bh) {
-  const int width_y = xd->plane[AOM_PLANE_Y].width;
-  const int height_y = xd->plane[AOM_PLANE_Y].height;
+  const int width_y = xd->plane[AVM_PLANE_Y].width;
+  const int height_y = xd->plane[AVM_PLANE_Y].height;
   const int sub_bsize_y =
-      opfl_get_subblock_size(width_y, height_y, AOM_PLANE_Y, use_4x4);
+      opfl_get_subblock_size(width_y, height_y, AVM_PLANE_Y, use_4x4);
   *opfl_sub_bw =
-      AOMMAX((sub_bsize_y >> xd->plane[plane].subsampling_x), OF_MIN_BSIZE);
+      AVMMAX((sub_bsize_y >> xd->plane[plane].subsampling_x), OF_MIN_BSIZE);
   *opfl_sub_bh =
-      AOMMAX((sub_bsize_y >> xd->plane[plane].subsampling_y), OF_MIN_BSIZE);
+      AVMMAX((sub_bsize_y >> xd->plane[plane].subsampling_y), OF_MIN_BSIZE);
 }
 
 static INLINE int32_t get_subblk_offset_x_hp(const int32_t *wmmat,
@@ -386,7 +386,7 @@ static INLINE void comb2single(int n, int8_t combindex, int8_t *rf) {
   assert(rf[1] >= rf[0]);
 }
 
-static INLINE int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
+static INLINE int8_t av2_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
   if (!is_inter_ref_frame(rf[0])) {
     // Intra or invalid
     return rf[0];
@@ -403,7 +403,7 @@ static INLINE int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
 
 /*!\brief Return ref_mv_idx_type of the current coding block
  * conversion of two ref_mv_idx(s) into one value when there are two DRLs */
-static INLINE int av1_ref_mv_idx_type(const MB_MODE_INFO *mbmi,
+static INLINE int av2_ref_mv_idx_type(const MB_MODE_INFO *mbmi,
                                       const int *ref_mv_idx) {
   assert(ref_mv_idx[0] < MAX_REF_MV_STACK_SIZE);
   assert(ref_mv_idx[1] < MAX_REF_MV_STACK_SIZE);
@@ -416,7 +416,7 @@ static INLINE int av1_ref_mv_idx_type(const MB_MODE_INFO *mbmi,
 }
 
 /*!\brief Reset ref_mv_idx(s) based on the ref_mv_idx_type value */
-static INLINE void av1_set_ref_mv_idx(int *ref_mv_idx, int ref_mv_idx_type) {
+static INLINE void av2_set_ref_mv_idx(int *ref_mv_idx, int ref_mv_idx_type) {
   assert(ref_mv_idx_type >= 0 &&
          ref_mv_idx_type < MAX_REF_MV_STACK_SIZE * MAX_REF_MV_STACK_SIZE);
   ref_mv_idx[1] = ref_mv_idx_type / MAX_REF_MV_STACK_SIZE;
@@ -424,7 +424,7 @@ static INLINE void av1_set_ref_mv_idx(int *ref_mv_idx, int ref_mv_idx_type) {
   return;
 }
 
-static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
+static INLINE void av2_set_ref_frame(MV_REFERENCE_FRAME *rf,
                                      MV_REFERENCE_FRAME ref_frame_type) {
   if (ref_frame_type == INTRA_FRAME || is_tip_ref_frame(ref_frame_type) ||
       ref_frame_type < INTER_REFS_PER_FRAME) {
@@ -437,16 +437,16 @@ static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
   return;
 }
 
-static INLINE int16_t av1_mode_context_pristine(
+static INLINE int16_t av2_mode_context_pristine(
     const int16_t *const mode_context, const MV_REFERENCE_FRAME *const rf) {
-  int8_t ref_frame = av1_ref_frame_type(rf);
+  int8_t ref_frame = av2_ref_frame_type(rf);
   if (ref_frame == NONE_FRAME) ref_frame = 0;
   return mode_context[ref_frame];
 }
 
-static INLINE int16_t av1_mode_context_analyzer(
+static INLINE int16_t av2_mode_context_analyzer(
     const int16_t *const mode_context, const MV_REFERENCE_FRAME *const rf) {
-  int8_t ref_frame = av1_ref_frame_type(rf);
+  int8_t ref_frame = av2_ref_frame_type(rf);
   if (ref_frame == NONE_FRAME) ref_frame = 0;
   return mode_context[ref_frame];
 }
@@ -459,26 +459,26 @@ static INLINE int get_optflow_context(const int mode) {
   return opfl_ctx;
 }
 
-static INLINE aom_cdf_prob *av1_get_drl_cdf(const MB_MODE_INFO *const mbmi,
+static INLINE avm_cdf_prob *av2_get_drl_cdf(const MB_MODE_INFO *const mbmi,
                                             FRAME_CONTEXT *ec_ctx,
                                             const int16_t mode_ctx, int idx) {
   if (is_tip_ref_frame(mbmi->ref_frame[0])) {
-    return ec_ctx->tip_drl_cdf[AOMMIN(idx, 2)];
+    return ec_ctx->tip_drl_cdf[AVMMIN(idx, 2)];
   }
 
   if (mbmi->skip_mode) {
-    return ec_ctx->skip_drl_cdf[AOMMIN(idx, 2)];
+    return ec_ctx->skip_drl_cdf[AVMMIN(idx, 2)];
   }
 
-  const int ctx = av1_drl_ctx(mode_ctx);
-  return ec_ctx->drl_cdf[AOMMIN(idx, 2)][ctx];
+  const int ctx = av2_drl_ctx(mode_ctx);
+  return ec_ctx->drl_cdf[AVMMIN(idx, 2)][ctx];
 }
 
 // Get the cdf of the warp_ref_idx
-static INLINE aom_cdf_prob *av1_get_warp_ref_idx_cdf(FRAME_CONTEXT *ec_ctx,
+static INLINE avm_cdf_prob *av2_get_warp_ref_idx_cdf(FRAME_CONTEXT *ec_ctx,
                                                      int bit_idx) {
   const int ctx = 0;
-  return ec_ctx->warp_ref_idx_cdf[AOMMIN(bit_idx, 2)][ctx];
+  return ec_ctx->warp_ref_idx_cdf[AVMMIN(bit_idx, 2)][ctx];
 }
 
 // TODO(jingning): Consider the use of lookup table for (num / den)
@@ -488,12 +488,12 @@ static int div_mult[32] = { 0,    16384, 8192, 5461, 4096, 3276, 2730, 2340,
                             1024, 963,   910,  862,  819,  780,  744,  712,
                             682,  655,   630,  606,  585,  564,  546,  528 };
 
-static AOM_INLINE void get_mv_projection_clamp(MV *output, MV ref, int num,
+static AVM_INLINE void get_mv_projection_clamp(MV *output, MV ref, int num,
                                                int den, int clamp_min,
                                                int clamp_max) {
-  den = AOMMIN(den, MAX_FRAME_DISTANCE);
-  num = num > 0 ? AOMMIN(num, MAX_FRAME_DISTANCE)
-                : AOMMAX(num, -MAX_FRAME_DISTANCE);
+  den = AVMMIN(den, MAX_FRAME_DISTANCE);
+  num = num > 0 ? AVMMIN(num, MAX_FRAME_DISTANCE)
+                : AVMMAX(num, -MAX_FRAME_DISTANCE);
   const int64_t scale_mv_row = (int64_t)ref.row * num * div_mult[den];
   const int mv_row = (int)ROUND_POWER_OF_TWO_SIGNED_64(scale_mv_row, 14);
   const int64_t scale_mv_col = (int64_t)ref.col * num * div_mult[den];
@@ -502,18 +502,18 @@ static AOM_INLINE void get_mv_projection_clamp(MV *output, MV ref, int num,
   output->col = (MV_COMP_DATA_TYPE)clamp(mv_col, clamp_min, clamp_max);
 }
 
-static AOM_INLINE void get_mv_projection(MV *output, MV ref, int num, int den) {
+static AVM_INLINE void get_mv_projection(MV *output, MV ref, int num, int den) {
   get_mv_projection_clamp(output, ref, num, den, MV_LOW + 1, MV_UPP - 1);
 }
 
-void av1_setup_frame_buf_refs(AV1_COMMON *cm);
-void av1_setup_frame_sign_bias(AV1_COMMON *cm);
-void av1_setup_skip_mode_allowed(AV1_COMMON *cm);
-void av1_setup_motion_field(AV1_COMMON *cm);
-void av1_setup_ref_frame_sides(AV1_COMMON *cm);
+void av2_setup_frame_buf_refs(AV2_COMMON *cm);
+void av2_setup_frame_sign_bias(AV2_COMMON *cm);
+void av2_setup_skip_mode_allowed(AV2_COMMON *cm);
+void av2_setup_motion_field(AV2_COMMON *cm);
+void av2_setup_ref_frame_sides(AV2_COMMON *cm);
 
-static INLINE void av1_collect_neighbors_ref_counts(MACROBLOCKD *const xd) {
-  av1_zero(xd->neighbors_ref_counts);
+static INLINE void av2_collect_neighbors_ref_counts(MACROBLOCKD *const xd) {
+  av2_zero(xd->neighbors_ref_counts);
 
   uint8_t *const ref_counts = xd->neighbors_ref_counts;
   for (int i = 0; i < MAX_NUM_NEIGHBORS; ++i) {
@@ -567,30 +567,30 @@ static INLINE int get_amvd_context(const MACROBLOCKD *const xd) {
   return ctx;
 }
 
-void av1_copy_frame_refined_mvs(const AV1_COMMON *const cm,
+void av2_copy_frame_refined_mvs(const AV2_COMMON *const cm,
                                 const MACROBLOCKD *xd,
                                 const MB_MODE_INFO *const mi, int mi_row,
                                 int mi_col, int x_inside_boundary,
                                 int y_inside_boundary);
 
-void bru_copy_sb_mvs(const AV1_COMMON *const cm, int src_ref_idx,
+void bru_copy_sb_mvs(const AV2_COMMON *const cm, int src_ref_idx,
                      int dst_ref_idx, int mi_row, int mi_col,
                      int x_inside_boundary, int y_inside_boundary);
-void bru_zero_sb_mvs(const AV1_COMMON *const cm, int dst_ref_idx, int mi_row,
+void bru_zero_sb_mvs(const AV2_COMMON *const cm, int dst_ref_idx, int mi_row,
                      int mi_col, int x_inside_boundary, int y_inside_boundary);
-void av1_copy_frame_mvs(const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
+void av2_copy_frame_mvs(const AV2_COMMON *const cm, const MACROBLOCKD *const xd,
                         const MB_MODE_INFO *const mi, int mi_row, int mi_col,
                         int x_inside_boundary, int y_inside_boundary);
 
 // Scans neighboring blocks for inter mode contexts
-void av1_find_mode_ctx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+void av2_find_mode_ctx(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                        int16_t *mode_context, MV_REFERENCE_FRAME ref_frame);
 
 // The global_mvs output parameter points to an array of REF_FRAMES elements.
 // The caller may pass a null global_mvs if it does not need the global_mvs
 // output.
-void av1_find_mv_refs(
-    const AV1_COMMON *cm, const MACROBLOCKD *xd, MB_MODE_INFO *mi,
+void av2_find_mv_refs(
+    const AV2_COMMON *cm, const MACROBLOCKD *xd, MB_MODE_INFO *mi,
     MV_REFERENCE_FRAME ref_frame, uint8_t ref_mv_count[MODE_CTX_REF_FRAMES],
     CANDIDATE_MV ref_mv_stack[][MAX_REF_MV_STACK_SIZE],
     uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
@@ -599,20 +599,20 @@ void av1_find_mv_refs(
     int max_num_of_warp_candidates,
     uint8_t valid_num_warp_candidates[INTER_REFS_PER_FRAME]);
 
-void get_skip_mode_ref_offsets(const AV1_COMMON *cm, int ref_order_hint[2]);
+void get_skip_mode_ref_offsets(const AV2_COMMON *cm, int ref_order_hint[2]);
 
 // Initialize the warp cadidate lists to invalid values
-void av1_initialize_warp_wrl_list(
+void av2_initialize_warp_wrl_list(
     WARP_CANDIDATE warp_param_stack[][MAX_WARP_REF_CANDIDATES],
     uint8_t valid_num_warp_candidates[INTER_REFS_PER_FRAME]);
 
 // check a list of motion vectors by sad score using a number rows of pixels
 // above and a number cols of pixels in the left to select the one with best
 // score to use as ref motion vector
-void av1_find_best_ref_mvs(int_mv *mvlist, int_mv *nearest_mv, int_mv *near_mv,
+void av2_find_best_ref_mvs(int_mv *mvlist, int_mv *nearest_mv, int_mv *near_mv,
                            MvSubpelPrecision precision);
 
-uint8_t av1_findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int *pts,
+uint8_t av2_findSamples(const AV2_COMMON *cm, MACROBLOCKD *xd, int *pts,
                         int *pts_inref, int ref_idx);
 
 // num of buffers for intraBC: left 3x64x64 + current 64x64 + partial reuse
@@ -622,7 +622,7 @@ uint8_t av1_findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int *pts,
 #define INTRABC_DELAY_PIXELS 256  //  Delay of 256 pixels
 #define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
 
-static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
+static INLINE void av2_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
                                    int mib_size, int mi_row) {
   if (mi_row - mib_size < tile->mi_row_start) {
     ref_dv->as_fullmv.row = 0;
@@ -643,7 +643,7 @@ static INLINE int is_two_blk_overlap(int blk1_x_left, int blk1_x_right,
   return 1;
 }
 
-static INLINE int av1_is_dv_in_local_range(const AV1_COMMON *cm, const MV dv,
+static INLINE int av2_is_dv_in_local_range(const AV2_COMMON *cm, const MV dv,
                                            const MACROBLOCKD *xd, int mi_row,
                                            int mi_col, int bh, int bw,
                                            int mib_size_log2) {
@@ -698,7 +698,7 @@ static INLINE int av1_is_dv_in_local_range(const AV1_COMMON *cm, const MV dv,
       // treat padding region as support
       if (sb_col - numLeftActiveSB - 1 >= 0) {
         SB_INFO *sbi =
-            av1_get_sb_info(cm, sb_row << mib_size_log2,
+            av2_get_sb_info(cm, sb_row << mib_size_log2,
                             (sb_col - numLeftActiveSB - 1) << mib_size_log2);
         if (sbi->sb_active_mode == BRU_INACTIVE_SB) {
           break;
@@ -871,7 +871,7 @@ static INLINE int av1_is_dv_in_local_range(const AV1_COMMON *cm, const MV dv,
   return 1;
 }
 
-static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
+static INLINE int av2_is_dv_valid(const MV dv, const AV2_COMMON *cm,
                                   const MACROBLOCKD *xd, int mi_row, int mi_col,
                                   BLOCK_SIZE bsize, int mib_size_log2) {
   const int bw = block_size_wide[bsize];
@@ -910,7 +910,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
   // Special case for sub 8x8 chroma cases, to prevent referring to chroma
   // pixels outside current tile.
   if (!cm->seq_params.enable_sdp || !frame_is_intra_only(cm)) {
-    if (xd->is_chroma_ref && av1_num_planes(cm) > 1) {
+    if (xd->is_chroma_ref && av2_num_planes(cm) > 1) {
       const struct macroblockd_plane *const pd = &xd->plane[1];
       if (xd->mi && xd->mi[0]) {
         const CHROMA_REF_INFO *chroma_ref_info = &xd->mi[0]->chroma_ref_info;
@@ -943,7 +943,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
       int tmp_bh = bh;
       int tmp_bw = bw;
       if (!cm->seq_params.enable_sdp || !frame_is_intra_only(cm)) {
-        if (xd->is_chroma_ref && av1_num_planes(cm) > 1) {
+        if (xd->is_chroma_ref && av2_num_planes(cm) > 1) {
           if (xd->mi && xd->mi[0]) {
             const CHROMA_REF_INFO *chroma_ref_info =
                 &xd->mi[0]->chroma_ref_info;
@@ -955,7 +955,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
           }
         }
       }
-      valid = av1_is_dv_in_local_range(cm, dv, xd, tmp_row, tmp_col, tmp_bh,
+      valid = av2_is_dv_in_local_range(cm, dv, xd, tmp_row, tmp_col, tmp_bh,
                                        tmp_bw, mib_size_log2);
       if (valid) return 1;
     }
@@ -1006,7 +1006,7 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
 }
 
 static INLINE int is_bv_valid_for_morph(const MV sub_pel_dv,
-                                        const AV1_COMMON *cm,
+                                        const AV2_COMMON *cm,
                                         const MACROBLOCKD *xd, int mi_row,
                                         int mi_col, BLOCK_SIZE bsize) {
   // Assumes the input sub_pel_dv is a valid bv for global (or local) intraBC
@@ -1014,7 +1014,7 @@ static INLINE int is_bv_valid_for_morph(const MV sub_pel_dv,
                                  sub_pel_dv.col -
                                      GET_MV_SUBPEL(BAWP_REF_LINES) };
   assert(BAWP_REF_LINES < 4);
-  if (!av1_is_dv_valid(bv_to_tl_template, cm, xd, mi_row, mi_col, bsize,
+  if (!av2_is_dv_valid(bv_to_tl_template, cm, xd, mi_row, mi_col, bsize,
                        cm->mib_size_log2)) {
     return false;
   }
@@ -1022,12 +1022,12 @@ static INLINE int is_bv_valid_for_morph(const MV sub_pel_dv,
 }
 
 // assign subblock mv from warp into submi
-void assign_warpmv(const AV1_COMMON *cm, SUBMB_INFO **submi, BLOCK_SIZE bsize,
+void assign_warpmv(const AV2_COMMON *cm, SUBMB_INFO **submi, BLOCK_SIZE bsize,
                    WarpedMotionParams *wm_params, int mi_row, int mi_col,
                    int ref);
 
 // span the first subblock info into all the rest subblocks in the same block
-void span_submv(const AV1_COMMON *cm, SUBMB_INFO **submi, int mi_row,
+void span_submv(const AV2_COMMON *cm, SUBMB_INFO **submi, int mi_row,
                 int mi_col, BLOCK_SIZE bsize, int ref);
 
 // Decide what the base warp model should be when using WARP_DELTA.
@@ -1038,7 +1038,7 @@ void span_submv(const AV1_COMMON *cm, SUBMB_INFO **submi, int mi_row,
 // The MV which should be used at the center of this block is stored in
 // `center_mv`. Once the non-translational parameters have been set,
 // the translational part of the model can be set correctly using:
-//   av1_set_warp_translation(mi_row, mi_col, bsize, mv, params);
+//   av2_set_warp_translation(mi_row, mi_col, bsize, mv, params);
 //
 // If `center_mv` is not needed, the pointer can be set to NULL.
 //
@@ -1070,8 +1070,8 @@ void span_submv(const AV1_COMMON *cm, SUBMB_INFO **submi, int mi_row,
 //     MV from whatever ref block we used, is probably better than using the
 //     predicted MV from the global model, because if we wanted the latter
 //     then we would have used the GLOBALMV mode.
-static INLINE void av1_get_warp_base_params(
-    const AV1_COMMON *cm, const MB_MODE_INFO *mbmi, WarpedMotionParams *params,
+static INLINE void av2_get_warp_base_params(
+    const AV2_COMMON *cm, const MB_MODE_INFO *mbmi, WarpedMotionParams *params,
     int_mv *center_mv, const WARP_CANDIDATE *warp_param_stack) {
   (void)cm;
 
@@ -1084,7 +1084,7 @@ static INLINE void av1_get_warp_base_params(
 }
 
 // Try to get the neighbor's warp model
-static INLINE void av1_get_neighbor_warp_model(const AV1_COMMON *cm,
+static INLINE void av2_get_neighbor_warp_model(const AV2_COMMON *cm,
                                                const MACROBLOCKD *xd,
                                                const MB_MODE_INFO *neighbor_mi,
                                                WarpedMotionParams *wm_params) {
@@ -1131,7 +1131,7 @@ static INLINE void av1_get_neighbor_warp_model(const AV1_COMMON *cm,
   }
 }
 
-static INLINE int av1_get_warp_causal_ctx(const MACROBLOCKD *xd) {
+static INLINE int av2_get_warp_causal_ctx(const MACROBLOCKD *xd) {
   int ctx = 0;
   int has_warp_neighbor = 0;
   for (int i = 0; i < MAX_NUM_NEIGHBORS; ++i) {
@@ -1145,7 +1145,7 @@ static INLINE int av1_get_warp_causal_ctx(const MACROBLOCKD *xd) {
   return (ctx + has_warp_neighbor);
 }
 
-static INLINE int av1_get_warp_extend_ctx(const MACROBLOCKD *xd) {
+static INLINE int av2_get_warp_extend_ctx(const MACROBLOCKD *xd) {
   int ctx = 0;
   for (int i = 0; i < MAX_NUM_NEIGHBORS; ++i) {
     const MB_MODE_INFO *const neighbor = xd->neighbors[i];
@@ -1158,22 +1158,22 @@ static INLINE int av1_get_warp_extend_ctx(const MACROBLOCKD *xd) {
 }
 
 // Get the position of back-up WARP_EXTED mode base.
-int get_extend_base_pos(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int get_extend_base_pos(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                         const MB_MODE_INFO *mbmi, int mvp_row_offset,
                         int mvp_col_offset, POSITION *base_pos);
 
-void av1_find_warp_delta_base_candidates(
+void av2_find_warp_delta_base_candidates(
     const MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
     WARP_CANDIDATE warp_param_stack[MAX_WARP_REF_CANDIDATES],
     WARP_CANDIDATE spatial_candidates[MAX_WARP_REF_CANDIDATES],
     uint8_t num_wrl_cand, uint8_t *p_valid_num_candidates);
 
-bool is_warp_candidate_inside_of_frame(const AV1_COMMON *cm,
+bool is_warp_candidate_inside_of_frame(const AV2_COMMON *cm,
                                        const MACROBLOCKD *xd, int_mv cand_mv);
-int16_t inter_warpmv_mode_ctx(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int16_t inter_warpmv_mode_ctx(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                               const MB_MODE_INFO *mbmi);
 
-void av1_fill_tpl_mvs_sample_gap(AV1_COMMON *cm);
+void av2_fill_tpl_mvs_sample_gap(AV2_COMMON *cm);
 
 // Check if motion field is eligible based on reference frame type.
 static INLINE int is_ref_motion_field_eligible_by_frame_type(
@@ -1190,7 +1190,7 @@ static INLINE int is_ref_motion_field_eligible_by_frame_type(
 // Check if motion field is eligible based on reference frame size and current
 // frame size.
 static INLINE int is_ref_motion_field_eligible_by_frame_size(
-    const AV1_COMMON *const cm, const RefCntBuffer *const start_frame_buf) {
+    const AV2_COMMON *const cm, const RefCntBuffer *const start_frame_buf) {
   if (start_frame_buf == NULL) return 0;
 
   if (start_frame_buf->mi_rows != cm->mi_params.mi_rows ||
@@ -1207,13 +1207,13 @@ static INLINE int is_ref_motion_field_eligible_by_frame_size(
 // Check if motion field is eligible based on frame type and frame size
 // information.
 static INLINE int is_ref_motion_field_eligible(
-    const AV1_COMMON *const cm, const RefCntBuffer *const start_frame_buf) {
+    const AV2_COMMON *const cm, const RefCntBuffer *const start_frame_buf) {
   return is_ref_motion_field_eligible_by_frame_type(start_frame_buf) &&
          is_ref_motion_field_eligible_by_frame_size(cm, start_frame_buf);
 }
 
 // Temporal scaling the motion vector
-static AOM_INLINE void tip_get_mv_projection(MV *output, MV ref,
+static AVM_INLINE void tip_get_mv_projection(MV *output, MV ref,
                                              int scale_factor) {
   const int64_t scale_mv_row = (int64_t)ref.row * scale_factor;
   const int mv_row = (int)ROUND_POWER_OF_TWO_SIGNED_64(scale_mv_row, 14);
@@ -1226,7 +1226,7 @@ static AOM_INLINE void tip_get_mv_projection(MV *output, MV ref,
 }
 
 // Compute TMVP col offset related to block mv
-static AOM_INLINE int derive_col_mv_tpl_offset(const AV1_COMMON *const cm,
+static AVM_INLINE int derive_col_mv_tpl_offset(const AV2_COMMON *const cm,
                                                int blk_tpl_col) {
   const int frame_mvs_tpl_cols =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
@@ -1242,7 +1242,7 @@ static AOM_INLINE int derive_col_mv_tpl_offset(const AV1_COMMON *const cm,
 }
 
 // Compute TMVP row offset related to block mv
-static AOM_INLINE int derive_row_mv_tpl_offset(const AV1_COMMON *const cm,
+static AVM_INLINE int derive_row_mv_tpl_offset(const AV2_COMMON *const cm,
                                                int blk_tpl_row) {
   const int frame_mvs_tpl_cols =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
@@ -1261,7 +1261,7 @@ static AOM_INLINE int derive_row_mv_tpl_offset(const AV1_COMMON *const cm,
 }
 
 // Compute TMVP unit offset related to block mv
-static AOM_INLINE int derive_block_mv_tpl_offset(const AV1_COMMON *const cm,
+static AVM_INLINE int derive_block_mv_tpl_offset(const AV2_COMMON *const cm,
                                                  const int blk_tpl_row,
                                                  const int blk_tpl_col) {
   const int row_offset_to_within_frame =
@@ -1271,7 +1271,7 @@ static AOM_INLINE int derive_block_mv_tpl_offset(const AV1_COMMON *const cm,
   return row_offset_to_within_frame + col_offset_to_within_frame;
 }
 
-static AOM_INLINE void get_tip_mv(const AV1_COMMON *cm, const MV *block_mv,
+static AVM_INLINE void get_tip_mv(const AV2_COMMON *cm, const MV *block_mv,
                                   int blk_col, int blk_row, int_mv tip_mv[2]) {
   const int mvs_stride =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, TMVP_SHIFT_BITS);
@@ -1301,7 +1301,7 @@ static AOM_INLINE void get_tip_mv(const AV1_COMMON *cm, const MV *block_mv,
       tip_mv[1].as_mv.col + block_mv->col, MV_LOW + 1, MV_UPP - 1);
 }
 
-static AOM_INLINE void derive_non_tip_mode_smvp_from_tip(const AV1_COMMON *cm,
+static AVM_INLINE void derive_non_tip_mode_smvp_from_tip(const AV2_COMMON *cm,
                                                          const MB_MODE_INFO *mi,
                                                          int mi_row, int mi_col,
                                                          int is_tip_16_16,
@@ -1327,4 +1327,4 @@ static AOM_INLINE void derive_non_tip_mode_smvp_from_tip(const AV1_COMMON *cm,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_MVREF_COMMON_H_
+#endif  // AVM_AV2_COMMON_MVREF_COMMON_H_

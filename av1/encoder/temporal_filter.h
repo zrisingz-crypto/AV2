@@ -10,8 +10,8 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_TEMPORAL_FILTER_H_
-#define AOM_AV1_ENCODER_TEMPORAL_FILTER_H_
+#ifndef AVM_AV2_ENCODER_TEMPORAL_FILTER_H_
+#define AVM_AV2_ENCODER_TEMPORAL_FILTER_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,7 +79,7 @@ extern "C" {
 //   bit_depth: Actual bit-depth instead of the encoding bit-depth of the frame.
 // Returns:
 //   The estimated noise, or -1.0 if there are too few smooth pixels.
-double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
+double av2_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
                                             const int plane,
                                             const int bit_depth);
 /*!\endcond */
@@ -105,11 +105,11 @@ double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
  *
  * \return Whether temporal filtering is successfully done.
  */
-int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
+int av2_temporal_filter(AV2_COMP *cpi, const int filter_frame_lookahead_idx,
                         int *show_existing_arf);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_TEMPORAL_FILTER_H_
+#endif  // AVM_AV2_ENCODER_TEMPORAL_FILTER_H_

@@ -9,8 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AOM_DSP_FLOW_ESTIMATION_RANSAC_H_
-#define AOM_AOM_DSP_FLOW_ESTIMATION_RANSAC_H_
+#ifndef AVM_AVM_DSP_FLOW_ESTIMATION_RANSAC_H_
+#define AVM_AVM_DSP_FLOW_ESTIMATION_RANSAC_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,7 @@
 #include <memory.h>
 #include <stdbool.h>
 
-#include "aom_dsp/flow_estimation/flow_estimation.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ bool ransac(const Correspondence *matched_points, int npoints,
 }
 #endif
 
-#endif  // AOM_AOM_DSP_FLOW_ESTIMATION_RANSAC_H_
+#endif  // AVM_AVM_DSP_FLOW_ESTIMATION_RANSAC_H_

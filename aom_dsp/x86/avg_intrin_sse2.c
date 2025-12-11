@@ -12,12 +12,12 @@
 
 #include <immintrin.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/x86/bitdepth_conversion_sse2.h"
-#include "aom_ports/mem.h"
+#include "config/avm_dsp_rtcd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/x86/bitdepth_conversion_sse2.h"
+#include "avm_ports/mem.h"
 
-int aom_satd_sse2(const tran_low_t *coeff, int length) {
+int avm_satd_sse2(const tran_low_t *coeff, int length) {
   int i;
   const __m128i zero = _mm_setzero_si128();
   __m128i accum = zero;

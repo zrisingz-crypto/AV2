@@ -12,14 +12,14 @@
 #include <assert.h>
 #include <smmintrin.h> /* SSE4.1 */
 
-#include "av1/common/common_data.h"
-#include "config/aom_config.h"
-#include "config/av1_rtcd.h"
+#include "av2/common/common_data.h"
+#include "config/avm_config.h"
+#include "config/av2_rtcd.h"
 
-#include "av1/common/av1_txfm.h"
-#include "aom_dsp/txfm_common.h"
-#include "aom_dsp/x86/txfm_common_sse2.h"
-#include "aom_ports/mem.h"
+#include "av2/common/av2_txfm.h"
+#include "avm_dsp/txfm_common.h"
+#include "avm_dsp/x86/txfm_common_sse2.h"
+#include "avm_ports/mem.h"
 
 // Forward secondary transform
 void fwd_stxfm_sse4_1(tran_low_t *src, tran_low_t *dst,

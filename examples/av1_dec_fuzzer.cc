@@ -11,7 +11,7 @@
  */
 
 /*
- * See build_av1_dec_fuzzer.sh for building instructions.
+ * See build_av2_dec_fuzzer.sh for building instructions.
  */
 
 #include <stddef.h>
@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <memory>
-#include "config/aom_config.h"
-#include "aom/aom_decoder.h"
-#include "aom/aomdx.h"
-#include "aom_ports/mem_ops.h"
+#include "config/avm_config.h"
+#include "avm/avm_decoder.h"
+#include "avm/avmdx.h"
+#include "avm_ports/mem_ops.h"
 
 #define IVF_FRAME_HDR_SZ (4 + 8) /* 4 byte size + 8 byte timestamp */
 #define IVF_FILE_HDR_SZ 32
@@ -35,12 +35,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     return 0;
   }
 
-  aom_codec_iface_t *codec_interface = aom_codec_av1_dx();
-  aom_codec_ctx_t codec;
+  avm_codec_iface_t *codec_interface = avm_codec_av2_dx();
+  avm_codec_ctx_t codec;
   // Set thread count in the range [1, 64].
   const unsigned int threads = (data[IVF_FILE_HDR_SZ] & 0x3f) + 1;
-  aom_codec_dec_cfg_t cfg = { threads, 0, 0 };
-  if (aom_codec_dec_init(&codec, codec_interface, &cfg, 0)) {
+  avm_codec_dec_cfg_t cfg = { threads, 0, 0 };
+  if (avm_codec_dec_init(&codec, codec_interface, &cfg, 0)) {
     return 0;
   }
 
@@ -53,16 +53,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     data += IVF_FRAME_HDR_SZ;
     frame_size = std::min(size, frame_size);
 
-    const aom_codec_err_t err =
-        aom_codec_decode(&codec, data, frame_size, nullptr);
+    const avm_codec_err_t err =
+        avm_codec_decode(&codec, data, frame_size, nullptr);
     static_cast<void>(err);
-    aom_codec_iter_t iter = nullptr;
-    aom_image_t *img = nullptr;
-    while ((img = aom_codec_get_frame(&codec, &iter)) != nullptr) {
+    avm_codec_iter_t iter = nullptr;
+    avm_image_t *img = nullptr;
+    while ((img = avm_codec_get_frame(&codec, &iter)) != nullptr) {
     }
     data += frame_size;
     size -= frame_size;
   }
-  aom_codec_destroy(&codec);
+  avm_codec_destroy(&codec);
   return 0;
 }

@@ -9,11 +9,11 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
 #define RTCD_C
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_ports/aom_once.h"
+#include "avm_ports/avm_once.h"
 
-void aom_dsp_rtcd() { aom_once(setup_rtcd_internal); }
+void avm_dsp_rtcd() { avm_once(setup_rtcd_internal); }

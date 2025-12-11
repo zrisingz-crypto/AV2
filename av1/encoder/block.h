@@ -13,18 +13,18 @@
 /*! \file
  * Declares various structs used to encode the current partition block.
  */
-#ifndef AOM_AV1_ENCODER_BLOCK_H_
-#define AOM_AV1_ENCODER_BLOCK_H_
+#ifndef AVM_AV2_ENCODER_BLOCK_H_
+#define AVM_AV2_ENCODER_BLOCK_H_
 
-#include "av1/common/entropymv.h"
-#include "av1/common/entropy.h"
-#include "av1/common/enums.h"
-#include "av1/common/mvref_common.h"
+#include "av2/common/entropymv.h"
+#include "av2/common/entropy.h"
+#include "av2/common/enums.h"
+#include "av2/common/mvref_common.h"
 
-#include "av1/encoder/enc_enums.h"
-#include "av1/encoder/partition_cnn_weights.h"
+#include "av2/encoder/enc_enums.h"
+#include "av2/encoder/partition_cnn_weights.h"
 
-#include "av1/encoder/hash.h"
+#include "av2/encoder/hash.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -149,14 +149,14 @@ typedef struct macroblock_plane {
    * All values below share the coefficient scale/shift used in TX.
    */
   /**@{*/
-  //! Quantization step size used by AV1_XFORM_QUANT_FP.
+  //! Quantization step size used by AV2_XFORM_QUANT_FP.
 
   const int32_t *quant_fp_QTX;
-  //! Offset used for rounding in the quantizer process by AV1_XFORM_QUANT_FP.
+  //! Offset used for rounding in the quantizer process by AV2_XFORM_QUANT_FP.
   const int32_t *round_fp_QTX;
-  //! Quantization step size used by AV1_XFORM_QUANT_B.
+  //! Quantization step size used by AV2_XFORM_QUANT_B.
   const int32_t *quant_QTX;
-  //! Offset used for rounding in the quantizer process by AV1_XFORM_QUANT_B.
+  //! Offset used for rounding in the quantizer process by AV2_XFORM_QUANT_B.
   const int32_t *round_QTX;
   //! Scale factor to shift coefficients toward zero. Only used by QUANT_B.
   const int32_t *quant_shift_QTX;
@@ -174,7 +174,7 @@ typedef struct macroblock_plane {
 typedef struct LV_MAP_COEFF_COST {
   //! Cost to skip txfm for the current txfm block.
   int txb_skip_cost[2][TXB_SKIP_CONTEXTS][2];
-  //! Cost to skip txfm for the current AOM_PLANE_V txfm block.
+  //! Cost to skip txfm for the current AVM_PLANE_V txfm block.
   int v_txb_skip_cost[V_TXB_SKIP_CONTEXTS][2];
   //! Cost for encoding the base_eob level of a low-frequency chroma coefficient
   int base_lf_eob_cost_uv[SIG_COEF_CONTEXTS_EOB][LF_BASE_SYMBOLS - 1];
@@ -252,7 +252,7 @@ typedef struct LV_MAP_COEFF_COST {
   int eob_extra_cost[EOB_COEF_CONTEXTS][2];
   //! Cost for encoding the dc_sign
   int dc_sign_cost[DC_SIGN_GROUPS][DC_SIGN_CONTEXTS][2];
-  //! Cost for encoding the AOM_PLANE_V txfm coefficient dc_sign
+  //! Cost for encoding the AVM_PLANE_V txfm coefficient dc_sign
   int v_dc_sign_cost[CROSS_COMPONENT_CONTEXTS][DC_SIGN_CONTEXTS][2];
   //! Cost for encoding an increment to the coefficient
   int lps_cost[LEVEL_CONTEXTS][COEFF_BASE_RANGE + 1 + COEFF_BASE_RANGE + 1];
@@ -466,7 +466,7 @@ typedef struct {
   int kmeans_data_buf[2 * MAX_PALETTE_SQUARE];
 } PALETTE_BUFFER;
 
-/*! \brief Contains buffers used by av1_compound_type_rd()
+/*! \brief Contains buffers used by av2_compound_type_rd()
  *
  * For sizes and alignment of these arrays, refer to
  * alloc_compound_type_rd_buffers() function.
@@ -689,7 +689,7 @@ typedef struct SimpleMotionDataBufs {
 
 #undef MAKE_SM_DATA_BUF
 
-/*! \brief Holds some parameters related to partitioning schemes in AV1.
+/*! \brief Holds some parameters related to partitioning schemes in AV2.
  */
 // TODO(chiyotsai@google.com): Consolidate this with SIMPLE_MOTION_DATA_TREE
 typedef struct {
@@ -1359,7 +1359,7 @@ typedef struct macroblock {
 
   /*! \brief Buffer of transformed coefficients
    *
-   * Points to cb_coef_buff in the AV1_COMP struct, which contains the finalized
+   * Points to cb_coef_buff in the AV2_COMP struct, which contains the finalized
    * coefficients. This is here to conveniently copy the best coefficients to
    * frame level for bitstream packing. Since CB_COEFF_BUFFER is allocated on a
    * superblock level, we need to combine it with cb_offset to get the proper
@@ -1548,7 +1548,7 @@ typedef struct macroblock {
    * In the second pass, we retry the winner modes with more thorough txfm
    * options.
    */
-  WinnerModeStats winner_mode_stats[AOMMAX(MAX_WINNER_MODE_COUNT_INTRA,
+  WinnerModeStats winner_mode_stats[AVMMAX(MAX_WINNER_MODE_COUNT_INTRA,
                                            MAX_WINNER_MODE_COUNT_INTER)];
   //! Tracks how many winner modes there are.
   int winner_mode_count;
@@ -1650,7 +1650,7 @@ typedef struct macroblock {
   SimpleMotionDataBufs *sms_bufs;
   /*! \brief Determines what encoding decision should be reused. */
   int reuse_inter_mode_cache_type;
-  /*! \brief The mode to reuse during \ref av1_rd_pick_inter_mode_sb. */
+  /*! \brief The mode to reuse during \ref av2_rd_pick_inter_mode_sb. */
   MB_MODE_INFO *inter_mode_cache[NUMBER_OF_CACHED_MODES];
   /*! \brief Whether the whole superblock is inside the frame boudnary */
   bool is_whole_sb;
@@ -1741,7 +1741,7 @@ static INLINE int is_blk_skip(uint8_t *txb_skip, int blk_idx) {
 #ifndef NDEBUG
   // Ensure that this block is initialized.
   assert((txb_skip[blk_idx] & (1U << 4)) == 0);
-  // These were initialized to fixed pattern 0x11 in `av1_rd_pick_partition`.
+  // These were initialized to fixed pattern 0x11 in `av2_rd_pick_partition`.
   // Ensure other bits are 0 to make sure there is no garbage data.
   assert((txb_skip[blk_idx] & 0xEE) == 0);
 #endif
@@ -1757,4 +1757,4 @@ static INLINE int should_reuse_mode(const MACROBLOCK *x, int mode_flag) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_ENCODER_BLOCK_H_
+#endif  // AVM_AV2_ENCODER_BLOCK_H_

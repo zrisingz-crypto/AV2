@@ -10,28 +10,28 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_RECONINTER_H_
-#define AOM_AV1_COMMON_RECONINTER_H_
+#ifndef AVM_AV2_COMMON_RECONINTER_H_
+#define AVM_AV2_COMMON_RECONINTER_H_
 
-#include "av1/common/av1_common_int.h"
-#include "av1/common/convolve.h"
-#include "av1/common/filter.h"
-#include "av1/common/warped_motion.h"
-#include "aom/aom_integer.h"
-#include "av1/encoder/block.h"
+#include "av2/common/av2_common_int.h"
+#include "av2/common/convolve.h"
+#include "av2/common/filter.h"
+#include "av2/common/warped_motion.h"
+#include "avm/avm_integer.h"
+#include "av2/encoder/block.h"
 
 // Work out how many pixels off the edge of a reference frame we're allowed
 // to go when forming an inter prediction.
 // The outermost row/col of each referernce frame is extended by
-// (AOM_BORDER_IN_PIXELS >> subsampling) pixels, but we need to keep
-// at least AOM_INTERP_EXTEND pixels within that to account for filtering.
+// (AVM_BORDER_IN_PIXELS >> subsampling) pixels, but we need to keep
+// at least AVM_INTERP_EXTEND pixels within that to account for filtering.
 //
 // We have to break this up into two macros to keep both clang-format and
 // tools/lint-hunks.py happy.
-#define AOM_LEFT_TOP_MARGIN_PX(subsampling) \
-  ((AOM_BORDER_IN_PIXELS >> subsampling) - AOM_INTERP_EXTEND)
-#define AOM_LEFT_TOP_MARGIN_SCALED(subsampling) \
-  (AOM_LEFT_TOP_MARGIN_PX(subsampling) << SCALE_SUBPEL_BITS)
+#define AVM_LEFT_TOP_MARGIN_PX(subsampling) \
+  ((AVM_BORDER_IN_PIXELS >> subsampling) - AVM_INTERP_EXTEND)
+#define AVM_LEFT_TOP_MARGIN_SCALED(subsampling) \
+  (AVM_LEFT_TOP_MARGIN_PX(subsampling) << SCALE_SUBPEL_BITS)
 
 #ifdef __cplusplus
 extern "C" {
@@ -133,7 +133,7 @@ typedef struct {
   wedge_decisions_type *tmvp_mv_decisions;
 } wedge_params_type;
 
-extern const wedge_params_type av1_wedge_params_lookup[BLOCK_SIZES_ALL];
+extern const wedge_params_type av2_wedge_params_lookup[BLOCK_SIZES_ALL];
 
 typedef struct SubpelParams {
   int xs;
@@ -149,32 +149,32 @@ typedef struct SubpelParams {
 #define REFINE_MV_MAX_OFFSET 0
 
 #if CONFIG_FIX_BW_CHROMA_REFINED_MV
-#define EIGHT_TAPS_REF_TOP_BORDER (AOM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+#define EIGHT_TAPS_REF_TOP_BORDER (AVM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
 #define EIGHT_TAPS_REF_LEFT_BORDER \
-  (AOM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
-#define EIGHT_TAPS_REF_RIGHT_BORDER (AOM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
-#define EIGHT_TAPS_REF_BOTTOM_BORDER (AOM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+  (AVM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+#define EIGHT_TAPS_REF_RIGHT_BORDER (AVM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+#define EIGHT_TAPS_REF_BOTTOM_BORDER (AVM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
 
-#define AOM_4TAPS_INTERP_EXTEND 2
+#define AVM_4TAPS_INTERP_EXTEND 2
 #define FOUR_TAPS_REF_TOP_BORDER \
-  (AOM_4TAPS_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+  (AVM_4TAPS_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
 #define FOUR_TAPS_REF_LEFT_BORDER \
-  (AOM_4TAPS_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+  (AVM_4TAPS_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
 #define FOUR_TAPS_REF_RIGHT_BORDER \
-  (AOM_4TAPS_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+  (AVM_4TAPS_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
 #define FOUR_TAPS_REF_BOTTOM_BORDER \
-  (AOM_4TAPS_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+  (AVM_4TAPS_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
 #else
-#define REF_TOP_BORDER (AOM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
-#define REF_LEFT_BORDER (AOM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
-#define REF_RIGHT_BORDER (AOM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
-#define REF_BOTTOM_BORDER (AOM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+#define REF_TOP_BORDER (AVM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+#define REF_LEFT_BORDER (AVM_INTERP_EXTEND - 1 + REFINE_MV_MAX_OFFSET)
+#define REF_RIGHT_BORDER (AVM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
+#define REF_BOTTOM_BORDER (AVM_INTERP_EXTEND + REFINE_MV_MAX_OFFSET)
 #endif  // CONFIG_FIX_BW_CHROMA_REFINED_MV
 
-#define REF_TOP_BORDER_WARP (AOM_INTERP_EXTEND - 1)
-#define REF_LEFT_BORDER_WARP (AOM_INTERP_EXTEND - 1)
-#define REF_RIGHT_BORDER_WARP (AOM_INTERP_EXTEND)
-#define REF_BOTTOM_BORDER_WARP (AOM_INTERP_EXTEND)
+#define REF_TOP_BORDER_WARP (AVM_INTERP_EXTEND - 1)
+#define REF_LEFT_BORDER_WARP (AVM_INTERP_EXTEND - 1)
+#define REF_RIGHT_BORDER_WARP (AVM_INTERP_EXTEND)
+#define REF_BOTTOM_BORDER_WARP (AVM_INTERP_EXTEND)
 
 typedef enum InterPredMode {
   TRANSLATION_PRED,
@@ -196,7 +196,7 @@ typedef struct InterPredParams {
   int block_width;
   int block_height;
   // In optical flow refinement, block_width and block_height will pass the
-  // subblock size into av1_make_inter_predictor, while orig_block_width and
+  // subblock size into av2_make_inter_predictor, while orig_block_width and
   // orig_block_height keep the original block size that is needed by
   // calc_subpel_params_func
   int orig_block_width;
@@ -267,7 +267,7 @@ static const int32_t coeffs_bicubic[4][2][2] = {
 };
 #endif
 
-void av1_init_inter_params(InterPredParams *inter_pred_params, int block_width,
+void av2_init_inter_params(InterPredParams *inter_pred_params, int block_width,
                            int block_height, int pix_row, int pix_col,
                            int subsampling_x, int subsampling_y, int bit_depth,
                            int is_intrabc, const struct scale_factors *sf,
@@ -283,7 +283,7 @@ static INLINE void get_warp_model_steps(const MB_MODE_INFO *mbmi,
 }
 
 // Get the default value of the six_param_flag
-static INLINE int get_default_six_param_flag(const AV1_COMMON *const cm,
+static INLINE int get_default_six_param_flag(const AV2_COMMON *const cm,
                                              const MB_MODE_INFO *mbmi) {
   return (cm->seq_params.enable_six_param_warp_delta &&
 
@@ -292,7 +292,7 @@ static INLINE int get_default_six_param_flag(const AV1_COMMON *const cm,
              : 0;
 }
 
-static INLINE int allow_warp_inter_intra(const AV1_COMMON *const cm,
+static INLINE int allow_warp_inter_intra(const AV2_COMMON *const cm,
                                          const MB_MODE_INFO *mbmi,
                                          const int motion_mode) {
   (void)cm;
@@ -303,7 +303,7 @@ static INLINE int allow_warp_inter_intra(const AV1_COMMON *const cm,
 }
 
 // Check if the signaling of the warp delta parameters are allowed
-static INLINE int allow_warp_parameter_signaling(const AV1_COMMON *const cm,
+static INLINE int allow_warp_parameter_signaling(const AV2_COMMON *const cm,
                                                  const MB_MODE_INFO *mbmi) {
   // Warp delta parameters are signalled in following two cases
   // Case0: sequence level enable_six_param_warp_delta is enabled AND
@@ -321,7 +321,7 @@ static INLINE int allow_warp_parameter_signaling(const AV1_COMMON *const cm,
 
 // Map the index to weighting factor for compound weighted prediction
 static INLINE int get_cwp_coding_idx(int val, int encode,
-                                     const AV1_COMMON *const cm,
+                                     const AV2_COMMON *const cm,
                                      const MB_MODE_INFO *const mbmi) {
   int is_same_side = 0;
   int cur_ref_side = 0;
@@ -344,7 +344,7 @@ static INLINE int get_cwp_coding_idx(int val, int encode,
   }
 }
 
-static INLINE int enable_adaptive_mvd_resolution(const AV1_COMMON *const cm,
+static INLINE int enable_adaptive_mvd_resolution(const AV2_COMMON *const cm,
                                                  const MB_MODE_INFO *mbmi) {
   const int mode = mbmi->mode;
   if (allow_amvd_mode(mode) == 0) return 0;
@@ -356,7 +356,7 @@ static INLINE int enable_adaptive_mvd_resolution(const AV1_COMMON *const cm,
 // get the base reference frame list for joint MVD coding, the MVD for base
 // reference frame is the same as the joint MVD, the MVD for the other reference
 // frame is scaled from the joint MVD.
-static INLINE int get_joint_mvd_base_ref_list(const AV1_COMMON *const cm,
+static INLINE int get_joint_mvd_base_ref_list(const AV2_COMMON *const cm,
                                               const MB_MODE_INFO *mbmi) {
   int base_ref_list = 0;
   int first_ref_dist = 0;
@@ -374,7 +374,7 @@ static INLINE int get_joint_mvd_base_ref_list(const AV1_COMMON *const cm,
   return base_ref_list;
 }
 // check whether the direction of two reference frames are from same side
-static INLINE int is_ref_frame_same_side(const AV1_COMMON *const cm,
+static INLINE int is_ref_frame_same_side(const AV2_COMMON *const cm,
                                          const MB_MODE_INFO *mbmi) {
   int is_same_side = 0;
   int cur_ref_side = 0;
@@ -390,7 +390,7 @@ static INLINE int is_ref_frame_same_side(const AV1_COMMON *const cm,
 }
 
 // check whether the distance of to the two reference frames are the same
-static INLINE int is_ref_frame_same_dist(const AV1_COMMON *const cm,
+static INLINE int is_ref_frame_same_dist(const AV2_COMMON *const cm,
                                          const MB_MODE_INFO *mbmi) {
   int is_same_dist = 0;
 
@@ -406,14 +406,14 @@ static INLINE int is_ref_frame_same_dist(const AV1_COMMON *const cm,
 
 // obtain context for inter_compound_mode_is_joint
 static INLINE int get_inter_compound_mode_is_joint_context(
-    const AV1_COMMON *const cm, const MB_MODE_INFO *mbmi) {
+    const AV2_COMMON *const cm, const MB_MODE_INFO *mbmi) {
   return (is_ref_frame_same_side(cm, mbmi) ||
           (!is_ref_frame_same_dist(cm, mbmi)));
 }
 
-void av1_init_comp_mode(InterPredParams *inter_pred_params);
+void av2_init_comp_mode(InterPredParams *inter_pred_params);
 
-void av1_init_warp_params(InterPredParams *inter_pred_params,
+void av2_init_warp_params(InterPredParams *inter_pred_params,
                           const WarpTypesAllowed *warp_types, int ref,
                           const MACROBLOCKD *xd, const MB_MODE_INFO *mi);
 
@@ -441,14 +441,14 @@ static INLINE void highbd_inter_predictor(
   const int is_scaled = has_scale(subpel_params->xs, subpel_params->ys);
   if (is_scaled) {
     assert(is_intrabc == 0);
-    av1_highbd_convolve_2d_facade(
+    av2_highbd_convolve_2d_facade(
         src, src_stride, dst, dst_stride, w, h, interp_filters,
         subpel_params->subpel_x, subpel_params->xs, subpel_params->subpel_y,
         subpel_params->ys, 1, conv_params, bd, is_intrabc);
   } else {
     SubpelParams sp = *subpel_params;
     revert_scale_extra_bits(&sp);
-    av1_highbd_convolve_2d_facade(
+    av2_highbd_convolve_2d_facade(
         src, src_stride, dst, dst_stride, w, h, interp_filters, sp.subpel_x,
         sp.xs, sp.subpel_y, sp.ys, 0, conv_params, bd, is_intrabc);
   }
@@ -462,7 +462,7 @@ static INLINE int is_interinter_compound_used(COMPOUND_TYPE type,
     case COMPOUND_DIFFWTD:
       return comp_allowed && !is_thin_4xn_nx4_block(sb_type);
     case COMPOUND_WEDGE:
-      return comp_allowed && av1_wedge_params_lookup[sb_type].wedge_types > 0;
+      return comp_allowed && av2_wedge_params_lookup[sb_type].wedge_types > 0;
     default: assert(0); return 0;
   }
 }
@@ -481,14 +481,14 @@ static INLINE int is_any_masked_compound_used(BLOCK_SIZE sb_type) {
 }
 
 static INLINE int get_wedge_types_lookup(BLOCK_SIZE sb_type) {
-  return av1_wedge_params_lookup[sb_type].wedge_types;
+  return av2_wedge_params_lookup[sb_type].wedge_types;
 }
 
-static INLINE int av1_is_wedge_used(BLOCK_SIZE sb_type) {
-  return av1_wedge_params_lookup[sb_type].wedge_types > 0;
+static INLINE int av2_is_wedge_used(BLOCK_SIZE sb_type) {
+  return av2_wedge_params_lookup[sb_type].wedge_types > 0;
 }
 
-void av1_make_inter_predictor(const uint16_t *src, int src_stride,
+void av2_make_inter_predictor(const uint16_t *src, int src_stride,
                               uint16_t *dst, int dst_stride,
                               InterPredParams *inter_pred_params,
                               const SubpelParams *subpel_params);
@@ -501,12 +501,12 @@ typedef void (*CalcSubpelParamsFunc)(const MV *const src_mv,
                                      SubpelParams *subpel_params,
                                      int *src_stride);
 
-void av1_build_one_inter_predictor(
+void av2_build_one_inter_predictor(
     uint16_t *dst, int dst_stride, const MV *const src_mv,
     InterPredParams *inter_pred_params, MACROBLOCKD *xd, int mi_x, int mi_y,
     int ref, uint16_t **mc_buf, CalcSubpelParamsFunc calc_subpel_params_func);
 
-void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_build_inter_predictors(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                 int plane, MB_MODE_INFO *mi,
                                 const BUFFER_SET *dst_orig,
                                 int build_for_refine_mv_only,
@@ -535,15 +535,15 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
 void reduce_temporal_dist(int *d0, int *d1);
 
-void av1_opfl_build_inter_predictor(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+void av2_opfl_build_inter_predictor(
+    const AV2_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
     int bw, int bh, int mi_x, int mi_y, uint16_t **mc_buf,
     InterPredParams *inter_pred_params,
     CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint16_t *pred_dst,
     const MV *const src_mv, int pu_width, int pu_height);
 
 // Generate refined MVs using optflow refinement
-void av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
+void av2_get_optflow_based_mv(const AV2_COMMON *cm, MACROBLOCKD *xd, int plane,
                               const MB_MODE_INFO *mbmi, int_mv *mv_refined,
                               int bw, int bh, int mi_x, int mi_y,
                               int build_for_decode, uint16_t **mc_buf,
@@ -555,10 +555,10 @@ void av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
                               MV *best_mv_ref, int pu_width, int pu_height);
 
 // With the refined MVs, generate the inter prediction for the block.
-void av1_opfl_rebuild_inter_predictor(
+void av2_opfl_rebuild_inter_predictor(
     uint16_t *dst, int dst_stride, int plane, int_mv *const mv_refined,
     InterPredParams *inter_pred_params, MACROBLOCKD *xd, int mi_x, int mi_y,
-    int build_for_decode, const AV1_COMMON *cm, int pu_width, int ref,
+    int build_for_decode, const AV2_COMMON *cm, int pu_width, int ref,
     uint16_t **mc_buf, CalcSubpelParamsFunc calc_subpel_params_func,
     int use_4x4, MB_MODE_INFO *mi, int pu_height, const MV mi_mv[2],
     int use_sub_pad);
@@ -591,7 +591,7 @@ static INLINE void divide_and_round_array(int32_t *sol, int32_t den,
     int sign = sol[i] > 0;
     sol[i] = sign ? sol[i] : -sol[i];
     int num_red_bits =
-        AOMMAX(0, get_msb_signed(sol[i]) + inv_den_msb + 4 - MAX_LS_BITS);
+        AVMMAX(0, get_msb_signed(sol[i]) + inv_den_msb + 4 - MAX_LS_BITS);
     if (num_red_bits > 0) sol[i] = ROUND_POWER_OF_TWO(sol[i], num_red_bits);
 
     int inc_bits = shifts[i] + num_red_bits - den_shift;
@@ -606,7 +606,7 @@ static INLINE void divide_and_round_array(int32_t *sol, int32_t den,
   }
 }
 
-static INLINE int is_translational_refinement_allowed(const AV1_COMMON *cm,
+static INLINE int is_translational_refinement_allowed(const AV2_COMMON *cm,
                                                       BLOCK_SIZE bsize,
                                                       const MACROBLOCKD *xd,
                                                       const int mode) {
@@ -626,7 +626,7 @@ void highbd_build_mc_border(const uint16_t *src, int src_stride, uint16_t *dst,
 int get_refinemv_sad(uint16_t *src1, uint16_t *src2, int stride, int width,
                      int height, int bd);
 // Generate two prediction signals of a given mv0 and mv1
-void av1_refinemv_build_predictors(MACROBLOCKD *xd, int mi_x, int mi_y,
+void av2_refinemv_build_predictors(MACROBLOCKD *xd, int mi_x, int mi_y,
                                    uint16_t **mc_buf,
                                    CalcSubpelParamsFunc calc_subpel_params_func,
                                    uint16_t *dst_ref0, uint16_t *dst_ref1,
@@ -634,7 +634,7 @@ void av1_refinemv_build_predictors(MACROBLOCKD *xd, int mi_x, int mi_y,
                                    InterPredParams *inter_pred_params);
 
 // Get the context index to code refinemv flag
-int av1_get_refinemv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+int av2_get_refinemv_context(const AV2_COMMON *cm, const MACROBLOCKD *xd,
                              BLOCK_SIZE bsize);
 
 // Full blocks refine MVs are stored in 4x4 grid so that the MVs can be reused
@@ -642,13 +642,13 @@ int av1_get_refinemv_context(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 void fill_subblock_refine_mv(REFINEMV_SUBMB_INFO *refinemv_subinfo, int bw,
                              int bh, MV mv0, MV mv1);
 
-void av1_get_reference_area_with_padding_single(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+void av2_get_reference_area_with_padding_single(
+    const AV2_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
     const MV mv, int bw, int bh, int mi_x, int mi_y, PadBlock *ref_area,
     int pu_width, int pu_height, int ref, int is_warp);
 
 // Generate the reference area (bounding box) based on the signaled MV
-void av1_get_reference_area_with_padding(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_get_reference_area_with_padding(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                          int plane, MB_MODE_INFO *mi,
                                          const MV mv[2], int bw, int bh,
                                          int mi_x, int mi_y,
@@ -669,7 +669,7 @@ void dec_calc_subpel_params(const MV *const src_mv,
 // check if the refinemv mode is allwed for a given blocksize
 static INLINE int is_refinemv_allowed_bsize(BLOCK_SIZE bsize) {
   assert(bsize < BLOCK_SIZES_ALL);
-  if (AOMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8) return 0;
+  if (AVMMIN(block_size_wide[bsize], block_size_high[bsize]) < 8) return 0;
 
   return (block_size_wide[bsize] >= 16 || block_size_high[bsize] >= 16);
 }
@@ -677,7 +677,7 @@ static INLINE int is_refinemv_allowed_bsize(BLOCK_SIZE bsize) {
 // check if the refinemv mode is allwed for a given mode and precision
 static INLINE int is_refinemv_allowed_mode_precision(
     PREDICTION_MODE mode, MvSubpelPrecision precision,
-    const AV1_COMMON *const cm) {
+    const AV2_COMMON *const cm) {
   (void)precision;
   if (mode == GLOBAL_GLOBALMV) return 0;
 
@@ -695,7 +695,7 @@ static INLINE int default_refinemv_modes(const MB_MODE_INFO *mbmi) {
           mbmi->mode == JOINT_NEWMV_OPTFLOW);
 }
 // Check if the compound and equal distance references
-static INLINE int is_refinemv_allowed_reference(const AV1_COMMON *cm,
+static INLINE int is_refinemv_allowed_reference(const AV2_COMMON *cm,
                                                 const MB_MODE_INFO *mbmi) {
   if (!cm->seq_params.enable_refinemv) return 0;
   const unsigned int cur_index = cm->cur_frame->display_order_hint;
@@ -715,7 +715,7 @@ static INLINE int is_refinemv_allowed_reference(const AV1_COMMON *cm,
   const struct scale_factors *const sf1 =
       is_tip ? cm->tip_ref.ref_scale_factor[1]
              : get_ref_scale_factors_const(cm, mbmi->ref_frame[1]);
-  if (av1_is_scaled(sf0) || av1_is_scaled(sf1)) {
+  if (av2_is_scaled(sf0) || av2_is_scaled(sf1)) {
     return 0;
   }
 
@@ -742,7 +742,7 @@ static INLINE int is_refinemv_allowed_reference(const AV1_COMMON *cm,
 }
 
 // check if the refinemv mode is allowed for a given block
-static INLINE int is_refinemv_allowed(const AV1_COMMON *const cm,
+static INLINE int is_refinemv_allowed(const AV2_COMMON *const cm,
                                       const MB_MODE_INFO *mbmi,
                                       BLOCK_SIZE bsize) {
   if (!cm->seq_params.enable_refinemv) return 0;
@@ -759,7 +759,7 @@ static INLINE int is_refinemv_allowed(const AV1_COMMON *const cm,
 
 // check if any mv refinement mode is allowed in TIP at frame level
 static INLINE int is_any_mv_refinement_allowed_in_tip(
-    const AV1_COMMON *const cm) {
+    const AV2_COMMON *const cm) {
   if (!cm->has_both_sides_refs) return 0;
 
 #if CONFIG_FIX_OPFL_AUTO
@@ -781,7 +781,7 @@ static INLINE int is_any_mv_refinement_allowed_in_tip(
 }
 
 // check if any refinement algorithm is applied in TIP at block level
-static INLINE int is_tip_block_with_mv_refinement(const AV1_COMMON *const cm,
+static INLINE int is_tip_block_with_mv_refinement(const AV2_COMMON *const cm,
                                                   const MACROBLOCKD *xd) {
   if (!is_any_mv_refinement_allowed_in_tip(cm)) return 0;
 
@@ -792,7 +792,7 @@ static INLINE int is_tip_block_with_mv_refinement(const AV1_COMMON *const cm,
 
     // No subblock MV refinement on TIP direct output mode when the
     // interpolation filter is MULTITAP_SHARP
-    if (cm->seq_params.enable_opfl_refine == AOM_OPFL_REFINE_NONE) return 0;
+    if (cm->seq_params.enable_opfl_refine == AVM_OPFL_REFINE_NONE) return 0;
   }
 
   if (cm->features.tip_frame_mode == TIP_FRAME_AS_REF) {
@@ -809,7 +809,7 @@ static INLINE int is_tip_block_with_mv_refinement(const AV1_COMMON *const cm,
 }
 
 // Is the coding block a TIP 16x16 coding block.
-static AOM_INLINE bool is_tip_coded_as_16x16_block(const AV1_COMMON *cm,
+static AVM_INLINE bool is_tip_coded_as_16x16_block(const AV2_COMMON *cm,
                                                    const MB_MODE_INFO *mi) {
   if (!is_tip_ref_frame(mi->ref_frame[0])) return false;
 
@@ -825,7 +825,7 @@ static AOM_INLINE bool is_tip_coded_as_16x16_block(const AV1_COMMON *cm,
 }
 
 // check if unequal weight is allowed for TIP at frame level
-static INLINE int is_unequal_weighted_tip_allowed(const AV1_COMMON *const cm) {
+static INLINE int is_unequal_weighted_tip_allowed(const AV2_COMMON *const cm) {
   if (!cm->has_both_sides_refs) return 1;
 
   if (!cm->seq_params.enable_tip_refinemv) return 1;
@@ -844,7 +844,7 @@ static INLINE int is_unequal_weighted_tip_allowed(const AV1_COMMON *const cm) {
 
 // set the weighting factor of TIP frame
 static INLINE void set_tip_interp_weight_factor(
-    const AV1_COMMON *const cm, const int ref_index,
+    const AV2_COMMON *const cm, const int ref_index,
     InterPredParams *const inter_pred_params) {
   if (ref_index == 1 && inter_pred_params->conv_params.do_average == 1 &&
       !is_any_mv_refinement_allowed_in_tip(cm)) {
@@ -858,7 +858,7 @@ static INLINE void set_tip_interp_weight_factor(
 }
 
 // check if the refinemv mode is allowed for a given block for TIP mode
-static INLINE int is_refinemv_allowed_tip_blocks(const AV1_COMMON *const cm,
+static INLINE int is_refinemv_allowed_tip_blocks(const AV2_COMMON *const cm,
                                                  const MB_MODE_INFO *mbmi) {
   assert(is_tip_ref_frame(mbmi->ref_frame[0]));
   return cm->seq_params.enable_refinemv && cm->seq_params.enable_tip_refinemv &&
@@ -867,13 +867,13 @@ static INLINE int is_refinemv_allowed_tip_blocks(const AV1_COMMON *const cm,
 }
 
 // check if the refinemv mode is allowed for a given block for skip mode
-static INLINE int is_refinemv_allowed_skip_mode(const AV1_COMMON *const cm,
+static INLINE int is_refinemv_allowed_skip_mode(const AV2_COMMON *const cm,
                                                 const MB_MODE_INFO *mbmi) {
   (void)cm;
   (void)mbmi;
   return 0;
 }
-static INLINE int get_default_refinemv_flag(const AV1_COMMON *const cm,
+static INLINE int get_default_refinemv_flag(const AV2_COMMON *const cm,
                                             const MB_MODE_INFO *mbmi) {
   if (!cm->seq_params.enable_refinemv) return 0;
   int is_refinemv =
@@ -887,7 +887,7 @@ static INLINE int get_default_refinemv_flag(const AV1_COMMON *const cm,
 }
 
 // check if the refinemv mode is switchable for a given block
-static INLINE int switchable_refinemv_flag(const AV1_COMMON *const cm,
+static INLINE int switchable_refinemv_flag(const AV2_COMMON *const cm,
                                            const MB_MODE_INFO *mbmi) {
   if (!cm->seq_params.enable_refinemv) return 0;
   int is_refinemv =
@@ -903,7 +903,7 @@ static INLINE int switchable_refinemv_flag(const AV1_COMMON *const cm,
 }
 
 // Check if refined MV needs to be stored in the TMVP list.
-static INLINE int enable_refined_mvs_in_tmvp(const AV1_COMMON *cm,
+static INLINE int enable_refined_mvs_in_tmvp(const AV2_COMMON *cm,
                                              const MACROBLOCKD *xd,
                                              const MB_MODE_INFO *mbmi) {
   return (
@@ -915,7 +915,7 @@ static INLINE int enable_refined_mvs_in_tmvp(const AV1_COMMON *cm,
 
 // This function conduct the SAD search between two predictors and find the best
 // MVs
-void apply_mv_refinement(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
+void apply_mv_refinement(const AV2_COMMON *cm, MACROBLOCKD *xd, int plane,
                          MB_MODE_INFO *mi, int bw, int bh, int mi_x, int mi_y,
                          uint16_t **mc_buf, const MV mv[2],
                          CalcSubpelParamsFunc calc_subpel_params_func,
@@ -970,12 +970,12 @@ void calc_mv_process(int32_t su2, int32_t sv2, int32_t suv, int32_t suw,
                      int32_t svw, const int d0, const int d1, const int bits,
                      const int rls_alpha, int *vx0, int *vy0, int *vx1,
                      int *vy1);
-void av1_opfl_mv_refinement(const int16_t *pdiff, int pstride0,
+void av2_opfl_mv_refinement(const int16_t *pdiff, int pstride0,
                             const int16_t *gx, const int16_t *gy, int gstride,
                             int bw, int bh, int d0, int d1, int grad_prec_bits,
                             int mv_prec_bits, int *vx0, int *vy0, int *vx1,
                             int *vy1);
-void av1_compute_subpel_gradients_interp(int16_t *pred_dst, int bw, int bh,
+void av2_compute_subpel_gradients_interp(int16_t *pred_dst, int bw, int bh,
                                          int *grad_prec_bits, int16_t *x_grad,
                                          int16_t *y_grad);
 
@@ -987,9 +987,9 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
   // If the MV points so far into the UMV border that no visible pixels
   // are used for reconstruction, the subpel part of the MV can be
   // discarded and the MV limited to 16 pixels with equivalent results.
-  const int spel_left = (AOM_INTERP_EXTEND + bw) << SUBPEL_BITS;
+  const int spel_left = (AVM_INTERP_EXTEND + bw) << SUBPEL_BITS;
   const int spel_right = spel_left - SUBPEL_SHIFTS;
-  const int spel_top = (AOM_INTERP_EXTEND + bh) << SUBPEL_BITS;
+  const int spel_top = (AVM_INTERP_EXTEND + bh) << SUBPEL_BITS;
   const int spel_bottom = spel_top - SUBPEL_SHIFTS;
   MV clamped_mv;
   if (use_optflow_refinement) {
@@ -1023,7 +1023,7 @@ void make_masked_inter_predictor(const uint16_t *pre, int pre_stride,
                                  const SubpelParams *subpel_params,
                                  int use_bacp, int sub_block_id);
 
-static INLINE int use_border_aware_compound(const AV1_COMMON *cm,
+static INLINE int use_border_aware_compound(const AV2_COMMON *cm,
                                             MACROBLOCKD *xd,
                                             const MB_MODE_INFO *mbmi) {
   if (is_masked_compound_type(mbmi->interinter_comp.type) ||
@@ -1038,7 +1038,7 @@ static INLINE int use_border_aware_compound(const AV1_COMMON *cm,
   return has_second_ref(mbmi) &&
          (mbmi->mode >= COMP_INTER_MODE_START &&
           mbmi->mode < COMP_INTER_MODE_END) &&
-         !av1_is_scaled(sf0) && !av1_is_scaled(sf1) &&
+         !av2_is_scaled(sf0) && !av2_is_scaled(sf1) &&
          (mbmi->interinter_comp.type == COMPOUND_DIFFWTD ||
           mbmi->interinter_comp.type == COMPOUND_AVERAGE);
 }
@@ -1079,21 +1079,21 @@ static INLINE void setup_pred_plane(struct buf_2d *dst, uint16_t *src,
   dst->stride = stride;
 }
 
-void av1_setup_dst_planes(struct macroblockd_plane *planes,
+void av2_setup_dst_planes(struct macroblockd_plane *planes,
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
                           const int plane_start, const int plane_end,
                           const CHROMA_REF_INFO *chroma_ref_info);
 
-void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
+void av2_setup_pre_planes(MACROBLOCKD *xd, int idx,
                           const YV12_BUFFER_CONFIG *src, int mi_row, int mi_col,
                           const struct scale_factors *sf, const int num_planes,
                           const CHROMA_REF_INFO *chroma_ref_info);
 
-static AOM_INLINE void setup_pred_planes_for_tip(const TIP *tip_ref,
+static AVM_INLINE void setup_pred_planes_for_tip(const TIP *tip_ref,
                                                  MACROBLOCKD *xd,
                                                  int plane_start, int plane_end,
                                                  int mi_col, int mi_row) {
-  for (int plane = plane_start; plane < AOMMIN(plane_end, MAX_MB_PLANE);
+  for (int plane = plane_start; plane < AVMMIN(plane_end, MAX_MB_PLANE);
        ++plane) {
     struct macroblockd_plane *const pd = &xd->plane[plane];
     int is_uv = plane > 0;
@@ -1111,7 +1111,7 @@ static AOM_INLINE void setup_pred_planes_for_tip(const TIP *tip_ref,
 }
 
 static INLINE void set_default_interp_filters(
-    MB_MODE_INFO *const mbmi, const AV1_COMMON *cm, const MACROBLOCKD *xd,
+    MB_MODE_INFO *const mbmi, const AV2_COMMON *cm, const MACROBLOCKD *xd,
     InterpFilter frame_interp_filter) {
   if (mbmi->skip_mode) {
     mbmi->interp_fltr = MULTITAP_SHARP;
@@ -1121,10 +1121,10 @@ static INLINE void set_default_interp_filters(
       (opfl_allowed_cur_pred_mode(cm, xd, mbmi) || mbmi->refinemv_flag ||
        is_tip_ref_frame(mbmi->ref_frame[0]))
           ? MULTITAP_SHARP
-          : av1_unswitchable_filter(frame_interp_filter);
+          : av2_unswitchable_filter(frame_interp_filter);
 }
 
-static INLINE int av1_is_interp_needed(const AV1_COMMON *const cm,
+static INLINE int av2_is_interp_needed(const AV2_COMMON *const cm,
                                        const MACROBLOCKD *const xd) {
   (void)cm;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -1145,12 +1145,12 @@ static INLINE int av1_is_interp_needed(const AV1_COMMON *const cm,
 #define MASK_MASTER_SIZE ((MAX_WEDGE_SIZE) << 1)
 #define MASK_MASTER_STRIDE (MASK_MASTER_SIZE)
 
-void av1_init_wedge_masks();
+void av2_init_wedge_masks();
 
-static INLINE const uint8_t *av1_get_all_contiguous_soft_mask(
+static INLINE const uint8_t *av2_get_all_contiguous_soft_mask(
     int8_t wedge_index, int8_t wedge_sign, BLOCK_SIZE sb_type,
     int boundary_index) {
-  return av1_wedge_params_lookup[sb_type]
+  return av2_wedge_params_lookup[sb_type]
       .all_masks[wedge_sign][wedge_index][boundary_index];
 }
 
@@ -1162,43 +1162,43 @@ static INLINE int8_t get_wedge_boundary_type(BLOCK_SIZE bsize) {
   return boundary_type;
 }
 
-static INLINE const uint8_t *av1_get_contiguous_soft_mask_decision(
+static INLINE const uint8_t *av2_get_contiguous_soft_mask_decision(
     int8_t wedge_index, int8_t wedge_sign, int boundary_index,
     BLOCK_SIZE sb_type) {
-  return av1_wedge_params_lookup[sb_type]
+  return av2_wedge_params_lookup[sb_type]
       .tmvp_mv_decisions[wedge_sign][wedge_index][boundary_index];
 }
 
-const uint8_t *av1_get_compound_type_mask(
+const uint8_t *av2_get_compound_type_mask(
     const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE sb_type);
 
 // Init the masks for compound weighted prediction
 void init_cwp_masks();
 // Get the mask for compound weighted prediction
-const int8_t *av1_get_cwp_mask(int list_idx, int idx);
+const int8_t *av2_get_cwp_mask(int list_idx, int idx);
 
 // build interintra_predictors for one plane
-void av1_build_interintra_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
+void av2_build_interintra_predictor(const AV2_COMMON *cm, MACROBLOCKD *xd,
                                     uint16_t *pred, int stride,
                                     const BUFFER_SET *ctx, int plane,
                                     BLOCK_SIZE bsize);
 
-void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
+void av2_build_intra_predictors_for_interintra(const AV2_COMMON *cm,
                                                MACROBLOCKD *xd, int plane,
                                                const BUFFER_SET *ctx,
                                                uint16_t *dst, int dst_stride);
 
-void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
+void av2_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
                             const uint16_t *inter_pred, int inter_stride,
                             const uint16_t *intra_pred, int intra_stride);
 
-int av1_allow_warp(const MB_MODE_INFO *const mbmi,
+int av2_allow_warp(const MB_MODE_INFO *const mbmi,
                    const WarpTypesAllowed *const warp_types,
                    const WarpedMotionParams *const gm_params, int ref,
                    const struct scale_factors *const sf,
                    WarpedMotionParams *final_warp_params);
 
-static INLINE int av1_allow_bawp(const AV1_COMMON *const cm,
+static INLINE int av2_allow_bawp(const AV2_COMMON *const cm,
                                  const MB_MODE_INFO *mbmi, int mi_row,
                                  int mi_col) {
   if (mbmi->mode == WARPMV) return 0;
@@ -1215,8 +1215,8 @@ static INLINE int av1_allow_bawp(const AV1_COMMON *const cm,
       get_ref_scale_factors_const(cm, mbmi->ref_frame[0]);
   const struct scale_factors *const sf1 =
       get_ref_scale_factors_const(cm, mbmi->ref_frame[1]);
-  if ((sf0 != NULL && av1_is_scaled(sf0)) ||
-      (sf1 != NULL && av1_is_scaled(sf1))) {
+  if ((sf0 != NULL && av2_is_scaled(sf0)) ||
+      (sf1 != NULL && av2_is_scaled(sf1))) {
     return 0;
   }
   if (mbmi->mode == WARP_NEWMV) return 0;
@@ -1229,15 +1229,15 @@ static INLINE int av1_allow_bawp(const AV1_COMMON *const cm,
     return 0;
 }
 
-static INLINE int av1_allow_explicit_bawp(const MB_MODE_INFO *mbmi) {
+static INLINE int av2_allow_explicit_bawp(const MB_MODE_INFO *mbmi) {
   return mbmi->mode == NEWMV || mbmi->mode == NEARMV;
 }
 
 // derive the context of the mpp_flag
-int av1_get_mpp_flag_context(const AV1_COMMON *cm, const MACROBLOCKD *xd);
+int av2_get_mpp_flag_context(const AV2_COMMON *cm, const MACROBLOCKD *xd);
 
 // derive the context of the precision signaling
-int av1_get_pb_mv_precision_down_context(const AV1_COMMON *cm,
+int av2_get_pb_mv_precision_down_context(const AV2_COMMON *cm,
                                          const MACROBLOCKD *xd);
 
 // set the precision of a block to the precision
@@ -1245,33 +1245,33 @@ void set_mv_precision(MB_MODE_INFO *mbmi, MvSubpelPrecision precision);
 void set_amvd_mv_precision(MB_MODE_INFO *mbmi, MvSubpelPrecision precision);
 
 // Function to check if precision need to be signaled or not
-int is_intraBC_bv_precision_active(const AV1_COMMON *const cm,
+int is_intraBC_bv_precision_active(const AV2_COMMON *const cm,
                                    const int intrabc_mode);
 // Set max value as default precision
-void set_default_intraBC_bv_precision(const AV1_COMMON *const cm,
+void set_default_intraBC_bv_precision(const AV2_COMMON *const cm,
                                       MB_MODE_INFO *mbmi);
 
 // set the most probable mv precision of the block
 // Currently, the most probable MV precision is same as the maximum precision of
 // the block.
-void set_most_probable_mv_precision(const AV1_COMMON *const cm,
+void set_most_probable_mv_precision(const AV2_COMMON *const cm,
                                     MB_MODE_INFO *mbmi, const BLOCK_SIZE bsize);
 
 // Set the default value fo the precision set. Currently the value is always 0.
-void set_default_precision_set(const AV1_COMMON *const cm, MB_MODE_INFO *mbmi,
+void set_default_precision_set(const AV2_COMMON *const cm, MB_MODE_INFO *mbmi,
                                const BLOCK_SIZE bsize);
 
 // Set the precision set of the block. Currently, the value is 0.
-void set_precision_set(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+void set_precision_set(const AV2_COMMON *const cm, MACROBLOCKD *const xd,
                        MB_MODE_INFO *mbmi, const BLOCK_SIZE bsize,
                        int *ref_mv_idx);
 // Get the index of the precision
 // this index is signalled when precision is not same as the most probable
 // precision
-int av1_get_pb_mv_precision_index(const MB_MODE_INFO *mbmi);
+int av2_get_pb_mv_precision_index(const MB_MODE_INFO *mbmi);
 
 // get the actual precision value from the signalled index
-MvSubpelPrecision av1_get_precision_from_index(MB_MODE_INFO *mbmi,
+MvSubpelPrecision av2_get_precision_from_index(MB_MODE_INFO *mbmi,
                                                int precision_idx_coded_value);
 
 // Set the maximum precision to the default value
@@ -1279,22 +1279,22 @@ void set_default_max_mv_precision(MB_MODE_INFO *mbmi,
                                   MvSubpelPrecision precision);
 
 // get the maximum allowed precision value of the block
-MvSubpelPrecision av1_get_mbmi_max_mv_precision(const AV1_COMMON *const cm,
+MvSubpelPrecision av2_get_mbmi_max_mv_precision(const AV2_COMMON *const cm,
                                                 const SB_INFO *sbi,
                                                 const MB_MODE_INFO *mbmi);
 
 // check if pb_mv_precision is allowed or not
-int is_pb_mv_precision_active(const AV1_COMMON *const cm,
+int is_pb_mv_precision_active(const AV2_COMMON *const cm,
                               const MB_MODE_INFO *mbmi, const BLOCK_SIZE bsize);
 
 // check if the WARPMV mode is allwed for a given blocksize
 static INLINE int is_warpmv_allowed_bsize(BLOCK_SIZE bsize) {
   assert(bsize < BLOCK_SIZES_ALL);
-  return AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
+  return AVMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 }
 
 // check if WARPMV mode is allowed
-static INLINE int is_warpmv_mode_allowed(const AV1_COMMON *const cm,
+static INLINE int is_warpmv_mode_allowed(const AV2_COMMON *const cm,
                                          const MB_MODE_INFO *mbmi,
                                          BLOCK_SIZE bsize) {
   int frame_warp_delta_allowed =
@@ -1308,7 +1308,7 @@ static INLINE int is_warpmv_mode_allowed(const AV1_COMMON *const cm,
 }
 
 // check if warpmv with mvd is allowed or not
-static INLINE int allow_warpmv_with_mvd_coding(const AV1_COMMON *const cm,
+static INLINE int allow_warpmv_with_mvd_coding(const AV2_COMMON *const cm,
                                                const MB_MODE_INFO *mbmi) {
   if (!cm->features.allow_warpmv_mode) return 0;
   return (mbmi->mode == WARPMV && mbmi->warp_ref_idx < 2);
@@ -1320,7 +1320,7 @@ static INLINE int get_derive_sign_nzero_th(const MB_MODE_INFO *mbmi) {
   return (mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEWMV_OPTFLOW) ? 4 : 1;
 }
 // Check if the sign derivation method is allowed or not for current block
-static INLINE int is_mvd_sign_derive_allowed(const AV1_COMMON *const cm,
+static INLINE int is_mvd_sign_derive_allowed(const AV2_COMMON *const cm,
                                              const MACROBLOCKD *const xd,
                                              const MB_MODE_INFO *mbmi) {
   if (!cm->seq_params.enable_mvd_sign_derive ||
@@ -1335,7 +1335,7 @@ static INLINE int is_mvd_sign_derive_allowed(const AV1_COMMON *const cm,
   if (has_second_ref(mbmi)) {
     int drl_idx = mbmi->ref_mv_idx[0];
     if (has_second_drl(mbmi)) {
-      drl_idx = AOMMAX(mbmi->ref_mv_idx[0], mbmi->ref_mv_idx[1]);
+      drl_idx = AVMMAX(mbmi->ref_mv_idx[0], mbmi->ref_mv_idx[1]);
     }
     if (drl_idx > 0) return 0;
   }
@@ -1344,11 +1344,11 @@ static INLINE int is_mvd_sign_derive_allowed(const AV1_COMMON *const cm,
           mbmi->mode == NEW_NEWMV || mbmi->mode == NEW_NEWMV_OPTFLOW);
 }
 
-bool av1_build_morph_pred(const AV1_COMMON *const cm, MACROBLOCKD *const xd,
+bool av2_build_morph_pred(const AV2_COMMON *const cm, MACROBLOCKD *const xd,
                           const BLOCK_SIZE bsize, const int mi_row,
                           const int mi_col);
 
-static AOM_INLINE bool is_subblock_outside(int x, int y, int mi_cols,
+static AVM_INLINE bool is_subblock_outside(int x, int y, int mi_cols,
                                            int mi_rows, int build_for_decode) {
   if (!build_for_decode) return 0;
   return (x >= mi_cols * MI_SIZE || y >= mi_rows * MI_SIZE);
@@ -1358,4 +1358,4 @@ static AOM_INLINE bool is_subblock_outside(int x, int y, int mi_cols,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_RECONINTER_H_
+#endif  // AVM_AV2_COMMON_RECONINTER_H_

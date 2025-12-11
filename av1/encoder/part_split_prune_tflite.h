@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AV1_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_
-#define AV1_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_
+#ifndef AV2_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_
+#define AV2_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "av1/common/av1_common_int.h"
+#include "av2/common/av2_common_int.h"
 
 typedef enum {
   MODEL_OTHER = 0,
@@ -145,4 +145,4 @@ int get_model_part_type(MODEL_TYPE type);
 }
 #endif
 
-#endif  // AV1_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_
+#endif  // AV2_ENCODER_SIMPLE_INTRAPRED_TFLITE_H_

@@ -10,18 +10,18 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_QUANTIZE_H_
-#define AOM_AOM_DSP_QUANTIZE_H_
+#ifndef AVM_AVM_DSP_QUANTIZE_H_
+#define AVM_AVM_DSP_QUANTIZE_H_
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_dsp/aom_dsp_common.h"
+#include "avm_dsp/avm_dsp_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void aom_highbd_quantize_b_adaptive_helper_c(
+void avm_highbd_quantize_b_adaptive_helper_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
@@ -29,28 +29,28 @@ void aom_highbd_quantize_b_adaptive_helper_c(
     const int16_t *scan, const int16_t *iscan, const qm_val_t *qm_ptr,
     const qm_val_t *iqm_ptr, const int log_scale);
 
-void aom_highbd_quantize_b_adaptive_c(
+void avm_highbd_quantize_b_adaptive_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr, const int32_t *dequant_ptr, uint16_t *eob_ptr,
     const int16_t *scan, const int16_t *iscan);
 
-void aom_highbd_quantize_b_32x32_adaptive_c(
+void avm_highbd_quantize_b_32x32_adaptive_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr, const int32_t *dequant_ptr, uint16_t *eob_ptr,
     const int16_t *scan, const int16_t *iscan);
 
-void aom_highbd_quantize_b_64x64_adaptive_c(
+void avm_highbd_quantize_b_64x64_adaptive_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
     tran_low_t *dqcoeff_ptr, const int32_t *dequant_ptr, uint16_t *eob_ptr,
     const int16_t *scan, const int16_t *iscan);
 
-void aom_highbd_quantize_b_helper_c(
+void avm_highbd_quantize_b_helper_c(
     const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int32_t *zbin_ptr,
     const int32_t *round_ptr, const int32_t *quant_ptr,
     const int32_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
@@ -58,7 +58,7 @@ void aom_highbd_quantize_b_helper_c(
     const int16_t *scan, const int16_t *iscan, const qm_val_t *qm_ptr,
     const qm_val_t *iqm_ptr, const int log_scale);
 
-void aom_highbd_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
+void avm_highbd_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
                              const int32_t *zbin_ptr, const int32_t *round_ptr,
                              const int32_t *quant_ptr,
                              const int32_t *quant_shift_ptr,
@@ -70,4 +70,4 @@ void aom_highbd_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
 }  // extern "C"
 #endif
 
-#endif  // AOM_AOM_DSP_QUANTIZE_H_
+#endif  // AVM_AVM_DSP_QUANTIZE_H_

@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-void aom_get_blk_sse_sum_c(const int16_t *data, int stride, int bw, int bh,
+void avm_get_blk_sse_sum_c(const int16_t *data, int stride, int bw, int bh,
                            int *x_sum, int64_t *x2_sum) {
   *x_sum = 0;
   *x2_sum = 0;

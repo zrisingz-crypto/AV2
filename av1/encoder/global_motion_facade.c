@@ -10,19 +10,19 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "aom_dsp/binary_codes_writer.h"
-#include "aom_ports/system_state.h"
+#include "avm_dsp/binary_codes_writer.h"
+#include "avm_ports/system_state.h"
 
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_dsp/flow_estimation/flow_estimation.h"
-#include "aom_dsp/pyramid.h"
+#include "avm_dsp/flow_estimation/corner_detect.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
+#include "avm_dsp/pyramid.h"
 
-#include "av1/common/mv.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/ethread.h"
-#include "av1/encoder/global_motion_facade.h"
-#include "av1/encoder/rdopt.h"
-#include "av1/common/warped_motion.h"
+#include "av2/common/mv.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/ethread.h"
+#include "av2/encoder/global_motion_facade.h"
+#include "av2/encoder/rdopt.h"
+#include "av2/common/warped_motion.h"
 
 // Range of model types to search
 #define FIRST_GLOBAL_TRANS_TYPE ROTZOOM
@@ -42,46 +42,46 @@ static int gm_get_params_cost(const WarpedMotionParams *gm,
   switch (gm->wmtype) {
     case AFFINE:
     case ROTZOOM:
-      params_cost += aom_count_signed_primitive_refsubexpfin(
+      params_cost += avm_count_signed_primitive_refsubexpfin(
           GM_ALPHA_MAX + 1, SUBEXPFIN_K,
           (ref_gm->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS),
           (gm->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
-      params_cost += aom_count_signed_primitive_refsubexpfin(
+      params_cost += avm_count_signed_primitive_refsubexpfin(
           GM_ALPHA_MAX + 1, SUBEXPFIN_K,
           (ref_gm->wmmat[3] >> GM_ALPHA_PREC_DIFF),
           (gm->wmmat[3] >> GM_ALPHA_PREC_DIFF));
       if (gm->wmtype >= AFFINE) {
-        params_cost += aom_count_signed_primitive_refsubexpfin(
+        params_cost += avm_count_signed_primitive_refsubexpfin(
             GM_ALPHA_MAX + 1, SUBEXPFIN_K,
             (ref_gm->wmmat[4] >> GM_ALPHA_PREC_DIFF),
             (gm->wmmat[4] >> GM_ALPHA_PREC_DIFF));
-        params_cost += aom_count_signed_primitive_refsubexpfin(
+        params_cost += avm_count_signed_primitive_refsubexpfin(
             GM_ALPHA_MAX + 1, SUBEXPFIN_K,
             (ref_gm->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
                 (1 << GM_ALPHA_PREC_BITS),
             (gm->wmmat[5] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
       }
-      params_cost += aom_count_signed_primitive_refsubexpfin(
+      params_cost += avm_count_signed_primitive_refsubexpfin(
           trans_max + 1, SUBEXPFIN_K, (ref_gm->wmmat[0] >> trans_prec_diff),
           (gm->wmmat[0] >> trans_prec_diff));
-      params_cost += aom_count_signed_primitive_refsubexpfin(
+      params_cost += avm_count_signed_primitive_refsubexpfin(
           trans_max + 1, SUBEXPFIN_K, (ref_gm->wmmat[1] >> trans_prec_diff),
           (gm->wmmat[1] >> trans_prec_diff));
-      AOM_FALLTHROUGH_INTENDED;
+      AVM_FALLTHROUGH_INTENDED;
     case IDENTITY: break;
     default: assert(0);
   }
-  return (params_cost << AV1_PROB_COST_SHIFT);
+  return (params_cost << AV2_PROB_COST_SHIFT);
 }
 
 // For the given reference frame, computes the global motion parameters for
 // different motion models and finds the best.
-static AOM_INLINE void compute_global_motion_for_ref_frame(
-    AV1_COMP *cpi, struct aom_internal_error_info *error_info,
+static AVM_INLINE void compute_global_motion_for_ref_frame(
+    AV2_COMP *cpi, struct avm_internal_error_info *error_info,
     YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME], int frame,
     MotionModel *motion_models, uint8_t *segment_map, const int segment_map_w,
     const int segment_map_h) {
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
 
   int src_width = cpi->source->y_crop_width;
@@ -90,7 +90,7 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
 
   assert(ref_buf[frame] != NULL);
 
-  aom_clear_system_state();
+  avm_clear_system_state();
 
   int bit_depth = cpi->common.seq_params.bit_depth;
   GlobalMotionMethod global_motion_method = default_global_motion_method;
@@ -105,12 +105,12 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
   double best_erroradv = erroradv_tr;
   for (TransformationType model = FIRST_GLOBAL_TRANS_TYPE;
        model <= LAST_GLOBAL_TRANS_TYPE; ++model) {
-    if (!aom_compute_global_motion(model, cpi->source, ref_buf[frame],
+    if (!avm_compute_global_motion(model, cpi->source, ref_buf[frame],
                                    bit_depth, global_motion_method,
                                    downsample_level, motion_models,
                                    RANSAC_NUM_MOTIONS, &mem_alloc_failed)) {
       if (mem_alloc_failed) {
-        aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,
+        avm_internal_error(error_info, AVM_CODEC_MEM_ERROR,
                            "Failed to allocate global motion buffers");
       }
       continue;
@@ -127,7 +127,7 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
       tmp_wm_params.invalid = 0;
 
       // Check that the generated model is warp-able
-      if (!av1_get_shear_params(
+      if (!av2_get_shear_params(
               &tmp_wm_params, get_ref_scale_factors_const(cm, frame)
 
                   ))
@@ -145,18 +145,18 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
       // by never choosing a TRANSLATION type model
       if (tmp_wm_params.wmtype <= TRANSLATION) continue;
 
-      av1_compute_feature_segmentation_map(
+      av2_compute_feature_segmentation_map(
           segment_map, segment_map_w, segment_map_h, motion_models[i].inliers,
           motion_models[i].num_inliers);
 
-      int64_t ref_frame_error = av1_segmented_frame_error(
+      int64_t ref_frame_error = av2_segmented_frame_error(
           bit_depth, ref_buf[frame]->y_buffer, ref_buf[frame]->y_stride,
           cpi->source->y_buffer, src_stride, src_width, src_height, segment_map,
           segment_map_w);
 
       if (ref_frame_error == 0) continue;
 
-      const int64_t warp_error = av1_refine_integerized_param(
+      const int64_t warp_error = av2_refine_integerized_param(
           &tmp_wm_params, tmp_wm_params.wmtype, bit_depth,
           ref_buf[frame]->y_buffer, ref_buf[frame]->y_crop_width,
           ref_buf[frame]->y_crop_height, ref_buf[frame]->y_stride,
@@ -166,7 +166,7 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
 
       );
 
-      // av1_refine_integerized_param() can return a simpler model type than
+      // av2_refine_integerized_param() can return a simpler model type than
       // its input, so re-check model type here
       if (tmp_wm_params.wmtype <= TRANSLATION) continue;
 
@@ -175,7 +175,7 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
       if (erroradvantage < best_erroradv) {
         best_erroradv = erroradvantage;
         // Save the wm_params modified by
-        // av1_refine_integerized_param() rather than motion index to
+        // av2_refine_integerized_param() rather than motion index to
         // avoid rerunning refine() below.
         memcpy(&(cm->global_motion[frame]), &tmp_wm_params,
                sizeof(WarpedMotionParams));
@@ -183,12 +183,12 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
     }
   }
   gm_info->erroradvantage[frame] = best_erroradv;
-  aom_clear_system_state();
+  avm_clear_system_state();
 }
 
 // Computes global motion for the given reference frame.
-void av1_compute_gm_for_valid_ref_frames(
-    AV1_COMP *cpi, struct aom_internal_error_info *error_info,
+void av2_compute_gm_for_valid_ref_frames(
+    AV2_COMP *cpi, struct avm_internal_error_info *error_info,
     YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME], int frame,
     MotionModel *motion_models, uint8_t *segment_map, int segment_map_w,
     int segment_map_h) {
@@ -198,19 +198,19 @@ void av1_compute_gm_for_valid_ref_frames(
 }
 
 // Loops over valid reference frames and computes global motion estimation.
-static AOM_INLINE void compute_global_motion_for_references(
-    AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME],
+static AVM_INLINE void compute_global_motion_for_references(
+    AV2_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME],
     FrameDistPair reference_frame[INTER_REFS_PER_FRAME], int num_ref_frames,
     MotionModel *motion_models, uint8_t *segment_map, const int segment_map_w,
     const int segment_map_h) {
-  AV1_COMMON *const cm = &cpi->common;
-  struct aom_internal_error_info *const error_info =
+  AV2_COMMON *const cm = &cpi->common;
+  struct avm_internal_error_info *const error_info =
       cpi->td.mb.e_mbd.error_info;
   // Compute global motion w.r.t. reference frames starting from the nearest ref
   // frame in a given direction.
   for (int frame = 0; frame < num_ref_frames; frame++) {
     int ref_frame = reference_frame[frame].frame;
-    av1_compute_gm_for_valid_ref_frames(cpi, error_info, ref_buf, ref_frame,
+    av2_compute_gm_for_valid_ref_frames(cpi, error_info, ref_buf, ref_frame,
                                         motion_models, segment_map,
                                         segment_map_w, segment_map_h);
     // If global motion w.r.t. current ref frame is
@@ -237,7 +237,7 @@ static int compare_distance(const void *a, const void *b) {
   return 0;
 }
 
-static int disable_gm_search_based_on_stats(const AV1_COMP *const cpi) {
+static int disable_gm_search_based_on_stats(const AV2_COMP *const cpi) {
   const GF_GROUP *gf_group = &cpi->gf_group;
   int is_gm_present = 1;
 
@@ -261,11 +261,11 @@ static int disable_gm_search_based_on_stats(const AV1_COMP *const cpi) {
 
 // Populates valid reference frames in past/future directions in
 // 'reference_frames' and their count in 'num_ref_filters'.
-static AOM_INLINE void update_valid_ref_frames_for_gm(
-    AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME],
+static AVM_INLINE void update_valid_ref_frames_for_gm(
+    AV2_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME],
     FrameDistPair reference_frames[MAX_DIRECTIONS][INTER_REFS_PER_FRAME],
     int *num_ref_frames) {
-  AV1_COMMON *const cm = &cpi->common;
+  AV2_COMMON *const cm = &cpi->common;
   int *num_past_ref_frames = &num_ref_frames[0];
   int *num_future_ref_frames = &num_ref_frames[1];
   const GF_GROUP *gf_group = &cpi->gf_group;
@@ -292,7 +292,7 @@ static AOM_INLINE void update_valid_ref_frames_for_gm(
       continue;
     } else {
       // Get the scaled buffer
-      if (av1_is_scaled(get_ref_scale_factors(cm, frame)))
+      if (av2_is_scaled(get_ref_scale_factors(cm, frame)))
         ref_buf[frame] = &cpi->scaled_ref_buf[frame]->buf;
       else
         ref_buf[frame] = &buf->buf;
@@ -308,7 +308,7 @@ static AOM_INLINE void update_valid_ref_frames_for_gm(
         frame < cpi->sf.gm_sf.max_ref_frames && !prune_ref_frames &&
         ref_pyr_lvl <= pyr_lvl && !cur_frame_gm_disabled) {
       assert(ref_buf[frame] != NULL);
-      const int relative_frame_dist = av1_encoder_get_relative_dist(
+      const int relative_frame_dist = av2_encoder_get_relative_dist(
           buf->display_order_hint, cm->cur_frame->display_order_hint);
       // Populate past and future ref frames.
       // reference_frames[0][] indicates past direction and
@@ -329,34 +329,34 @@ static AOM_INLINE void update_valid_ref_frames_for_gm(
 }
 
 // Allocates and initializes memory for segment_map and MotionModel.
-static AOM_INLINE void alloc_global_motion_data(MotionModel *motion_models,
+static AVM_INLINE void alloc_global_motion_data(MotionModel *motion_models,
                                                 uint8_t **segment_map,
                                                 const int segment_map_w,
                                                 const int segment_map_h) {
   for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-    av1_zero(motion_models[m]);
+    av2_zero(motion_models[m]);
     motion_models[m].inliers =
-        aom_malloc(sizeof(*(motion_models[m].inliers)) * 2 * MAX_CORNERS);
+        avm_malloc(sizeof(*(motion_models[m].inliers)) * 2 * MAX_CORNERS);
   }
 
-  *segment_map = (uint8_t *)aom_malloc(sizeof(*segment_map) * segment_map_w *
+  *segment_map = (uint8_t *)avm_malloc(sizeof(*segment_map) * segment_map_w *
                                        segment_map_h);
-  av1_zero_array(*segment_map, segment_map_w * segment_map_h);
+  av2_zero_array(*segment_map, segment_map_w * segment_map_h);
 }
 
 // Deallocates segment_map and inliers.
-static AOM_INLINE void dealloc_global_motion_data(MotionModel *motion_models,
+static AVM_INLINE void dealloc_global_motion_data(MotionModel *motion_models,
                                                   uint8_t *segment_map) {
-  aom_free(segment_map);
+  avm_free(segment_map);
 
   for (int m = 0; m < RANSAC_NUM_MOTIONS; m++) {
-    aom_free(motion_models[m].inliers);
+    avm_free(motion_models[m].inliers);
   }
 }
 
 // Select which global motion model to use as a base
-static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+static AVM_INLINE void pick_base_gm_params(AV2_COMP *cpi) {
+  AV2_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = &cm->seq_params;
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
   int num_total_refs = cm->ref_frames_info.num_total_refs;
@@ -376,8 +376,8 @@ static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
   {
     int this_num_models = 0;
     int this_cost =
-        aom_count_primitive_quniform(num_total_refs + 1, num_total_refs)
-        << AV1_PROB_COST_SHIFT;
+        avm_count_primitive_quniform(num_total_refs + 1, num_total_refs)
+        << AV2_PROB_COST_SHIFT;
     uint8_t this_enable_models = 0;
 
     for (int frame = 0; frame < num_total_refs; frame++) {
@@ -385,7 +385,7 @@ static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
       if (model->wmtype == IDENTITY) continue;
       int model_cost = gm_get_params_cost(model, &default_warp_params,
                                           cm->features.fr_mv_precision);
-      bool use_model = av1_is_enough_erroradvantage(
+      bool use_model = av2_is_enough_erroradvantage(
           gm_info->erroradvantage[frame], model_cost);
 
       if (use_model) {
@@ -438,9 +438,9 @@ static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
 
       int this_num_models = 0;
       int this_cost =
-          (aom_count_primitive_quniform(num_total_refs + 1, our_ref) +
-           aom_count_primitive_quniform(their_num_refs, their_ref))
-          << AV1_PROB_COST_SHIFT;
+          (avm_count_primitive_quniform(num_total_refs + 1, our_ref) +
+           avm_count_primitive_quniform(their_num_refs, their_ref))
+          << AV2_PROB_COST_SHIFT;
       uint8_t this_enable_models = 0;
 
       for (int frame = 0; frame < num_total_refs; frame++) {
@@ -461,12 +461,12 @@ static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
         }
 
         WarpedMotionParams ref_params;
-        av1_scale_warp_model(base_model, base_temporal_distance, &ref_params,
+        av2_scale_warp_model(base_model, base_temporal_distance, &ref_params,
                              temporal_distance);
 
         int model_cost = gm_get_params_cost(model, &ref_params,
                                             cm->features.fr_mv_precision);
-        bool use_model = av1_is_enough_erroradvantage(
+        bool use_model = av2_is_enough_erroradvantage(
             gm_info->erroradvantage[frame], model_cost);
 
         if (use_model) {
@@ -503,7 +503,7 @@ static AOM_INLINE void pick_base_gm_params(AV1_COMP *cpi) {
 }
 
 // Initializes parameters used for computing global motion.
-static AOM_INLINE void setup_global_motion_info_params(AV1_COMP *cpi) {
+static AVM_INLINE void setup_global_motion_info_params(AV2_COMP *cpi) {
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
   YV12_BUFFER_CONFIG *source = cpi->source;
 
@@ -515,7 +515,7 @@ static AOM_INLINE void setup_global_motion_info_params(AV1_COMP *cpi) {
   memset(gm_info->reference_frames, -1,
          sizeof(gm_info->reference_frames[0][0]) * MAX_DIRECTIONS *
              INTER_REFS_PER_FRAME);
-  av1_zero(gm_info->num_ref_frames);
+  av2_zero(gm_info->num_ref_frames);
 
   // Populate ref_buf for valid ref frames in global motion
   update_valid_ref_frames_for_gm(cpi, gm_info->ref_buf,
@@ -532,7 +532,7 @@ static AOM_INLINE void setup_global_motion_info_params(AV1_COMP *cpi) {
 }
 
 // Computes global motion w.r.t. valid reference frames.
-static AOM_INLINE void global_motion_estimation(AV1_COMP *cpi) {
+static AVM_INLINE void global_motion_estimation(AV2_COMP *cpi) {
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
 
   MotionModel motion_models[RANSAC_NUM_MOTIONS];
@@ -555,7 +555,7 @@ static AOM_INLINE void global_motion_estimation(AV1_COMP *cpi) {
 }
 
 // Updates frame level stats related to global motion
-static AOM_INLINE void update_gm_stats(AV1_COMP *cpi) {
+static AVM_INLINE void update_gm_stats(AV2_COMP *cpi) {
   const GF_GROUP *gf_group = &cpi->gf_group;
   FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_group->index];
   int i, is_gm_present = 0;
@@ -582,8 +582,8 @@ static AOM_INLINE void update_gm_stats(AV1_COMP *cpi) {
 // Global motion estimation for the current frame is computed.This computation
 // happens once per frame and the winner motion model parameters are stored in
 // cm->cur_frame->global_motion.
-void av1_compute_global_motion_facade(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
+void av2_compute_global_motion_facade(AV2_COMP *cpi) {
+  AV2_COMMON *const cm = &cpi->common;
   const GF_GROUP *gf_group = &cpi->gf_group;
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
 
@@ -602,7 +602,7 @@ void av1_compute_global_motion_facade(AV1_COMP *cpi) {
     setup_global_motion_info_params(cpi);
 
     if (cpi->mt_info.num_workers > 1)
-      av1_global_motion_estimation_mt(cpi);
+      av2_global_motion_estimation_mt(cpi);
     else
       global_motion_estimation(cpi);
 

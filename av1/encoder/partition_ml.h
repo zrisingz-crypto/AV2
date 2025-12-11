@@ -1,12 +1,12 @@
-#ifndef AV1_ENCODER_PARTITION_ML_H_
-#define AV1_ENCODER_PARTITION_ML_H_
+#ifndef AV2_ENCODER_PARTITION_ML_H_
+#define AV2_ENCODER_PARTITION_ML_H_
 
-#include "av1/encoder/block.h"
-#include "av1/encoder/encodeframe.h"
-#include "av1/encoder/encodemb.h"
-#include "av1/encoder/encoder.h"
-#include "av1/encoder/part_split_prune_tflite.h"
-#include "av1/common/reconintra.h"
+#include "av2/encoder/block.h"
+#include "av2/encoder/encodeframe.h"
+#include "av2/encoder/encodemb.h"
+#include "av2/encoder/encoder.h"
+#include "av2/encoder/part_split_prune_tflite.h"
+#include "av2/common/reconintra.h"
 
 enum {
   FEATURE_INTRA_LOG_QP_SQUARED = 0,
@@ -50,7 +50,7 @@ enum {
   FEATURE_INTRA_MAX
 };
 
-void compute_residual_stats(AV1_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
+void compute_residual_stats(AV2_COMP *const cpi, ThreadData *td, MACROBLOCK *x,
                             BLOCK_SIZE bsize, ResidualStats *out);
 enum {
   ML_PART_DONT_FORCE = 0,
@@ -58,9 +58,9 @@ enum {
   ML_PART_FORCE_SPLIT,
 };
 
-int av1_ml_part_split_infer(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
+int av2_ml_part_split_infer(AV2_COMP *const cpi, MACROBLOCK *x, int mi_row,
                             int mi_col, BLOCK_SIZE bsize,
                             const TileInfo *tile_info, ThreadData *td,
                             bool search_none_after_rect, bool *prune_list);
 
-#endif  // AV1_ENCODER_PARTITION_ML_H_
+#endif  // AV2_ENCODER_PARTITION_ML_H_

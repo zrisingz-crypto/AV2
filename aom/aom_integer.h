@@ -9,18 +9,18 @@
  * source code in the PATENTS file, you can obtain it at
  * aomedia.org/license/patent-license/.
  */
-#ifndef AOM_AOM_AOM_INTEGER_H_
-#define AOM_AOM_AOM_INTEGER_H_
+#ifndef AVM_AVM_AVM_INTEGER_H_
+#define AVM_AVM_AVM_INTEGER_H_
 
 /* get ptrdiff_t, size_t, wchar_t, NULL */
 #include <stddef.h>
 
 #if defined(_MSC_VER)
-#define AOM_FORCE_INLINE __forceinline
-#define AOM_INLINE __inline
+#define AVM_FORCE_INLINE __forceinline
+#define AVM_INLINE __inline
 #else
-#define AOM_FORCE_INLINE __inline__ __attribute__((always_inline))
-#define AOM_INLINE inline
+#define AVM_FORCE_INLINE __inline__ __attribute__((always_inline))
+#define AVM_INLINE inline
 #endif
 
 /* Assume platforms have the C99 standard integer types. */
@@ -42,23 +42,23 @@ extern "C" {
 #endif  // __cplusplus
 
 // Returns size of uint64_t when encoded using LEB128.
-size_t aom_uleb_size_in_bytes(uint64_t value);
+size_t avm_uleb_size_in_bytes(uint64_t value);
 
 // Returns 0 on success, -1 on decode failure.
 // On success, 'value' stores the decoded LEB128 value and 'length' stores
 // the number of bytes decoded.
-int aom_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
+int avm_uleb_decode(const uint8_t *buffer, size_t available, uint64_t *value,
                     size_t *length);
 
 // Encodes LEB128 integer. Returns 0 when successful, and -1 upon failure.
-int aom_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
+int avm_uleb_encode(uint64_t value, size_t available, uint8_t *coded_value,
                     size_t *coded_size);
 
 // Encodes LEB128 integer to size specified. Returns 0 when successful, and -1
 // upon failure.
 // Note: This will write exactly pad_to_size bytes; if the value cannot be
 // encoded in this many bytes, then this will fail.
-int aom_uleb_encode_fixed_size(uint64_t value, size_t available,
+int avm_uleb_encode_fixed_size(uint64_t value, size_t available,
                                size_t pad_to_size, uint8_t *coded_value,
                                size_t *coded_size);
 
@@ -66,4 +66,4 @@ int aom_uleb_encode_fixed_size(uint64_t value, size_t available,
 }  // extern "C"
 #endif  // __cplusplus
 
-#endif  // AOM_AOM_AOM_INTEGER_H_
+#endif  // AVM_AVM_AVM_INTEGER_H_

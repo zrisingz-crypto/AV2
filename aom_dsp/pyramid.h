@@ -9,17 +9,17 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef AOM_AOM_DSP_PYRAMID_H_
-#define AOM_AOM_DSP_PYRAMID_H_
+#ifndef AVM_AVM_DSP_PYRAMID_H_
+#define AVM_AVM_DSP_PYRAMID_H_
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "config/aom_config.h"
+#include "config/avm_config.h"
 
-#include "aom_scale/yv12config.h"
-#include "aom_util/aom_thread.h"
+#include "avm_scale/yv12config.h"
+#include "avm_util/avm_thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,9 +90,9 @@ typedef struct image_pyramid {
   PyramidLayer *layers;
 } ImagePyramid;
 
-size_t aom_get_pyramid_alloc_size(int width, int height);
+size_t avm_get_pyramid_alloc_size(int width, int height);
 
-ImagePyramid *aom_alloc_pyramid(int width, int height);
+ImagePyramid *avm_alloc_pyramid(int width, int height);
 
 // Fill out a downsampling pyramid for a given frame.
 //
@@ -106,7 +106,7 @@ ImagePyramid *aom_alloc_pyramid(int width, int height);
 //
 // Returns the actual number of levels filled, capped at n_levels,
 // or -1 on error.
-int aom_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
+int avm_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
                         int n_levels, ImagePyramid *pyr);
 
 #ifndef NDEBUG
@@ -115,24 +115,24 @@ int aom_compute_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 // while reading the number of already-computed levels, we cannot just write:
 //   assert(pyr->filled_levels >= n_levels);
 // This function allows the check to be correctly written as:
-//   assert(aom_is_pyramid_valid(pyr, n_levels));
+//   assert(avm_is_pyramid_valid(pyr, n_levels));
 //
 // Note: This deliberately does not restrict n_levels based on the maximum
 // number of permitted levels for the frame size. This allows the check to
 // catch cases where the caller forgets to handle the case where
 // max_levels is less than the requested number of levels
-bool aom_is_pyramid_valid(ImagePyramid *pyr, int n_levels);
+bool avm_is_pyramid_valid(ImagePyramid *pyr, int n_levels);
 #endif
 
 // Mark a pyramid as no longer containing valid data.
 // This must be done whenever the corresponding frame buffer is reused
-void aom_invalidate_pyramid(ImagePyramid *pyr);
+void avm_invalidate_pyramid(ImagePyramid *pyr);
 
 // Release the memory associated with a pyramid
-void aom_free_pyramid(ImagePyramid *pyr);
+void avm_free_pyramid(ImagePyramid *pyr);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // AOM_AOM_DSP_PYRAMID_H_
+#endif  // AVM_AVM_DSP_PYRAMID_H_

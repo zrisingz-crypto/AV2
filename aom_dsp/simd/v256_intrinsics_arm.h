@@ -10,9 +10,9 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AOM_DSP_SIMD_V256_INTRINSICS_ARM_H_
-#define AOM_AOM_DSP_SIMD_V256_INTRINSICS_ARM_H_
+#ifndef AVM_AVM_DSP_SIMD_V256_INTRINSICS_ARM_H_
+#define AVM_AVM_DSP_SIMD_V256_INTRINSICS_ARM_H_
 
-#include "aom_dsp/simd/v256_intrinsics_v128.h"
+#include "avm_dsp/simd/v256_intrinsics_v128.h"
 
-#endif  // AOM_AOM_DSP_SIMD_V256_INTRINSICS_ARM_H_
+#endif  // AVM_AVM_DSP_SIMD_V256_INTRINSICS_ARM_H_

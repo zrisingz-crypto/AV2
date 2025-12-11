@@ -10,14 +10,14 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_COMMON_MV_H_
-#define AOM_AV1_COMMON_MV_H_
+#ifndef AVM_AV2_COMMON_MV_H_
+#define AVM_AV2_COMMON_MV_H_
 
-#include "av1/common/common.h"
-#include "av1/common/common_data.h"
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_dsp/flow_estimation/flow_estimation.h"
+#include "av2/common/common.h"
+#include "av2/common/common_data.h"
+#include "avm_dsp/avm_dsp_common.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_dsp/flow_estimation/flow_estimation.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,7 +87,7 @@ typedef struct {
   MvSubpelPrecision precision[NUM_MV_PRECISIONS];
 } PRECISION_SET;
 
-static const PRECISION_SET av1_mv_precision_sets[3] = {
+static const PRECISION_SET av2_mv_precision_sets[3] = {
   { 4,
     { MV_PRECISION_FOUR_PEL, MV_PRECISION_ONE_PEL, MV_PRECISION_HALF_PEL,
       MV_PRECISION_ONE_EIGHTH_PEL, NUM_MV_PRECISIONS, NUM_MV_PRECISIONS,
@@ -103,12 +103,12 @@ static const PRECISION_SET av1_mv_precision_sets[3] = {
 };
 
 // Precision sets defined for intra block copy mode
-static const PRECISION_SET av1_intraBc_precision_sets = {
+static const PRECISION_SET av2_intraBc_precision_sets = {
   NUM_ALLOWED_BV_PRECISIONS,
   { MV_PRECISION_ONE_PEL, MV_PRECISION_QTR_PEL, NUM_MV_PRECISIONS,
     NUM_MV_PRECISIONS, NUM_MV_PRECISIONS, NUM_MV_PRECISIONS, NUM_MV_PRECISIONS }
 };
-static const int av1_intraBc_precision_to_index[NUM_MV_PRECISIONS] = {
+static const int av2_intraBc_precision_to_index[NUM_MV_PRECISIONS] = {
   NUM_ALLOWED_BV_PRECISIONS,  // MV_PRECISION_8_PEL
   NUM_ALLOWED_BV_PRECISIONS,  // MV_PRECISION_FOUR_PEL
   NUM_ALLOWED_BV_PRECISIONS,  // MV_PRECISION_TWO_PEL
@@ -142,14 +142,14 @@ typedef struct {
   int row_max;
 } SubpelMvLimits;
 
-static AOM_INLINE FULLPEL_MV get_fullmv_from_mv(const MV *subpel_mv) {
+static AVM_INLINE FULLPEL_MV get_fullmv_from_mv(const MV *subpel_mv) {
   const FULLPEL_MV full_mv = { (MV_COMP_DATA_TYPE)GET_MV_RAWPEL(subpel_mv->row),
                                (MV_COMP_DATA_TYPE)GET_MV_RAWPEL(
                                    subpel_mv->col) };
   return full_mv;
 }
 
-static AOM_INLINE void get_phase_from_mv(MV ref_mv, MV *sub_mv_offset,
+static AVM_INLINE void get_phase_from_mv(MV ref_mv, MV *sub_mv_offset,
                                          MvSubpelPrecision precision) {
   sub_mv_offset->col = 0;
   sub_mv_offset->row = 0;
@@ -170,13 +170,13 @@ static AOM_INLINE void get_phase_from_mv(MV ref_mv, MV *sub_mv_offset,
   }
 }
 
-static AOM_INLINE MV get_mv_from_fullmv(const FULLPEL_MV *full_mv) {
+static AVM_INLINE MV get_mv_from_fullmv(const FULLPEL_MV *full_mv) {
   const MV subpel_mv = { (MV_COMP_DATA_TYPE)GET_MV_SUBPEL(full_mv->row),
                          (MV_COMP_DATA_TYPE)GET_MV_SUBPEL(full_mv->col) };
   return subpel_mv;
 }
 
-static AOM_INLINE void convert_fullmv_to_mv(int_mv *mv) {
+static AVM_INLINE void convert_fullmv_to_mv(int_mv *mv) {
   mv->as_mv = get_mv_from_fullmv(&mv->as_fullmv);
 }
 
@@ -267,13 +267,13 @@ static inline int uncompression_mv(int16_t val) {
 }
 
 // Compress TMVP MVs before storing
-static AOM_INLINE void process_mv_for_tmvp(MV *mv) {
+static AVM_INLINE void process_mv_for_tmvp(MV *mv) {
   mv->row = compression_mv(mv->row);
   mv->col = compression_mv(mv->col);
 }
 
 // Uncompress TMVP MVs
-static AOM_INLINE void fetch_mv_from_tmvp(MV *mv) {
+static AVM_INLINE void fetch_mv_from_tmvp(MV *mv) {
   mv->row = uncompression_mv(mv->row);
   mv->col = uncompression_mv(mv->col);
 }
@@ -449,7 +449,7 @@ static INLINE int check_mvd_valid_amvd(const MV mvd) {
 // for little gain. So we reduce the parameters to a lower precision
 // of (WARPEDMODEL_PREC_BITS - WARP_PARAM_REDUCE_BITS) after calculation.
 //
-// Note that the constraints in av1_get_shear_params() imply that the
+// Note that the constraints in av2_get_shear_params() imply that the
 // non-translational parameters are limited to a range a little wider than
 // (-1/4, +1/4), but certainly narrower than (-1/2, +1/2). So they can be safely
 // stored in (WARPEDMODEL_PREC_BITS - WARP_PARAM_REDUCE_BITS) bits, including
@@ -495,8 +495,8 @@ typedef struct {
   TransformationType wmtype;
   int8_t invalid;
   // Flag that indicates whether to use the affine warp filter
-  // (av1_highbd_warp_affine) or the translational warp filter
-  // (av1_ext_highbd_warp_affine)
+  // (av2_highbd_warp_affine) or the translational warp filter
+  // (av2_ext_highbd_warp_affine)
   bool use_affine_filter;
 } WarpedMotionParams;
 
@@ -581,13 +581,13 @@ static INLINE int convert_to_trans_prec(MvSubpelPrecision precision, int coor) {
 // Returns how many bits do not need to be signaled relative to
 // MV_PRECISION_ONE_EIGHTH_PEL
 static INLINE int get_gm_precision_loss(MvSubpelPrecision precision) {
-  // NOTE: there is a bit of an anomaly in AV1 that the translation-only
+  // NOTE: there is a bit of an anomaly in AV2 that the translation-only
   // global parameters are sent only at 1/4 or 1/8 pel resolution depending
   // on whether the allow_high_precision_mv flag is 0 or 1, but the
-  // cur_frame_force_integer_mv is ignored. Hence the AOMMIN(1, ...)
+  // cur_frame_force_integer_mv is ignored. Hence the AVMMIN(1, ...)
   // below, but in here we correct that so that translation-
   // only global parameters are sent at the MV resolution of the frame.
-  return AOMMIN(1, MV_PRECISION_ONE_EIGHTH_PEL - precision);
+  return AVMMIN(1, MV_PRECISION_ONE_EIGHTH_PEL - precision);
 }
 
 static INLINE TransformationType get_wmtype(const WarpedMotionParams *model) {
@@ -669,4 +669,4 @@ static INLINE int get_map_shell_class(const int shell_class) {
 }  // extern "C"
 #endif
 
-#endif  // AOM_AV1_COMMON_MV_H_
+#endif  // AVM_AV2_COMMON_MV_H_

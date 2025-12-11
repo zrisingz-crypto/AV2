@@ -12,27 +12,27 @@
 
 #include <tmmintrin.h>
 
-#include "config/av1_rtcd.h"
+#include "config/av2_rtcd.h"
 
-#include "aom/aom_integer.h"
-#include "aom_dsp/blend.h"
-#include "aom_dsp/x86/synonyms.h"
-#include "av1/common/blockd.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/blend.h"
+#include "avm_dsp/x86/synonyms.h"
+#include "av2/common/blockd.h"
 
-void av1_build_compound_diffwtd_mask_highbd_ssse3(
+void av2_build_compound_diffwtd_mask_highbd_ssse3(
     uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const uint16_t *ssrc0,
     int src0_stride, const uint16_t *ssrc1, int src1_stride, int h, int w,
     int bd) {
   if (w < 8) {
-    av1_build_compound_diffwtd_mask_highbd_c(
+    av2_build_compound_diffwtd_mask_highbd_c(
         mask, mask_type, ssrc0, src0_stride, ssrc1, src1_stride, h, w, bd);
   } else {
     assert(bd >= 8);
     assert((w % 8) == 0);
     assert(mask_type == DIFFWTD_38 || mask_type == DIFFWTD_38_INV);
     const __m128i x0 = _mm_setzero_si128();
-    const __m128i xAOM_BLEND_A64_MAX_ALPHA =
-        _mm_set1_epi16(AOM_BLEND_A64_MAX_ALPHA);
+    const __m128i xAVM_BLEND_A64_MAX_ALPHA =
+        _mm_set1_epi16(AVM_BLEND_A64_MAX_ALPHA);
     const int mask_base = 38;
     const __m128i xmask_base = _mm_set1_epi16(mask_base);
     if (bd == 8) {
@@ -45,8 +45,8 @@ void av1_build_compound_diffwtd_mask_highbd_ssse3(
                                           DIFF_FACTOR_LOG2);
             __m128i m = _mm_min_epi16(
                 _mm_max_epi16(x0, _mm_add_epi16(diff, xmask_base)),
-                xAOM_BLEND_A64_MAX_ALPHA);
-            m = _mm_sub_epi16(xAOM_BLEND_A64_MAX_ALPHA, m);
+                xAVM_BLEND_A64_MAX_ALPHA);
+            m = _mm_sub_epi16(xAVM_BLEND_A64_MAX_ALPHA, m);
             m = _mm_packus_epi16(m, m);
             _mm_storel_epi64((__m128i *)&mask[j], m);
           }
@@ -63,7 +63,7 @@ void av1_build_compound_diffwtd_mask_highbd_ssse3(
                                           DIFF_FACTOR_LOG2);
             __m128i m = _mm_min_epi16(
                 _mm_max_epi16(x0, _mm_add_epi16(diff, xmask_base)),
-                xAOM_BLEND_A64_MAX_ALPHA);
+                xAVM_BLEND_A64_MAX_ALPHA);
             m = _mm_packus_epi16(m, m);
             _mm_storel_epi64((__m128i *)&mask[j], m);
           }
@@ -83,8 +83,8 @@ void av1_build_compound_diffwtd_mask_highbd_ssse3(
                 _mm_sra_epi16(_mm_abs_epi16(_mm_sub_epi16(s0, s1)), xshift);
             __m128i m = _mm_min_epi16(
                 _mm_max_epi16(x0, _mm_add_epi16(diff, xmask_base)),
-                xAOM_BLEND_A64_MAX_ALPHA);
-            m = _mm_sub_epi16(xAOM_BLEND_A64_MAX_ALPHA, m);
+                xAVM_BLEND_A64_MAX_ALPHA);
+            m = _mm_sub_epi16(xAVM_BLEND_A64_MAX_ALPHA, m);
             m = _mm_packus_epi16(m, m);
             _mm_storel_epi64((__m128i *)&mask[j], m);
           }
@@ -101,7 +101,7 @@ void av1_build_compound_diffwtd_mask_highbd_ssse3(
                 _mm_sra_epi16(_mm_abs_epi16(_mm_sub_epi16(s0, s1)), xshift);
             __m128i m = _mm_min_epi16(
                 _mm_max_epi16(x0, _mm_add_epi16(diff, xmask_base)),
-                xAOM_BLEND_A64_MAX_ALPHA);
+                xAVM_BLEND_A64_MAX_ALPHA);
             m = _mm_packus_epi16(m, m);
             _mm_storel_epi64((__m128i *)&mask[j], m);
           }

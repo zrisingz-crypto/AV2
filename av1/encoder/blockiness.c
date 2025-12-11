@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#include "config/av1_rtcd.h"
-#include "config/aom_config.h"
-#include "config/aom_dsp_rtcd.h"
+#include "config/av2_rtcd.h"
+#include "config/avm_config.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "av1/common/common.h"
-#include "av1/common/filter.h"
-#include "aom/aom_integer.h"
-#include "aom_dsp/aom_filter.h"
-#include "aom_ports/mem.h"
-#include "aom_ports/system_state.h"
+#include "av2/common/common.h"
+#include "av2/common/filter.h"
+#include "avm/avm_integer.h"
+#include "avm_dsp/avm_filter.h"
+#include "avm_ports/mem.h"
+#include "avm_ports/system_state.h"
 
 static int horizontal_filter(const uint8_t *s) {
   return (s[1] - s[-2]) * 2 + (s[-1] - s[0]) * 6;
@@ -121,12 +121,12 @@ static int blockiness_horizontal(const uint8_t *s, int sp, const uint8_t *r,
 
 // This function returns the blockiness for the entire frame currently by
 // looking at all borders in steps of 4.
-double av1_get_blockiness(const unsigned char *img1, int img1_pitch,
+double av2_get_blockiness(const unsigned char *img1, int img1_pitch,
                           const unsigned char *img2, int img2_pitch, int width,
                           int height) {
   double blockiness = 0;
   int i, j;
-  aom_clear_system_state();
+  avm_clear_system_state();
   for (i = 0; i < height;
        i += 4, img1 += img1_pitch * 4, img2 += img2_pitch * 4) {
     for (j = 0; j < width; j += 4) {

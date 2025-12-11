@@ -10,16 +10,16 @@
  * aomedia.org/license/patent-license/.
  */
 
-#ifndef AOM_AV1_ENCODER_LEVEL_H_
-#define AOM_AV1_ENCODER_LEVEL_H_
+#ifndef AVM_AV2_ENCODER_LEVEL_H_
+#define AVM_AV2_ENCODER_LEVEL_H_
 
-#include "av1/common/enums.h"
+#include "av2/common/enums.h"
 
-struct AV1_COMP;
+struct AV2_COMP;
 
-// AV1 Level Specifications
+// AV2 Level Specifications
 typedef struct {
-  AV1_LEVEL level;
+  AV2_LEVEL level;
   int max_picture_size;
   int max_h_size;
   int max_v_size;
@@ -33,7 +33,7 @@ typedef struct {
   double high_mbps;
   double main_cr;
   double high_cr;
-} AV1LevelSpec;
+} AV2LevelSpec;
 
 typedef struct {
   int64_t ts_start;
@@ -65,7 +65,7 @@ typedef struct {
   double total_compressed_size;  // In bytes.
   double total_time_encoded;     // In seconds.
   double min_cr;
-} AV1LevelStats;
+} AV2LevelStats;
 
 // The following data structures are for the decoder model.
 typedef struct {
@@ -118,7 +118,7 @@ typedef struct {
   DECODER_MODEL_STATUS status;
   DECODER_MODEL_MODE mode;
   bool is_low_delay_mode;
-  AV1_LEVEL level;
+  AV2_LEVEL level;
   int encoder_buffer_delay;  // In units of 1/90000 seconds.
   int decoder_buffer_delay;  // In units of 1/90000 seconds.
   int num_ticks_per_picture;
@@ -152,24 +152,24 @@ typedef struct {
 } DECODER_MODEL;
 
 typedef struct {
-  AV1LevelStats level_stats;
-  AV1LevelSpec level_spec;
+  AV2LevelStats level_stats;
+  AV2LevelSpec level_spec;
   FrameWindowBuffer frame_window_buffer;
   DECODER_MODEL decoder_models[SEQ_LEVELS];
-} AV1LevelInfo;
+} AV2LevelInfo;
 
-typedef struct AV1LevelParams {
+typedef struct AV2LevelParams {
   // Specifies the level that the coded video sequence conforms to for each
   // operating point.
-  AV1_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
+  AV2_LEVEL target_seq_level_idx[MAX_NUM_OPERATING_POINTS];
   // Bit mask to indicate whether to keep level stats for corresponding
   // operating points.
   uint32_t keep_level_stats;
   // Level information for each operating point.
-  AV1LevelInfo *level_info[MAX_NUM_OPERATING_POINTS];
+  AV2LevelInfo *level_info[MAX_NUM_OPERATING_POINTS];
   // Count the number of OBU_FRAME and OBU_FRAME_HEADER for level calculation.
   int frame_header_count;
-} AV1LevelParams;
+} AV2LevelParams;
 
 static INLINE int is_in_operating_point(int operating_point, int tlayer_id,
                                         int mlayer_id) {
@@ -179,40 +179,40 @@ static INLINE int is_in_operating_point(int operating_point, int tlayer_id,
          ((operating_point >> (mlayer_id + MAX_NUM_TLAYERS)) & 1);
 }
 
-void av1_init_level_info(struct AV1_COMP *cpi);
+void av2_init_level_info(struct AV2_COMP *cpi);
 
-void av1_update_level_info(struct AV1_COMP *cpi, size_t size, int64_t ts_start,
+void av2_update_level_info(struct AV2_COMP *cpi, size_t size, int64_t ts_start,
                            int64_t ts_end);
 
 // Return sequence level indices in seq_level_idx[MAX_NUM_OPERATING_POINTS].
-aom_codec_err_t av1_get_seq_level_idx(
+avm_codec_err_t av2_get_seq_level_idx(
 #if CONFIG_CWG_F270_OPS
-    const struct AV1_COMP *cpi,
+    const struct AV2_COMP *cpi,
 #endif  // CONFIG_CWG_F270_OPS
-    const SequenceHeader *seq_params, const AV1LevelParams *level_params,
+    const SequenceHeader *seq_params, const AV2LevelParams *level_params,
     int *seq_level_idx);
 
-void av1_decoder_model_init(const struct AV1_COMP *const cpi, AV1_LEVEL level,
+void av2_decoder_model_init(const struct AV2_COMP *const cpi, AV2_LEVEL level,
                             int op_index, DECODER_MODEL *const decoder_model);
 
-void av1_decoder_model_process_frame(const struct AV1_COMP *const cpi,
+void av2_decoder_model_process_frame(const struct AV2_COMP *const cpi,
                                      size_t coded_bits,
                                      DECODER_MODEL *const decoder_model);
 
 // Return max bitrate(bps) for given level.
-double av1_get_max_bitrate_for_level(AV1_LEVEL level_index, int tier,
+double av2_get_max_bitrate_for_level(AV2_LEVEL level_index, int tier,
                                      BITSTREAM_PROFILE profile);
 
 // Get max number of tiles and tile columns for given level.
-void av1_get_max_tiles_for_level(AV1_LEVEL level_index, int *const max_tiles,
+void av2_get_max_tiles_for_level(AV2_LEVEL level_index, int *const max_tiles,
                                  int *const max_tile_cols);
 
 // Return minimum compression ratio for given level.
-double av1_get_min_cr_for_level(AV1_LEVEL level_index, int tier,
+double av2_get_min_cr_for_level(AV2_LEVEL level_index, int tier,
                                 int is_still_picture);
 
 // Return maximum legal DPB size defined by the level.
-int av1_get_max_legal_dpb_size(const SequenceHeader *seq_params,
-                               AV1_LEVEL level_index);
+int av2_get_max_legal_dpb_size(const SequenceHeader *seq_params,
+                               AV2_LEVEL level_index);
 
-#endif  // AOM_AV1_ENCODER_LEVEL_H_
+#endif  // AVM_AV2_ENCODER_LEVEL_H_

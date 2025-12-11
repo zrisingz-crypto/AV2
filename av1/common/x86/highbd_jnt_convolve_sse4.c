@@ -13,12 +13,12 @@
 #include <smmintrin.h>
 #include <assert.h>
 
-#include "config/aom_dsp_rtcd.h"
+#include "config/avm_dsp_rtcd.h"
 
-#include "aom_dsp/x86/convolve_sse2.h"
-#include "aom_dsp/x86/convolve_sse4_1.h"
+#include "avm_dsp/x86/convolve_sse2.h"
+#include "avm_dsp/x86/convolve_sse4_1.h"
 
-void av1_highbd_dist_wtd_convolve_y_sse4_1(
+void av2_highbd_dist_wtd_convolve_y_sse4_1(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_y, const int subpel_y_qn,
     ConvolveParams *conv_params, int bd) {
@@ -255,7 +255,7 @@ void av1_highbd_dist_wtd_convolve_y_sse4_1(
   }
 }
 
-void av1_highbd_dist_wtd_convolve_x_sse4_1(
+void av2_highbd_dist_wtd_convolve_x_sse4_1(
     const uint16_t *src, int src_stride, uint16_t *dst0, int dst_stride0, int w,
     int h, const InterpFilterParams *filter_params_x, const int subpel_x_qn,
     ConvolveParams *conv_params, int bd) {

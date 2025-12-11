@@ -760,7 +760,7 @@ Enc Run (All-intra):
 Previous Enc Run (All-intra):
   extends: 'Enc Run (All-intra)'
   variables:
-    AVMENC: installroot_old/usr/local/bin/avmenc
+    AVMENC: installroot_old/usr/local/bin/aomenc
     AVMENC_OUTPUT: previous-all-intra
   needs:
     - 'Previous Build (x86_64-linux-gcc): [encode-only]'
@@ -804,7 +804,7 @@ Enc Run (Random Access):
 Previous Enc Run (Random Access):
   extends: 'Enc Run (Random Access)'
   variables:
-    AVMENC: installroot_old/usr/local/bin/avmenc
+    AVMENC: installroot_old/usr/local/bin/aomenc
     AVMENC_OUTPUT: previous-random-access
   needs:
     - 'Previous Build (x86_64-linux-gcc): [encode-only]'
@@ -847,7 +847,7 @@ Enc Run (Low-delay):
 Previous Enc Run (Low-delay):
   extends: 'Enc Run (Low-delay)'
   variables:
-    AVMENC: installroot_old/usr/local/bin/avmenc
+    AVMENC: installroot_old/usr/local/bin/aomenc
     AVMENC_OUTPUT: previous-low-delay
   needs:
     - 'Previous Build (x86_64-linux-gcc): [encode-only]'

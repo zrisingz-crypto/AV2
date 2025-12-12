@@ -390,7 +390,13 @@ void av2_update_film_grain_parameters(struct AV2_COMP *cpi,
         cm->film_grain_params.clip_to_restricted_range = 0;
       }
       if (cm->ci_params_per_layer[cm->mlayer_id]
-              .color_info.matrix_coefficients == AVM_CICP_MC_IDENTITY)
+                  .color_info.matrix_coefficients == AVM_CICP_MC_IDENTITY ||
+          cm->ci_params_per_layer[cm->mlayer_id]
+                  .color_info.matrix_coefficients == AVM_CICP_MC_SMPTE_YCGCO ||
+          cm->ci_params_per_layer[cm->mlayer_id]
+                  .color_info.matrix_coefficients == AVM_CICP_MC_YCGCO_RE ||
+          cm->ci_params_per_layer[cm->mlayer_id]
+                  .color_info.matrix_coefficients == AVM_CICP_MC_YCGCO_RO)
         cm->film_grain_params.mc_identity = 1;
       else
         cm->film_grain_params.mc_identity = 0;

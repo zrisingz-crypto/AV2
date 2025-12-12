@@ -9084,6 +9084,15 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
 // In addition to writing to the bitstream, this function handles the temporary
 // change and restoration of some sequence-level flags when
 // single_picture_header_flag is true.
+//
+// We need to restore these sequence-level flags because av2_pack_bitstream()
+// may be called a few times during encoding (to help the encoder make encoding
+// decisions) before the final av2_pack_bitstream() call. For these
+// intermediate av2_pack_bitstream() calls, some frame-level flags are not set
+// yet. So their initial value of 0 will force the corresponding sequence-level
+// flag to 0. We need to undo that before returning, otherwise subsequently the
+// encoder would be mistaken and not evaluate whether the frame-level flags
+// should be set to 1.
 int av2_pack_bitstream(AV2_COMP *const cpi, uint8_t *dst, size_t *size,
                        int *const largest_tile_id) {
   AV2_COMMON *const cm = &cpi->common;

@@ -950,7 +950,7 @@ void av2_highbd_dist_wtd_convolve_2d_avx2(
   for (j = 0; j < w; j += 8) {
     /* Horizontal filter */
     if (w == 4) {
-      assert(tap_x == 4);
+      assert(tap_x == 2 || tap_x == 4);
       dist_wtd_convolve_horiz_w4(src_ptr, src_stride, coeffs_x, im_h, im_block,
                                  im_stride, &round_const_x, &round_shift_x);
     } else {

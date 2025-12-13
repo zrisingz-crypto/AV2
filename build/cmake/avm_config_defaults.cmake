@@ -143,7 +143,6 @@ set_avm_config_var(CONFIG_AV2_TEMPORAL_DENOISING 0
 set_avm_config_var(CONFIG_NN_V2 0 "Fully-connected neural nets ver.2.")
 
 # CWG-F221
-set_avm_config_var(CONFIG_LCR_ID_IN_SH 1 "Add LCR id in the Sequence Header.")
 set_avm_config_var(CONFIG_ATLAS_BACKGROUND_COLOR 1
                    "Atlas background color information.")
 set_avm_config_var(CONFIG_ATLAS_ALPHA_SEGMENT 1

@@ -369,10 +369,8 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
 #if CONFIG_MODIFY_SH
   AV2C_READ_BIT_OR_RETURN_ERROR(single_picture_header_flag);
   if (!single_picture_header_flag) {
-#if CONFIG_LCR_ID_IN_SH
     AV2C_READ_BITS_OR_RETURN_ERROR(seq_lcr_id, 3);
     config->seq_lcr_id = seq_lcr_id;
-#endif  // CONFIG_LCR_ID_IN_SH
     AV2C_READ_BIT_OR_RETURN_ERROR(still_picture);
   }
   AV2C_READ_BITS_OR_RETURN_ERROR(seq_level_idx_0, 5);

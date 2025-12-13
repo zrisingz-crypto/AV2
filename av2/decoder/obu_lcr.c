@@ -279,9 +279,7 @@ static int read_lcr_global_info(struct AV2Decoder *pbi,
   if (lcr_params->lcr_global_atlas_id_present_flag) {
     lcr_params->lcr_global_atlas_id = avm_rb_read_literal(rb, 3);
   } else {
-#if CONFIG_LCR_ID_IN_SH
     lcr_params->lcr_global_atlas_id = LCR_ID_UNSPECIFIED;
-#endif  // CONFIG_LCR_ID_IN_SH
     lcr_params->lcr_reserved_zero_3bits = avm_rb_read_literal(rb, 3);
   }
   lcr_params->lcr_data_size_present_flag = avm_rb_read_bit(rb);
@@ -319,11 +317,7 @@ static int read_lcr_local_info(struct AV2Decoder *pbi, int xlayerId,
   struct LayerConfigurationRecord *lcr_params;
   int lcr_pos = -1;
   for (int i = 0; i < pbi->lcr_counter; i++) {
-#if CONFIG_LCR_ID_IN_SH
     if (pbi->lcr_list[i].lcr_global_config_record_id == lcr_global_id) {
-#else
-    if (pbi->lcr_list[i].lcr_global_id[xlayerId] == lcr_global_id) {
-#endif  // CONFIG_LCR_ID_IN_SH
       lcr_pos = i;
       break;
     }
@@ -337,10 +331,8 @@ static int read_lcr_local_info(struct AV2Decoder *pbi, int xlayerId,
   }
 
   lcr_params->lcr_global_id[xlayerId] = lcr_global_id;
-#if CONFIG_LCR_ID_IN_SH
   // Keep a copy of the global LCR id to fascilitate LCR activation in SH
   lcr_params->lcr_global_config_record_id = lcr_global_id;
-#endif  // CONFIG_LCR_ID_IN_SH
   lcr_params->lcr_local_id[xlayerId] = avm_rb_read_literal(rb, 3);
 
   lcr_params->lcr_local_atlas_id_present_flag[xlayerId] = avm_rb_read_bit(rb);
@@ -348,9 +340,7 @@ static int read_lcr_local_info(struct AV2Decoder *pbi, int xlayerId,
   if (lcr_params->lcr_local_atlas_id_present_flag[xlayerId]) {
     lcr_params->lcr_local_atlas_id[xlayerId] = avm_rb_read_literal(rb, 3);
   } else {
-#if CONFIG_LCR_ID_IN_SH
     lcr_params->lcr_local_atlas_id[xlayerId] = LCR_ID_UNSPECIFIED;
-#endif  // CONFIG_LCR_ID_IN_SH
     lcr_params->lcr_reserved_zero_3bits = avm_rb_read_literal(rb, 3);
   }
 

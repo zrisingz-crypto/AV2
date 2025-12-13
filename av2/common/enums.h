@@ -322,10 +322,8 @@ enum {
 // TODO: remove this macro after definition of profile, tier and level
 #define MULTILAYER_HLS_REMOVE_LOGS 1
 
-#if CONFIG_LCR_ID_IN_SH
 #define MAX_NUM_SEQ_LCR_ID 7
 #define LCR_ID_UNSPECIFIED 0
-#endif  // CONFIG_LCR_ID_IN_SH
 
 enum {
   TEXTURE_LAYER = 0,

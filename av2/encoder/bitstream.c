@@ -7381,9 +7381,7 @@ uint32_t av2_write_sequence_header_obu(const SequenceHeader *seq_params,
 #if CONFIG_MODIFY_SH
   avm_wb_write_bit(&wb, seq_params->single_picture_header_flag);
   if (!seq_params->single_picture_header_flag) {
-#if CONFIG_LCR_ID_IN_SH
     avm_wb_write_literal(&wb, seq_params->seq_lcr_id, 3);
-#endif  // CONFIG_LCR_ID_IN_SH
     avm_wb_write_bit(&wb, seq_params->still_picture);
   }
 #if CONFIG_CWG_F270_OPS

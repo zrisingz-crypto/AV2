@@ -8672,7 +8672,6 @@ void mark_reference_frames_with_long_term_ids(AV2Decoder *pbi) {
   }
 }
 
-#if CONFIG_LCR_ID_IN_SH
 static void activate_atlas_segment(AV2Decoder *pbi) {
   AV2_COMMON *const cm = &pbi->common;
   bool atlas_found = false;
@@ -8715,7 +8714,6 @@ static void activate_layer_configuration_record(AV2Decoder *pbi,
                        "Unsupported LCR id in the Sequence Header.\n");
   }
 }
-#endif  // CONFIG_LCR_ID_IN_SH
 
 #if CONFIG_CWG_E242_SEQ_HDR_ID
 static void handle_sequence_header(AV2Decoder *pbi,
@@ -9063,7 +9061,6 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
     cm->bridge_frame_info.bridge_frame_ref_idx = INVALID_IDX;
   }
 
-#if CONFIG_LCR_ID_IN_SH
   if (obu_type == OBU_OLK || obu_type == OBU_CLK) {
     if (seq_params->seq_lcr_id != LCR_ID_UNSPECIFIED) {
       activate_layer_configuration_record(pbi, seq_params->seq_lcr_id);
@@ -9072,7 +9069,6 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
       memset(&cm->atlas_params, 0, sizeof(struct AtlasSegmentInfo));
     }
   }
-#endif  // CONFIG_LCR_ID_IN_SH
 #if CONFIG_CWG_F270_CI_OBU
   if (pbi->ci_params_received &&
       (cm->ci_params.color_info.matrix_coefficients == AVM_CICP_MC_IDENTITY ||

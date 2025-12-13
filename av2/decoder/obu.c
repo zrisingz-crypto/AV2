@@ -269,15 +269,6 @@ static uint32_t read_sequence_header_obu(AV2Decoder *pbi,
   }
 #endif  // CONFIG_CWG_F270_OPS
 
-#if !CONFIG_LCR_ID_IN_SH
-  int seq_lcr_id = avm_rb_read_literal(rb, 3);
-  if (seq_lcr_id > MAX_NUM_SEQ_LCR_ID) {
-    avm_internal_error(&cm->error, AVM_CODEC_UNSUP_BITSTREAM,
-                       "Unsupported LCR id in the Sequence Header.\n");
-  }
-  seq_params->seq_lcr_id = seq_lcr_id;
-#endif  // !CONFIG_LCR_ID_IN_SH
-
 #if !CONFIG_CWG_F270_OPS
   seq_params->profile = av2_read_profile(rb);
   if (seq_params->profile > CONFIG_MAX_DECODE_PROFILE) {
@@ -288,19 +279,15 @@ static uint32_t read_sequence_header_obu(AV2Decoder *pbi,
 #if CONFIG_MODIFY_SH
   seq_params->single_picture_header_flag = avm_rb_read_bit(rb);
   if (seq_params->single_picture_header_flag) {
-#if CONFIG_LCR_ID_IN_SH
     seq_params->seq_lcr_id = LCR_ID_UNSPECIFIED;
-#endif  // CONFIG_LCR_ID_IN_SH
     seq_params->still_picture = 1;
   } else {
-#if CONFIG_LCR_ID_IN_SH
     int seq_lcr_id = avm_rb_read_literal(rb, 3);
     if (seq_lcr_id > MAX_NUM_SEQ_LCR_ID) {
       avm_internal_error(&cm->error, AVM_CODEC_UNSUP_BITSTREAM,
                          "Unsupported LCR id in the Sequence Header.\n");
     }
     seq_params->seq_lcr_id = seq_lcr_id;
-#endif  // CONFIG_LCR_ID_IN_SH
     seq_params->still_picture = avm_rb_read_bit(rb);
   }
 #if CONFIG_CWG_F270_OPS

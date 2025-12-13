@@ -13,7 +13,7 @@
 #ifndef AVM_AV2_ENCODER_LEVEL_H_
 #define AVM_AV2_ENCODER_LEVEL_H_
 
-#include "av2/common/enums.h"
+#include "av2/common/av2_common_int.h"
 
 struct AV2_COMP;
 
@@ -183,6 +183,10 @@ void av2_init_level_info(struct AV2_COMP *cpi);
 
 void av2_update_level_info(struct AV2_COMP *cpi, size_t size, int64_t ts_start,
                            int64_t ts_end);
+
+// Compression ratio of current frame.
+double av2_get_compression_ratio(const AV2_COMMON *const cm,
+                                 size_t encoded_frame_size);
 
 // Return sequence level indices in seq_level_idx[MAX_NUM_OPERATING_POINTS].
 avm_codec_err_t av2_get_seq_level_idx(

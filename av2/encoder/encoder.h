@@ -29,6 +29,7 @@
 #include "av2/common/bru.h"
 #include "av2/common/entropymode.h"
 #include "av2/common/enums.h"
+#include "av2/common/level.h"
 #include "av2/common/pred_common.h"
 #include "av2/common/resize.h"
 #include "av2/common/thread_common.h"
@@ -41,7 +42,6 @@
 #include "av2/encoder/encodemb.h"
 #include "av2/encoder/firstpass.h"
 #include "av2/encoder/global_motion.h"
-#include "av2/encoder/level.h"
 #include "av2/encoder/lookahead.h"
 #include "av2/encoder/mcomp.h"
 #include "av2/encoder/ratectrl.h"
@@ -3354,10 +3354,6 @@ static INLINE int *cond_cost_list(const struct AV2_COMP *cpi, int *cost_list) {
                             cpi->sf.mv_sf.use_fullpel_costlist;
   return use_cost_list ? cost_list : NULL;
 }
-
-// Compression ratio of current frame.
-double av2_get_compression_ratio(const AV2_COMMON *const cm,
-                                 size_t encoded_frame_size);
 
 void av2_new_framerate(AV2_COMP *cpi, double framerate);
 

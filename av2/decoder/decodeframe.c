@@ -3582,9 +3582,7 @@ void setup_quant_matrices(AV2Decoder *pbi, CommonQuantParams *quant_params,
 
   // Generate matrices for each tx size
   int current = 0;
-#if CONFIG_QM_REVERT
   const bool is_user_defined_qm = qmset->is_user_defined_qm;
-#endif
   for (int t = 0; t < TX_SIZES_ALL; ++t) {
     const int size = tx_size_2d[t];
     const int qm_tx_size = av2_get_adjusted_tx_size(t);
@@ -3592,7 +3590,6 @@ void setup_quant_matrices(AV2Decoder *pbi, CommonQuantParams *quant_params,
       assert(t > qm_tx_size);
       quant_params->giqmatrix[qmlevel][plane][t] =
           quant_params->giqmatrix[qmlevel][plane][qm_tx_size];
-#if CONFIG_QM_REVERT
     } else if (is_user_defined_qm &&
                (t <= TX_8X8 || t == TX_4X8 || t == TX_8X4)) {
       assert(current + size <= QM_TOTAL_SIZE);
@@ -3609,17 +3606,6 @@ void setup_quant_matrices(AV2Decoder *pbi, CommonQuantParams *quant_params,
           &predefined_iwt_matrix_ref[qmlevel][plane >= 1][current];
       current += size;
     }
-#else
-    } else {
-      assert(current + size <= QM_TOTAL_SIZE);
-      // Generate the iwt matrices from the base matrices.
-      scale_tx(t, plane, &quant_params->iwt_matrix_ref[qmlevel][plane][current],
-               qmset->quantizer_matrix);
-      quant_params->giqmatrix[qmlevel][plane][t] =
-          &quant_params->iwt_matrix_ref[qmlevel][plane][current];
-      current += size;
-    }
-#endif  // CONFIG_QM_REVERT
   }
 }
 #endif  // CONFIG_F255_QMOBU
@@ -3769,18 +3755,14 @@ static AVM_INLINE void setup_segmentation_dequant(
     const int qm_index = quant_params->qm_index[i];
     const int qmlevel_y =
         use_qmatrix ? quant_params->qm_y[qm_index] : NUM_QM_LEVELS - 1;
-#if CONFIG_QM_REVERT
     const int qmlevel_y0 =
         use_qmatrix ? quant_params->qm_y[0] : NUM_QM_LEVELS - 1;
-#endif  // CONFIG_QM_REVERT
 
     for (int j = 0; j < TX_SIZES_ALL; ++j) {
-#if CONFIG_QM_REVERT
       if (j > TX_8X8 && j != TX_4X8 && j != TX_8X4)
         quant_params->y_iqmatrix[i][j] =
             av2_iqmatrix(quant_params, qmlevel_y0, AVM_PLANE_Y, j);
       else
-#endif  // CONFIG_QM_REVERT
         quant_params->y_iqmatrix[i][j] =
             av2_iqmatrix(quant_params, qmlevel_y, AVM_PLANE_Y, j);
     }
@@ -3788,33 +3770,25 @@ static AVM_INLINE void setup_segmentation_dequant(
     if (num_planes > 1) {
       const int qmlevel_u =
           use_qmatrix ? quant_params->qm_u[qm_index] : NUM_QM_LEVELS - 1;
-#if CONFIG_QM_REVERT
       const int qmlevel_u0 =
           use_qmatrix ? quant_params->qm_u[0] : NUM_QM_LEVELS - 1;
-#endif  // CONFIG_QM_REVERT
       for (int j = 0; j < TX_SIZES_ALL; ++j) {
-#if CONFIG_QM_REVERT
         if (j > TX_8X8 && j != TX_4X8 && j != TX_8X4)
           quant_params->u_iqmatrix[i][j] =
               av2_iqmatrix(quant_params, qmlevel_u0, AVM_PLANE_U, j);
         else
-#endif  // CONFIG_QM_REVERT
           quant_params->u_iqmatrix[i][j] =
               av2_iqmatrix(quant_params, qmlevel_u, AVM_PLANE_U, j);
       }
       const int qmlevel_v =
           use_qmatrix ? quant_params->qm_v[qm_index] : NUM_QM_LEVELS - 1;
-#if CONFIG_QM_REVERT
       const int qmlevel_v0 =
           use_qmatrix ? quant_params->qm_v[0] : NUM_QM_LEVELS - 1;
-#endif  // CONFIG_QM_REVERT
       for (int j = 0; j < TX_SIZES_ALL; ++j) {
-#if CONFIG_QM_REVERT
         if (j > TX_8X8 && j != TX_4X8 && j != TX_8X4)
           quant_params->v_iqmatrix[i][j] =
               av2_iqmatrix(quant_params, qmlevel_v0, AVM_PLANE_V, j);
         else
-#endif  // CONFIG_QM_REVERT
           quant_params->v_iqmatrix[i][j] =
               av2_iqmatrix(quant_params, qmlevel_v, AVM_PLANE_V, j);
       }
@@ -8078,7 +8052,7 @@ static AVM_INLINE void validate_refereces(AV2Decoder *const pbi) {
     }
   }
 }
-#if !CONFIG_F024_KEYOBU || !CONFIG_F356_SEF_DOH
+#if !CONFIG_F024_KEYOBU
 static AVM_INLINE void show_existing_frame_reset(AV2Decoder *const pbi) {
   AV2_COMMON *const cm = &pbi->common;
 
@@ -8106,7 +8080,7 @@ static AVM_INLINE void show_existing_frame_reset(AV2Decoder *const pbi) {
   cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
 #endif  // !CONFIG_DISABLE_CROSS_FRAME_CDF_INIT
 }
-#endif  // !CONFIG_F024_KEYOBU || !CONFIG_F356_SEF_DOH
+#endif  // !CONFIG_F024_KEYOBU
 static INLINE void reset_frame_buffers(AV2_COMMON *cm) {
   RefCntBuffer *const frame_bufs = cm->buffer_pool->frame_bufs;
   int i;
@@ -8156,10 +8130,6 @@ static INLINE int get_disp_order_hint(AV2_COMMON *const cm)
     if (random_accessed) return current_frame->order_hint;
   }
 #else
-#if !CONFIG_F356_SEF_DOH
-  if (current_frame->frame_type == KEY_FRAME && cm->show_existing_frame)
-    return 0;
-#endif  // !CONFIG_F356_SEF_DOH
   // For key frames, the implicit derivation of display_order_hit is not
   // applied.
   if (current_frame->frame_type == KEY_FRAME) return current_frame->order_hint;
@@ -8434,7 +8404,6 @@ static int read_show_existing_frame(AV2Decoder *pbi,
                        "Invalid SEF Ref: restricted reference buffer");
   }
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
-#if CONFIG_F356_SEF_DOH
   cm->sef_ref_fb_idx = existing_frame_idx;
   cm->derive_sef_order_hint = avm_rb_read_bit(rb);
   if (!cm->derive_sef_order_hint) {
@@ -8510,7 +8479,6 @@ static int read_show_existing_frame(AV2Decoder *pbi,
     cm->cur_frame->order_hint = frame_to_show->order_hint;
     cm->cur_frame->display_order_hint = frame_to_show->display_order_hint;
   }
-#endif  // CONFIG_F356_SEF_DOH
 #if !CONFIG_CWG_F430
   if (seq_params->decoder_model_info_present_flag &&
 #if CONFIG_CWG_F270_CI_OBU
@@ -8539,12 +8507,10 @@ static int read_show_existing_frame(AV2Decoder *pbi,
 
   FrameHash raw_frame_hash = cm->cur_frame->raw_frame_hash;
   FrameHash grain_frame_hash = cm->cur_frame->grain_frame_hash;
-#if CONFIG_F356_SEF_DOH
   if (cm->derive_sef_order_hint)
-#endif  // CONFIG_F356_SEF_DOH
     assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
 
-#if !CONFIG_F024_KEYOBU || !CONFIG_F356_SEF_DOH
+#if !CONFIG_F024_KEYOBU
   pbi->reset_decoder_state = frame_to_show->frame_type == KEY_FRAME;
 #endif  // !CONFIG_F024_KEYOBU
   // Combine any Decoded Frame Header metadata that was parsed before
@@ -8560,21 +8526,11 @@ static int read_show_existing_frame(AV2Decoder *pbi,
   cm->lf.apply_deblocking_filter[0] = 0;
   cm->lf.apply_deblocking_filter[1] = 0;
   cm->show_frame = 1;
-#if CONFIG_F356_SEF_DOH
   // It is a requirement of bitstream conformance that when
   // show_existing_frame is used to show a previous frame with derived display
   // order hint, the frame is output via the show_existing_frame mechanism at
   // most once.
-  if (cm->derive_sef_order_hint && frame_to_show->frame_output_done)
-#else
-  // It is a requirement of bitstream conformance that when
-  // show_existing_frame is used to show a previous frame with
-  // RefFrameType[ frame_to_show_map_idx ] equal to KEY_FRAME, that the
-  // frame is output via the show_existing_frame mechanism at most once.
-  if ((frame_to_show->frame_type == KEY_FRAME &&
-       !frame_to_show->showable_frame && frame_to_show->frame_output_done))
-#endif  // CONFIG_F356_SEF_DOH
-  {
+  if (cm->derive_sef_order_hint && frame_to_show->frame_output_done) {
     avm_internal_error(&cm->error, AVM_CODEC_UNSUP_BITSTREAM,
                        "Buffer does not contain a showable frame");
   }
@@ -8582,13 +8538,13 @@ static int read_show_existing_frame(AV2Decoder *pbi,
   if (pbi->reset_decoder_state) frame_to_show->showable_frame = 0;
 #endif  // !CONFIG_F024_KEYOBU
   cm->film_grain_params = frame_to_show->film_grain_params;
-#if !CONFIG_F024_KEYOBU || !CONFIG_F356_SEF_DOH
+#if !CONFIG_F024_KEYOBU
   if (pbi->reset_decoder_state) {
     show_existing_frame_reset(pbi);
   } else {
 #endif  // !CONFIG_F024_KEYOBU
     current_frame->refresh_frame_flags = 0;
-#if !CONFIG_F024_KEYOBU || !CONFIG_F356_SEF_DOH
+#if !CONFIG_F024_KEYOBU
   }
 #endif  // !CONFIG_F024_KEYOBU
 
@@ -8800,29 +8756,7 @@ static void handle_sequence_header(AV2Decoder *pbi,
     qmset->qm_mlayer_id = -1;
     qmset->qm_tlayer_id = -1;
     qmset->quantizer_matrix_num_planes = num_planes;
-#if CONFIG_QM_REVERT
     qmset->is_user_defined_qm = false;
-#else
-    int qm_default_index = qm_pos;
-    qmset->qm_default_index = qm_pos;
-    if (!qmset->quantizer_matrix_allocated) {
-      alloc_qmatrix(qmset);
-    }
-    // copy predefined[qm_default_index] to qmset
-    for (int c = 0; c < num_planes; ++c) {
-      // plane_type: 0:luma, 1:chroma
-      const int plane_type = (c >= 1);
-      memcpy(qmset->quantizer_matrix[0][c],
-             predefined_8x8_iwt_base_matrix[qm_default_index][plane_type],
-             8 * 8 * sizeof(qm_val_t));
-      memcpy(qmset->quantizer_matrix[1][c],
-             predefined_8x4_iwt_base_matrix[qm_default_index][plane_type],
-             8 * 4 * sizeof(qm_val_t));
-      memcpy(qmset->quantizer_matrix[2][c],
-             predefined_4x8_iwt_base_matrix[qm_default_index][plane_type],
-             4 * 8 * sizeof(qm_val_t));
-    }
-#endif  // CONFIG_QM_REVERT
   }  // qm_pos
 #endif  // CONFIG_F255_QMOBU
 }
@@ -10703,14 +10637,10 @@ int32_t av2_read_tilegroup_header(
     // avm_rb_bytes_read()= (rb->bit_offset + 7) >> 3;
     const uint32_t uncomp_hdr_size =
         (uint32_t)avm_rb_bytes_read(rb);  // Size of the uncompressed header
-#if CONFIG_F356_SEF_DOH
     const YV12_BUFFER_CONFIG *new_fb =
         (cm->show_existing_frame && !cm->derive_sef_order_hint)
             ? &cm->ref_frame_map[cm->sef_ref_fb_idx]->buf
             : &cm->cur_frame->buf;
-#else
-    YV12_BUFFER_CONFIG *new_fb = &cm->cur_frame->buf;
-#endif  // CONFIG_F356_SEF_DOH
     xd->cur_buf = new_fb;
     if (av2_allow_intrabc(cm, xd, BLOCK_4X4) && xd->tree_type != CHROMA_PART) {
       av2_setup_scale_factors_for_frame(

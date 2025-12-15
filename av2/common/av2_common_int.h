@@ -809,17 +809,13 @@ typedef struct AtlasBasicInfo {
                        [MAX_NUM_ATLAS_SEGMENTS];
   int ats_segment_height[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID]
                         [MAX_NUM_ATLAS_SEGMENTS];
-#if CONFIG_ATLAS_ALPHA_SEGMENT
   int ats_alpha_segments_present_flag[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
   int ats_alpha_segment_flag[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID]
                             [MAX_NUM_ATLAS_SEGMENTS];
-#endif  // CONFIG_ATLAS_ALPHA_SEGMENT
-#if CONFIG_ATLAS_BACKGROUND_COLOR
   int ats_background_info_present_flag[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
   int ats_background_red_value[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
   int ats_background_green_value[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
   int ats_background_blue_value[MAX_NUM_XLAYERS][MAX_NUM_ATLAS_SEG_ID];
-#endif  // CONFIG_ATLAS_BACKGROUND_COLOR
 } AtlasBasicInfo;
 
 typedef struct AtlasSegmentInfo {
@@ -2148,20 +2144,12 @@ struct quantization_matrix_set {
    * to be the  predefined matrices at the sequence header activation
    */
   int qm_mlayer_id;
-#if CONFIG_QM_REVERT
   /*!
    * Indicates if the quantization matrix set stores an 8x8/8x4/4x8 user-defined
    * qmatrix in quantizer_matrix. If is_user_defined_qm is false,
    * quantizer_matrix is not used.
    */
   bool is_user_defined_qm;
-#else
-  /*!
-   * Indicates the index of the predefined matrix indicated by the quantization
-   * matrix : -1: user_defined 0~15: predefined_matrix_idx
-   */
-  int qm_default_index;
-#endif  // CONFIG_QM_REVERT
   /*!
    * quantization matrix : [8x8/8x4/4x8][y/u/v][64 or 32]
    */
@@ -2489,14 +2477,10 @@ typedef struct AV2Common {
    */
 #endif  // CONFIG_F024_KEYOBU
   int show_existing_frame;
-
-#if CONFIG_F356_SEF_DOH
   /*!
    * If true, order_hint of the SEF OBU is derived from the reference frame
    */
   int derive_sef_order_hint;
-#endif
-
   /*!
    * Whether some features are allowed or not.
    */

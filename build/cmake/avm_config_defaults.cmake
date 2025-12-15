@@ -143,17 +143,10 @@ set_avm_config_var(CONFIG_AV2_TEMPORAL_DENOISING 0
 set_avm_config_var(CONFIG_NN_V2 0 "Fully-connected neural nets ver.2.")
 
 # CWG-F221
-set_avm_config_var(CONFIG_ATLAS_BACKGROUND_COLOR 1
-                   "Atlas background color information.")
-set_avm_config_var(CONFIG_ATLAS_ALPHA_SEGMENT 1
-                   "Atlas alpha segment information.")
-
 set_avm_config_var(CONFIG_PARAKIT_COLLECT_DATA 0
                    "enables data collection for ParaKit training.")
 
 # AV2 experiment flags.
-set_avm_config_var(CONFIG_F356_SEF_DOH 1 "Signl order hint for SEF.")
-
 set_avm_config_var(CONFIG_METADATA 1 "F161 metadata syntax")
 set_avm_config_var(CONFIG_ICC_METADATA 1 "ICC metadata syntax")
 
@@ -196,36 +189,19 @@ set_avm_config_var(CONFIG_THROUGHPUT_ANALYSIS 0
                    "AV2 experiment flag to measure throughput.")
 set_avm_config_var(CONFIG_CWG_E242_MFH_ID_UVLC 1
                    "Signaling multi-frame header ID in UVLC")
-set_avm_config_var(OBU_ORDER_IN_TU 1 "Check OBU order in TU")
 
 set_avm_config_var(
   CONFIG_QM_DEBUG 0
   "Enable debug information for extension to AV2 quantization matrices.")
-
-set_avm_config_var(CONFIG_MHCCP_BLK_SIZE 1
-                   "Add block size constraint for MHCCP")
-
-set_avm_config_var(CONFIG_MHCCP_SOLVER_BITS 1
-                   "Reduce the number of bits for MHCCP solver")
 
 set_avm_config_var(CONFIG_FIX_OPFL_AUTO 1
                    "Fix optical flow auto mode, option 3")
 set_avm_config_var(CONFIG_FIX_BW_CHROMA_REFINED_MV 1
                    "Fix bandwidth issue for the refined MVs reused by chroma")
 
-set_avm_config_var(CONFIG_F421_BAWP_CHECKS 1 "Adjust BAWP condition checks")
-
 # This is an encode-only change.
-set_avm_config_var(CONFIG_FAST_INTER_RDO 1 "Fast inter mode selection")
-
-set_avm_config_var(CONFIG_QM_REVERT 1
-                   "Enable QMs based on original AV2 Quantization Matrices.")
-
 set_avm_config_var(CONFIG_ML_PART_SPLIT 1
                    "Partition SPLIT pruning/forcing as predicted by ML.")
-set_avm_config_var(
-  CONFIG_ADJ_PYR_Q_OFFSET_LD 1
-  "Encoder-only config to adjust pyr qp offsets for LD from nominal.")
 
 set_avm_config_var(
   CONFIG_CWG_F377_STILL_PICTURE 1

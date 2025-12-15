@@ -4131,7 +4131,6 @@ static AVM_INLINE void setup_frame_size(AV2_COMMON *cm,
       }
     } else {
       assert(cm->mfh_valid[cm->cur_mfh_id]);
-#if CONFIG_CWG_E242_PARSING_INDEP
       if (cm->mfh_params[cm->cur_mfh_id].mfh_frame_size_present_flag) {
         width = cm->mfh_params[cm->cur_mfh_id].mfh_frame_width;
         height = cm->mfh_params[cm->cur_mfh_id].mfh_frame_height;
@@ -4139,10 +4138,6 @@ static AVM_INLINE void setup_frame_size(AV2_COMMON *cm,
         width = seq_params->max_frame_width;
         height = seq_params->max_frame_height;
       }
-#else
-      width = cm->mfh_params[cm->cur_mfh_id].mfh_frame_width;
-      height = cm->mfh_params[cm->cur_mfh_id].mfh_frame_height;
-#endif  // CONFIG_CWG_E242_PARSING_INDEP
     }
   }
 
@@ -4259,7 +4254,6 @@ static AVM_INLINE void setup_frame_size_with_refs(
 #endif  // CONFIG_CROP_WIN_CWG_F220
 }
 
-#if CONFIG_CWG_E242_SIGNAL_TILE_INFO
 // Reconstructs the tile information
 static void reconstruct_tile_info_max_tile(
     AV2_COMMON *const cm, const TileInfoSyntax *const tile_params) {
@@ -4308,7 +4302,6 @@ static void reconstruct_tile_info_max_tile(
   }
   av2_calculate_tile_rows(tiles);
 }
-#endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 
 static AVM_INLINE void read_tile_info_max_tile(
     AV2_COMMON *const cm, struct avm_read_bit_buffer *const rb) {
@@ -4375,7 +4368,7 @@ static AVM_INLINE void read_tile_info(AV2Decoder *const pbi,
   }
   av2_get_tile_limits(&cm->tiles, cm->mi_params.mi_rows, cm->mi_params.mi_cols,
                       cm->mib_size_log2, cm->seq_params.mib_size_log2);
-#if CONFIG_CWG_E242_SIGNAL_TILE_INFO
+
   const TileInfoSyntax *const tile_params = find_effective_tile_params(cm);
   int reuse = 0;
   if (tile_params &&
@@ -4390,9 +4383,7 @@ static AVM_INLINE void read_tile_info(AV2Decoder *const pbi,
   } else {
     read_tile_info_max_tile(cm, rb);
   }
-#else
-  read_tile_info_max_tile(cm, rb);
-#endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
+
   if (cm->bru.enabled) {
     const int num_tiles = cm->tiles.rows * cm->tiles.cols;
     memset(cm->tiles.tile_active_bitmap, 0, (num_tiles + 7) / 8);
@@ -6428,7 +6419,6 @@ void av2_read_conformance_window(struct avm_read_bit_buffer *rb,
 }
 #endif  // CONFIG_CROP_WIN_CWG_F220
 
-#if CONFIG_CWG_E242_SIGNAL_TILE_INFO
 void read_tile_syntax_info(TileInfoSyntax *tile_params,
                            struct avm_read_bit_buffer *rb) {
   tile_params->allow_tile_info_change = avm_rb_read_bit(rb);
@@ -6498,7 +6488,6 @@ void read_sequence_tile_info(struct SequenceHeader *seq_params,
       seq_params->mib_size_log2);
   read_tile_syntax_info(&seq_params->tile_params, rb);
 }
-#endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 
 // Reads tile information from multi-frame header
 static void read_multi_frame_header_tile_info(MultiFrameHeader *mfh_param,
@@ -7160,10 +7149,8 @@ void av2_read_sequence_header(struct avm_read_bit_buffer *rb,
 #if !CONFIG_IMPROVED_REORDER_SEQ_FLAGS
   setup_seq_sb_size(seq_params, rb);
 #endif  //! CONFIG_IMPROVED_REORDER_SEQ_FLAGS
-#if CONFIG_CWG_E242_SIGNAL_TILE_INFO
   seq_params->seq_tile_info_present_flag = 0;
   seq_params->tile_params.allow_tile_info_change = 0;
-#endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 #if CONFIG_REORDER_SEQ_FLAGS
 #if CONFIG_IMPROVED_REORDER_SEQ_FLAGS
   read_sequence_partition_group_tool_flags(seq_params, rb);
@@ -7318,12 +7305,10 @@ void av2_read_sequence_header(struct avm_read_bit_buffer *rb,
     seq_params->uv_ac_delta_q_enabled = 0;
   }
 #endif  // !CONFIG_IMPROVED_REORDER_SEQ_FLAGS
-#if CONFIG_CWG_E242_SIGNAL_TILE_INFO
   seq_params->seq_tile_info_present_flag = avm_rb_read_bit(rb);
   if (seq_params->seq_tile_info_present_flag) {
     read_sequence_tile_info(seq_params, rb);
   }
-#endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 }
 #if !CONFIG_IMPROVED_REORDER_SEQ_FLAGS
 #if !CONFIG_F255_QMOBU
@@ -7758,11 +7743,7 @@ void av2_read_multi_frame_header(AV2_COMMON *cm,
                        "Unsupported Sequence Header ID in MFH");
   }
 #endif  // #if CONFIG_CWG_E242_SEQ_HDR_ID
-#if CONFIG_CWG_E242_MFH_ID_UVLC
   uint32_t cur_mfh_id = avm_rb_read_uvlc(rb) + 1;
-#else
-  int cur_mfh_id = avm_rb_read_literal(rb, 4) + 1;
-#endif  // CONFIG_CWG_E242_MFH_ID_UVLC
   if (cur_mfh_id >= MAX_MFH_NUM) {
     avm_internal_error(&cm->error, AVM_CODEC_CORRUPT_FRAME,
                        "multi-frame header id is greater than or equal to the "
@@ -7773,7 +7754,6 @@ void av2_read_multi_frame_header(AV2_COMMON *cm,
 #if CONFIG_CWG_E242_SEQ_HDR_ID
   mfh_param->mfh_seq_header_id = (int)mfh_seq_header_id;
 #endif  // #if CONFIG_CWG_E242_SEQ_HDR_ID
-#if CONFIG_CWG_E242_PARSING_INDEP
   mfh_param->mfh_frame_width = cm->seq_params.max_frame_width;
   mfh_param->mfh_frame_height = cm->seq_params.max_frame_height;
   mfh_param->mfh_frame_size_present_flag = avm_rb_read_bit(rb);
@@ -7788,25 +7768,6 @@ void av2_read_multi_frame_header(AV2_COMMON *cm,
                         &mfh_param->mfh_frame_width,
                         &mfh_param->mfh_frame_height);
   }
-#else
-  bool frame_size_update_flag = avm_rb_read_bit(rb);
-
-  int width = cm->seq_params.max_frame_width;
-  int height = cm->seq_params.max_frame_height;
-  if (frame_size_update_flag) {
-    int num_bits_width = cm->seq_params.num_bits_width;
-    int num_bits_height = cm->seq_params.num_bits_height;
-    av2_read_frame_size(rb, num_bits_width, num_bits_height, &width, &height);
-    if (width > cm->seq_params.max_frame_width ||
-        height > cm->seq_params.max_frame_height) {
-      avm_internal_error(&cm->error, AVM_CODEC_CORRUPT_FRAME,
-                         "Frame dimensions are larger than the maximum values");
-    }
-  }
-  mfh_param->mfh_frame_width = width;
-  mfh_param->mfh_frame_height = height;
-#endif  // CONFIG_CWG_E242_PARSING_INDEP
-
   mfh_param->mfh_deblocking_filter_update_flag = avm_rb_read_bit(rb);
   if (mfh_param->mfh_deblocking_filter_update_flag) {
     for (int i = 0; i < 4; i++) {
@@ -7818,9 +7779,6 @@ void av2_read_multi_frame_header(AV2_COMMON *cm,
     }
   }
 
-#if !CONFIG_CWG_E242_PARSING_INDEP
-  mfh_param->mfh_tile_info_present_flag = avm_rb_read_bit(rb);
-#endif  //  !CONFIG_CWG_E242_PARSING_INDEP
   if (mfh_param->mfh_tile_info_present_flag) {
     read_mfh_sb_size(mfh_param, rb);
     read_multi_frame_header_tile_info(mfh_param, rb);

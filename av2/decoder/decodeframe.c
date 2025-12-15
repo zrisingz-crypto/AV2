@@ -3213,15 +3213,11 @@ static AVM_INLINE void setup_gdf(AV2_COMMON *cm,
     return;
   }
   init_gdf(cm);
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     cm->gdf_info.gdf_mode = 1;
   } else {
     cm->gdf_info.gdf_mode = avm_rb_read_bit(rb);
   }
-#else
-  cm->gdf_info.gdf_mode = avm_rb_read_bit(rb);
-#endif  // CONFIG_CWG_F362
   if (cm->gdf_info.gdf_mode > 0) {
     alloc_gdf_buffers(&cm->gdf_info);
     if (cm->gdf_info.gdf_block_num > 1) {
@@ -3244,15 +3240,11 @@ static AVM_INLINE void setup_cdef(AV2_COMMON *cm,
   if (cm->bru.frame_inactive_flag ||
       cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
     return;
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     cdef_info->cdef_frame_enable = 1;
   } else {
     cdef_info->cdef_frame_enable = avm_rb_read_bit(rb);
   }
-#else
-  cdef_info->cdef_frame_enable = avm_rb_read_bit(rb);
-#endif  // CONFIG_CWG_F362
   if (!cdef_info->cdef_frame_enable) {
     cdef_info->cdef_on_skip_txfm_frame_enable = 0;
     return;
@@ -3324,15 +3316,11 @@ static AVM_INLINE void setup_ccso(AV2_COMMON *cm,
   if (cm->bridge_frame_info.is_bridge_frame) {
     cm->ccso_info.ccso_frame_flag = 0;
   } else {
-#if CONFIG_CWG_F362
     if (cm->seq_params.single_picture_header_flag) {
       cm->ccso_info.ccso_frame_flag = 1;
     } else {
       cm->ccso_info.ccso_frame_flag = avm_rb_read_bit(rb);
     }
-#else
-    cm->ccso_info.ccso_frame_flag = avm_rb_read_bit(rb);
-#endif  // CONFIG_CWG_F362
   }
   if (cm->ccso_info.ccso_frame_flag) {
     const int ccso_blk_size = get_ccso_unit_size_log2_adaptive_tile(
@@ -4416,7 +4404,6 @@ static AVM_INLINE void read_tile_info(AV2Decoder *const pbi,
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
   const TileInfoSyntax *const tile_params = find_effective_tile_params(cm);
   int reuse = 0;
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   if (tile_params &&
       is_frame_tile_config_reuse_eligible(tile_params, &cm->tiles)) {
     if (tile_params->allow_tile_info_change)
@@ -4424,14 +4411,6 @@ static AVM_INLINE void read_tile_info(AV2Decoder *const pbi,
     else
       reuse = 1;
   }
-#else
-  cm->current_frame.tile_info_present_in_frame_header = avm_rb_read_bit(rb);
-  reuse = !cm->current_frame.tile_info_present_in_frame_header;
-  if (reuse && !tile_params) {
-    avm_internal_error(&cm->error, AVM_CODEC_CORRUPT_FRAME,
-                       "No tile information present");
-  }
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   if (reuse) {
     reconstruct_tile_info_max_tile(cm, tile_params);
   } else {
@@ -6011,15 +5990,11 @@ static void setup_film_grain(AV2Decoder *pbi, struct avm_read_bit_buffer *rb) {
   if (seq_params->film_grain_params_present &&
       (cm->show_frame || cm->showable_frame)) {
     avm_film_grain_t *pars = &cm->film_grain_params;
-#if CONFIG_CWG_F362
     if (cm->seq_params.single_picture_header_flag) {
       pars->apply_grain = 1;
     } else {
       pars->apply_grain = avm_rb_read_bit(rb);
     }
-#else
-    pars->apply_grain = avm_rb_read_bit(rb);
-#endif  // CONFIG_CWG_F362
     if (pars->apply_grain) {
       cm->fgm_id = avm_rb_read_literal(rb, FGM_ID_BITS);
       pars->random_seed = avm_rb_read_literal(rb, 16);
@@ -6067,15 +6042,11 @@ void av2_read_film_grain_params(AV2_COMMON *cm,
   avm_film_grain_t *pars = &cm->film_grain_params;
   const SequenceHeader *const seq_params = &cm->seq_params;
 
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     pars->apply_grain = 1;
   } else {
     pars->apply_grain = avm_rb_read_bit(rb);
   }
-#else
-  pars->apply_grain = avm_rb_read_bit(rb);
-#endif                             // CONFIG_CWG_F362
   if (!pars->apply_grain) {
     memset(pars, 0, sizeof(*pars));
     return;
@@ -6486,9 +6457,7 @@ void av2_read_conformance_window(struct avm_read_bit_buffer *rb,
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
 void read_tile_syntax_info(TileInfoSyntax *tile_params,
                            struct avm_read_bit_buffer *rb) {
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   tile_params->allow_tile_info_change = avm_rb_read_bit(rb);
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   CommonTileParams *tile_info = &tile_params->tile_info;
   tile_info->uniform_spacing = avm_rb_read_bit(rb);
 
@@ -7219,9 +7188,7 @@ void av2_read_sequence_header(struct avm_read_bit_buffer *rb,
 #endif  //! CONFIG_IMPROVED_REORDER_SEQ_FLAGS
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
   seq_params->seq_tile_info_present_flag = 0;
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   seq_params->tile_params.allow_tile_info_change = 0;
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 #if CONFIG_REORDER_SEQ_FLAGS
 #if CONFIG_IMPROVED_REORDER_SEQ_FLAGS
@@ -10729,13 +10696,8 @@ int32_t av2_read_tilegroup_header(
 
   if (is_first_tile_group) {
 #if CONFIG_BITSTREAM_DEBUG
-#if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
     avm_bitstream_queue_set_frame_read(
         (int)(derive_output_order_idx(cm, cm->cur_frame) * 2 + cm->show_frame));
-#else   // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-    avm_bitstream_queue_set_frame_read(cm->current_frame.order_hint * 2 +
-                                       cm->show_frame);
-#endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 #endif
 
     // avm_rb_bytes_read()= (rb->bit_offset + 7) >> 3;

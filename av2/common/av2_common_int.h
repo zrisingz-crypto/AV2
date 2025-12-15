@@ -643,9 +643,7 @@ typedef struct CropWindow {
 // in the Sequence header and Multi Frame Header
 // Different from CommonTilesParams which is used to process the tiles
 typedef struct TileInfoSyntax {
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   uint8_t allow_tile_info_change; /*!< whether to allow tile info change */
-#endif
   CommonTileParams tile_info;
 } TileInfoSyntax;
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
@@ -5951,7 +5949,6 @@ static INLINE const TileInfoSyntax *find_effective_tile_params(
 }
 #endif  // CONFIG_CWG_E242_SIGNAL_TILE_INFO
 
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
 static INLINE int is_frame_tile_config_reuse_eligible(
     const TileInfoSyntax *const tile_params,
     const CommonTileParams *const tiles) {
@@ -5959,7 +5956,6 @@ static INLINE int is_frame_tile_config_reuse_eligible(
           (tile_params->tile_info.sb_rows == tiles->sb_rows &&
            tile_params->tile_info.sb_cols == tiles->sb_cols));
 }
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
 
 #if CONFIG_MULTI_LEVEL_SEGMENTATION
 static INLINE int is_frame_seg_config_reuse_eligible(
@@ -5988,7 +5984,6 @@ static INLINE const SegmentationInfoSyntax *find_effective_seg_params(
 }
 #endif  // CONFIG_MULTI_LEVEL_SEGMENTATION
 
-#if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 // This function derives the order of frame output with layer IDs
 static INLINE uint64_t derive_output_order_idx(AV2_COMMON *cm,
                                                RefCntBuffer *output_candidate) {
@@ -5997,7 +5992,6 @@ static INLINE uint64_t derive_output_order_idx(AV2_COMMON *cm,
   uint64_t display_order = output_candidate->display_order_hint;
   return ((max_mlayer_id + 1) * display_order) + mlayer_id;
 }
-#endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 
 #ifdef __cplusplus
 }  // extern "C"

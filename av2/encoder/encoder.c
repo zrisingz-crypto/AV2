@@ -431,9 +431,7 @@ void av2_init_seq_coding_tools(
                               ? frm_dim_cfg->forced_max_frame_height
                               : frm_dim_cfg->height;
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   seq->tile_params.allow_tile_info_change = 0;
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   if (!seq->still_picture && oxcf->kf_cfg.key_freq_max > 0) {
     av2_set_seq_tile_info(seq, oxcf);
     seq->seq_tile_info_present_flag = 1;
@@ -5151,13 +5149,8 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
     assert(cpi->oxcf.max_threads <= 1 &&
            "bitstream debug tool does not support multithreading");
     bitstream_queue_record_write();
-#if CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
     avm_bitstream_queue_set_frame_write(
         (int)(derive_output_order_idx(cm, cm->cur_frame) * 2 + cm->show_frame));
-#else   // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
-    avm_bitstream_queue_set_frame_write(cm->current_frame.order_hint * 2 +
-                                        cm->show_frame);
-#endif  // CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID
 #endif  // CONFIG_BITSTREAM_DEBUG
     const ResizeCfg *resize_cfg = &cpi->oxcf.resize_cfg;
     FeatureFlags *const features = &cm->features;

@@ -3828,15 +3828,11 @@ static AVM_INLINE void encode_gdf(const AV2_COMMON *cm,
       cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT) {
     return;
   }
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     assert(cm->gdf_info.gdf_mode > 0);
   } else {
     avm_wb_write_bit(wb, cm->gdf_info.gdf_mode == 0 ? 0 : 1);
   }
-#else
-  avm_wb_write_bit(wb, cm->gdf_info.gdf_mode == 0 ? 0 : 1);
-#endif  // CONFIG_CWG_F362
   if (cm->gdf_info.gdf_mode) {
     if (cm->gdf_info.gdf_block_num > 1) {
       avm_wb_write_bit(wb, cm->gdf_info.gdf_mode == 1 ? 0 : 1);
@@ -3856,15 +3852,11 @@ static AVM_INLINE void encode_cdef(const AV2_COMMON *cm,
   if (cm->bru.frame_inactive_flag ||
       cm->features.tip_frame_mode == TIP_FRAME_AS_OUTPUT)
     return;
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     assert(cdef_info->cdef_frame_enable);
   } else {
     avm_wb_write_bit(wb, cdef_info->cdef_frame_enable);
   }
-#else
-  avm_wb_write_bit(wb, cdef_info->cdef_frame_enable);
-#endif  // CONFIG_CWG_F362
   if (!cdef_info->cdef_frame_enable) return;
   const int num_planes = av2_num_planes(cm);
   int i;
@@ -3920,15 +3912,11 @@ static AVM_INLINE void encode_ccso(const AV2_COMMON *cm,
           : cm->ref_frames_info.num_total_refs;
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
   if (!cm->bridge_frame_info.is_bridge_frame) {
-#if CONFIG_CWG_F362
     if (cm->seq_params.single_picture_header_flag) {
       assert(cm->ccso_info.ccso_frame_flag);
     } else {
       avm_wb_write_literal(wb, cm->ccso_info.ccso_frame_flag, 1);
     }
-#else
-    avm_wb_write_literal(wb, cm->ccso_info.ccso_frame_flag, 1);
-#endif  // CONFIG_CWG_F362
   }
   if (cm->ccso_info.ccso_frame_flag) {
     for (int plane = 0; plane < av2_num_planes(cm); plane++) {
@@ -4399,7 +4387,6 @@ static AVM_INLINE void write_tile_info(AV2_COMMON *const cm,
 #if CONFIG_CWG_E242_SIGNAL_TILE_INFO
   const TileInfoSyntax *const tile_params = find_effective_tile_params(cm);
   int reuse = 0;
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   if (tile_params &&
       is_frame_tile_config_reuse_eligible(tile_params, &cm->tiles)) {
     if (tile_params->allow_tile_info_change) {
@@ -4410,13 +4397,6 @@ static AVM_INLINE void write_tile_info(AV2_COMMON *const cm,
     }
     assert(IMPLIES(reuse, check_tile_equivalence(tile_params, &cm->tiles)));
   }
-#else
-  if (tile_params) {
-    reuse = check_tile_equivalence(tile_params, &cm->tiles);
-  }
-  bool tile_info_present_in_frame_header = !reuse;
-  avm_wb_write_bit(wb, tile_info_present_in_frame_header);
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   if (!reuse) write_tile_info_max_tile(&cm->tiles, wb);
 #else
   write_tile_info_max_tile(&cm->tiles, wb);
@@ -4735,9 +4715,7 @@ static AVM_INLINE void write_tu_pts_info(AV2_COMMON *const cm,
 // Writes tile syntax
 void write_tile_syntax_info(const TileInfoSyntax *tile_params,
                             struct avm_write_bit_buffer *wb) {
-#if CONFIG_CWG_F349_SIGNAL_TILE_INFO
   avm_wb_write_bit(wb, tile_params->allow_tile_info_change);
-#endif  // CONFIG_CWG_F349_SIGNAL_TILE_INFO
   const CommonTileParams *tiles = &tile_params->tile_info;
   int size_sb, i;
   int tile_width_sb = tiles->sb_cols;
@@ -4793,15 +4771,11 @@ static AVM_INLINE void encode_film_grain(const AV2_COMP *const cpi,
                                          struct avm_write_bit_buffer *wb) {
   const AV2_COMMON *const cm = &cpi->common;
   const avm_film_grain_t *const pars = &cm->cur_frame->film_grain_params;
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     assert(pars->apply_grain);
   } else {
     avm_wb_write_bit(wb, pars->apply_grain);
   }
-#else
-  avm_wb_write_bit(wb, pars->apply_grain);
-#endif  // CONFIG_CWG_F362
   if (pars->apply_grain) {
     avm_wb_write_literal(wb, cm->fgm_id, FGM_ID_BITS);
     avm_wb_write_literal(wb, pars->random_seed, 16);
@@ -4813,15 +4787,11 @@ static void write_film_grain_params(const AV2_COMP *const cpi,
   const AV2_COMMON *const cm = &cpi->common;
   const avm_film_grain_t *const pars = &cm->cur_frame->film_grain_params;
 
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     assert(pars->apply_grain);
   } else {
     avm_wb_write_bit(wb, pars->apply_grain);
   }
-#else
-  avm_wb_write_bit(wb, pars->apply_grain);
-#endif  // CONFIG_CWG_F362
   if (!pars->apply_grain) return;
 
   avm_wb_write_literal(wb, pars->random_seed, 16);
@@ -9037,7 +9007,6 @@ int av2_pack_bitstream(AV2_COMP *const cpi, uint8_t *dst, size_t *size,
   const uint8_t film_grain_params_present_save =
       cm->seq_params.film_grain_params_present;
 
-#if CONFIG_CWG_F362
   if (cm->seq_params.single_picture_header_flag) {
     if (cm->gdf_info.gdf_mode == 0) {
       cm->seq_params.enable_gdf = 0;
@@ -9052,7 +9021,6 @@ int av2_pack_bitstream(AV2_COMP *const cpi, uint8_t *dst, size_t *size,
       cm->seq_params.film_grain_params_present = 0;
     }
   }
-#endif  // CONFIG_CWG_F362
 
   const int res = av2_pack_bitstream_internal(cpi, dst, size, largest_tile_id);
 

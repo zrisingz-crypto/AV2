@@ -178,10 +178,6 @@ set_avm_config_var(CONFIG_DIP_EXT_PRUNING 1 "AV2 DIP TFLite pruning.")
 
 set_avm_config_var(CONFIG_SCAN_TYPE_METADATA 1
                    "CWG-F233 Scan type metadata syntax")
-# CWG-F349
-set_avm_config_var(CONFIG_CWG_F349_SIGNAL_TILE_INFO 1
-                   "Improved tile information at sequence header.")
-
 # CWG-E242 Chroma Format IDC
 set_avm_config_var(CONFIG_CWG_E242_CHROMA_FORMAT_IDC 1 "Chroma format idc.")
 
@@ -198,8 +194,6 @@ set_avm_config_var(CONFIG_CWG_F270_OPS 1 "Add OPS and SH related changes")
 # Source of throughput analysis : CWG-B065
 set_avm_config_var(CONFIG_THROUGHPUT_ANALYSIS 0
                    "AV2 experiment flag to measure throughput.")
-set_avm_config_var(CONFIG_FRAME_OUTPUT_ORDER_WITH_LAYER_ID 1
-                   "Enable frame output order derivation with layer ID")
 set_avm_config_var(CONFIG_CWG_E242_MFH_ID_UVLC 1
                    "Signaling multi-frame header ID in UVLC")
 set_avm_config_var(OBU_ORDER_IN_TU 1 "Check OBU order in TU")
@@ -233,8 +227,6 @@ set_avm_config_var(
   CONFIG_ADJ_PYR_Q_OFFSET_LD 1
   "Encoder-only config to adjust pyr qp offsets for LD from nominal.")
 
-set_avm_config_var(CONFIG_CWG_F362 1
-                   "Implicit frame tool flags for single picture headers.")
 set_avm_config_var(
   CONFIG_CWG_F377_STILL_PICTURE 1
   "Sequence header OBU changes for single_picture_header_flag.")

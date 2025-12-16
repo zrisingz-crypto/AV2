@@ -527,16 +527,22 @@ static uint32_t read_sequence_header_obu(AV2Decoder *pbi,
 
   av2_read_sequence_header(rb, seq_params);
 
+#if CONFIG_CWG_F270_OPS
   // Level-driven memory restriction
-  const int max_legal_ref_frames =
-      av2_get_max_legal_dpb_size(seq_params, seq_params->seq_max_level_idx);
-  if (seq_params->ref_frames > max_legal_ref_frames) {
-    avm_internal_error(&cm->error, AVM_CODEC_UNSUP_BITSTREAM,
-                       "The maximum number of reference frames shall not be "
-                       "greater than %d, yet the bitstream indicates that the "
-                       "maximum DPB size is equal to %d.\n",
-                       max_legal_ref_frames, seq_params->ref_frames);
+  if (seq_params->seq_max_level_idx < SEQ_LEVELS) {
+    const int max_legal_ref_frames =
+        av2_get_max_legal_dpb_size(seq_params, seq_params->seq_max_level_idx);
+    if (seq_params->ref_frames > max_legal_ref_frames) {
+      avm_internal_error(
+          &cm->error, AVM_CODEC_UNSUP_BITSTREAM,
+          "The maximum number of reference frames shall not be "
+          "greater than %d, yet the bitstream indicates that the "
+          "maximum DPB size is equal to %d.\n",
+          max_legal_ref_frames, seq_params->ref_frames);
+    }
   }
+#endif  // CONFIG_CWG_F270_OPS
+
   seq_params->film_grain_params_present = avm_rb_read_bit(rb);
 
 #if !CONFIG_CWG_F270_CI_OBU

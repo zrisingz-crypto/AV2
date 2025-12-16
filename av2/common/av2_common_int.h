@@ -319,6 +319,7 @@ typedef struct RefCntBuffer {
   int showable_frame;      // frame can be used as show existing frame in future
   bool frame_output_done;  // 0: frame is not yet output 1: frame is already
                            // output
+  int fgm_id;
   avm_film_grain_t film_grain_params;
   // #endif
   avm_codec_frame_buffer_t raw_frame_buffer;

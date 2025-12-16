@@ -6343,8 +6343,8 @@ uint32_t av2_write_sequence_header_obu(const SequenceHeader *seq_params,
           &wb, seq_params->decoder_model_info.num_units_in_decoding_tick, 32);
       avm_wb_write_bit(&wb, seq_params->seq_max_decoder_model_present_flag);
       if (seq_params->seq_max_decoder_model_present_flag) {
-        avm_wb_write_literal(&wb, seq_params->seq_max_decoder_buffer_delay, 4);
-        avm_wb_write_literal(&wb, seq_params->seq_max_encoder_buffer_delay, 4);
+        avm_wb_write_uvlc(&wb, seq_params->seq_max_decoder_buffer_delay);
+        avm_wb_write_uvlc(&wb, seq_params->seq_max_encoder_buffer_delay);
         avm_wb_write_bit(&wb, seq_params->seq_max_low_delay_mode_flag);
       }
     }

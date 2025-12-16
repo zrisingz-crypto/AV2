@@ -345,15 +345,17 @@ static uint32_t read_sequence_header_obu(AV2Decoder *pbi,
     seq_params->display_model_info_present_flag = 0;
   } else {
     seq_params->seq_max_display_model_info_present_flag = avm_rb_read_bit(rb);
+    seq_params->seq_max_initial_display_delay_minus_1 =
+        BUFFER_POOL_MAX_SIZE - 1;
     if (seq_params->seq_max_display_model_info_present_flag)
       seq_params->seq_max_initial_display_delay_minus_1 =
-          BUFFER_POOL_MAX_SIZE - 1;
+          avm_rb_read_literal(rb, 4);
     seq_params->decoder_model_info_present_flag = avm_rb_read_bit(rb);
     if (seq_params->decoder_model_info_present_flag) {
       seq_params->decoder_model_info.num_units_in_decoding_tick =
           avm_rb_read_unsigned_literal(rb, 32);
-      seq_params->seq_max_display_model_info_present_flag = avm_rb_read_bit(rb);
-      if (seq_params->seq_max_display_model_info_present_flag) {
+      seq_params->seq_max_decoder_model_present_flag = avm_rb_read_bit(rb);
+      if (seq_params->seq_max_decoder_model_present_flag) {
         seq_params->seq_max_decoder_buffer_delay = avm_rb_read_uvlc(rb);
         seq_params->seq_max_encoder_buffer_delay = avm_rb_read_uvlc(rb);
         seq_params->seq_max_low_delay_mode_flag = avm_rb_read_bit(rb);
@@ -368,7 +370,6 @@ static uint32_t read_sequence_header_obu(AV2Decoder *pbi,
       seq_params->seq_max_encoder_buffer_delay = 20000;
       seq_params->seq_max_low_delay_mode_flag = 0;
     }
-    seq_params->seq_max_initial_display_delay_minus_1 = 0;
     // TODO: May need additional modifications with decoder model
     int64_t seq_bitrate = av2_max_level_bitrate(seq_params->profile,
                                                 seq_params->seq_max_level_idx,

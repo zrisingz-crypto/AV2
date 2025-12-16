@@ -150,74 +150,36 @@ set_avm_config_var(CONFIG_PARAKIT_COLLECT_DATA 0
 set_avm_config_var(CONFIG_METADATA 1 "F161 metadata syntax")
 set_avm_config_var(CONFIG_ICC_METADATA 1 "ICC metadata syntax")
 
-# CWG-E242
-set_avm_config_var(CONFIG_CWG_E242_SIGNAL_TILE_INFO 1
-                   "Signal tile information at sequence header.")
-
-set_avm_config_var(CONFIG_MULTI_LEVEL_SEGMENTATION 1
-                   "Segmentation information in the multi frame header")
-
-set_avm_config_var(CONFIG_CWG_E242_PARSING_INDEP 1
-                   "Parsing independence of MFH.")
-
 set_avm_config_var(CONFIG_CWG_E242_BITDEPTH 1 "Signal Bitdepth using a LUT.")
 
 set_avm_config_var(CONFIG_CWG_E242_SEQ_HDR_ID 1 "Signal sequence header id.")
 
-set_avm_config_var(CONFIG_REORDER_SEQ_FLAGS 1 "Group sequence header flags.")
-set_avm_config_var(CONFIG_IMPROVED_REORDER_SEQ_FLAGS 1
-                   "Improvement of Group sequence header flags.")
 set_avm_config_var(CONFIG_DIP_EXT_PRUNING 1 "AV2 DIP TFLite pruning.")
 
-set_avm_config_var(CONFIG_SCAN_TYPE_METADATA 1
-                   "CWG-F233 Scan type metadata syntax")
 # CWG-E242 Chroma Format IDC
 set_avm_config_var(CONFIG_CWG_E242_CHROMA_FORMAT_IDC 1 "Chroma format idc.")
 
-# CWG-F220 Sequence Cropping Window
-set_avm_config_var(CONFIG_CROP_WIN_CWG_F220 1 "Sequence Cropping Window")
-
 set_avm_config_var(CONFIG_CWG_F270_CI_OBU 1 "Use content interpretation OBU")
-
-# CWG-F430 Temporal point info metadata
-set_avm_config_var(CONFIG_CWG_F430 1 "Temporal point info metadata.")
 
 set_avm_config_var(CONFIG_CWG_F270_OPS 1 "Add OPS and SH related changes")
 
 # Source of throughput analysis : CWG-B065
 set_avm_config_var(CONFIG_THROUGHPUT_ANALYSIS 0
                    "AV2 experiment flag to measure throughput.")
-set_avm_config_var(CONFIG_CWG_E242_MFH_ID_UVLC 1
-                   "Signaling multi-frame header ID in UVLC")
 
 set_avm_config_var(
   CONFIG_QM_DEBUG 0
   "Enable debug information for extension to AV2 quantization matrices.")
-
-set_avm_config_var(CONFIG_FIX_OPFL_AUTO 1
-                   "Fix optical flow auto mode, option 3")
-set_avm_config_var(CONFIG_FIX_BW_CHROMA_REFINED_MV 1
-                   "Fix bandwidth issue for the refined MVs reused by chroma")
 
 # This is an encode-only change.
 set_avm_config_var(CONFIG_ML_PART_SPLIT 1
                    "Partition SPLIT pruning/forcing as predicted by ML.")
 
 set_avm_config_var(
-  CONFIG_CWG_F377_STILL_PICTURE 1
-  "Sequence header OBU changes for single_picture_header_flag.")
-
-set_avm_config_var(CONFIG_FGS_IDENT 1
-                   "Fixing an issue with MC_IDENTITY moved to CI_OBU")
-
-set_avm_config_var(
   CONFIG_MIXED_LOSSLESS_ENCODE 0
   "Encoder only flag to configure encoder to enable mixed lossy/lossless coding"
 )
 
-set_avm_config_var(
-  CONFIG_DISABLE_CROSS_FRAME_CDF_INIT 1
-  "Introduce frame level flag for disabling cross frame CDF initialization.")
 #
 # Variables in this section control optional features of the build system.
 #

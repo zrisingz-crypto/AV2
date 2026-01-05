@@ -884,7 +884,7 @@ void direct_existing_frames_to_current(AV2_COMP *const cpi) {
   cm->cur_frame->display_order_hint = cm->current_frame.display_order_hint;
   cm->cur_frame->absolute_poc = cm->current_frame.absolute_poc;
   cm->cur_frame->pyramid_level = cm->current_frame.pyramid_level;
-  cm->cur_frame->temporal_layer_id = cm->current_frame.temporal_layer_id;
+  cm->cur_frame->tlayer_id = cm->current_frame.tlayer_id;
   cm->cur_frame->mlayer_id = cm->current_frame.mlayer_id;
   RefCntBuffer *const frame_to_show = cm->ref_frame_map[cm->sef_ref_fb_idx];
 

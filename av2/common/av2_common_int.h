@@ -299,7 +299,7 @@ typedef struct RefCntBuffer {
   int long_term_id;
   // Frame's level within the hierarchical structure
   unsigned int pyramid_level;
-  unsigned int temporal_layer_id;
+  unsigned int tlayer_id;
 
   // How many ref frames did this frame use? This is set to 0 for intra frames
   int num_ref_frames;
@@ -396,7 +396,7 @@ typedef struct {
   int ref_frame_restricted;
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
   int pyr_level;
-  int temporal_layer_id;
+  int tlayer_id;
   int disp_order;
 #if CONFIG_F322_OBUER_REFRESTRICT
   int disp_order_removed;
@@ -1199,7 +1199,7 @@ typedef struct {
   int long_term_id;
   // Frame's level within the hierarchical structure
   unsigned int pyramid_level;
-  unsigned int temporal_layer_id;
+  unsigned int tlayer_id;
   unsigned int absolute_poc;
   unsigned int key_frame_number;
   unsigned int frame_number;

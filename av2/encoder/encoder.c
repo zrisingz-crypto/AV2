@@ -4845,8 +4845,8 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
     for (int ref_idx = 0; ref_idx < cm->seq_params.ref_frames; ref_idx++) {
       if (cm->ref_frame_map[ref_idx] != NULL) {
         if (!is_tlayer_scalable_and_dependent(
-                &cm->seq_params, current_frame->temporal_layer_id,
-                cm->ref_frame_map[ref_idx]->temporal_layer_id,
+                &cm->seq_params, current_frame->tlayer_id,
+                cm->ref_frame_map[ref_idx]->tlayer_id,
                 current_frame->mlayer_id))
           continue;
         if (!is_mlayer_scalable_and_dependent(
@@ -4883,7 +4883,7 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
       cpi->gf_group.update_type[cpi->gf_group.index] == KFFLT_OVERLAY_UPDATE);
 
   cm->tlayer_id = 0;
-  current_frame->temporal_layer_id = cm->tlayer_id;
+  current_frame->tlayer_id = cm->tlayer_id;
 #if CONFIG_F322_OBUER_REFRESTRICT
   cm->restricted_prediction_switch =
       cpi->oxcf.kf_cfg.sframe_dist != 0 && cpi->oxcf.kf_cfg.sframe_mode == 0;

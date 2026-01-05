@@ -6987,8 +6987,7 @@ static INLINE int get_disp_order_hint(AV2_COMMON *const cm)
         buf->is_restricted ||
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
         !is_tlayer_scalable_and_dependent(&cm->seq_params, cm->tlayer_id,
-                                          buf->temporal_layer_id,
-                                          cm->mlayer_id) ||
+                                          buf->tlayer_id, cm->mlayer_id) ||
         !is_mlayer_scalable_and_dependent(&cm->seq_params, cm->mlayer_id,
                                           buf->mlayer_id))
       continue;
@@ -6996,9 +6995,8 @@ static INLINE int get_disp_order_hint(AV2_COMMON *const cm)
     // conformance check in the AVM reference software. Decoder implementations
     // may skip this check since this conditional check shall not change the
     // display order hint derivation.
-    if (is_op_constrained &&
-        (is_layer_dropped(buf->mlayer_id, mlayer_mask) ||
-         is_layer_dropped(buf->temporal_layer_id, tlayer_mask)))
+    if (is_op_constrained && (is_layer_dropped(buf->mlayer_id, mlayer_mask) ||
+                              is_layer_dropped(buf->tlayer_id, tlayer_mask)))
       continue;
 
     if ((int)buf->display_order_hint > max_disp_order_hint)
@@ -7316,8 +7314,7 @@ static int read_show_existing_frame(AV2Decoder *pbi,
       const RefCntBuffer *const buf = cm->ref_frame_map[map_idx];
       if (buf == NULL ||
           !is_tlayer_scalable_and_dependent(&cm->seq_params, cm->tlayer_id,
-                                            buf->temporal_layer_id,
-                                            cm->mlayer_id) ||
+                                            buf->tlayer_id, cm->mlayer_id) ||
           !is_mlayer_scalable_and_dependent(&cm->seq_params, cm->mlayer_id,
                                             buf->mlayer_id))
         continue;
@@ -7643,11 +7640,11 @@ void update_ref_frames_info(AV2Decoder *pbi, OBU_TYPE obu_type) {
     if (cm->ref_frame_map[idx] != NULL &&
         cm->ref_frame_map[idx]->is_restricted) {
       const int cur_mlayer_id = cm->current_frame.mlayer_id;
-      const int cur_temporal_id = cm->current_frame.temporal_layer_id;
+      const int cur_tlayer_id = cm->current_frame.tlayer_id;
       const int ref_mlayer_id = cm->ref_frame_map[idx]->mlayer_id;
-      const int ref_temporal_id = cm->ref_frame_map[idx]->temporal_layer_id;
-      if (is_tlayer_scalable_and_dependent(&cm->seq_params, cur_temporal_id,
-                                           ref_temporal_id, cur_mlayer_id) &&
+      const int ref_tlayer_id = cm->ref_frame_map[idx]->tlayer_id;
+      if (is_tlayer_scalable_and_dependent(&cm->seq_params, cur_tlayer_id,
+                                           ref_tlayer_id, cur_mlayer_id) &&
           is_mlayer_scalable_and_dependent(&cm->seq_params, cur_mlayer_id,
                                            ref_mlayer_id)) {
         int map_pos = -1;
@@ -7896,13 +7893,12 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
           for (int i = 0; i < REF_FRAMES; i++) {
             if (cm->ref_frame_map[i] != NULL) {
               const int cur_mlayer_id = cm->current_frame.mlayer_id;
-              const int cur_temporal_id = cm->current_frame.temporal_layer_id;
+              const int cur_tlayer_id = cm->current_frame.tlayer_id;
               const int ref_mlayer_id = cm->ref_frame_map[i]->mlayer_id;
-              const int ref_temporal_id =
-                  cm->ref_frame_map[i]->temporal_layer_id;
-              if (is_tlayer_scalable_and_dependent(
-                      &cm->seq_params, cur_temporal_id, ref_temporal_id,
-                      cur_mlayer_id) &&
+              const int ref_tlayer_id = cm->ref_frame_map[i]->tlayer_id;
+              if (is_tlayer_scalable_and_dependent(&cm->seq_params,
+                                                   cur_tlayer_id, ref_tlayer_id,
+                                                   cur_mlayer_id) &&
                   is_mlayer_scalable_and_dependent(
                       &cm->seq_params, cur_mlayer_id, ref_mlayer_id)) {
                 cm->ref_frame_map[i]->is_restricted = true;
@@ -8290,7 +8286,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
   features->allow_lf_sub_pu = 0;
   if (current_frame->frame_type == KEY_FRAME) {
     cm->current_frame.pyramid_level = 1;
-    cm->current_frame.temporal_layer_id = cm->tlayer_id;
+    cm->current_frame.tlayer_id = cm->tlayer_id;
     cm->current_frame.mlayer_id = cm->mlayer_id;
     cm->current_frame.xlayer_id = cm->xlayer_id;
     features->tip_frame_mode = TIP_FRAME_DISABLED;
@@ -8302,7 +8298,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
 
     cm->cur_frame->num_ref_frames = 0;
   } else {
-    cm->current_frame.temporal_layer_id = cm->tlayer_id;
+    cm->current_frame.tlayer_id = cm->tlayer_id;
     cm->current_frame.mlayer_id = cm->mlayer_id;
     cm->current_frame.xlayer_id = cm->xlayer_id;
 
@@ -8407,8 +8403,8 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
                 "Unsupported bitstream: embedded layer scalability shall be "
                 "maintained in explicit reference map signaling.");
           }
-          const int cur_tlayer_id = current_frame->temporal_layer_id;
-          const int ref_tlayer_id = cm->ref_frame_map[ref]->temporal_layer_id;
+          const int cur_tlayer_id = current_frame->tlayer_id;
+          const int ref_tlayer_id = cm->ref_frame_map[ref]->tlayer_id;
           if (!is_tlayer_scalable_and_dependent(seq_params, cur_tlayer_id,
                                                 ref_tlayer_id, cur_mlayer_id)) {
             avm_internal_error(
@@ -8469,7 +8465,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
                 const RefFrameMapPair ref_info =
                     cm->ref_frame_map_pairs[map_idx];
                 if (is_layer_dropped(ref_info.mlayer_id, mlayer_mask) ||
-                    is_layer_dropped(ref_info.temporal_layer_id, tlayer_mask)) {
+                    is_layer_dropped(ref_info.tlayer_id, tlayer_mask)) {
                   ref_index_list[i] = default_map_idx;
                 }
               }

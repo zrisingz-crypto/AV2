@@ -1144,7 +1144,7 @@ static avm_image_t *decoder_get_frame_(avm_codec_alg_priv_t *ctx,
 
         ctx->img.fb_priv = output_frame_buf->raw_frame_buffer.priv;
         img = &ctx->img;
-        img->tlayer_id = output_frame_buf->temporal_layer_id;
+        img->tlayer_id = output_frame_buf->tlayer_id;
         img->mlayer_id = output_frame_buf->mlayer_id;
         img->xlayer_id = output_frame_buf->xlayer_id;
 

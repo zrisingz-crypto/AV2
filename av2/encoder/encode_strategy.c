@@ -1208,10 +1208,10 @@ int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
   const int cur_frame_disp =
       cpi->common.current_frame.frame_number + order_offset;
 
-  // Here, if temporal_layer_id is set to a non-zero value (pry_level),
-  // temporal_layer_id is signaled in obu extension,
+  // Here, if tlayer_id is set to a non-zero value (pry_level),
+  // tlayer_id is signaled in obu extension,
   // and affect reference list construction in both encoder and decoder.
-  // Otherwise (if temporal_layer_id is set to 0), temporal_layer_id is
+  // Otherwise (if tlayer_id is set to 0), tlayer_id is
   // not signaled and does not change the reference frame list construction.
   cm->current_frame.order_hint = cur_frame_disp;
   cm->current_frame.display_order_hint = cur_frame_disp;
@@ -1229,7 +1229,7 @@ int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
       cpi->gf_group.update_type[cpi->gf_group.index] == KFFLT_OVERLAY_UPDATE);
 
   cm->tlayer_id = 0;
-  cm->current_frame.temporal_layer_id = cm->tlayer_id;
+  cm->current_frame.tlayer_id = cm->tlayer_id;
   cm->mlayer_id = 0;
   cm->current_frame.mlayer_id = cm->mlayer_id;
 

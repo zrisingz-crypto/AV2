@@ -48,7 +48,7 @@ static INLINE void init_ref_map_pair(AV2_COMMON *cm,
           (int)buf->display_order_hint_restricted;
 #endif  // CONFIG_F322_OBUER_REFRESTRICT
       ref_frame_map_pairs[map_idx].pyr_level = buf->pyramid_level;
-      ref_frame_map_pairs[map_idx].temporal_layer_id = buf->temporal_layer_id;
+      ref_frame_map_pairs[map_idx].tlayer_id = buf->tlayer_id;
       ref_frame_map_pairs[map_idx].mlayer_id = buf->mlayer_id;
       ref_frame_map_pairs[map_idx].base_qindex = buf->base_qindex;
       ref_frame_map_pairs[map_idx].frame_type = buf->frame_type;
@@ -57,8 +57,8 @@ static INLINE void init_ref_map_pair(AV2_COMMON *cm,
     ref_frame_map_pairs[map_idx].ref_frame_for_inference = 1;
     if (buf == NULL ||
         !is_tlayer_scalable_and_dependent(
-            &cm->seq_params, cm->current_frame.temporal_layer_id,
-            buf->temporal_layer_id, cm->current_frame.mlayer_id) ||
+            &cm->seq_params, cm->current_frame.tlayer_id, buf->tlayer_id,
+            cm->current_frame.mlayer_id) ||
         !is_mlayer_scalable_and_dependent(
             &cm->seq_params, cm->current_frame.mlayer_id, buf->mlayer_id) ||
         (is_ras && buf->frame_type != KEY_FRAME)) {

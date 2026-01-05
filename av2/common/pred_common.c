@@ -185,16 +185,16 @@ int av2_get_op_constrained_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
     const int ref_disp = cur_ref.disp_order;
     const int cur_mlayer_id = cm->current_frame.mlayer_id;
     const int ref_mlayer_id = cur_ref.mlayer_id;
-    const int cur_temporal_id = cm->current_frame.temporal_layer_id;
-    const int ref_temporal_id = cur_ref.temporal_layer_id;
-    if (!is_tlayer_scalable_and_dependent(&cm->seq_params, cur_temporal_id,
-                                          ref_temporal_id, cur_mlayer_id) ||
+    const int cur_tlayer_id = cm->current_frame.tlayer_id;
+    const int ref_tlayer_id = cur_ref.tlayer_id;
+    if (!is_tlayer_scalable_and_dependent(&cm->seq_params, cur_tlayer_id,
+                                          ref_tlayer_id, cur_mlayer_id) ||
         !is_mlayer_scalable_and_dependent(&cm->seq_params, cur_mlayer_id,
                                           ref_mlayer_id))
       continue;
 
     if (is_layer_dropped(ref_mlayer_id, mlayer_mask) ||
-        is_layer_dropped(ref_temporal_id, tlayer_mask))
+        is_layer_dropped(ref_tlayer_id, tlayer_mask))
       continue;
 
     // In error resilient mode, ref mapping must be independent of the
@@ -314,10 +314,10 @@ int av2_get_ref_frames(AV2_COMMON *cm, int cur_frame_disp,
     const int ref_disp = cur_ref.disp_order;
     const int cur_mlayer_id = cm->current_frame.mlayer_id;
     const int ref_mlayer_id = cur_ref.mlayer_id;
-    const int cur_temporal_id = cm->current_frame.temporal_layer_id;
-    const int ref_temporal_id = cur_ref.temporal_layer_id;
-    if (!is_tlayer_scalable_and_dependent(&cm->seq_params, cur_temporal_id,
-                                          ref_temporal_id, cur_mlayer_id) ||
+    const int cur_tlayer_id = cm->current_frame.tlayer_id;
+    const int ref_tlayer_id = cur_ref.tlayer_id;
+    if (!is_tlayer_scalable_and_dependent(&cm->seq_params, cur_tlayer_id,
+                                          ref_tlayer_id, cur_mlayer_id) ||
         !is_mlayer_scalable_and_dependent(&cm->seq_params, cur_mlayer_id,
                                           ref_mlayer_id))
       continue;

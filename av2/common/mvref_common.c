@@ -2946,7 +2946,7 @@ void av2_setup_frame_buf_refs(AV2_COMMON *cm) {
   cm->cur_frame->long_term_id = cm->current_frame.long_term_id;
   cm->cur_frame->absolute_poc = cm->current_frame.absolute_poc;
   cm->cur_frame->pyramid_level = cm->current_frame.pyramid_level;
-  cm->cur_frame->temporal_layer_id = cm->current_frame.temporal_layer_id;
+  cm->cur_frame->tlayer_id = cm->current_frame.tlayer_id;
   cm->cur_frame->mlayer_id = cm->current_frame.mlayer_id;
   cm->cur_frame->xlayer_id = cm->current_frame.xlayer_id;
 

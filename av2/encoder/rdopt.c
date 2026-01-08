@@ -2469,8 +2469,7 @@ static int64_t motion_mode_rd(
                   tmp_rate2 = rate2_nocoeff - last_sign_cost;
                   assert(tmp_rate_mv >= 0);
                 }
-              }  // if (is_mvd_sign_derive_allowed(cm, xd, mbmi))
-
+              }
             } else if (mbmi->motion_mode == WARP_CAUSAL) {
               int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
               mbmi->wm_params[0].wmtype = DEFAULT_WMTYPE;
@@ -5331,8 +5330,8 @@ static int64_t handle_inter_mode(
                   }
                   restore_dst_buf(xd, orig_dst, num_planes);
                 }
-              }  // bawp_chroma loop
-            }  // bawp loop
+              }
+            }
           }
         }
       }

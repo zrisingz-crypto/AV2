@@ -2697,13 +2697,13 @@ void gdf_optimizer(AV2_COMP *cpi, AV2_COMMON *cm) {
             }
             gdf_unset_reference_lines(cm, i_min, i_max, copy_above, copy_below);
             blk_stripe++;
-          }  // v_pos
+          }
           blk_idx++;
-        }  // x_pos
-      }  // tile_col
+        }
+      }
       tile_blk_stripe0 += blk_stripe;
-    }  // y_pos
-  }  // tile_row
+    }
+  }
 
   int slice_rate = 1 << AV2_PROB_COST_SHIFT;
   int64_t slice_error = 0;
@@ -4266,8 +4266,7 @@ static int encode_frame_to_data_rate(AV2_COMP *cpi, size_t *size,
         }
       }
       cpi->is_olk_overlay = 1;
-    }  // cpi->olk_encountered
-    else {
+    } else {
       cpi->is_olk_overlay = 0;
     }
     cpi->seq_params_locked = 1;
@@ -4279,7 +4278,7 @@ static int encode_frame_to_data_rate(AV2_COMP *cpi, size_t *size,
                                     cpi->rc.frames_since_key))
       ++current_frame->frame_number;
     return AVM_CODEC_OK;
-  }  // if(cpi->update_type_was_overlay)
+  }
 
   if (cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu &&
       cm->show_existing_frame) {
@@ -4353,8 +4352,8 @@ static int encode_frame_to_data_rate(AV2_COMP *cpi, size_t *size,
       cm->is_leading_picture = 1;
     else {
       cm->is_leading_picture = 0;
-    }  // !leading_picture
-  }  // !KEYFRAME
+    }
+  }
 
   // Work out whether to force_integer_mv this frame
   if (!is_stat_generation_stage(cpi) &&
@@ -4664,7 +4663,6 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
     }
 
     int ref_frame_safe_to_use = 0;
-    // todo: check ref_frame_restricted how did it be used
     for (int i = 0; i < cm->seq_params.ref_frames; i++) {
       if (cm->ref_frame_map[i] != NULL) {
         bool ref_unrestricted = (current_frame->frame_type == S_FRAME ||

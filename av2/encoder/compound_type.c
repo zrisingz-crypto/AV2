@@ -272,7 +272,7 @@ static int64_t pick_wedge(const AV2_COMP *const cpi, const MACROBLOCK *const x,
         best_rd = rd;
         *best_sse = sse;
       }
-    }  // wedge sign loop
+    }
   }
 
   return best_rd -

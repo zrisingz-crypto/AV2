@@ -300,7 +300,7 @@ static avm_codec_err_t decoder_peek_si_internal(const uint8_t *data,
       if (frame_type == INTRA_ONLY_FRAME) {
         intra_only_flag = 1;
       }
-    }  // TILE_GROUP
+    }
     // skip past any unread OBU header data
     data += payload_size;
     data_sz -= payload_size;
@@ -587,8 +587,7 @@ static void check_random_access_frame_unit(struct AV2Decoder *pbi,
                                  &bytes_read);
     pbi->num_obus_with_frame_unit++;
     data_read += bytes_read + payload_size;
-    has_key_frames |=
-        (obu_header.type == OBU_CLK);  // || obu_header.type == OBU_OLK);
+    has_key_frames |= (obu_header.type == OBU_CLK);
     if (is_single_tile_vcl_obu(obu_header.type) ||
         is_multi_tile_vcl_obu(obu_header.type)) {
       if (frame_unit_mlayer_id == -1)

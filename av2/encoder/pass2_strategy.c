@@ -1192,7 +1192,7 @@ void set_last_prev_low_err(int *cur_start_ptr, int *cur_last_ptr, int *cut_pos,
         }
       }
     }
-  }  // prev_lows
+  }
   return;
 }
 
@@ -1355,7 +1355,7 @@ static void calculate_gf_length(AV2_COMP *cpi, int max_gop_length,
           set_last_prev_low_err(&cur_start, &cur_last, cut_pos, count_cuts,
                                 before_pad, ratio, is_high, si, prev_lows,
                                 min_shrink_int);
-        }  // if current frame high error
+        }
         // count how many trailing lower error frames we have in this decided
         // gf group
         prev_lows = 0;
@@ -2840,7 +2840,7 @@ void av2_get_second_pass_params(AV2_COMP *cpi,
             }
           }
         }
-      }  // sframe_dist
+      }
       return;
     }
   }

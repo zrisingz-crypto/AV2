@@ -701,16 +701,16 @@ void gdf_filter_frame(AV2_COMMON *cm) {
               gdf_restore_processing_stripe_leftright_boundary(
                   &cm->gdf_info, i_min, i_max, j_min, j_max, tile_boundary_left,
                   tile_boundary_right);
-            }  // u_pos
+            }
             gdf_unset_reference_lines(cm, i_min, i_max, copy_above, copy_below);
             blk_stripe++;
-          }  // v_pos
+          }
           blk_idx++;
-        }  // x_pos
-      }  // tile_col
+        }
+      }
       tile_blk_stripe0 += blk_stripe;
-    }  // y_pos
-  }  // tile_row
+    }
+  }
 }
 
 #endif  // AVM_COMMON_GDF_H_

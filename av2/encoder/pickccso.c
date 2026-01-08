@@ -283,27 +283,27 @@ static void ccso_pre_compute_class_err(
                   ref_unit[x_pos] - dst_unit[x_pos];
               ctx->total_class_cnt[cur_src_cls0][cur_src_cls1][band_num]
                                   [fb_idx - 1]++;
-            }  // x_start
+            }
             ref_unit += ctx->ccso_stride;
             dst_unit += ctx->ccso_stride;
             src_y_unit +=
                 scaled_ext_stride;  // scaled means already done + y_uv_vscale
             src_unit0 += scaled_stride;
             src_unit1 += scaled_stride;
-          }  // y_start
+          }
           ref_unit -= ctx->ccso_stride * y_end_unit;
           dst_unit -= ctx->ccso_stride * y_end_unit;
           src_y_unit -= scaled_ext_stride * y_end_unit;
           src_unit0 -= scaled_stride * y_end_unit;
           src_unit1 -= scaled_stride * y_end_unit;
-        }  // unit_x
+        }
         // move to next unit (sb) row
         ref_unit += unit_size_y * ctx->ccso_stride;
         dst_unit += unit_size_y * ctx->ccso_stride;
         src_y_unit += scaled_ext_stride * unit_size_y;
         src_unit0 += scaled_stride * unit_size_y;
         src_unit1 += scaled_stride * unit_size_y;
-      }  // unit_y
+      }
     }
     ref += (ctx->ccso_stride << blk_log2_y);
     dst += (ctx->ccso_stride << blk_log2_y);
@@ -385,20 +385,21 @@ static void ccso_pre_compute_class_err_bo(
               ctx->total_class_err_bo[band_num][fb_idx - 1] +=
                   ref_unit[x_pos] - dst_unit[x_pos];
               ctx->total_class_cnt_bo[band_num][fb_idx - 1]++;
-            }  // x_start
+            }
             ref_unit += ctx->ccso_stride;
             dst_unit += ctx->ccso_stride;
             src_y_unit += scaled_ext_stride;
-          }  // y_start
+          }
           ref_unit -= ctx->ccso_stride * y_end_unit;
           dst_unit -= ctx->ccso_stride * y_end_unit;
           src_y_unit -= scaled_ext_stride * y_end_unit;
-        }  // unit_x
+        }
+
         // move to next unit (sb) row
         ref_unit += unit_size_y * ctx->ccso_stride;
         dst_unit += unit_size_y * ctx->ccso_stride;
         src_y_unit += unit_size_y * scaled_ext_stride;
-      }  // unit_y
+      }
     }
     ref += (ctx->ccso_stride << blk_log2_y);
     dst += (ctx->ccso_stride << blk_log2_y);
@@ -544,12 +545,12 @@ void ccso_try_luma_filter(CcsoCtx *ctx, AV2_COMMON *cm, MACROBLOCKD *xd,
                 // y_uv_scale in h and v shall be zero
                 0, 0, max_val, shift_bits, 0);
           }
-        }  // unit_x
+        }
         dst_unit += (dst_stride << unit_log2);
         src_y_unit += (ccso_stride_ext << unit_log2);
         src_unit0 += (ccso_stride << unit_log2);
         src_unit1 += (ccso_stride << unit_log2);
-      }  // unit_y
+      }
     }
     dst_yuv += (dst_stride << blk_log2);
     src_y += (ccso_stride_ext << blk_log2);
@@ -625,12 +626,12 @@ static void ccso_try_chroma_filter(
                 pic_height, filter_offset, unit_size_x, unit_size_y,
                 y_uv_hscale, y_uv_vscale, max_val, shift_bits, 0);
           }
-        }  // unit_x
+        }
         dst_unit += (dst_stride << unit_log2_y);
         src_y_unit += (ccso_stride_ext << (unit_log2_y + y_uv_vscale));
         src_unit0 += (ccso_stride << (unit_log2_y + y_uv_vscale));
         src_unit1 += (ccso_stride << (unit_log2_y + y_uv_vscale));
-      }  // unit_y
+      }
     }
     dst_yuv += (dst_stride << blk_log2_y);
     src_y += (ccso_stride_ext << (blk_log2_y + y_uv_vscale));
@@ -719,11 +720,11 @@ static void compute_distortion(
           sb_ssd += compute_distortion_block(
               org_unit, org_stride, rec_unit, rec_stride, x + unit_x,
               y + unit_y, unit_log2_y, unit_log2_x, height, width);
-        }  //
+        }
         // offset org, rec16 here
         org_unit += (org_stride << unit_log2_x);
         rec_unit += (rec_stride << unit_log2_x);
-      }  //
+      }
       const uint64_t ssd = sb_ssd;
       distortion_buf[(y >> log2_filter_unit_size_y) * distortion_buf_stride +
                      (x >> log2_filter_unit_size_x)] = ssd;
@@ -1608,7 +1609,7 @@ static void derive_ccso_filter(CcsoCtx *ctx, AV2_COMMON *cm, const int plane,
           }
         }
       }
-    }  // end bo only
+    }
   }
 
   if (best_unfiltered_cost < final_filtered_cost) {

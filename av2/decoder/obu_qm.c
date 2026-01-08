@@ -137,9 +137,9 @@ static void read_qm_data(AV2Decoder *pbi, int obu_tlayer_id, int obu_mlayer_id,
           }
         }
         qmset->quantizer_matrix[t][c][pos] = prev;
-      }  // coeff
-    }  // num_planes
-  }  // t
+      }
+    }
+  }
 }
 void av2_copy_predefined_qmatrices_to_list(AV2Decoder *pbi, int num_planes) {
   for (int qm_pos = 0; qm_pos < NUM_CUSTOM_QMS; qm_pos++) {
@@ -150,7 +150,7 @@ void av2_copy_predefined_qmatrices_to_list(AV2Decoder *pbi, int num_planes) {
     qmset->qm_tlayer_id = -1;
     qmset->quantizer_matrix_num_planes = num_planes;
     qmset->is_user_defined_qm = false;
-  }  // qm_pos
+  }
 }
 
 // acc_qm_id_bitmap is an in/out parameter. The caller should set
@@ -185,7 +185,7 @@ uint32_t read_qm_obu(AV2Decoder *pbi, int obu_tlayer_id, int obu_mlayer_id,
                      num_planes, rb);
       }
     }
-  }  // qm_bit_map != 0
+  }
   if (av2_check_trailing_bits(pbi, rb) != 0) {
     return 0;
   }

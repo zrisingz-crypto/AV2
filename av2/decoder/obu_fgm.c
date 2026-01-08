@@ -39,9 +39,8 @@ void copy_fgm_from_list(AV2_COMMON *cm, avm_film_grain_t *pars,
       pars->fgm_scaling_points_0[i][j] = fgm->fgm_scaling_points[0][i][j];
       pars->fgm_scaling_points_1[i][j] = fgm->fgm_scaling_points[1][i][j];
       pars->fgm_scaling_points_2[i][j] = fgm->fgm_scaling_points[2][i][j];
-
-    }  // j
-  }  // i
+    }
+  }
 
   pars->scaling_shift = fgm->scaling_shift;
   pars->ar_coeff_lag = fgm->ar_coeff_lag;
@@ -122,7 +121,7 @@ static void read_film_grain_model(struct film_grain_model *fgm, int chroma_idc,
         fgm->fgm_scaling_points[c][i][1] = avm_rb_read_literal(rb, bitsScal);
       }
     }
-  }  // c < fgmNumScalingChannels
+  }
 
   // Initialize unsignaled values to zero
   for (int c = fgmNumScalingChannels; c < 3; c++) fgm->fgm_points[c] = 0;
@@ -227,8 +226,8 @@ uint32_t read_fgm_obu(AV2Decoder *pbi, const int obu_tlayer_id,
       pbi->fgm_list[fgm_id].fgm_chroma_idc = fgm_chroma_idc;
       read_film_grain_model(&pbi->fgm_list[fgm_id], fgm_chroma_idc, rb,
                             &pbi->common.error);
-    }  // if
-  }  // j
+    }
+  }
   if (av2_check_trailing_bits(pbi, rb) != 0) {
     // cm->error.error_code is already set.
     return 0;

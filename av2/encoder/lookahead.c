@@ -151,7 +151,6 @@ struct lookahead_entry *av2_lookahead_leave(struct lookahead_ctx *ctx,
                                             int left_disp_order_hint,
                                             COMPRESSOR_STAGE stage) {
   // order hint must be set so that the lookahead buffer can track which entry
-  // todo: fix this use disp order
   (void)stage;
   struct lookahead_entry *buf = NULL;
   if (ctx) {

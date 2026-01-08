@@ -2755,7 +2755,7 @@ static void search_tx_type(const AV2_COMP *cpi, MACROBLOCK *x, int plane,
           skip_idx = true;
           break;
         }
-      }  // for (int stx = 0;
+      }
       if (skip_idx) break;
     }
     if (skip_idx) break;

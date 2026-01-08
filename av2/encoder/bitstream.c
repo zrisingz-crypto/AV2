@@ -2110,8 +2110,7 @@ static AVM_INLINE void pack_inter_mode_mvs(AV2_COMP *cpi, avm_writer *w) {
                              mbmi->interintra_wedge_index);
           }
         }
-
-      }  // if (mbmi->warp_inter_intra) {
+      }
     }
 
     if (!mbmi->skip_mode) {
@@ -4785,8 +4784,7 @@ void write_sequence_filter_group_tool_flags(
     }
   }
   avm_wb_write_literal(wb, seq_params->df_par_bits_minus2, 2);
-
-}  // filtergroup
+}
 
 void write_sequence_transform_quant_entropy_group_tool_flags(
     const SequenceHeader *const seq_params, struct avm_write_bit_buffer *wb) {
@@ -5275,8 +5273,7 @@ static AVM_INLINE void write_uncompressed_header(
       cm->implicit_output_picture = 0;
 #endif  // CONFIG_CWG_F431_OUTPUT_PIC_SIGNALING
     }
-
-  }  // if(!seq_params->single_picture_header_flag)
+  }
   int frame_size_override_flag = 0;
 
   if (seq_params->single_picture_header_flag) {
@@ -5337,8 +5334,8 @@ static AVM_INLINE void write_uncompressed_header(
           avm_internal_error(&cm->error, AVM_CODEC_ERROR,
                              "Invalid primary_ref_frame");
       }
-    }  // if (!features->error_resilient_mode && !frame_is_intra_only(cm))
-  }  // !if (seq_params->single_picture_hdr_flag)
+    }
+  }
 
   if (obu_type == OBU_OLK) {
     cpi->olk_encountered = 1;
@@ -5381,7 +5378,7 @@ static AVM_INLINE void write_uncompressed_header(
         avm_wb_write_literal(wb, current_frame->refresh_frame_flags,
                              cm->seq_params.ref_frames);
       }
-    }  // else (obu_type == OBU_CLK && seq_params->max_mlayer_id!= 1) || OBU_OLK
+    }
   } else {
     if (cm->bridge_frame_info.is_bridge_frame) {
       avm_wb_write_literal(
@@ -5425,25 +5422,13 @@ static AVM_INLINE void write_uncompressed_header(
             }
             avm_wb_write_literal(wb, refresh_idx, seq_params->ref_frames_log2);
           }
-        }
-        // if (cm->seq_params.enable_short_refresh_frame_flags &&
-        //  !(current_frame->frame_type == KEY_FRAME &&
-        //  !cm->immediate_output_picture) && !frame_is_sframe(cm))
-        else {
+        } else {
           avm_wb_write_literal(wb, current_frame->refresh_frame_flags,
                                cm->seq_params.ref_frames);
         }
       }
-      //  ((current_frame->frame_type == KEY_FRAME &&
-      //  !cm->immediate_output_picture) ||
-      //        (current_frame->frame_type == INTER_FRAME &&
-      //         cpi->switch_frame_mode != 1) ||
-      //        (current_frame->frame_type == S_FRAME && cpi->switch_frame_mode
-      //        != 1)
-      //        || current_frame->frame_type == INTRA_ONLY_FRAME)
-    }  //(!cm->bridge_frame_info.is_bridge_frame ||
-       // cm->bridge_frame_info.bridge_frame_overwrite_flag)
-  }  // else of (CLK || OLK)
+    }
+  }
 
   if (current_frame->frame_type == KEY_FRAME) {
     write_frame_size(cm, frame_size_override_flag, wb);
@@ -5457,15 +5442,6 @@ static AVM_INLINE void write_uncompressed_header(
     } else if (current_frame->frame_type == INTER_FRAME ||
                frame_is_sframe(cm)) {
       MV_REFERENCE_FRAME ref_frame;
-
-      // NOTE: Error resilient mode turns off frame_refs_short_signaling
-      //       automatically.
-#define FRAME_REFS_SHORT_SIGNALING 0
-#if FRAME_REFS_SHORT_SIGNALING
-      current_frame->frame_refs_short_signaling =
-          seq_params->order_hint_info.enable_order_hint;
-#endif  // FRAME_REFS_SHORT_SIGNALING
-
       // By default, no need to signal ref mapping indices in NRS because
       // decoder can derive them unless order_hint is not available. Explicit
       // signaling happens only when enabled by the command line flag or in
@@ -5490,8 +5466,7 @@ static AVM_INLINE void write_uncompressed_header(
         for (int i = 0; i < cm->ref_frames_info.num_total_refs; ++i)
           avm_wb_write_literal(wb, get_ref_frame_map_idx(cm, i),
                                cm->seq_params.ref_frames_log2);
-
-      }  // explicit_ref_frame_map
+      }
 
       if (!frame_is_sframe(cm) && frame_size_override_flag &&
           !cm->bridge_frame_info.is_bridge_frame) {
@@ -5511,7 +5486,7 @@ static AVM_INLINE void write_uncompressed_header(
       for (ref_frame = 0; ref_frame < cm->ref_frames_info.num_total_refs;
            ++ref_frame) {
         assert(get_ref_frame_map_idx(cm, ref_frame) != INVALID_IDX);
-      }  // for(ref_frame)
+      }
 
       if (frame_might_allow_ref_frame_mvs(cm)) {
         avm_wb_write_bit(wb, features->allow_ref_frame_mvs);
@@ -5570,10 +5545,7 @@ static AVM_INLINE void write_uncompressed_header(
         if (!cm->bru.frame_inactive_flag &&
             !cm->bridge_frame_info.is_bridge_frame)
           write_frame_opfl_refine_type(cm, wb);
-      }  // (cm->seq_params.enable_tip && features->allow_ref_frame_mvs &&
-      // cm->ref_frames_info.num_total_refs >= 2 &&
-      // !cm->bridge_frame_info.is_bridge_frame &&
-      // !cm->bru.frame_inactive_flag)
+      }
 
       if (!cm->bru.frame_inactive_flag &&
           !cm->bridge_frame_info.is_bridge_frame &&
@@ -5624,12 +5596,9 @@ static AVM_INLINE void write_uncompressed_header(
         assert(IMPLIES(!cm->seq_params.seq_frame_motion_modes_present_flag,
                        features->enabled_motion_modes ==
                            cm->seq_params.seq_enabled_motion_modes));
-      }  // if (!cm->bru.frame_inactive_flag &&
-         // !cm->bridge_frame_info.is_bridge_frame &&
-         //  (!cm->seq_params.enable_tip ||
-         //   features->tip_frame_mode != TIP_FRAME_AS_OUTPUT))
-    }  // (current_frame->frame_type == INTER_FRAME || frame_is_sframe(cm))
-  }  // else of if (current_frame->frame_type == KEY_FRAME)
+      }
+    }
+  }
 
   if (cm->bru.frame_inactive_flag || cm->bridge_frame_info.is_bridge_frame) {
     if (seq_params->film_grain_params_present &&
@@ -6152,13 +6121,13 @@ static uint32_t write_tilegroup_payload(AV2_COMP *const cpi, uint8_t *const dst,
       }
 
       total_size += tile_size;
-    }  // tile_col
+    }
 
     if (tile_idx < start_tile_idx)
       continue;
     else if (tile_idx > end_tile_idx)
       break;
-  }  // tile_row
+  }
 
   if (tile_cols * tile_rows > 1 &&
       cm->features.tip_frame_mode != TIP_FRAME_AS_OUTPUT) {
@@ -6184,8 +6153,8 @@ static uint32_t write_tilegroup_payload(AV2_COMP *const cpi, uint8_t *const dst,
       assert(tile_size_bytes >= 1 && tile_size_bytes <= 4);
 
       avm_wb_overwrite_literal(saved_wb, tile_size_bytes - 1, 2);
-    }  // one TG only
-  }  // not single tile
+    }
+  }
 
   return total_size;
 }
@@ -7017,7 +6986,7 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
             }
           }
         }
-      }  // cpi->total_signalled_qmobu_count != 0
+      }
       cpi->total_signalled_qmobu_count = 0;
       cpi->obu_is_written = 0;
       AV2EncoderConfig *const oxcf = &cpi->oxcf;
@@ -7084,13 +7053,12 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
         fgm_current.fgm_id = cpi->fgm_list[use_existing_fgm].fgm_id;
         cpi->increase_fgm_counter = false;
         cm->fgm_id = fgm_current.fgm_id;  // Use actual FGM_ID, not index
-      }  // use existing
-      else {
+      } else {
         fgm_current.fgm_id = cpi->written_fgm_num % MAX_FGM_NUM;
         cpi->increase_fgm_counter = true;
         cm->fgm_id = fgm_current.fgm_id;
       }
-    }  // not keyframe
+    }
     if (use_existing_fgm == -1) {
       // write the current obu off and restart a new one
       obu_header_size = av2_write_obu_header(level_params, OBU_FGM, 0, 0, data);
@@ -7107,7 +7075,7 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
     }
     cpi->fgm = fgm_current;
     cm->cur_frame->fgm_id = cm->fgm_id;
-  }  // if(fgm is applied)
+  }
 
   // write metadata obus before the frame obu that has the
   // immediate_output_picture flag set
@@ -7268,7 +7236,7 @@ static int av2_pack_bitstream_internal(AV2_COMP *const cpi, uint8_t *dst,
     if (obu_type == OBU_LEADING_TIP || obu_type == OBU_REGULAR_TIP) break;
     if (cm->bru.frame_inactive_flag) break;
     if (cm->bridge_frame_info.is_bridge_frame) break;
-  }  // tg_idx
+  }
 
   // write suffix metadata obus after the frame obu that has the
   // immediate_output_picture flag set

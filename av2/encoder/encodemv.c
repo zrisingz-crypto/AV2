@@ -578,9 +578,7 @@ void av2_build_vq_nmv_cost_table(MvCosts *mv_costs, const nmv_context *ctx,
             shell_offset_other_class_cost[0][i][(shell_cls_offset >> i) & 1];
       }
     }
-
-  }  // for (int shell_index = 0; shell_index <= max_shell_idx;
-     // shell_index++)
+  }
 }
 
 int_mv av2_get_ref_mv_from_stack(int ref_idx,

@@ -253,8 +253,8 @@ int write_qm_data(AV2_COMP *cpi, struct quantization_matrix_set *qm_list,
         prev = coeff;
         symbol_idx++;
       }
-    }  // num_planes
-  }  // t
+    }
+  }
 
   size = wb->bit_offset - size;
   return size;
@@ -322,10 +322,10 @@ bool add_userqm_in_qmobulist(AV2_COMP *cpi) {
                  cpi->user_defined_qm_list[qm_id][tx_size][plane],
                  sizeof(qm_val_t) * num_coeff);
         }
-      }  // tx_size
+      }
       obu_added = true;
-    }  // if
-  }  // for(qm_id)
+    }
+  }
   cpi->qmobu_list[qmobu_pos].qm_bit_map = qm_bit_map;
   cpi->qmobu_list[qmobu_pos].qm_chroma_info_present_flag =
       !cm->seq_params.monochrome;

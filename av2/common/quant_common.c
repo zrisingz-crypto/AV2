@@ -486,8 +486,8 @@ void av2_qm_frame_update(struct CommonQuantParams *quant_params, int num_planes,
             &predefined_iwt_matrix_ref[qm_id][c >= 1][current];
         current += size;
       }
-    }  // t
-  }  // c
+    }
+  }
 }
 
 void av2_qm_init(CommonQuantParams *quant_params, int num_planes) {

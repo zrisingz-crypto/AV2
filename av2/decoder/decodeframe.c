@@ -6957,7 +6957,7 @@ static void reset_buffer_other_than_OLK(AV2Decoder *pbi) {
       cm->ref_frame_map[ref_index] = NULL;
       if (pbi->random_accessed) pbi->valid_for_referencing[ref_index] = 1;
     }
-  }  // ref_index
+  }
 }
 static int is_regular_non_olk_obu(OBU_TYPE obu_type) {
   return obu_type == OBU_REGULAR_SEF || obu_type == OBU_REGULAR_TIP ||
@@ -7334,7 +7334,7 @@ static void handle_sequence_header(AV2Decoder *pbi, OBU_TYPE obu_type,
     qmset->qm_tlayer_id = -1;
     qmset->quantizer_matrix_num_planes = num_planes;
     qmset->is_user_defined_qm = false;
-  }  // qm_pos
+  }
   for (int i = 0; i < NUM_CUSTOM_QMS; ++i) {
     pbi->qm_protected[i] = 0;
   }
@@ -7400,7 +7400,7 @@ void update_ref_frames_info(AV2Decoder *pbi, OBU_TYPE obu_type) {
             map_pos = map_idx;
             break;
           }
-        }  // map_idx
+        }
         // if idx is not included in ref_frames_info
         if (map_pos == -1) {
           cm->ref_frames_info
@@ -7408,8 +7408,8 @@ void update_ref_frames_info(AV2Decoder *pbi, OBU_TYPE obu_type) {
           cm->remapped_ref_idx[cm->ref_frames_info.num_total_refs] = idx;
           cm->ref_frames_info.num_total_refs++;
         }
-      }  // dependent
-    }  // restricted reference
+      }
+    }
   }
 }
 
@@ -7729,7 +7729,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
       lock_buffer_pool(pool);
       reset_buffer_other_than_OLK(pbi);
       unlock_buffer_pool(pool);
-    }  // if(pbi->olk_encountered...)
+    }
 
     if (cm->bridge_frame_info.is_bridge_frame) {
       frame_size_override_flag = 1;
@@ -7829,7 +7829,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
       cm->last_olk_order_hint[cm->mlayer_id] = cm->current_frame.order_hint;
       cm->olk_refresh_frame_flags[cm->mlayer_id] =
           current_frame->refresh_frame_flags;
-    }  // OBU_OLK
+    }
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
       cm->remapped_ref_idx[i] = INVALID_IDX;
     }
@@ -8139,7 +8139,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
         if (pbi->restricted_predition && obu_type != OBU_RAS_FRAME) {
           update_ref_frames_info(pbi, obu_type);
         }
-      }  // (!explicit_ref_frame_map)
+      }
       // Check to make sure all reference frames have valid dimensions.
       for (int i = 0; i < cm->ref_frames_info.num_total_refs; ++i) {
         const RefCntBuffer *const ref_frame = get_ref_frame_buf(cm, i);
@@ -8995,8 +8995,7 @@ int32_t av2_read_tilegroup_header(
     }
 
     xd->global_motion = cm->global_motion;
-  }  // first_tile_group_in_frame
-  else {
+  } else {
     send_uncompressed_header_flag = avm_rb_read_bit(rb);
   }
 

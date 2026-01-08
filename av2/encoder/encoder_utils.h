@@ -919,9 +919,9 @@ static AVM_INLINE void refresh_reference_frames(AV2_COMP *cpi) {
         } else {
           assign_frame_buffer_p(&cm->ref_frame_map[ref_frame], cm->cur_frame);
         }
-      }  // i(refresh_frame_flags)
-    }  // for(ref_frame)
-  }  // if (!cm->bru.enabled)
+      }
+    }
+  }
 }
 
 static AVM_INLINE void update_subgop_stats(

@@ -2903,7 +2903,7 @@ static void read_inter_block_mode_info(AV2Decoder *const pbi,
           mbmi->wedge_boundary_index = get_wedge_boundary_type(bsize);
         }
       }
-    }  // if (mbmi->warp_inter_intra)
+    }
   }
 
   if (!mbmi->skip_mode) {

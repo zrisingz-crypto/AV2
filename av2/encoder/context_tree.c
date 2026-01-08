@@ -395,7 +395,7 @@ void av2_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
         }
       }
     }
-  }  // region type index
+  }
   if (!keep_best && !keep_none) avm_free(pc_tree);
 }
 

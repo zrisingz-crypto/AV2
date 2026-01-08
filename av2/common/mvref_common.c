@@ -1556,7 +1556,7 @@ static AVM_INLINE void scan_blk_mbmi(
         xd->mi[0]->use_intrabc[xd->tree_type == CHROMA_PART], row_offset,
         col_offset, weight, drl_pr_count, drl_dr_pr_count,
         drl_dr_single_pr_count);
-  }  // Analyze a single 8x8 block motion information.
+  }
 }
 
 static int has_top_right(const AV2_COMMON *cm, const MACROBLOCKD *xd,

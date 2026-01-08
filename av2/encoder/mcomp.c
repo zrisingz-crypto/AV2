@@ -3413,7 +3413,7 @@ int joint_mvd_search(const AV2_COMMON *const cm, MACROBLOCKD *xd,
     } else {
       grid_center += neighbors[best_site].coord_offset;
     }
-  }  // end of full-pel search
+  }
 
   if (besterr == INT_MAX) {
     bestmv->row = ref_mv.row;
@@ -3583,7 +3583,7 @@ int low_precision_joint_mvd_search(const AV2_COMMON *const cm, MACROBLOCKD *xd,
     if (best_site == -1) {
       break;
     }
-  }  // end of full-pel search
+  }
 
   if (besterr == INT_MAX) {
     bestmv->row = ref_mv.row;

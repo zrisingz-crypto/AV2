@@ -1506,7 +1506,8 @@ static void check_tilegroup_obus_in_a_frame_unit(AV2_COMMON *const cm,
                                                  obu_info *current_obu,
                                                  obu_info *prev_obu) {
   if (current_obu->obu_type != prev_obu->obu_type ||
-      current_obu->show_frame != prev_obu->show_frame ||
+      current_obu->immediate_output_picture !=
+          prev_obu->immediate_output_picture ||
       current_obu->showable_frame != prev_obu->showable_frame ||
       current_obu->display_order_hint != prev_obu->display_order_hint ||
       current_obu->mlayer_id != prev_obu->mlayer_id) {
@@ -1754,7 +1755,7 @@ int avm_decode_frame_from_obus(struct AV2Decoder *pbi, const uint8_t *data,
     curr_obu_info->tlayer_id = obu_header.obu_tlayer_id;
     curr_obu_info->xlayer_id = obu_header.obu_xlayer_id;
     curr_obu_info->first_tile_group = -1;
-    curr_obu_info->show_frame = -1;
+    curr_obu_info->immediate_output_picture = -1;
     curr_obu_info->showable_frame = -1;
     curr_obu_info->display_order_hint = -1;
     if (obu_header.type == OBU_MSDO) {
@@ -1948,8 +1949,9 @@ int avm_decode_frame_from_obus(struct AV2Decoder *pbi, const uint8_t *data,
             pbi, &rb, data, data + payload_size, p_data_end, obu_header.type,
             &curr_obu_info->first_tile_group, &frame_decoding_finished);
         if (cm->error.error_code != AVM_CODEC_OK) return -1;
-        curr_obu_info->show_frame = cm->show_frame;
-        curr_obu_info->showable_frame = cm->show_frame ? 1 : cm->showable_frame;
+        curr_obu_info->immediate_output_picture = cm->immediate_output_picture;
+        curr_obu_info->showable_frame =
+            cm->immediate_output_picture || cm->implicit_output_picture;
         curr_obu_info->display_order_hint =
             cm->current_frame.display_order_hint;
         if (cm->bru.frame_inactive_flag ||
@@ -2103,7 +2105,8 @@ int avm_decode_frame_from_obus(struct AV2Decoder *pbi, const uint8_t *data,
   int i;
   fprintf(stderr, "\n Frame number: %d, Frame type: %s, Show Frame: %d\n",
           cm->current_frame.frame_number,
-          get_frame_type_enum(cm->current_frame.frame_type), cm->show_frame);
+          get_frame_type_enum(cm->current_frame.frame_type),
+          cm->immediate_output_picture);
   for (i = 0; i < kTimingComponents; i++) {
     pbi->component_time[i] += pbi->frame_component_time[i];
     fprintf(stderr, " %s:  %" PRId64 " us (total: %" PRId64 " us)\n",

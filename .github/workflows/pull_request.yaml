@@ -1,0 +1,441 @@
+name: Pull Request
+on:
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # This job is a hack because GitHub doesn't support referencing env vars for setting runners or container image
+  # See https://github.com/orgs/community/discussions/26324
+  vars:
+    name: Set common variables
+    runs-on: ubuntu-latest
+    outputs:
+      runner: self-hosted
+      container-image: docker-registry-internal.aom-infra.org/aomediacodec/aom-testing/ubuntu2404:lnicolas
+      container-image-multilib: docker-registry-internal.aom-infra.org/aomediacodec/aom-testing/ubuntu2404-multilib:lnicolas
+      timeout-minutes: 660
+    steps:
+      - name: Do nothing
+        run: |
+          echo noop
+
+  style-checks:
+    name: Style Checks
+    if: (!cancelled())
+    needs:
+      - vars
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    env:
+      DIFF_REF: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 50
+          lfs: true
+
+      - uses: ./.github/actions/common-setup
+
+      - name: Run clang-format
+        run: |
+          echo "lang-format version: $(clang-format --version)"
+
+          # Run clang-format check.
+          for f in $(git diff --diff-filter=ACMR --name-only ${DIFF_REF} '*.[hc]pp' '*.cc' '*.[ch]' | grep -v third_party); do
+            exit_code=0
+            clang-format -i --style=file $f -n -Werror || exit_code=$?
+            if [ ${exit_code} -ne 0 ]; then
+              echo -e "\e[31mPlease format your code by following instructions here:\e[0m"
+              echo -e "\e[31mREDACTED://gitlab.com/AOMediaCodec/avm/-/wikis/Reproducing-CI-Test-Failures-Locally#style-check\e[0m"
+              exit 1
+            fi
+          done
+
+      - name: Run cmake-format
+        run: |
+          echo "cmake-format version: $(cmake-format --version)"
+
+          # Run cmake-format check.
+          for f in $(git diff --diff-filter=ACMR --name-only ${DIFF_REF} '*.cmake' 'CMakeLists.txt' | grep -v third_party); do
+            exit_code=0
+            cmake-format --check $f || exit_code=$?
+            if [ ${exit_code} -ne 0 ]; then
+              echo -e "\e[31mPlease format your code by following instructions here:\e[0m"
+              echo -e "\e[31mREDACTED://gitlab.com/AOMediaCodec/avm/-/wikis/Reproducing-CI-Test-Failures-Locally#style-check\e[0m"
+              exit 1
+            fi
+          done
+
+  pr-checks:
+    name: PR Checks
+    if: (!cancelled())
+    needs:
+      - vars
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    env:
+      DIFF_REF: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 50
+          lfs: true
+
+      - uses: ./.github/actions/common-setup
+
+      - name: Validate files with the executable bit set
+        run: |
+          echo lol=${{ github.ref }}
+          git diff "${DIFF_REF}" --check
+
+          # Validate files with the executable bit set
+          files=$(git diff --name-only "${DIFF_REF}" | tr '\n' ' ')
+          git ls-tree -r HEAD $files | while read mode type sha1 file; do
+            if [ "$mode" = "100755" ]; then
+              case "$file" in
+                configure|*.php|*.pl|*.py|*.sh)
+                  ;;
+                *)
+                  echo "File $file should not be executable."
+                  echo "Only configure|*.php|*.pl|*.py|*.sh are accepted."
+                  exit 1
+                  ;;
+              esac
+            fi
+          done
+
+  test-data-checks:
+    name: Test Data Checks
+    if: (!cancelled())
+    needs:
+      - vars
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    env:
+      DIFF_REF: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 50
+          lfs: true
+
+      - uses: ./.github/actions/common-setup
+
+      - name: Ensure added test files add declared in test data
+        run: |
+          # TODO: replace this test with a proper job/rule filter
+          if [ -z "$(git diff ${DIFF_REF} "test/")" ]; then
+            echo "No test file added."
+            exit 0
+          fi
+          ADDED_TEST_FILES="$(git diff ${DIFF_REF} "test/" \
+            | perl -ne  '/^\+.*?"((?!\$).*?\.(ivf|webm|res|mkv|y4m|yuv))"/g and print "$1\n"')" \
+          printf "Checking for files:\n%s\n\n" "$ADDED_TEST_FILES"
+          echo "$ADDED_TEST_FILES" | while read -r f; do
+            if [ -n "$(grep -L "${f}"  test/test-data.sha1 test/test_data_util.cmake)" ]; then
+              echo "file: ${f} was not found in test-data.sha1 or test_data_util.cmake"
+              exit 1
+            fi
+          done
+
+  previous-build-x86_64-linux-gcc:
+    name: Previous Build (x86_64-linux-gcc)
+    uses: ./.github/workflows/build-job-reusable.yaml
+    needs:
+      - style-checks
+      - pr-checks
+      - test-data-checks
+      - vars
+    if: (!cancelled())
+    with:
+      avm-build-config: ${{ matrix.avm-build-config }}
+      parent-job-name: previous-build-x86_64-linux-gcc
+      runner: '["${{ needs.vars.outputs.runner }}"]'
+      container-image: ${{ needs.vars.outputs.container-image }}
+      show-github-context: true
+      extra-env-vars: |
+        DIFF_REF=${{ github.event.pull_request.base.sha }}
+        INSTALLROOT_FOLDER=installroot_old
+        # Allow build warnings.
+        EXTRA_CMAKE_FLAGS=-DENABLE_WERROR=0
+      before-script: |
+        #TODO: git fetch --unshallow
+        git checkout "${DIFF_REF}"
+      artifact-paths: /installroot_old
+    strategy:
+      matrix:
+        avm-build-config:
+          - encode-only
+
+  test-data:
+    name: Test Data
+    uses: ./.github/workflows/common-test-data-reusable.yaml
+    needs:
+      - vars
+    if: (!cancelled())
+    with:
+      runner: '["${{ needs.vars.outputs.runner }}"]'
+      container-image: ${{ needs.vars.outputs.container-image }}
+
+  common-builds:
+    name: Common Builds
+    uses: ./.github/workflows/common-builds-reusable.yaml
+    needs:
+      - style-checks
+      - pr-checks
+      - test-data-checks
+      - vars
+    if: (!cancelled())
+    with:
+      runner: '["${{ needs.vars.outputs.runner }}"]'
+      container-image: ${{ needs.vars.outputs.container-image }}
+      container-image-multilib: ${{ needs.vars.outputs.container-image-multilib }}
+
+  example-test-x86_64-gcc:
+    name: Example Test (x86_64-gcc)
+    needs:
+      - common-builds
+      - test-data
+      - vars
+    if: (!cancelled())
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    env:
+      LIBAVM_TEST_DATA_PATH: ${{ github.workspace }}/libavm-test-data
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          lfs: true
+
+      - uses: ./.github/actions/common-setup
+
+      - name: Get test data
+        uses: actions/download-artifact@v5
+        with:
+          name: test-data
+          path: libavm-test-data
+
+      - name: Get example build
+        uses: actions/download-artifact@v5
+        with:
+          name: example-build
+          path: avm_example_build
+
+      - name: Fix executable bit permissions
+        run: |
+          # See https://github.com/actions/upload-artifact/issues/38 for details about why we need this
+
+          # Look for files starting with ELF header and set executable but
+          for file in $(find avm_example_build/ -type f); do
+            if grep --quiet --binary --text --perl-regexp "^\x7f\x45\x4c\x46" "${file}"; then
+              echo "Found binary ${file}, fixing permissions."
+              chmod a+x "${file}"
+            fi
+          done
+
+      - name: Run example test
+        run: |
+          cpu_cores=$(nproc)
+          commands=/tmp/parallel.commands.$$
+
+          printf "" >${commands}
+
+          cd avm_example_build
+          for test in $(../test/examples.sh --list-tests); do
+            echo "sh ../test/examples.sh --bin-path examples --verbose --show-program-output --filter \"\b${test}\b\"" >>${commands}
+          done
+
+          cat ${commands}
+          time parallel --line-buffer --jobs ${cpu_cores} < ${commands}
+
+          if [ $? -ne 0 ]; then
+            echo "Failure running '${t}' example test, see log above for details!"
+            exit 1
+          fi
+
+  linux-sanitizer-test:
+    name: Linux Sanitizer Test
+    uses: ./.github/workflows/sanitizer-job-reusable.yaml
+    needs:
+      - common-builds
+      - vars
+    if: (!cancelled())
+    with:
+      avm-sanitizer-type: ${{ matrix.avm-sanitizer-type }}
+      max-total-shards: ${{ matrix.max-total-shards }}
+      runner: '["${{ needs.vars.outputs.runner }}"]'
+      container-image: ${{ needs.vars.outputs.container-image }}
+      show-github-context: true
+    strategy:
+      fail-fast: false
+      matrix:
+        avm-sanitizer-type:
+          - address
+          - integer
+          - thread
+          - undefined
+          # CFI Sanitizer commented for now, as lto build does not work
+          # - cfi
+        include:
+          # default to unlimited
+          - max-total-shards: 0
+
+  encdec-run:
+    name: Enc/Dec
+    uses: ./.github/workflows/encdec-job-reusable.yaml
+    needs:
+      - common-builds
+      - previous-build-x86_64-linux-gcc
+      - vars
+    if: (!cancelled())
+    with:
+      avm-enc-output: ${{ matrix.avm-enc-output }}
+      avm-enc-limit: ${{ matrix.avm-enc-limit }}
+      parent-job-name: encdec-run
+      runner: '["${{ needs.vars.outputs.runner }}"]'
+      container-image: ${{ needs.vars.outputs.container-image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        avm-enc-output:
+          - all-intra
+          - random-access
+          - low-delay
+        include:
+          - avm-enc-limit: 30
+          - avm-enc-limit: 15
+            avm-enc-output: all-intra
+
+  static-analyzer:
+    name: Static Analyzer
+    needs:
+      - vars
+    if: (!cancelled())
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    env:
+      ANALYZER_MODE: ${{ matrix.analyzer-mode }}
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 50
+          fetch-tags: true
+          lfs: true
+
+      - uses: ./.github/actions/common-setup
+
+      - name: Analyze
+        run: |
+          mkdir analyzer-${ANALYZER_MODE}
+
+          scan_build() {
+            scan-build \
+              --exclude third_party \
+              --exclude _deps \
+              --exclude abseil-cpp \
+              --exclude benchmark \
+              --exclude cpuinfo \
+              --exclude eigen \
+              --exclude farmhash \
+              --exclude fft2d \
+              --exclude flatbuffers \
+              --exclude flatbuffers-flatc \
+              --exclude fp16 \
+              --exclude FP16 \
+              --exclude FXdiv \
+              --exclude psimd \
+              --exclude ml_dtypes \
+              --exclude neon2sse \
+              --exclude protobuf \
+              --exclude pthreadpool \
+              --exclude pthreadpool-source \
+              --exclude ruy \
+              --exclude xnnpack \
+              --exclude XNNPACK \
+              --exclude googletest \
+              -o analyzer-${ANALYZER_MODE} \
+              -analyzer-config mode=${ANALYZER_MODE} \
+              $*
+          }
+
+          # CMake 4.0.0 removed compatibility with CMake < 3.5. Add
+          # -DCMAKE_POLICY_VERSION_MINIMUM=3.5 to try configuring anyway.
+          scan_build cmake -B avm_build -GNinja -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Debug
+          exit_code=0
+          scan_build --status-bugs cmake --build avm_build || exit_code=$?
+          if [ ${exit_code} -ne 0 ]; then
+            echo -e "\e[31mstatic analyzer HTML warning report can be browsed by following this wiki page:\e[0m"
+            echo -e "\e[31mhttps://gitlab.com/AOMediaCodec/avm/-/wikis/Reproducing-CI-Test-Failures-Locally#viewing-static-analysis-report-from-gitlab-ci\e[0m"
+            exit 1
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4.1.0
+        if: ${{ failure() }}
+        with:
+          name: analyzer-${{ matrix.analyzer-mode }}
+          path: analyzer-${{ matrix.analyzer-mode }}
+          retention-days: 14
+
+    strategy:
+      fail-fast: false
+      matrix:
+        analyzer-mode:
+          - deep
+          - shallow
+
+  so-checks:
+    name: SO checks
+    needs:
+      - common-builds
+      - vars
+    if: (!cancelled())
+    timeout-minutes: ${{ fromJson(needs.vars.outputs.timeout-minutes) }}
+    runs-on: ${{ needs.vars.outputs.runner }}
+    container:
+      image: ${{ needs.vars.outputs.container-image }}
+    steps:
+      - name: Pull build
+        uses: actions/download-artifact@v5
+        with:
+          name: build-x86_64-linux-gcc-shared
+
+      - name: Check SO
+        run: |
+          for so in $(find -name '*.so*'); do
+            echo "Checking ${so} for textrels..."
+            if readelf -dW ${so} | grep TEXTREL; then
+              textrels=$(eu-findtextrel ${so} | sort | uniq)
+              if [ -n "${textrels}" ]; then
+                echo "${textrels}"
+                exit 1
+              fi
+            fi
+
+            echo "Checking ${so} ELF header/section headers..."
+            if readelf -lW ${so} | grep WE; then
+              echo "Invalid ELF header/section headers"
+              echo "https://android.googlesource.com/platform/bionic/+/master/android-changes-for-ndk-developers.md#Writable-and-Executable-Segments-Enforced-for-API-level-26"
+              exit 1
+            fi
+          done

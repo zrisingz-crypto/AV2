@@ -346,7 +346,7 @@ typedef enum {
   TILE_SIZE_HEADER_RATE_TOO_HIGH,
   BITRATE_TOO_HIGH,
   DECODER_MODEL_FAIL,
-  DPB_SIZE_FAIL,
+  REF_FRAMES_FAIL,
 
   TARGET_LEVEL_FAIL_IDS,
   TARGET_LEVEL_OK,
@@ -372,7 +372,7 @@ static const char *level_fail_messages[TARGET_LEVEL_FAIL_IDS] = {
   "The product of max tile size and header rate is too high.",
   "The bitrate is too high.",
   "The decoder model fails.",
-  "The DPB size is invalid.",
+  "The number of reference frames is invalid.",
 };
 
 static double get_max_bitrate(const AV2LevelSpec *const level_spec, int tier,
@@ -652,6 +652,29 @@ void av2_decoder_model_init(const AV2_COMP *const cpi, AV2_LEVEL level,
   decoder_model->decode_rate = av2_level_defs[level].max_decode_rate;
 }
 
+int av2_get_max_level_ref_frames(const AV2_COMMON *const cm, OBU_TYPE obu_type,
+                                 AV2_LEVEL level_index) {
+  const SequenceHeader *const seq_params = &cm->seq_params;
+  const int cap = (seq_params->ref_frames != 8) ? 16 : 8;
+
+  const int max_picture_size = av2_level_defs[level_index].max_picture_size;
+
+  const int64_t current_picture_size =
+      seq_params->max_frame_width * seq_params->max_frame_height;
+
+  int64_t limit = (int64_t)(max_picture_size * 8) / current_picture_size;
+
+  const int decode_count =
+      cm->features.allow_global_intrabc && is_filter_enabled_frame(cm) ? 2 : 1;
+
+  if (decode_count == 2 &&
+      (obu_type != OBU_CLK || seq_params->max_mlayer_id != 0)) {
+    limit -= 1;
+  }
+  const int max_level_ref_frames = (int)AVMMIN(cap, limit);
+  return max_level_ref_frames;
+}
+
 void av2_decoder_model_process_frame(const AV2_COMP *const cpi,
                                      size_t coded_bits,
                                      DECODER_MODEL *const decoder_model) {
@@ -871,16 +894,6 @@ double av2_get_min_cr_for_level(AV2_LEVEL level_index, int tier,
                     level_spec->max_decode_rate);
 }
 
-int av2_get_max_legal_dpb_size(const SequenceHeader *seq_params,
-                               AV2_LEVEL level_index) {
-  int max_picture_size = av2_level_defs[level_index].max_picture_size;
-  int current_picture_size =
-      seq_params->max_frame_width * seq_params->max_frame_height;
-  int max_legal_dpb_size =
-      AVMMIN(REF_FRAMES, (int)((max_picture_size * 8) / current_picture_size));
-  return max_legal_dpb_size;
-}
-
 static void get_temporal_parallel_params(int scalability_mode_idc,
                                          int *temporal_parallel_num,
                                          int *temporal_parallel_denom) {
@@ -904,9 +917,8 @@ static void get_temporal_parallel_params(int scalability_mode_idc,
 #define MAX_TILE_SIZE_HEADER_RATE_PRODUCT 588251136
 
 static TARGET_LEVEL_FAIL_ID check_level_constraints(
-    const SequenceHeader *seq_params, const AV2LevelInfo *const level_info,
-    AV2_LEVEL level, int tier, int is_still_picture, BITSTREAM_PROFILE profile,
-    int check_bitrate) {
+    const AV2LevelInfo *const level_info, AV2_LEVEL level, int tier,
+    int is_still_picture, BITSTREAM_PROFILE profile, int check_bitrate) {
   const DECODER_MODEL *const decoder_model = &level_info->decoder_models[level];
   const DECODER_MODEL_STATUS decoder_model_status = decoder_model->status;
   if (decoder_model_status != DECODER_MODEL_OK &&
@@ -1019,12 +1031,6 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
         fail_id = TILE_SIZE_HEADER_RATE_TOO_HIGH;
         break;
       }
-    }
-
-    if (seq_params->ref_frames >
-        av2_get_max_legal_dpb_size(seq_params, level)) {
-      fail_id = DPB_SIZE_FAIL;
-      break;
     }
 
   } while (0);
@@ -1270,9 +1276,8 @@ void av2_update_level_info(AV2_COMP *cpi, size_t size, int64_t ts_start,
     if (target_level < SEQ_LEVELS) {
       assert(is_valid_seq_level_idx(target_level));
       const int tier = cpi->tier[i];
-      const TARGET_LEVEL_FAIL_ID fail_id =
-          check_level_constraints(seq_params, level_info, target_level, tier,
-                                  is_still_picture, profile, 0);
+      const TARGET_LEVEL_FAIL_ID fail_id = check_level_constraints(
+          level_info, target_level, tier, is_still_picture, profile, 0);
       if (fail_id != TARGET_LEVEL_OK) {
         const int target_level_major = 2 + (target_level >> 2);
         const int target_level_minor = target_level & 3;
@@ -1301,7 +1306,7 @@ avm_codec_err_t av2_get_seq_level_idx(const AV2_COMP *cpi,
     for (int level = 0; level < SEQ_LEVELS; ++level) {
       if (!is_valid_seq_level_idx(level)) continue;
       const TARGET_LEVEL_FAIL_ID fail_id = check_level_constraints(
-          seq_params, level_info, level, tier, is_still_picture, profile, 1);
+          level_info, level, tier, is_still_picture, profile, 1);
       if (fail_id == TARGET_LEVEL_OK) {
         seq_level_idx[op] = level;
         break;

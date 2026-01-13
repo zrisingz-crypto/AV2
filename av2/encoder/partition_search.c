@@ -2992,8 +2992,6 @@ static void init_partition_search_state_params(
   const AV2_COMMON *const cm = &cpi->common;
   PartitionBlkParams *blk_params = &part_search_state->part_blk_params;
   const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
-  // TODO(urvang): Use this assumption to cleanup unnecessary checks here and in
-  // related partition search functions.
   assert(pc_tree != NULL);
   TREE_TYPE tree_type = xd->tree_type;
   // Special case: for INTRA region in inter frame, luma partition tree type
@@ -3037,9 +3035,8 @@ static void init_partition_search_state_params(
   // Partition cost buffer update
   init_partition_costs(
       cm, x, tree_type,
-      (pc_tree && pc_tree->parent ? pc_tree->parent->region_type
-                                  : INTRA_REGION),
-      mi_row, mi_col, part_search_state->ss_x, part_search_state->ss_y, bsize,
+      (pc_tree->parent ? pc_tree->parent->region_type : INTRA_REGION), mi_row,
+      mi_col, part_search_state->ss_x, part_search_state->ss_y, bsize,
       ptree_luma, &pc_tree->chroma_ref_info, part_search_state->partition_cost);
 
   if (tree_type != CHROMA_PART) {
@@ -3085,8 +3082,7 @@ static void init_partition_search_state_params(
 
   part_search_state->forced_partition = get_forced_partition_type(
       cm, x, mi_row, mi_col, bsize, ptree_luma, template_tree,
-      (pc_tree ? pc_tree->region_type : MIXED_INTER_INTRA_REGION),
-      partition_allowed);
+      pc_tree->region_type, partition_allowed);
 
   init_allowed_partitions(
       part_search_state, &cpi->oxcf.part_cfg,
@@ -4602,6 +4598,7 @@ static INLINE void search_intra_region_partitioning(
   MACROBLOCK *const x = &td->mb;
   const int num_planes = av2_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
+  assert(pc_tree != NULL);
 
   // Add one encoder fast method for early terminating inter-sdp
   float total_count = 0;
@@ -5880,11 +5877,12 @@ bool av2_rd_pick_partition(AV2_COMP *const cpi, ThreadData *td,
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   const TokenExtra *const tp_orig = *tp;
   PartitionSearchState part_search_state;
+  assert(pc_tree != NULL);
 
-  if (frame_is_intra_only(cm) && pc_tree) {
+  if (frame_is_intra_only(cm)) {
     pc_tree->region_type = INTRA_REGION;
   }
-  if (bsize == cm->sb_size && pc_tree)
+  if (bsize == cm->sb_size)
     pc_tree->is_cfl_allowed_for_this_chroma = CFL_DISALLOWED_FOR_CHROMA;
   // Initialization of state variables used in partition search.
   init_partition_search_state_params(
@@ -5903,7 +5901,6 @@ bool av2_rd_pick_partition(AV2_COMP *const cpi, ThreadData *td,
   // the counterpart.
   if (bru_is_sb_active(cm, mi_col, mi_row)) {
     PC_TREE *counterpart_block = av2_look_for_counterpart_block(pc_tree);
-    assert(pc_tree != NULL);
     if (counterpart_block &&
         (pc_tree->region_type == counterpart_block->region_type &&
          (pc_tree->region_type != INTRA_REGION || frame_is_intra_only(cm))) &&
@@ -5932,9 +5929,9 @@ bool av2_rd_pick_partition(AV2_COMP *const cpi, ThreadData *td,
 
   if ((bsize == cm->sb_size) && bru_is_sb_active(cm, mi_col, mi_row))
     x->must_find_valid_partition = 0;
-  if (bsize == cm->sb_size && pc_tree)
+  if (bsize == cm->sb_size)
     pc_tree->is_cfl_allowed_for_this_chroma = CFL_DISALLOWED_FOR_CHROMA;
-  ;
+
   // Override skipping rectangular partition operations for edge blocks.
   if (none_rd) *none_rd = 0;
   (void)*tp_orig;

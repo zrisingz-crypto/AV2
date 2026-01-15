@@ -332,12 +332,6 @@ static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
            mi_col + mi_pos->col >= tile->mi_col_end);
 }
 
-static INLINE int find_valid_row_offset(const TileInfo *const tile, int mi_row,
-                                        int row_offset) {
-  return clamp(row_offset, tile->mi_row_start - mi_row,
-               tile->mi_row_end - mi_row - 1);
-}
-
 static INLINE int find_valid_col_offset(const TileInfo *const tile, int mi_col,
                                         int col_offset) {
   return clamp(col_offset, tile->mi_col_start - mi_col,
@@ -605,12 +599,6 @@ void get_skip_mode_ref_offsets(const AV2_COMMON *cm, int ref_order_hint[2]);
 void av2_initialize_warp_wrl_list(
     WARP_CANDIDATE warp_param_stack[][MAX_WARP_REF_CANDIDATES],
     uint8_t valid_num_warp_candidates[INTER_REFS_PER_FRAME]);
-
-// check a list of motion vectors by sad score using a number rows of pixels
-// above and a number cols of pixels in the left to select the one with best
-// score to use as ref motion vector
-void av2_find_best_ref_mvs(int_mv *mvlist, int_mv *nearest_mv, int_mv *near_mv,
-                           MvSubpelPrecision precision);
 
 uint8_t av2_findSamples(const AV2_COMMON *cm, MACROBLOCKD *xd, int *pts,
                         int *pts_inref, int ref_idx);

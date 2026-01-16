@@ -41,12 +41,12 @@ static avm_codec_err_t read_obu_header(struct avm_read_bit_buffer *rb,
   if (bit_buffer_byte_length < 1) return AVM_CODEC_CORRUPT_FRAME;
   header->size = 1;
 
-  header->obu_extension_flag = avm_rb_read_bit(rb);
+  header->obu_header_extension_flag = avm_rb_read_bit(rb);
   header->type = (OBU_TYPE)avm_rb_read_literal(rb, 5);  // obu_type
 
   header->obu_tlayer_id = avm_rb_read_literal(rb, TLAYER_BITS);
 
-  if (header->obu_extension_flag) {
+  if (header->obu_header_extension_flag) {
     if (bit_buffer_byte_length == 1) return AVM_CODEC_CORRUPT_FRAME;
     header->size += 1;
 

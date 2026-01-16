@@ -25,7 +25,7 @@ namespace avm_tools {
 // Basic OBU syntax
 // 8 bits: Header
 //   7
-//     extension flag bit
+//     header extension flag bit
 //   6,5,4,3,2
 //     type bits
 //   1,0
@@ -37,8 +37,8 @@ const uint32_t kObuTypeBitsShift = 2;
 const uint32_t kObuExtTlayerIdBitsMask = 0x3;
 const uint32_t kObuExtTlayerIdBitsShift = 0;
 
-// When extension flag bit is set:
-// 8 bits: extension header
+// When header extension flag bit is set:
+// 8 bits: header extension
 // 7,6,5
 //   mlayer ID
 // 4,3,2,1,0
@@ -79,7 +79,7 @@ bool ValidObuType(int obu_type) {
 }
 
 bool ParseObuHeader(uint8_t obu_header_byte, ObuHeader *obu_header) {
-  obu_header->obu_extension_flag =
+  obu_header->obu_header_extension_flag =
       (obu_header_byte >> kObuExtensionFlagBitShift) & kObuExtensionFlagBitMask;
   obu_header->type = static_cast<OBU_TYPE>(
       (obu_header_byte >> kObuTypeBitsShift) & kObuTypeBitsMask);
@@ -93,27 +93,27 @@ bool ParseObuHeader(uint8_t obu_header_byte, ObuHeader *obu_header) {
   return true;
 }
 
-bool ParseObuExtensionHeader(uint8_t ext_header_byte, ObuHeader *obu_header) {
+bool ParseObuHeaderExtension(uint8_t header_ext_byte, ObuHeader *obu_header) {
   obu_header->obu_mlayer_id =
-      (ext_header_byte >> kObuExtMlayerIdBitsShift) & kObuExtMlayerIdBitsMask;
+      (header_ext_byte >> kObuExtMlayerIdBitsShift) & kObuExtMlayerIdBitsMask;
   obu_header->obu_xlayer_id =
-      (ext_header_byte >> kObuExtXlayerIdBitsShift) & kObuExtXlayerIdBitsMask;
+      (header_ext_byte >> kObuExtXlayerIdBitsShift) & kObuExtXlayerIdBitsMask;
 
   return true;
 }
 
 void PrintObuHeader(const ObuHeader *header, bool first_tile_group_in_frame) {
   printf(
-      "  OBU extension: %s\n"
-      "      type:      %s%s\n"
-      "      tlayer_id: %d\n",
-      header->obu_extension_flag ? "yes" : "no",
+      "  OBU header extension: %s\n"
+      "      type:             %s%s\n"
+      "      tlayer_id:        %d\n",
+      header->obu_header_extension_flag ? "yes" : "no",
       avm_obu_type_to_string(static_cast<OBU_TYPE>(header->type)),
       first_tile_group_in_frame ? " (new frame)" : "", header->obu_tlayer_id);
-  if (header->obu_extension_flag) {
+  if (header->obu_header_extension_flag) {
     printf(
-        "      mlayer_id: %d\n"
-        "      xlayer_id: %d\n",
+        "      mlayer_id:        %d\n"
+        "      xlayer_id:        %d\n",
         header->obu_mlayer_id, header->obu_xlayer_id);
   }
 }
@@ -157,15 +157,15 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
 
     ++obu_overhead;
 
-    if (obu_header.obu_extension_flag) {
+    if (obu_header.obu_header_extension_flag) {
       if (current_obu_length < kObuHeaderSizeBytes + 1) {
         fprintf(stderr, "OBU parsing failed: not enough OBU data.\n");
         return false;
       }
-      const uint8_t obu_ext_header_byte =
+      const uint8_t obu_header_ext_byte =
           *(data + consumed + length_field_size + kObuHeaderSizeBytes);
-      if (!ParseObuExtensionHeader(obu_ext_header_byte, &obu_header)) {
-        fprintf(stderr, "OBU extension parsing failed at offset %d.\n",
+      if (!ParseObuHeaderExtension(obu_header_ext_byte, &obu_header)) {
+        fprintf(stderr, "OBU header extension parsing failed at offset %d.\n",
                 static_cast<int>(consumed + length_field_size +
                                  kObuHeaderSizeBytes));
         return false;
@@ -183,13 +183,13 @@ bool DumpObu(const uint8_t *data, int length, int *obu_overhead_bytes) {
     bool first_tile_group_in_frame = false;
     if (is_tile_group) {
       if (current_obu_length <
-          kObuHeaderSizeBytes + obu_header.obu_extension_flag + 1) {
+          kObuHeaderSizeBytes + obu_header.obu_header_extension_flag + 1) {
         fprintf(stderr, "OBU parsing failed: not enough OBU data.\n");
         return false;
       }
       const uint8_t tile_group_header_first_byte =
           *(data + consumed + length_field_size + kObuHeaderSizeBytes +
-            obu_header.obu_extension_flag);
+            obu_header.obu_header_extension_flag);
       first_tile_group_in_frame = (tile_group_header_first_byte >> 7) != 0;
     }
     PrintObuHeader(&obu_header, first_tile_group_in_frame);

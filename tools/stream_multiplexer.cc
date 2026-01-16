@@ -28,7 +28,7 @@ static int write_multi_stream_decoder_operation_obu(uint8_t *const dst,
   int obu_type = OBU_MSDO;
   uint32_t size = 0;
 
-  avm_wb_write_literal(&wb, 1, 1);              // obu_extension_flag
+  avm_wb_write_literal(&wb, 1, 1);              // obu_header_extension_flag
   avm_wb_write_literal(&wb, (int)obu_type, 5);  // obu_type
   avm_wb_write_literal(&wb, 0, 2);              // obu_tlayer
   avm_wb_write_literal(&wb, 0, 3);              // obu_mlayer
@@ -132,11 +132,11 @@ std::vector<uint8_t> WriteTU(const uint8_t *data, int length,
     ++obu_overhead;
     ++obu_header_size;
 
-    if (obu_header.obu_extension_flag) {
-      const uint8_t obu_ext_header_byte =
+    if (obu_header.obu_header_extension_flag) {
+      const uint8_t obu_header_ext_byte =
           *(data + consumed + length_field_size + kObuHeaderSizeBytes);
-      if (!ParseAV2ObuExtensionHeader(obu_ext_header_byte, &obu_header)) {
-        fprintf(stderr, "OBU extension parsing failed at offset %d.\n",
+      if (!ParseAV2ObuHeaderExtension(obu_header_ext_byte, &obu_header)) {
+        fprintf(stderr, "OBU header extension parsing failed at offset %d.\n",
                 static_cast<int>(consumed + length_field_size +
                                  kObuHeaderSizeBytes));
       }

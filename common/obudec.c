@@ -80,16 +80,17 @@ static int read_obu_header_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
     return -2;
   }
 
-  obu_header->obu_extension_flag = (buffer[0] >> 7) & 1;  // obu_extension_flag
-  obu_header->type = (buffer[0] >> 2) & 31;               // obu_type
-  obu_header->obu_tlayer_id = (buffer[0]) & 3;            // obu_temporal
-  if (obu_header->obu_extension_flag) {
+  obu_header->obu_header_extension_flag =
+      (buffer[0] >> 7) & 1;                     // obu_header_extension_flag
+  obu_header->type = (buffer[0] >> 2) & 31;     // obu_type
+  obu_header->obu_tlayer_id = (buffer[0]) & 3;  // obu_temporal
+  if (obu_header->obu_header_extension_flag) {
     if (obu_size < 2) {
       return -2;
     }
     bytes_read = fread(&buffer[1], sizeof(uint8_t), 1, f);
     if (bytes_read != 1) {
-      fprintf(stderr, "obudec: Failure reading OBU extension header.\n");
+      fprintf(stderr, "obudec: Failure reading OBU header extension.\n");
       return -2;
     }
 
@@ -103,7 +104,7 @@ static int read_obu_header_from_file(FILE *f, size_t obu_size, uint8_t *buffer,
       obu_header->obu_xlayer_id = 0;  // obu_layer (xlayer)
   }
 
-  return obu_header->obu_extension_flag ? 2 : 1;
+  return obu_header->obu_header_extension_flag ? 2 : 1;
 }
 
 // non vcl obus that starts a new frame unit

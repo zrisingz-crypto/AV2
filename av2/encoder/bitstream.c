@@ -5858,11 +5858,11 @@ uint32_t av2_write_obu_header(AV2LevelParams *const level_params,
 
   assert(IMPLIES(obu_type == OBU_MSDO,
                  obu_temporal == 0 && obu_layer == GLOBAL_XLAYER_ID));
-  int obu_extension_flag = (obu_type != OBU_MSDO && obu_layer != 0);
-  avm_wb_write_bit(&wb, obu_extension_flag);
+  int obu_header_extension_flag = (obu_type != OBU_MSDO && obu_layer != 0);
+  avm_wb_write_bit(&wb, obu_header_extension_flag);
   avm_wb_write_literal(&wb, (int)obu_type, 5);
   avm_wb_write_literal(&wb, obu_temporal, TLAYER_BITS);
-  if (obu_extension_flag) {
+  if (obu_header_extension_flag) {
     avm_wb_write_literal(&wb, obu_layer, 8);
   }
 

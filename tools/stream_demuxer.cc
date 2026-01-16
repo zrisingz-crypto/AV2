@@ -138,11 +138,11 @@ std::vector<uint8_t> ExtractTU(const uint8_t *data, int length,
     ++obu_overhead;
     ++obu_header_size;
 
-    if (obu_header.obu_extension_flag) {
-      const uint8_t obu_ext_header_byte =
+    if (obu_header.obu_header_extension_flag) {
+      const uint8_t obu_header_ext_byte =
           *(data + consumed + length_field_size + kObuHeaderSizeBytes);
-      if (!ParseAV2ObuExtensionHeader(obu_ext_header_byte, &obu_header)) {
-        fprintf(stderr, "OBU extension parsing failed at offset %d.\n",
+      if (!ParseAV2ObuHeaderExtension(obu_header_ext_byte, &obu_header)) {
+        fprintf(stderr, "OBU header extension parsing failed at offset %d.\n",
                 static_cast<int>(consumed + length_field_size +
                                  kObuHeaderSizeBytes));
       }
@@ -151,7 +151,7 @@ std::vector<uint8_t> ExtractTU(const uint8_t *data, int length,
       ++obu_header_size;
     }
 
-    if (obu_header.obu_extension_flag) {
+    if (obu_header.obu_header_extension_flag) {
       *current_stream_id = obu_header.obu_xlayer_id;
     } else if (obu_header.type == OBU_MSDO) {
       *current_stream_id = 31;

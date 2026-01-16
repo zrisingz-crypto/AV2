@@ -21,7 +21,7 @@ extern "C" {
 typedef struct {
   size_t size;  // Size (1 or 2 bytes) of the OBU header (including the
                 // optional second byte) in the bitstream.
-  int obu_extension_flag;
+  int obu_header_extension_flag;
   OBU_TYPE type;
   int obu_tlayer_id;
   int obu_mlayer_id;  // same as spatial_layer_id in the old design

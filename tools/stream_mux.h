@@ -44,7 +44,7 @@ const size_t kInitialBufferSize = 100 * 1024;
 //   7,6,5,4
 //     type bits
 //   3
-//     extension flag bit
+//     header extension flag bit
 //   2,1,0
 //     tlayer ID
 const uint32_t kObuTypeBitsMask = 0x1F;
@@ -54,8 +54,8 @@ const uint32_t kObuExtensionFlagBitShift = 7;
 const uint32_t kObuExtTlayerIdBitsMask = 0x3;
 const uint32_t kObuExtTlayerIdBitsShift = 0;
 
-// When extension flag bit is set:
-// 8 bits: extension header
+// When header extension flag bit is set:
+// 8 bits: header extension
 // 7,6,5
 //   mlayer ID
 // 4,3,2,1,0
@@ -184,19 +184,19 @@ bool ParseAV2ObuHeader(uint8_t obu_header_byte, ObuHeader *obu_header) {
     return false;
   }
 
-  obu_header->obu_extension_flag =
+  obu_header->obu_header_extension_flag =
       (obu_header_byte >> kObuExtensionFlagBitShift) & kObuExtensionFlagBitMask;
   obu_header->obu_tlayer_id =
       (obu_header_byte >> kObuExtTlayerIdBitsShift) & kObuExtTlayerIdBitsMask;
   return true;
 }
 
-bool ParseAV2ObuExtensionHeader(uint8_t ext_header_byte,
+bool ParseAV2ObuHeaderExtension(uint8_t header_ext_byte,
                                 ObuHeader *obu_header) {
   obu_header->obu_mlayer_id =
-      (ext_header_byte >> kObuExtMlayerIdBitsShift) & kObuExtMlayerIdBitsMask;
+      (header_ext_byte >> kObuExtMlayerIdBitsShift) & kObuExtMlayerIdBitsMask;
   obu_header->obu_xlayer_id =
-      (ext_header_byte >> kObuExtXlayerIdBitsShift) & kObuExtXlayerIdBitsMask;
+      (header_ext_byte >> kObuExtXlayerIdBitsShift) & kObuExtXlayerIdBitsMask;
 
   return true;
 }

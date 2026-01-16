@@ -255,21 +255,29 @@ jobs:
         run: |
           cpu_cores=$(nproc)
           commands=/tmp/parallel.commands.$$
+          ret=0
 
           printf "" >${commands}
 
           cd avm_example_build
           for test in $(../test/examples.sh --list-tests); do
-            echo "sh ../test/examples.sh --bin-path examples --verbose --show-program-output --filter \"\b${test}\b\"" >>${commands}
+            echo "sh ../test/examples.sh --bin-path examples --verbose --show-program-output --filter \"\b${test}\b\" 2> >(tee -a ${GITHUB_WORKSPACE}/example.test.${test}.log >&2)" >>${commands}
           done
 
           cat ${commands}
-          time parallel --line-buffer --jobs ${cpu_cores} < ${commands}
+          time parallel --line-buffer --jobs ${cpu_cores} < ${commands} || ret=$?
 
-          if [ $? -ne 0 ]; then
-            echo "Failure running '${t}' example test, see log above for details!"
+          if [ ${ret} -ne 0 ]; then
+            echo "Failure running example tests, see logs for details." >&2
             exit 1
           fi
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4.1.0
+        if: ${{ always() }}
+        with:
+          name: example-test-logs
+          path: example.test.*.log
 
   linux-sanitizer-test:
     name: Linux Sanitizer Test

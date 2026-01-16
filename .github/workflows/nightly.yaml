@@ -392,11 +392,18 @@ jobs:
           printf "" >${commands}
 
           for id in $(seq 0 $((total_shards-1))); do
-            echo GTEST_TOTAL_SHARDS=${total_shards} GTEST_SHARD_INDEX=${id} GTEST_OUTPUT=xml:report.${id}.xml ./test_libavm --gtest_filter=${filter} >>${commands}
+            echo "GTEST_TOTAL_SHARDS=${total_shards} GTEST_SHARD_INDEX=${id} GTEST_OUTPUT=xml:report.${id}.xml ./test_libavm --gtest_filter=${filter} 2> >(tee -a ${GITHUB_WORKSPACE}/${{ github.job }}.${{ matrix.avm-optim-level }}.${id}.log >&2)" >>${commands}
           done
 
           cat ${commands}
           time parallel --line-buffer --jobs ${cpu_cores} < ${commands}
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4.1.0
+        if: ${{ always() }}
+        with:
+          name: ${{ github.job }}-${{ matrix.avm-optim-level }}-logs
+          path: ${{ github.job }}.${{ matrix.avm-optim-level }}.*.log
 
       - name: Publish Junit Test Report
         uses: mikepenz/action-junit-report@v5

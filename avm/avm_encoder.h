@@ -553,10 +553,11 @@ typedef struct cfg_options {
    *
    */
   unsigned int explicit_ref_frame_map;
-  /*!\brief enable generation of SEF OBUs with the display order hint derivation
+  /*!\brief add SEF OBUs with the display order hint derivation to output hidden
+   * frames
    *
    */
-  unsigned int enable_generation_sef_obu;
+  unsigned int add_sef_for_hidden_frames;
   /*!\brief use reduced transform type set
    *
    */

@@ -855,8 +855,10 @@ static int denoise_and_encode(AV2_COMP *const cpi, uint8_t *const dest,
     cm->current_frame.frame_type = frame_params->frame_type;
     const int code_arf =
         av2_temporal_filter(cpi, arf_src_index, &show_existing_alt_ref);
-    if (cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu)
+    if (cpi->oxcf.ref_frm_cfg.add_sef_for_hidden_frames) {
       cpi->common.implicit_output_picture = 0;
+    }
+
     if (code_arf) {
       avm_extend_frame_borders(&cpi->alt_ref_buffer, av2_num_planes(cm), 0);
       frame_input->source = &cpi->alt_ref_buffer;
@@ -988,20 +990,14 @@ int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
   struct lookahead_entry *source = NULL;
   struct lookahead_entry *last_source = NULL;
   struct lookahead_entry *bru_ref_source = NULL;
-  if (frame_params.frame_params_update_type_was_overlay) {
-    source = av2_lookahead_pop(cpi->lookahead, flush, cpi->compressor_stage);
-    frame_params.immediate_output_picture = 1;
-  } else {
-    source = choose_frame_source(cpi, &flush, &last_source,
-                                 -(BRU_ENC_LOOKAHEAD_DIST_MINUS_1 + 1),
-                                 &bru_ref_source, &frame_params);
-  }
-
+  source = choose_frame_source(cpi, &flush, &last_source,
+                               -(BRU_ENC_LOOKAHEAD_DIST_MINUS_1 + 1),
+                               &bru_ref_source, &frame_params);
   if (frame_params.frame_type == S_FRAME)
     cpi->common.immediate_output_picture = 1;
-
-  if (cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu)
+  if (cpi->oxcf.ref_frm_cfg.add_sef_for_hidden_frames) {
     cpi->common.implicit_output_picture = 0;
+  }
 
   if (source == NULL) {  // If no source was found, we can't encode a frame.
     if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
@@ -1093,8 +1089,10 @@ int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
   if (frame_params.frame_type == KEY_FRAME) {
     source->disp_order_hint = 0;
   }
-  if (cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu)
+  if (cpi->oxcf.ref_frm_cfg.add_sef_for_hidden_frames) {
     cm->implicit_output_picture = 0;
+  }
+
   if (frame_params.frame_type == KEY_FRAME && !cpi->no_show_fwd_kf)
     cm->implicit_output_picture = 0;
 

@@ -244,7 +244,7 @@ typedef struct av2_codec_arg_definitions {
   arg_def_t max_reference_frames;
   arg_def_t reduced_reference_set;
   arg_def_t explicit_ref_frame_map;
-  arg_def_t enable_generation_sef_obu;
+  arg_def_t add_sef_for_hidden_frames;
   arg_def_t target_seq_level_idx;
   arg_def_t set_min_cr;
   arg_def_t input_color_primaries;

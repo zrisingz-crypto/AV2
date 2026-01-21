@@ -711,9 +711,9 @@ const av2_codec_arg_definitions_t g_av2_codec_arg_defs = {
       ARG_DEF(NULL, "explicit-ref-frame-map", 1,
               "Explicitly signal the reference frame mapping (0: off "
               "(default), 1: on)"),
-  .enable_generation_sef_obu =
-      ARG_DEF(NULL, "enable-generation-sef-obu", 1,
-              "Enable frame output order derivation based on SEF"
+  .add_sef_for_hidden_frames =
+      ARG_DEF(NULL, "add-sef-for-output", 1,
+              "Add SEF witout order_hint to output hidden frames"
               "(0: off (default), 1: on)"),
   .target_seq_level_idx = ARG_DEF(
       NULL, "target-seq-level-idx", 1,

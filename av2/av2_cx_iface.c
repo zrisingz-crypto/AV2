@@ -158,8 +158,8 @@ struct av2_extracfg {
   int max_reference_frames;      // maximum number of references per frame
   int enable_reduced_reference_set;  // enable reduced set of references
   int explicit_ref_frame_map;      // explicitly signal reference frame mapping
-  int enable_generation_sef_obu;   // enable frame output order derivation based
-                                   // on SEF
+  int add_sef_for_hidden_frames;   // add sef_obu with the display order hint
+                                   // derivation to output hidden frames
   int enable_ref_frame_mvs;        // sequence level
   int reduced_ref_frame_mvs_mode;  // use 1 reference frame combination
                                    // for temporal mv prediction
@@ -808,10 +808,9 @@ static avm_codec_err_t validate_config(avm_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, reduced_ref_frame_mvs_mode, 0, 1);
   RANGE_CHECK(extra_cfg, enable_reduced_reference_set, 0, 1);
   RANGE_CHECK(extra_cfg, explicit_ref_frame_map, 0, 1);
-  RANGE_CHECK(extra_cfg, enable_generation_sef_obu, 0, 1);
+  RANGE_CHECK(extra_cfg, add_sef_for_hidden_frames, 0, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_x, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_y, 1);
-
   RANGE_CHECK_HI(extra_cfg, enable_trellis_quant, 3);
   RANGE_CHECK_HI(extra_cfg, frame_multi_qmatrix_unit_test, 4);
   RANGE_CHECK_HI(extra_cfg, sef_with_order_hint_test, 2);
@@ -987,7 +986,7 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->scan_type_info_present_flag = extra_cfg->scan_type_info_present_flag;
   cfg->enable_mfh_obu_signaling = extra_cfg->enable_mfh_obu_signaling;
   cfg->explicit_ref_frame_map = extra_cfg->explicit_ref_frame_map;
-  cfg->enable_generation_sef_obu = extra_cfg->enable_generation_sef_obu;
+  cfg->add_sef_for_hidden_frames = extra_cfg->add_sef_for_hidden_frames;
   cfg->disable_loopfilters_across_tiles =
       extra_cfg->disable_loopfilters_across_tiles;
   cfg->reduced_tx_type_set = extra_cfg->reduced_tx_type_set;
@@ -1101,7 +1100,7 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   // imply explicit_ref_frame_map = 1 when bru is on
   extra_cfg->enable_bru = cfg->enable_bru;
   extra_cfg->explicit_ref_frame_map = cfg->explicit_ref_frame_map;
-  extra_cfg->enable_generation_sef_obu = cfg->enable_generation_sef_obu;
+  extra_cfg->add_sef_for_hidden_frames = cfg->add_sef_for_hidden_frames;
   extra_cfg->disable_loopfilters_across_tiles =
       cfg->disable_loopfilters_across_tiles;
   extra_cfg->reduced_tx_type_set = cfg->reduced_tx_type_set;
@@ -1580,8 +1579,8 @@ static avm_codec_err_t set_encoder_config(AV2EncoderConfig *oxcf,
       extra_cfg->enable_reduced_reference_set;
   oxcf->ref_frm_cfg.enable_onesided_comp = extra_cfg->enable_onesided_comp;
   oxcf->ref_frm_cfg.explicit_ref_frame_map = extra_cfg->explicit_ref_frame_map;
-  oxcf->ref_frm_cfg.enable_generation_sef_obu =
-      extra_cfg->enable_generation_sef_obu;
+  oxcf->ref_frm_cfg.add_sef_for_hidden_frames =
+      extra_cfg->add_sef_for_hidden_frames;
   oxcf->row_mt = extra_cfg->row_mt;
 
   // Set motion mode related configuration.
@@ -2855,7 +2854,8 @@ static void report_stats(AV2_COMP *cpi, size_t frame_size, uint64_t cx_time) {
   if (cpi->b_calculate_psnr >= 1) {
     calculate_psnr(cpi, &psnr);
   }
-  if (!cm->show_existing_frame) {
+
+  if (!cm->show_existing_frame || !cm->derive_sef_order_hint) {
     // Get reference frame information
     int ref_poc[INTER_REFS_PER_FRAME];
     for (int ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
@@ -3198,16 +3198,14 @@ static avm_codec_err_t encoder_encode(avm_codec_alg_priv_t *ctx,
 
       cpi->seq_params_locked = 1;
       is_frame_visible = cpi->common.immediate_output_picture;
-      if (!cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu) {
-        if ((!cpi->is_olk_overlay && cpi->update_type_was_overlay) ||
-            (cpi->common.current_frame.frame_type != KEY_FRAME &&
-             cpi->common.show_existing_frame)) {
+      if (!cpi->is_olk_overlay && cpi->update_type_was_overlay) {
+        if (cpi->oxcf.ref_frm_cfg.add_sef_for_hidden_frames) {
+          is_frame_visible_null = 0;
+          assert(cpi->common.show_existing_frame &&
+                 cpi->common.derive_sef_order_hint);
+        } else {
           is_frame_visible_null = 1;
-        }
-      } else {
-        if (cpi->common.show_existing_frame) {
-          is_frame_visible_null = 1;
-          is_frame_visible = 1;
+          assert(IMPLIES(is_frame_visible_null, frame_size == 0));
         }
       }
       if (!is_frame_visible_null && frame_size == 0) is_frame_visible = 0;
@@ -3328,12 +3326,8 @@ static avm_codec_err_t encoder_encode(avm_codec_alg_priv_t *ctx,
 
       // decrement frames_left counter
       cpi->frames_left = AVMMAX(0, cpi->frames_left - 1);
-
-      pkt.kind = (is_frame_visible_null &&
-                  !cpi->oxcf.ref_frm_cfg.enable_generation_sef_obu)
-                     ? AVM_CODEC_CX_FRAME_NULL_PKT
-                     : AVM_CODEC_CX_FRAME_PKT;
-
+      pkt.kind = is_frame_visible_null ? AVM_CODEC_CX_FRAME_NULL_PKT
+                                       : AVM_CODEC_CX_FRAME_PKT;
       pkt.data.frame.buf = ctx->pending_cx_data;
       pkt.data.frame.sz = ctx->pending_cx_data_sz;
       pkt.data.frame.partition_id = -1;
@@ -4043,9 +4037,9 @@ static avm_codec_err_t encoder_set_option(avm_codec_alg_priv_t *ctx,
     extra_cfg.explicit_ref_frame_map =
         avm_arg_parse_int_helper(&arg, err_string);
   } else if (avm_arg_match_helper(
-                 &arg, &g_av2_codec_arg_defs.enable_generation_sef_obu, argv,
+                 &arg, &g_av2_codec_arg_defs.add_sef_for_hidden_frames, argv,
                  err_string)) {
-    extra_cfg.enable_generation_sef_obu =
+    extra_cfg.add_sef_for_hidden_frames =
         avm_arg_parse_int_helper(&arg, err_string);
   } else if (avm_arg_match_helper(&arg,
                                   &g_av2_codec_arg_defs.enable_ref_frame_mvs,
@@ -4568,7 +4562,7 @@ static const avm_codec_enc_cfg_t encoder_usage_cfg[] = { {
         0,  // reduced_ref_frame_mvs_mode
         1,  // enable_reduced_reference_set
         0,  // explicit_ref_frame_map
-        0,  // enable_generation_sef_obu
+        0,  // add_sef_for_hidden_frames
         0,  // reduced_tx_type_set
         0,  // max_drl_refmvs
 

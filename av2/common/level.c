@@ -226,7 +226,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 19902,
     .max_display_rate = 4278190080L,
     .max_decode_rate = 4706009088L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 160.0,
     .high_mbps = 800.0,
     .main_cr = 8.0,
@@ -239,7 +239,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 19902,
     .max_display_rate = 8556380160L,
     .max_decode_rate = 8758886400L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 200.0,
     .high_mbps = 960.0,
     .main_cr = 8.0,
@@ -252,7 +252,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 19902,
     .max_display_rate = 17112760320L,
     .max_decode_rate = 17517772800L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 320.0,
     .high_mbps = 1600.0,
     .main_cr = 8.0,
@@ -265,7 +265,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 19902,
     .max_display_rate = 17112760320L,
     .max_decode_rate = 18824036352L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 320.0,
     .high_mbps = 1600.0,
     .main_cr = 8.0,
@@ -278,7 +278,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 38400,
     .max_display_rate = 17112760320L,
     .max_decode_rate = 18824036352L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 320.0,
     .high_mbps = 1600.0,
     .main_cr = 8.0,
@@ -291,7 +291,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 38400,
     .max_display_rate = 34225520640L,
     .max_decode_rate = 34910031052L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 400.0,
     .high_mbps = 1920.0,
     .main_cr = 8.0,
@@ -304,7 +304,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 38400,
     .max_display_rate = 68451041280L,
     .max_decode_rate = 69820062105L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 640.0,
     .high_mbps = 3200.0,
     .main_cr = 8.0,
@@ -317,7 +317,7 @@ static const AV2LevelSpec av2_level_defs[SEQ_LEVELS] = {
     .max_v_size = 38400,
     .max_display_rate = 68451041280L,
     .max_decode_rate = 75296145408L,
-    .max_header_rate = 300,
+    .max_header_rate = 960,
     .main_mbps = 640.0,
     .high_mbps = 3200.0,
     .main_cr = 8.0,
@@ -951,7 +951,8 @@ static TARGET_LEVEL_FAIL_ID check_level_constraints(
       break;
     }
 
-    if (level_spec->max_header_rate > target_level_spec->max_header_rate) {
+    if (level_spec->max_header_rate >
+        (target_level_spec->max_header_rate * (1 + (tier * 2)))) {
       fail_id = FRAME_HEADER_RATE_TOO_HIGH;
       break;
     }

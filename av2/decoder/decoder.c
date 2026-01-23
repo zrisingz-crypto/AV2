@@ -234,10 +234,13 @@ AV2Decoder *av2_decoder_create(BufferPool *const pool) {
   memset(&pbi->last_frame_unit, -1, sizeof(pbi->last_frame_unit));
   memset(&pbi->last_displayable_frame_unit, -1,
          sizeof(pbi->last_displayable_frame_unit));
-  pbi->is_random_access_frame_unit = 1;
+  pbi->is_random_access_frame_unit = 0;
   for (int i = 0; i < MAX_NUM_MLAYERS; i++) {
     pbi->num_displayable_frame_unit[i] = 0;
   }
+  for (int i = 0; i < MAX_NUM_MLAYERS; i++)
+    memset(pbi->obus_in_frame_unit_data[i], 0,
+           sizeof(pbi->obus_in_frame_unit_data[i]));
 
 #if CONFIG_ACCOUNTING
   pbi->acct_enabled = 1;

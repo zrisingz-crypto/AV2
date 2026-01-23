@@ -486,8 +486,7 @@ typedef struct AV2Decoder {
   /*!
    * Indicates if the current data chunk being decoded in avm_codec_decode()
    * includes a random access point, OBU_CLK or OBU_OLK and it is the
-   * start of a temporal unit that will require flush the remaining frames. -1
-   * indicates not derived yet
+   * start of a temporal unit that will require flush the remaining frames.
    */
   int is_random_access_frame_unit;
   /*!
@@ -503,31 +502,38 @@ typedef struct AV2Decoder {
    */
   int olk_encountered;
   /*!
-   * Indicates the CLK or OLK is in the layer that is decoded first. This means
-   * the other layers with mlayer_id smaller than the current layer_id are
-   * dropped at the decoder it is set true when the decoder starts it is set
-   * false when THE first CLK is decoded regardless of its mlayer. it is reset
-   * true when a new sequence starts and a CLK is not decoded yet.
-   */
-  int is_first_layer_decoded;
-  /*!
-   * Indicates that a frame is decoded as a random access point
+   * Indicates that the current CLK or OLK is accessed as a start of a sequence
+   * Once it is set true, It stays true till the next random access point
+   * random_accessed is derived to be true when random_access_point_count is
+   * equal to random_access_point_index
    */
   bool random_accessed;
   /*!
-   * When random_accessed is true, random_access_point_index-th random access
-   * point is decoded as a random access point
+   * A decoder option to start decoding from the random_access_point_index-th
+   * random access point. random_accessed is set to be true when
+   * random_access_point_index is equal to random_access_point_count   * when
+   * not used, the default value is -1
    */
-  uint64_t random_access_point_index;
+  int64_t random_access_point_index;
   /*!
-   * count number of sequence header for random access
+   * Counts the number of random access points. It is increased by 1 at the
+   * first CLK/OLK of a temporal unit. If a sequence header is not provided,
+   * CLK/OLK is not considered as a random access point.
    */
-  uint64_t random_access_point_count;
+  int64_t random_access_point_count;
   /*!
    * list of film grain model
    */
 
   struct film_grain_model fgm_list[MAX_FGM_NUM];
+
+  /*!
+   * Indicates the presence of obu in the current frame unit data
+   * When obus_in_frame_unit_data[mlayer_id][i] is true, OBUs with obu_type = i
+   * and obu_mlayer_id=mlayer_id are present in the current frame unit data
+   */
+  bool obus_in_frame_unit_data[MAX_NUM_MLAYERS][NUM_OBU_TYPES];
+
   /*!
    * Indicates if the ci obu is signalled with a CLK/OLK in the temporal unit
    * 0. CLK/OLK signalled without CI

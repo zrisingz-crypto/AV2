@@ -1337,6 +1337,12 @@ static int is_leading_vcl_obu(OBU_TYPE obu_type) {
           obu_type == OBU_LEADING_TIP);
 }
 
+static int is_regular_vcl_obu(OBU_TYPE obu_type) {
+  return (obu_type == OBU_REGULAR_SEF || obu_type == OBU_REGULAR_TIP ||
+          obu_type == OBU_REGULAR_TILE_GROUP || obu_type == OBU_BRIDGE_FRAME ||
+          obu_type == OBU_SWITCH || obu_type == OBU_RAS_FRAME);
+}
+
 // Check if any obu is present between two tile groups of one frame unit.
 static void check_tilegroup_obus_in_a_frame_unit(AV2_COMMON *const cm,
                                                  obu_info *current_obu,
@@ -1538,44 +1544,12 @@ int avm_decode_frame_from_obus(struct AV2Decoder *pbi, const uint8_t *data,
 
     // Skip all obus till the random_accessed-th random access point
     // Remove all leading_vcl obus
-    if (obu_header.type == OBU_LEADING_SEF ||
-        obu_header.type == OBU_LEADING_TIP ||
-        obu_header.type == OBU_LEADING_TILE_GROUP)
+    if (is_leading_vcl_obu(obu_header.type))
       cm->is_leading_picture = 1;
-    else if (obu_header.type == OBU_REGULAR_SEF ||
-             obu_header.type == OBU_REGULAR_TIP ||
-             obu_header.type == OBU_REGULAR_TILE_GROUP ||
-             obu_header.type == OBU_BRIDGE_FRAME ||
-             obu_header.type == OBU_SWITCH || obu_header.type == OBU_RAS_FRAME)
+    else if (is_regular_vcl_obu(obu_header.type))
       cm->is_leading_picture = 0;
     else
       cm->is_leading_picture = -1;
-    if (obu_header.type == OBU_CLK || obu_header.type == OBU_OLK)
-      pbi->random_access_point_count++;
-    if (pbi->random_access_point_count < pbi->random_access_point_index) {
-      pbi->random_accessed = 0;
-      data += (bytes_read + payload_size);
-      continue;
-    } else {
-      if (obu_header.type == OBU_OLK || obu_header.type == OBU_CLK)
-        pbi->random_accessed = 1;
-      if ((obu_header.type == OBU_OLK || obu_header.type == OBU_CLK) &&
-          pbi->random_access_point_count != pbi->random_access_point_index)
-        pbi->random_accessed = 0;
-      if (pbi->random_accessed) {
-        // drop all leading vcl obus
-        if (is_leading_vcl_obu(obu_header.type)) {
-          data += (bytes_read + payload_size);
-          continue;
-        }
-      }
-    }
-    if (pbi->random_accessed) {
-      if (pbi->msdo_is_present_in_tu)
-        pbi->multi_stream_mode = 1;
-      else
-        pbi->multi_stream_mode = 0;
-    }
 
     obu_info *const curr_obu_info =
         &obu_list[pbi->test_decoder_frame_unit_offset +
@@ -1711,9 +1685,6 @@ int avm_decode_frame_from_obus(struct AV2Decoder *pbi, const uint8_t *data,
         pbi->stream_switched = 0;
         decoded_payload_size = read_sequence_header_obu(pbi, &rb);
         if (cm->error.error_code != AVM_CODEC_OK) return -1;
-        pbi->is_first_layer_decoded = true;
-        for (int layer = 0; layer < MAX_NUM_MLAYERS; layer++)
-          cm->olk_refresh_frame_flags[layer] = -1;
         break;
       case OBU_BUFFER_REMOVAL_TIMING:
         decoded_payload_size =

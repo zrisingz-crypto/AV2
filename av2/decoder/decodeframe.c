@@ -7232,6 +7232,8 @@ static void handle_sequence_header(AV2Decoder *pbi, OBU_TYPE obu_type,
     return;
   }
 
+  assert(obu_type == OBU_CLK || obu_type == OBU_OLK);
+
   if (obu_type == OBU_OLK && !pbi->random_accessed) {
     if (!are_seq_headers_consistent(&cm->seq_params, pbi->active_seq)) {
       avm_internal_error(
@@ -7270,8 +7272,16 @@ static void handle_sequence_header(AV2Decoder *pbi, OBU_TYPE obu_type,
         cm->mlayer_id, cm->seq_params.max_mlayer_id);
   }
 
-  if ((obu_type == OBU_CLK || obu_type == OBU_OLK) &&
-      (pbi->ci_and_key_per_layer[cm->mlayer_id] == 0)) {
+  // At this point, obu_type is OBU_CLK or OBU_OLK.
+  // When OBU_CONTENT_INTERPRETATION is not accompanied with the current obu,
+  // cm->ci_params_per_layer[cm->mlayer_id] is reset to default values.
+  const bool is_ci_present =
+      pbi->obus_in_frame_unit_data[cm->mlayer_id][OBU_CONTENT_INTERPRETATION];
+  if (!is_ci_present) {
+    // Initialize to default first
+    av2_initialize_ci_params(&cm->ci_params_per_layer[cm->mlayer_id]);
+
+    // Then, if there is any CI OBUs in the previous mlayer, copy the ci_params
     for (int ref_layer_id = 0; ref_layer_id < cm->mlayer_id; ref_layer_id++) {
       if (cm->seq_params.mlayer_dependency_map[cm->mlayer_id][ref_layer_id]) {
         cm->ci_params_per_layer[cm->mlayer_id] =
@@ -7588,8 +7598,7 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
     }
   }
 
-  if (pbi->ci_obu_received_per_layer[cm->mlayer_id] &&
-      (color_info->matrix_coefficients == AVM_CICP_MC_IDENTITY) &&
+  if (color_info->matrix_coefficients == AVM_CICP_MC_IDENTITY &&
       (seq_params->subsampling_x || seq_params->subsampling_y)) {
     avm_internal_error(
         &cm->error, AVM_CODEC_UNSUP_BITSTREAM,

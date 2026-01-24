@@ -6390,14 +6390,14 @@ static AVM_INLINE void read_multi_frame_header_seg_info(
   }
 }
 
-void av2_read_multi_frame_header(AV2_COMMON *cm,
-                                 struct avm_read_bit_buffer *rb) {
+uint32_t av2_read_multi_frame_header(AV2_COMMON *cm,
+                                     struct avm_read_bit_buffer *rb) {
   const uint32_t mfh_seq_header_id = avm_rb_read_uvlc(rb);
   if (mfh_seq_header_id >= MAX_SEQ_NUM) {
     avm_internal_error(&cm->error, AVM_CODEC_CORRUPT_FRAME,
                        "Unsupported Sequence Header ID in MFH");
   }
-  uint32_t cur_mfh_id = avm_rb_read_uvlc(rb) + 1;
+  const uint32_t cur_mfh_id = avm_rb_read_uvlc(rb) + 1;
   if (cur_mfh_id >= MAX_MFH_NUM) {
     avm_internal_error(&cm->error, AVM_CODEC_CORRUPT_FRAME,
                        "multi-frame header id is greater than or equal to the "
@@ -6438,6 +6438,7 @@ void av2_read_multi_frame_header(AV2_COMMON *cm,
   read_multi_frame_header_seg_info(mfh_param, rb);
 
   cm->mfh_valid[cur_mfh_id] = true;
+  return cur_mfh_id;
 }
 
 static int read_global_motion_params(WarpedMotionParams *params,

@@ -569,8 +569,8 @@ static avm_codec_err_t decoder_inspect(avm_codec_alg_priv_t *ctx,
 // pbi->is_random_access_frame_unit to be 1 if *data contains random access
 // frame unit(CLK+SH and OLK+SH, when an OLK is not accompanied with a SH, it is
 // not considered as a random access point)
-// it returns true when the current frame unit contains leading frame and the
-// OLK of the leading frame is random accessed.
+// it sets *skip_decoding_frame_units to true when the current frame unit
+// contains leading frame and the OLK of the leading frame is random accessed.
 static avm_codec_err_t check_random_access_frame_unit(
     struct AV2Decoder *pbi, const uint8_t *data, size_t data_sz,
     bool *skip_decoding_frame_units) {
@@ -616,7 +616,7 @@ static avm_codec_err_t check_random_access_frame_unit(
         obu_in_frame_unit_data[i];
   }
 
-  // NOTE: This code doesnot consider the case layers are dropped or extracted.
+  // NOTE: This code does not consider the case layers are dropped or extracted.
   // When the frame unit has an OBU_KEY and OBU_SH, it can be a
   // random_access_point.
   if (has_key_frames && has_seq_header) pbi->random_access_point_count++;
@@ -629,15 +629,15 @@ static avm_codec_err_t check_random_access_frame_unit(
   //&& OBU_OLK) : counted as a random access point. The reference list is
   // flushed and cleared only when random_accessed.
   //(pbi->last_frame_unit.mlayer_id == -1 && has_key_frame)  : this is the first
-  // frame unit of a coded sequence. This can be a rando access point only when
+  // frame unit of a coded sequence. This can be a random access point only when
   // has_seq_header=1. (pbi->last_frame_unit.mlayer_id == -1 && !has_key_frame)
   //: you have a problem.
   pbi->is_random_access_frame_unit = 0;
   if (pbi->last_frame_unit.mlayer_id == -1) {
     // It is the first frame unit in the sequence.
-    // If it doesnot have OBU_KEY, it is illegal.
-    // If it doesnot have OBU_SH, it is not random access point
-    // NOTE: This code doesnot consider the case layers are dropped or
+    // If it does not have OBU_KEY, it is illegal.
+    // If it does not have OBU_SH, it is not random access point
+    // NOTE: This code does not consider the case layers are dropped or
     // extracted.
     if (!has_key_frames) return AVM_CODEC_ERROR;
     pbi->is_random_access_frame_unit = has_seq_header;

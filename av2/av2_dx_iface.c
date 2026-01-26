@@ -571,9 +571,11 @@ static avm_codec_err_t decoder_inspect(avm_codec_alg_priv_t *ctx,
 // not considered as a random access point)
 // it returns true when the current frame unit contains leading frame and the
 // OLK of the leading frame is random accessed.
-static bool check_random_access_frame_unit(struct AV2Decoder *pbi,
-                                           const uint8_t *data,
-                                           uint64_t data_sz) {
+static avm_codec_err_t check_random_access_frame_unit(
+    struct AV2Decoder *pbi, const uint8_t *data, uint64_t data_sz,
+    bool *skip_decoding_frame_units) {
+  avm_codec_err_t res = AVM_CODEC_OK;
+
   // Note that it assumes a SH will be provided in data when it needs to be
   // provded. IMPORTANT: it assumes there will be no other frame units then CLK
   // in data: ex) no [16][8][4][2][1]... if there is CLK/OLK
@@ -591,8 +593,9 @@ static bool check_random_access_frame_unit(struct AV2Decoder *pbi,
   while (data_read < data + data_sz) {
     size_t payload_size = 0;
     size_t bytes_read = 0;
-    avm_read_obu_header_and_size(data_read, data_sz, &obu_header, &payload_size,
-                                 &bytes_read);
+    res = avm_read_obu_header_and_size(data_read, data_sz, &obu_header,
+                                       &payload_size, &bytes_read);
+    if (res != AVM_CODEC_OK) return res;
     pbi->num_obus_with_frame_unit++;
     data_read += bytes_read + payload_size;
     has_key_frames |= obu_header.type == OBU_CLK || obu_header.type == OBU_OLK;
@@ -636,7 +639,7 @@ static bool check_random_access_frame_unit(struct AV2Decoder *pbi,
     // If it doesnot have OBU_SH, it is not random access point
     // NOTE: This code doesnot consider the case layers are dropped or
     // extracted.
-    assert(has_key_frames);
+    if (!has_key_frames) return AVM_CODEC_ERROR;
     pbi->is_random_access_frame_unit = has_seq_header;
   } else {
     // This ensures OBU_OLK becomes a random access point only when
@@ -647,9 +650,9 @@ static bool check_random_access_frame_unit(struct AV2Decoder *pbi,
       pbi->is_random_access_frame_unit = has_seq_header && pbi->random_accessed;
   }
 
-  bool skip_decoding_frame_units = false;
+  *skip_decoding_frame_units = false;
   if (pbi->random_access_point_count < pbi->random_access_point_index) {
-    skip_decoding_frame_units = true;
+    *skip_decoding_frame_units = true;
   }
 
   if (pbi->random_accessed) {
@@ -657,10 +660,10 @@ static bool check_random_access_frame_unit(struct AV2Decoder *pbi,
     if ((current_frame_obu_type == OBU_LEADING_TILE_GROUP ||
          current_frame_obu_type == OBU_LEADING_SEF ||
          current_frame_obu_type == OBU_LEADING_TIP)) {
-      skip_decoding_frame_units = true;
+      *skip_decoding_frame_units = true;
     }
   }
-  return skip_decoding_frame_units;
+  return res;
 }
 
 static void set_last_frame_unit(struct AV2Decoder *pbi) {
@@ -800,8 +803,13 @@ static avm_codec_err_t decoder_decode(avm_codec_alg_priv_t *ctx,
   // The input data has more than one frame unit unlike the stand alone decoder
   // input data to have one frame unit. test_decoder_frame_unit_offset is
   // required only for test-decoder invoked by the avm encoder.
-  if (check_random_access_frame_unit(frame_worker_data->pbi, data_start,
-                                     (uint64_t)(data_end - data_start))) {
+
+  bool skip_decoding_frame_units;
+  res = check_random_access_frame_unit(frame_worker_data->pbi, data_start,
+                                       (uint64_t)(data_end - data_start),
+                                       &skip_decoding_frame_units);
+  if (res != AVM_CODEC_OK) return res;
+  if (skip_decoding_frame_units) {
     return AVM_CODEC_OK;
   }
   frame_worker_data->pbi->obu_list = (obu_info *)malloc(

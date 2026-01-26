@@ -572,7 +572,7 @@ static avm_codec_err_t decoder_inspect(avm_codec_alg_priv_t *ctx,
 // it returns true when the current frame unit contains leading frame and the
 // OLK of the leading frame is random accessed.
 static avm_codec_err_t check_random_access_frame_unit(
-    struct AV2Decoder *pbi, const uint8_t *data, uint64_t data_sz,
+    struct AV2Decoder *pbi, const uint8_t *data, size_t data_sz,
     bool *skip_decoding_frame_units) {
   avm_codec_err_t res = AVM_CODEC_OK;
 
@@ -685,7 +685,7 @@ static void set_last_frame_unit(struct AV2Decoder *pbi) {
 
 static avm_codec_err_t reset_last_frame_unit(struct AV2Decoder *pbi,
                                              const uint8_t *data,
-                                             uint64_t data_sz) {
+                                             size_t data_sz) {
   avm_codec_err_t res = AVM_CODEC_OK;
 
   // NOTE: last_frame_unit and last_displayable_frame_unit should be reset to -1
@@ -801,7 +801,7 @@ static avm_codec_err_t decoder_decode(avm_codec_alg_priv_t *ctx,
 
   // reset last_frame_unit and last_displayable_frame_unit if needed
   res = reset_last_frame_unit(frame_worker_data->pbi, data_start,
-                              (uint64_t)(data_end - data_start));
+                              data_end - data_start);
   if (res != AVM_CODEC_OK) return res;
 
   // Note:obu_list is placed in pbi instead of a local variable in
@@ -813,7 +813,7 @@ static avm_codec_err_t decoder_decode(avm_codec_alg_priv_t *ctx,
 
   bool skip_decoding_frame_units;
   res = check_random_access_frame_unit(frame_worker_data->pbi, data_start,
-                                       (uint64_t)(data_end - data_start),
+                                       data_end - data_start,
                                        &skip_decoding_frame_units);
   if (res != AVM_CODEC_OK) return res;
   if (skip_decoding_frame_units) {
@@ -830,9 +830,9 @@ static avm_codec_err_t decoder_decode(avm_codec_alg_priv_t *ctx,
 
   // Decode in serial mode.
   while (data_start < data_end) {
-    uint64_t frame_size = (uint64_t)(data_end - data_start);
+    size_t frame_size = data_end - data_start;
 
-    res = decode_one(ctx, &data_start, (size_t)frame_size, user_priv);
+    res = decode_one(ctx, &data_start, frame_size, user_priv);
     if (res != AVM_CODEC_OK) return res;
   }
 

@@ -3069,7 +3069,7 @@ static INLINE int is_tlayer_scalable_and_dependent(
     const int ref_tlayer_id, const int curr_mlayer_id) {
   assert(seq->max_tlayer_id >= curr_tlayer_id &&
          seq->max_tlayer_id >= ref_tlayer_id);
-  assert(seq->max_tlayer_id >= curr_mlayer_id);
+  assert(seq->max_mlayer_id >= curr_mlayer_id);
   // clang-format off
   /* The additional conditional check based on 'tlayer_dependency_present_flag' is
   redundant, since tlayer_dependency_map[][] equivalently implements

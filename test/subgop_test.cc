@@ -48,7 +48,6 @@ static const char *subgop_config_str_nondef[] = {
   "9:1:7F1/3U2/1V4/2V4/3S/5U3/4V4/5S/6V4/7R1/9U3/8V4/9S,",
 };
 
-namespace {
 // Default config
 extern "C" const char subgop_config_str_def[];
 // An enhanced config where the last subgop uses a shorter dist to arf
@@ -62,6 +61,7 @@ extern "C" const char subgop_config_str_asym[];
 // low delay config without references
 extern "C" const char subgop_config_str_ld[];
 
+namespace {
 const int kCpuUsed = 5;
 const unsigned int kFrames = 70;
 

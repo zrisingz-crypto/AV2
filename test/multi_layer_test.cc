@@ -216,7 +216,7 @@ class MultiLayerTestLarge : public ::libavm_test::CodecTestWithParam<int>,
 };
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest2Temporal) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 2;
   num_embedded_layers_ = 1;
   decode_base_only_ = false;
@@ -227,7 +227,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2Temporal) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest2TemporalDecodeBaseOnly) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 2;
   num_embedded_layers_ = 1;
   decode_base_only_ = true;
@@ -238,7 +238,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2TemporalDecodeBaseOnly) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest3Temporal) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 3;
   num_embedded_layers_ = 1;
   decode_base_only_ = false;
@@ -249,7 +249,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest3Temporal) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest3TemporalDecodeBaseOnly) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 3;
   num_embedded_layers_ = 1;
   decode_base_only_ = true;
@@ -260,7 +260,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest3TemporalDecodeBaseOnly) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest3TemporalDropTL2) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 3;
   num_embedded_layers_ = 1;
   decode_base_only_ = false;
@@ -276,7 +276,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest3TemporalDropTL2) {
 // allow for more flexible prediction structures, so a given m layer can also
 // predict off the same m layers at previous times (t-1, t-2,).
 TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 1;
   num_embedded_layers_ = 2;
   decode_base_only_ = false;
@@ -287,7 +287,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest2EmbeddedDecodeBaseOnly) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 1;
   num_embedded_layers_ = 2;
   decode_base_only_ = true;
@@ -298,7 +298,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2EmbeddedDecodeBaseOnly) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest3Embedded) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 1;
   num_embedded_layers_ = 3;
   decode_base_only_ = false;
@@ -309,7 +309,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest3Embedded) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest3EmbeddedDecodeBaseOnly) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 1;
   num_embedded_layers_ = 3;
   decode_base_only_ = true;
@@ -320,7 +320,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest3EmbeddedDecodeBaseOnly) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded2Temp) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 2;
   num_embedded_layers_ = 2;
   decode_base_only_ = false;
@@ -331,7 +331,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded2Temp) {
 }
 
 TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded2TempDropTL1) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 2;
   num_embedded_layers_ = 2;
   decode_base_only_ = true;
@@ -343,7 +343,7 @@ TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded2TempDropTL1) {
 
 // Test the case explicit_ref_frame_map enabled for this (2, 2) pattern,
 TEST_P(MultiLayerTestLarge, MultiLayerTest2Embedded2TempExplRefFrameMap) {
-  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 200);
+  ::libavm_test::Y4mVideoSource video_nonsc("park_joy_90p_8_420.y4m", 0, 20);
   num_temporal_layers_ = 2;
   num_embedded_layers_ = 2;
   decode_base_only_ = false;

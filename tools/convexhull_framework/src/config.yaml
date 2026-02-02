@@ -1,0 +1,185 @@
+# AVM CTC Framework Configuration File
+# This file contains user-configurable settings for the encoding test framework.
+# Modify these settings according to your test environment.
+
+# =============================================================================
+# CTC Version
+# =============================================================================
+# CTC version determines test sequences, encoder parameters, and template files.
+# Valid versions: "2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0"
+ctc_version: "8.0"
+
+# =============================================================================
+# Path Configuration
+# =============================================================================
+paths:
+  # Root path relative to the src directory (or use absolute path)
+  root: ".."
+  # Path to video content for testing
+  content: "<...>"
+  # Path to subjective test content (used when enable_subjective_test is true)
+  subjective_content: "<...>"
+
+# =============================================================================
+# Executable Paths (relative to bin directory or absolute paths)
+# =============================================================================
+executables:
+  # FFmpeg for various video operations
+  ffmpeg: "ffmpeg"
+  # AVM encoder and decoder
+  aomenc: "avmenc-v13.0.0"
+  aomdec: "avmdec-v13.0.0"
+  # SVT-AV1 encoder
+  svtav1: "SvtAv1EncApp"
+  # AV1 encoder and decoder
+  av1enc: "av1enc"
+  av1dec: "av1dec"
+  # HEVC encoder
+  hmenc: "TAppEncoderStatic"
+  # VMAF quality metric tool
+  vmaf: "vmaf"
+  # HDR tools
+  hdr_convert: "HDRConvert"
+  aom_scaler: "lanczos_resample_y4m"
+
+# =============================================================================
+# Feature Flags
+# =============================================================================
+features:
+  # Enable open GOP structure
+  enable_open_gop: false
+  # Enable parallel GOP encoding for RA and AS configurations
+  enable_parallel_gop_encoding: true
+  # Enable subjective test mode (different QPs and content)
+  enable_subjective_test: false
+  # Enable temporal filter
+  enable_temporal_filter: false
+  # Enable verification test configuration
+  enable_verification_test_config: true
+  # Enable timing information collection
+  enable_timing_info: true
+  # Use perf utility for performance measurement
+  use_perf_util: true
+  # Enable MD5 checksum verification
+  enable_md5: true
+  # Enable pre-interpolation for BD-rate calculation
+  enable_pre_interpolation: true
+  # Use PCHIP interpolation (false = linear interpolation)
+  use_pchip_interpolation: false
+  # Perform downscaling on-the-fly for AS tests
+  as_downscale_on_the_fly: false
+
+# =============================================================================
+# Test Configuration
+# =============================================================================
+test:
+  # Test configurations to run (options: LD, RA, AI, AS, STILL)
+  configurations: ["LD", "RA", "AI", "STILL"]
+  # Dataset identifier
+  dataset: "CTC_TEST_SET"
+
+# =============================================================================
+# Encoding Parameters
+# =============================================================================
+encoding:
+  # GOP settings
+  min_gop_length: 16
+  sub_gop_size: 16
+  gop_size: 65
+
+  # QP values for each test configuration
+  # These are for CTC versions 2.0-8.0
+  qps:
+    LD: [110, 135, 160, 185, 210, 235]
+    RA: [110, 135, 160, 185, 210, 235]
+    AI: [85, 110, 135, 160, 185, 210]
+    AS: [110, 135, 160, 185, 210, 235]
+    STILL: [60, 85, 110, 135, 160, 185]
+
+  # QP values for HEVC codec
+  hevc_qps:
+    LD: [22, 27, 32, 37, 42, 47]
+    RA: [22, 27, 32, 37, 42, 47]
+    AI: [22, 27, 32, 37, 42, 47]
+    AS: [22, 27, 32, 37, 42, 47]
+    STILL: [22, 27, 32, 37, 42, 47]
+
+# =============================================================================
+# Subjective Test QPs (used when enable_subjective_test is true)
+# =============================================================================
+subjective_qps:
+  RA: [110, 122, 135, 147, 160, 172, 185, 197, 210, 222, 235]
+
+# =============================================================================
+# Frame Count Configuration
+# =============================================================================
+frame_counts:
+  # Standard frame counts for each configuration
+  LD: 130
+  RA: 130
+  AI: 30
+  AS: 130
+  STILL: 1
+
+# Verification test config frame counts (AI uses 30 instead of 15)
+frame_counts_verification:
+  LD: 130
+  RA: 130
+  AI: 30
+  AS: 130
+  STILL: 1
+
+# Non-verification test config frame counts for CTC 7.0/8.0
+frame_counts_non_verification:
+  LD: 130
+  RA: 130
+  AI: 15
+  AS: 130
+  STILL: 1
+
+# Subjective test frame counts (per-clip)
+subjective_frame_counts:
+  BarScene_1920x1080_60fps_10bit_420.y4m: 360
+  GregoryCactus_fr216_515_1080x1920_30p_420_10b_SDR.y4m: 300
+  GregoryFence_fr0_299_1080x1920_30p_420_10b_SDR.y4m: 300
+  Marathon2_3840x2160_30fps_10bit_420pf.y4m: 300
+  meridian_aom_sdr_11872-12263.y4m: 392
+  Metro_1920x1080_60fps_10bit_420.y4m: 600
+  MountainBay2_3840x2160_30fps_420_10bit.y4m: 300
+  TallBuildings2_3840x2160_30fps_10bit_420pf.y4m: 300
+  YonseiS01_R_00_00.y4m: 300
+
+# =============================================================================
+# Scaling Configuration
+# =============================================================================
+scaling:
+  # Downscale ratios for adaptive streaming tests
+  downscale_ratios: [1.0, 1.5, 2.0, 3.0, 4.0, 6.0]
+  # Downscaling algorithms (options: bicubic, bilinear, gauss, lanczos, sinc)
+  downscale_algos: ["lanczos"]
+  # Upscaling algorithms (should match downscale_algos in length)
+  upscale_algos: ["lanczos"]
+
+# =============================================================================
+# Quality Metrics Configuration
+# =============================================================================
+quality:
+  # PSNR component weights
+  psnr_y_weight: 14.0
+  psnr_u_weight: 1.0
+  psnr_v_weight: 1.0
+  # APSNR component weights
+  apsnr_y_weight: 4.0
+  apsnr_u_weight: 1.0
+  apsnr_v_weight: 1.0
+  # Number of interpolation pieces for BD-rate calculation
+  interpolate_pieces: 8
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  # Logger name
+  name: "AV2CTC"
+  # Available log levels: NONE, CRITICAL, ERROR, WARNING, INFO, DEBUG
+  level: "INFO"

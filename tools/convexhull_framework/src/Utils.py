@@ -29,6 +29,10 @@ from AV2CTCVideo import Y4M_CLIPs, CTC_TEST_SET
 from CalcBDRate import BD_RATE
 from AV2SubjectiveVideo import SUBJECTIVE_CLIPS, AV2_SUBJECTIVE_TEST
 
+# Global variable for current job shell script file handle
+CurrentJobFile = None
+CurrentJobFileName = None
+
 class Clip:
     file_name = ""
     file_path = ""
@@ -174,6 +178,26 @@ def CreateNewSubfolder(parent, name):
     return folder
 
 
+def GetTestCfgSubfolder(base_path, test_cfg):
+    """
+    Get the path with test configuration subfolder.
+    Creates the subfolder if it doesn't exist.
+
+    Args:
+        base_path: Base path (e.g., Path_Bitstreams, Path_EncLog)
+        test_cfg: Test configuration (e.g., "RA", "LD", "AI", "AS", "STILL")
+
+    Returns:
+        Path with test_cfg subfolder (e.g., Path_Bitstreams/RA)
+    """
+    if test_cfg == '' or test_cfg is None:
+        return base_path
+    folder = os.path.join(base_path, test_cfg)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    return folder
+
+
 def DeleteFile(file, LogCmdOnly):
     CmdLogger.write("::Delete\n")
     if Platform == "Windows":
@@ -272,6 +296,11 @@ def CreateClipList(test_cfg):
 
 def ExecuteCmd(cmd, LogCmdOnly):
     CmdLogger.write(cmd + "\n")
+    # Also write to individual job script if one is open
+    global CurrentJobFile
+    if CurrentJobFile:
+        CurrentJobFile.write(cmd + "\n")
+        CurrentJobFile.write("wait\n")
     ret = 0
     if not LogCmdOnly:
         ret = subprocess.call(cmd, shell=True)

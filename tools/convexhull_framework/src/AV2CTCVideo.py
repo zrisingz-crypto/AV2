@@ -14,7 +14,20 @@ __author__ = "maggie.sun@intel.com, ryanlei@meta.com"
 Python file for definition of AV2 CTC testing clips/sets
 """
 
-CTC_VERSION = "8.0"
+import os
+import yaml
+
+# Load CTC_VERSION from config.yaml
+def _load_ctc_version():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file = os.path.join(script_dir, "config.yaml")
+    if os.path.exists(config_file):
+        with open(config_file, 'r') as f:
+            config = yaml.safe_load(f)
+        return config.get('ctc_version', '8.0')
+    return '8.0'
+
+CTC_VERSION = _load_ctc_version()
 
 CTC_TEST_SET = {
     "AI": ["A1", "A2", "A3", "A4", "A5", "B1", "B2", "G1", "G2", "E"],

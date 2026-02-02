@@ -12,51 +12,98 @@ __author__ = "maggie.sun@intel.com, ryanlei@meta.com"
 
 import os
 import platform
-
-import AV2CTCVideo
-from AV2CTCVideo import CTC_VERSION
+import yaml
 
 
 ######################################
-# configuration settings
+# Load configuration from YAML file
 ######################################
-RootPath = ".."
+def load_config(config_file=None):
+    """
+    Load configuration from YAML file.
+
+    Args:
+        config_file: Path to the YAML config file. If None, uses default config.yaml
+                    in the same directory as this script.
+
+    Returns:
+        Dictionary containing configuration settings.
+    """
+    if config_file is None:
+        # Default to config.yaml in the same directory as this script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_file = os.path.join(script_dir, "config.yaml")
+
+    if not os.path.exists(config_file):
+        raise FileNotFoundError(f"Configuration file not found: {config_file}")
+
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+
+    return config
+
+
+# Load configuration
+_config = load_config()
+
+######################################
+# CTC Version (loaded from config.yaml)
+######################################
+CTC_VERSION = _config.get('ctc_version', '8.0')
+
+######################################
+# Path configuration
+######################################
+RootPath = _config['paths']['root']
 BinPath = os.path.join(RootPath, "bin")
 WorkPath = os.path.join(RootPath, "test")
 
+######################################
+# Feature flags
+######################################
+EnableOpenGOP = _config['features']['enable_open_gop']
+EnableParallelGopEncoding = _config['features']['enable_parallel_gop_encoding']
+EnableSubjectiveTest = _config['features']['enable_subjective_test']
+EnablePreInterpolation = _config['features']['enable_pre_interpolation']
+UsePCHIPInterpolation = _config['features']['use_pchip_interpolation']
+AS_DOWNSCALE_ON_THE_FLY = _config['features']['as_downscale_on_the_fly']
 
-EnableOpenGOP = False
-EnableParallelGopEncoding = True
-EnableSubjectiveTest = False
-
+######################################
+# Test configuration (depends on EnableSubjectiveTest)
+######################################
 if EnableSubjectiveTest:
     TEST_CONFIGURATIONS = ["RA"]
     DATASET = "AV2_SUBJECTIVE_TEST"
-    ContentPath = "/refdata/all_users/enc_eval_videos/av2_subjective/"
+    ContentPath = _config['paths']['subjective_content']
     EnableTemporalFilter = True
     EnableVerificationTestConfig = True
     EnableTimingInfo = False
     UsePerfUtil = False
     EnableMD5 = False
 else:
-    TEST_CONFIGURATIONS = ["LD", "RA", "AI", "STILL"]
-    DATASET = "CTC_TEST_SET"
-    ContentPath = "/refdata/all_users/enc_eval_videos/av2_ctc/"
-    EnableTemporalFilter = False
-    EnableVerificationTestConfig = True
-    EnableTimingInfo = True
-    UsePerfUtil = True
-    EnableMD5 = True
+    TEST_CONFIGURATIONS = _config['test']['configurations']
+    DATASET = _config['test']['dataset']
+    ContentPath = _config['paths']['content']
+    EnableTemporalFilter = _config['features'].get('enable_temporal_filter', False)
+    EnableVerificationTestConfig = _config['features']['enable_verification_test_config']
+    EnableTimingInfo = _config['features']['enable_timing_info']
+    UsePerfUtil = _config['features']['use_perf_util']
+    EnableMD5 = _config['features']['enable_md5']
 
-
+######################################
+# Platform and quality weights
+######################################
 Platform = platform.system()
-PSNR_Y_WEIGHT = 14.0
-PSNR_U_WEIGHT = 1.0
-PSNR_V_WEIGHT = 1.0
-APSNR_Y_WEIGHT = 4.0
-APSNR_U_WEIGHT = 1.0
-APSNR_V_WEIGHT = 1.0
+PSNR_Y_WEIGHT = _config['quality']['psnr_y_weight']
+PSNR_U_WEIGHT = _config['quality']['psnr_u_weight']
+PSNR_V_WEIGHT = _config['quality']['psnr_v_weight']
+APSNR_Y_WEIGHT = _config['quality']['apsnr_y_weight']
+APSNR_U_WEIGHT = _config['quality']['apsnr_u_weight']
+APSNR_V_WEIGHT = _config['quality']['apsnr_v_weight']
 
+######################################
+# CTC template files (derived from CTC_VERSION)
+######################################
 if CTC_VERSION in ["5.0", "6.0", "7.0", "8.0"]:
     CTC_RegularXLSTemplate = os.path.join(BinPath, "AOM_CWG_Regular_CTCv5_v7.4.5.xlsm")
     CTC_ASXLSTemplate = os.path.join(BinPath, "AOM_CWG_AS_CTC_v10.0.xlsm")
@@ -73,47 +120,47 @@ else:
     CTC_RegularXLSTemplate = os.path.join(BinPath, "AOM_CWG_Regular_CTC_v6.1.xlsm")
     CTC_ASXLSTemplate = os.path.join(BinPath, "AOM_CWG_AS_CTC_v9.6.xlsm")
 
-############## Scaling settings ############################################
-# down scaling ratio
-DnScaleRatio = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0]  # downscale ratio
-# down and up scaling algorithm, the 2 lists should be of same size
-DnScalingAlgos = ["lanczos"]  # ['bicubic', 'bilinear', 'gauss', 'lanczos', 'sinc']
-UpScalingAlgos = ["lanczos"]  # ['bicubic', 'bilinear', 'gauss', 'lanczos', 'sinc']
+######################################
+# Scaling settings
+######################################
+DnScaleRatio = _config['scaling']['downscale_ratios']
+DnScalingAlgos = _config['scaling']['downscale_algos']
+UpScalingAlgos = _config['scaling']['upscale_algos']
 
 ScaleMethods = ["hdrtool", "ffmpeg", "aom"]
 
 HDRToolsConfigFileTemplate = os.path.join(BinPath, "HDRConvScalerY4MFile.cfg")
-HDRConvert = os.path.join(BinPath, "HDRConvert")
-AOMScaler = os.path.join(BinPath, "lanczos_resample_y4m")
+HDRConvert = os.path.join(BinPath, _config['executables']['hdr_convert'])
+AOMScaler = os.path.join(BinPath, _config['executables']['aom_scaler'])
 
-##################### Encode Config ########################################
+######################################
+# Encode Config
+######################################
 EncodeMethods = ["aom", "svt", "hm"]
 CodecNames = ["av1", "av2", "hevc"]
 SUFFIX = {"av1": ".obu", "av2": ".obu", "hevc": ".265"}
-FFMPEG = os.path.join(BinPath, "ffmpeg")
-AOMENC = os.path.join(BinPath, "avmenc-v8.0.0")
-SVTAV1 = os.path.join(BinPath, "SvtAv1EncApp")
-AOMDEC = os.path.join(BinPath, "avmdec-v8.0.0")
-AV1ENC = os.path.join(BinPath, "av1enc")
-AV1DEC = os.path.join(BinPath, "av1dec")
-HMENC = os.path.join(BinPath, "TAppEncoderStatic")
-VMAF = os.path.join(BinPath, "vmaf")
+
+FFMPEG = os.path.join(BinPath, _config['executables']['ffmpeg'])
+AOMENC = os.path.join(BinPath, _config['executables']['aomenc'])
+SVTAV1 = os.path.join(BinPath, _config['executables']['svtav1'])
+AOMDEC = os.path.join(BinPath, _config['executables']['aomdec'])
+AV1ENC = os.path.join(BinPath, _config['executables']['av1enc'])
+AV1DEC = os.path.join(BinPath, _config['executables']['av1dec'])
+HMENC = os.path.join(BinPath, _config['executables']['hmenc'])
+VMAF = os.path.join(BinPath, _config['executables']['vmaf'])
 HEVCCfgFile = os.path.join(BinPath, "s2-hm-01.cfg")
 
-
+######################################
+# QP configuration
+######################################
 if EnableSubjectiveTest:
     QPs = {
-        "RA": [110, 122, 135, 147, 160, 172, 185, 197, 210, 222, 235],
+        "RA": _config['subjective_qps']['RA'],
     }
 elif CTC_VERSION in ["2.0", "3.0", "4.0", "5.0", "6.0", "7.0", "8.0"]:
-    QPs = {
-        "LD": [110, 135, 160, 185, 210, 235],
-        "RA": [110, 135, 160, 185, 210, 235],
-        "AI": [85, 110, 135, 160, 185, 210],
-        "AS": [110, 135, 160, 185, 210, 235],
-        "STILL": [60, 85, 110, 135, 160, 185],
-    }
+    QPs = _config['encoding']['qps']
 else:
+    # Legacy QP values for older CTC versions
     QPs = {
         "LD": [23, 31, 39, 47, 55, 63],
         "RA": [23, 31, 39, 47, 55, 63],
@@ -122,19 +169,18 @@ else:
         "STILL": [15, 23, 31, 39, 47, 55],
     }
 
-HEVC_QPs = {
-    "LD": [22, 27, 32, 37, 42, 47],
-    "RA": [22, 27, 32, 37, 42, 47],
-    "AI": [22, 27, 32, 37, 42, 47],
-    "AS": [22, 27, 32, 37, 42, 47],
-    "STILL": [22, 27, 32, 37, 42, 47],
-}
-MIN_GOP_LENGTH = 16
-SUB_GOP_SIZE = 16
-GOP_SIZE = 65
-AS_DOWNSCALE_ON_THE_FLY = False
+HEVC_QPs = _config['encoding']['hevc_qps']
 
-######################## quality evalution config #############################
+######################################
+# GOP settings
+######################################
+MIN_GOP_LENGTH = _config['encoding']['min_gop_length']
+SUB_GOP_SIZE = _config['encoding']['sub_gop_size']
+GOP_SIZE = _config['encoding']['gop_size']
+
+######################################
+# Quality evaluation config
+######################################
 QualityList = [
     "PSNR_Y",
     "PSNR_U",
@@ -151,49 +197,30 @@ QualityList = [
     "CAMBI",
 ]
 
-EnablePreInterpolation = True
-UsePCHIPInterpolation = False
-# InterpolatePieces - 1 is the number of interpolated points generated between two qp points.
-InterpolatePieces = 8
+InterpolatePieces = _config['quality']['interpolate_pieces']
 
-if (CTC_VERSION in ["7.0", "8.0"]) and (EnableVerificationTestConfig == False):
-    FrameNum = {
-        "LD": 130,
-        "RA": 130,
-        "AI": 15,
-        "AS": 130,
-        "STILL": 1,
-    }
-else:
-    FrameNum = {
-        "LD": 130,
-        "RA": 130,
-        "AI": 30,
-        "AS": 130,
-        "STILL": 1,
-    }
-
+######################################
+# Frame count configuration
+######################################
 if EnableSubjectiveTest:
     FrameNum = {
-        "RA": {
-            "BarScene_1920x1080_60fps_10bit_420.y4m": 360,
-            "GregoryCactus_fr216_515_1080x1920_30p_420_10b_SDR.y4m": 300,
-            "GregoryFence_fr0_299_1080x1920_30p_420_10b_SDR.y4m": 300,
-            "Marathon2_3840x2160_30fps_10bit_420pf.y4m": 300,
-            "meridian_aom_sdr_11872-12263.y4m": 392,
-            "Metro_1920x1080_60fps_10bit_420.y4m": 600,
-            "MountainBay2_3840x2160_30fps_420_10bit.y4m": 300,
-            "TallBuildings2_3840x2160_30fps_10bit_420pf.y4m": 300,
-            "YonseiS01_R_00_00.y4m": 300,
-        }
+        "RA": _config['subjective_frame_counts']
     }
+elif (CTC_VERSION in ["7.0", "8.0"]) and (EnableVerificationTestConfig == False):
+    FrameNum = _config['frame_counts_non_verification']
+else:
+    FrameNum = _config['frame_counts']
 
-######################## post analysis #########################################
+######################################
+# Post analysis paths (derived from RootPath)
+######################################
 PostAnalysis_Path = os.path.join(RootPath, "analysis")
 Path_RDResults = os.path.join(PostAnalysis_Path, "rdresult")
 SummaryOutPath = os.path.join(PostAnalysis_Path, "summary")
 Path_ScalingResults = os.path.join(PostAnalysis_Path, "scalingresult")
 
-######################## logging #########################################
-LoggerName = "AV2CTC"
+######################################
+# Logging
+######################################
+LoggerName = _config['logging']['name']
 LogLevels = ["NONE", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]

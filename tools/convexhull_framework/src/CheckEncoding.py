@@ -16,13 +16,12 @@ import sys
 import argparse
 import subprocess
 
-from Utils import CreateNewSubfolder
+from Utils import CreateNewSubfolder, GetTestCfgSubfolder
 from Config import WorkPath, FrameNum, EnableParallelGopEncoding, GOP_SIZE
 
 root_path = '/project/tenjin/fba/design/ryanlei/AV2-CTC/AV2-CTC-v11.0.0/'
 test_path = os.path.join(root_path, 'test')
 dec_path = os.path.join(test_path, 'decodedYUVs')
-#ra_dec_log_path = os.path.join(test_path, 'RA_decLogs')
 dec_log_path = os.path.join(test_path, 'decLogs')
 ra_cmd_log_file = os.path.join(test_path, "AV2CTC_TestCmd_RA.log")
 as_cmd_log_file = os.path.join(test_path, "AV2CTC_TestCmd_AS.log")
@@ -42,6 +41,17 @@ def get_expected_frames(cfg):
         else:
             total_frame = FrameNum[cfg]
     return total_frame
+
+
+def get_dec_log_path_for_cfg(cfg):
+    """Get the decode log path for a specific test configuration."""
+    return GetTestCfgSubfolder(dec_log_path, cfg)
+
+
+def get_dec_path_for_cfg(cfg):
+    """Get the decoded YUV path for a specific test configuration."""
+    return GetTestCfgSubfolder(dec_path, cfg)
+
 
 def check_decode_log(dec_log_file, cfg):
     if not os.path.isfile(dec_log_file):
@@ -72,8 +82,11 @@ def run_decode(cmd_log_file):
             bitstream = m.group(1)
             output_file = bitstream + ".obu"
             video = bitstream.split("/")[-1]
-            dec_log = os.path.join(dec_log_path, video + "_DecLog.txt")
-            dec_output = os.path.join(dec_path, video + ".y4m")
+            cfg = get_config(video)
+            cfg_dec_log_path = get_dec_log_path_for_cfg(cfg)
+            cfg_dec_path = get_dec_path_for_cfg(cfg)
+            dec_log = os.path.join(cfg_dec_log_path, video + "_DecLog.txt")
+            dec_output = os.path.join(cfg_dec_path, video + ".y4m")
             #print("bitstrams file is %s\n" % output_file)
             #print("decoding log file is %s\n" % dec_log)
             args = " --codec=av2 --summary -o %s %s" % (dec_output, output_file)
@@ -97,9 +110,11 @@ def check_decoding(cmd_log_file, dec_error_log):
             bitstream = m.group(1)
             output_file = bitstream + ".obu"
             video = bitstream.split("/")[-1]
-            dec_log = os.path.join(dec_log_path, video + "_DecLog.txt")
-            dec_output = os.path.join(dec_path, video + ".y4m")
             cfg = get_config(output_file)
+            cfg_dec_log_path = get_dec_log_path_for_cfg(cfg)
+            cfg_dec_path = get_dec_path_for_cfg(cfg)
+            dec_log = os.path.join(cfg_dec_log_path, video + "_DecLog.txt")
+            dec_output = os.path.join(cfg_dec_path, video + ".y4m")
             #print("checking %s for %s" % (dec_log, cfg))
 
             if check_decode_log(dec_log, cfg) == False:
@@ -132,21 +147,12 @@ def filter_cmd_log(cmd_log_file, updated_cmd_log_file, error_list):
             if video in error_list:
                 start_copy = True
                 updated_cmd_log.write(line)
-            else:
-                video = video.replace("_AS_3840x2160_Preset", "_AS_Preset")
-                if video in error_list:
-                    start_copy = True
-                    updated_cmd_log.write(line)
 
         m = re.search(r"============== (.*) Job End =================", line)
         if m:
             video = m.group(1)
             if video in error_list:
                 start_copy = False
-            else:
-                video = video.replace("_AS_3840x2160_Preset", "_AS_Preset")
-                if video in error_list:
-                    start_copy = False
 
     cmd_log.close()
     updated_cmd_log.close()
@@ -178,12 +184,12 @@ def check_ld_decoding():
             output_file = bitstream + ".obu"
             video = bitstream.split("/")[-1]
             cfg = get_config(video)
-            if cfg in ['RA', 'AS']:
-                dec_log = os.path.join(ra_dec_log_path, video + "_DecLog.txt")
-            elif cfg in ['LD', 'AI', 'STILL']:
-                dec_log = os.path.join(dec_log_path, video + "_DecLog.txt")
+            # Use test_cfg subfolder for decode logs
+            cfg_dec_log_path = get_dec_log_path_for_cfg(cfg)
+            cfg_dec_path = get_dec_path_for_cfg(cfg)
+            dec_log = os.path.join(cfg_dec_log_path, video + "_DecLog.txt")
+            dec_output = os.path.join(cfg_dec_path, video + ".y4m")
 
-            dec_output = os.path.join(dec_path, video + ".y4m")
             if check_decode_log(dec_log, cfg) == False:
                 #print(line)
                 print("%s decoding error" % video)

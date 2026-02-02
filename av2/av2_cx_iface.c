@@ -2666,14 +2666,12 @@ static avm_codec_err_t ctrl_enable_subgop_stats(avm_codec_alg_priv_t *ctx,
   struct av2_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_subgop_stats = CAST(AV2E_ENABLE_SUBGOP_STATS, args);
   return update_extra_cfg(ctx, &extra_cfg);
-  return AVM_CODEC_OK;
 }
 static avm_codec_err_t ctrl_set_enable_bru(avm_codec_alg_priv_t *ctx,
                                            va_list args) {
   struct av2_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.enable_bru = CAST(AV2E_SET_ENABLE_BRU, args);
   return update_extra_cfg(ctx, &extra_cfg);
-  return AVM_CODEC_OK;
 }
 static avm_codec_err_t ctrl_get_enable_bru(avm_codec_alg_priv_t *ctx,
                                            va_list args) {

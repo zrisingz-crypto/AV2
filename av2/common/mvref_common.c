@@ -2239,7 +2239,6 @@ static int insert_mvp_candidate(
     }
     return 0;
   }
-  return 0;
 }
 
 static AVM_INLINE void setup_ref_mv_list(

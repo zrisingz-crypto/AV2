@@ -543,7 +543,6 @@ static INLINE int get_mv_cost_with_precision(
                                is_ibc_cost, NULL) *
           weight,
       round_bits);
-  return 0;
 }
 
 static INLINE int get_intrabc_mv_cost_with_precision(

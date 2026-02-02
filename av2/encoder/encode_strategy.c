@@ -567,6 +567,7 @@ int use_subgop_cfg(const GF_GROUP *const gf_group, int gf_index) {
   if (gf_index == 1) return !gf_group->has_overlay_for_key_frame;
   return 1;
 }
+
 static int get_free_ref_map_index(RefFrameMapPair ref_map_pairs[REF_FRAMES],
                                   const int ref_frames) {
   for (int idx = 0; idx < ref_frames; ++idx)

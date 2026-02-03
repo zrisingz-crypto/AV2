@@ -4298,7 +4298,8 @@ void encoder_avg_tiles_cdfs(AV2_COMP *const cpi) {
 // add_sef_for_hidden_frames = 1. Returns 0 otherwise
 static bool need_sef_obu_for_hidden_frame(AV2_COMP *cpi) {
   return cpi->oxcf.ref_frm_cfg.add_sef_for_hidden_frames &&
-         cpi->update_type_was_overlay && cpi->fb_idx_for_overlay != -1 &&
+         cpi->update_type_was_overlay &&
+         cpi->fb_idx_for_overlay != INVALID_IDX &&
          cpi->common.ref_frame_map[cpi->fb_idx_for_overlay] != NULL;
 }
 

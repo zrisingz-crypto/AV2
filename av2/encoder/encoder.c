@@ -4743,8 +4743,8 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
   cpi->update_type_was_overlay =
       frame_params->frame_params_update_type_was_overlay;
   cpi->fb_idx_for_overlay = frame_params->fb_idx_for_overlay;
-  cm->show_existing_frame = 0;
-  cm->sef_ref_fb_idx = 0;
+  cm->show_existing_frame = frame_params->duplicate_existing_frame;
+  cm->sef_ref_fb_idx = frame_params->fb_idx_for_overlay;
   memcpy(cm->remapped_ref_idx, frame_params->remapped_ref_idx,
          INTER_REFS_PER_FRAME * sizeof(*cm->remapped_ref_idx));
 
@@ -4764,7 +4764,7 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
   current_frame->order_hint =
       current_frame->frame_number + frame_params->order_offset;
   current_frame->display_order_hint = current_frame->order_hint;
-  cm->show_existing_frame = frame_params->duplicate_existing_frame;
+
   // scan the reference list. if all the display_order_hint of the reference
   // frame is smaller than the current display_order_hint,
   // duplicate_existing_frame is not applicable.
@@ -4790,11 +4790,6 @@ int av2_encode(AV2_COMP *const cpi, uint8_t *const dest,
       }
     }
     if (!valid_duplicate_existing_frame) cm->show_existing_frame = 0;
-  }
-
-  if (cpi->oxcf.unit_test_cfg.sef_with_order_hint_test &&
-      cm->show_existing_frame) {
-    cm->sef_ref_fb_idx = 1;
   }
 
   current_frame->display_order_hint_restricted = current_frame->order_hint;

@@ -7627,7 +7627,6 @@ static int read_uncompressed_header(AV2Decoder *pbi, OBU_TYPE obu_type,
       reset_frame_buffers(cm);
     }
     cm->cur_frame->frame_output_done = 0;
-
   } else {
     pbi->reset_decoder_state = 0;
     cm->show_existing_frame = 0;

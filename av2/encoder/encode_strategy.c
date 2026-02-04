@@ -1262,6 +1262,7 @@ int av2_encode_strategy(AV2_COMP *const cpi, size_t *const size,
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
         cur_frame_disp, cm->ref_frame_map_pairs);
     frame_params.fb_idx_for_overlay = INVALID_IDX;
+
     if (frame_params.frame_params_update_type_was_overlay) {
       for (int frame = 0; frame < cm->seq_params.ref_frames; frame++) {
         const RefCntBuffer *const buf = cm->ref_frame_map[frame];

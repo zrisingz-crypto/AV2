@@ -1,0 +1,817 @@
+========================================
+IVF Bitstream Decode Test
+========================================
+
+[Test 1] Reading Decoder ID...
+  ID: 0x41563200
+  PASS
+
+[Frame 0] Starting decode...
+Sending Frame          0:       3392 bytes
+[TIME 185000] Decoder State:  0 ->  1
+[TIME 195000] Decoder State:  1 ->  0
+[TIME 205000] Decoder State:  0 ->  1
+[TIME 215000] Decoder State:  1 ->  3
+[TIME 225000] Tile Decoder State:  0 ->  1
+[TIME 235000] Tile Decoder State:  1 ->  2
+[TIME 245000] Tile Decoder State:  2 ->  3
+[TIME 255000] Tile Decoder State:  3 ->  4
+[TIME 265000] Tile Decoder State:  4 ->  5
+[TIME 275000] Tile Decoder State:  5 ->  6
+[TIME 285000] Tile Decoder State:  6 ->  7
+[TIME 295000] Tile Decoder State:  7 ->  8
+[TIME 305000] Tile Decoder State:  8 -> 10
+  Frame          0 sent complete
+Waiting for output to complete...
+[TIME 4145000] Tile Decoder State: 10 -> 11
+[TIME 4155000] Tile Decoder State: 11 ->  0
+[TIME 4165000] Decoder State:  3 ->  6
+[4175000] Output Ctrl: START EDGE detected! start=1, start_r=0, transfer_active=0, done_r=0
+[4175000] Output Ctrl: START detected, total_pixels=6144
+[4185000] Output Ctrl: active=1, valid=1, ready=1, count=0/6144, addr=0, plane=0, remaining=4096, pixels_xfer=16
+[4185000] Output Ctrl:   transfer_handshake - will_count=16, final=0, offset=0
+[4195000] Output Ctrl: active=1, valid=1, ready=1, count=16/6144, addr=1, plane=0, remaining=4080, pixels_xfer=16
+[4195000] Output Ctrl:   transfer_handshake - will_count=32, final=0, offset=16
+[4205000] Output Ctrl: active=1, valid=1, ready=1, count=32/6144, addr=2, plane=0, remaining=4064, pixels_xfer=16
+[4205000] Output Ctrl:   transfer_handshake - will_count=48, final=0, offset=32
+[4215000] Output Ctrl: active=1, valid=1, ready=1, count=48/6144, addr=3, plane=0, remaining=4048, pixels_xfer=16
+[4215000] Output Ctrl:   transfer_handshake - will_count=64, final=0, offset=48
+[4225000] Output Ctrl: active=1, valid=1, ready=1, count=64/6144, addr=4, plane=0, remaining=4032, pixels_xfer=16
+[4225000] Output Ctrl:   transfer_handshake - will_count=80, final=0, offset=64
+[4235000] Output Ctrl: active=1, valid=1, ready=1, count=80/6144, addr=5, plane=0, remaining=4016, pixels_xfer=16
+[4235000] Output Ctrl:   transfer_handshake - will_count=96, final=0, offset=80
+[4245000] Output Ctrl: active=1, valid=1, ready=1, count=96/6144, addr=6, plane=0, remaining=4000, pixels_xfer=16
+[4245000] Output Ctrl:   transfer_handshake - will_count=112, final=0, offset=96
+[4255000] Output Ctrl: active=1, valid=1, ready=1, count=112/6144, addr=7, plane=0, remaining=3984, pixels_xfer=16
+[4255000] Output Ctrl:   transfer_handshake - will_count=128, final=0, offset=112
+[4265000] Output Ctrl: active=1, valid=1, ready=1, count=128/6144, addr=8, plane=0, remaining=3968, pixels_xfer=16
+[4265000] Output Ctrl:   transfer_handshake - will_count=144, final=0, offset=128
+[4275000] Output Ctrl: active=1, valid=1, ready=1, count=144/6144, addr=9, plane=0, remaining=3952, pixels_xfer=16
+[4275000] Output Ctrl:   transfer_handshake - will_count=160, final=0, offset=144
+[4285000] Output Ctrl: active=1, valid=1, ready=1, count=160/6144, addr=10, plane=0, remaining=3936, pixels_xfer=16
+[4285000] Output Ctrl:   transfer_handshake - will_count=176, final=0, offset=160
+[4295000] Output Ctrl: active=1, valid=1, ready=1, count=176/6144, addr=11, plane=0, remaining=3920, pixels_xfer=16
+[4295000] Output Ctrl:   transfer_handshake - will_count=192, final=0, offset=176
+[4305000] Output Ctrl: active=1, valid=1, ready=1, count=192/6144, addr=12, plane=0, remaining=3904, pixels_xfer=16
+[4305000] Output Ctrl:   transfer_handshake - will_count=208, final=0, offset=192
+[4315000] Output Ctrl: active=1, valid=1, ready=1, count=208/6144, addr=13, plane=0, remaining=3888, pixels_xfer=16
+[4315000] Output Ctrl:   transfer_handshake - will_count=224, final=0, offset=208
+[4325000] Output Ctrl: active=1, valid=1, ready=1, count=224/6144, addr=14, plane=0, remaining=3872, pixels_xfer=16
+[4325000] Output Ctrl:   transfer_handshake - will_count=240, final=0, offset=224
+[4335000] Output Ctrl: active=1, valid=1, ready=1, count=240/6144, addr=15, plane=0, remaining=3856, pixels_xfer=16
+[4335000] Output Ctrl:   transfer_handshake - will_count=256, final=0, offset=240
+[4345000] Output Ctrl: active=1, valid=1, ready=1, count=256/6144, addr=16, plane=0, remaining=3840, pixels_xfer=16
+[4345000] Output Ctrl:   transfer_handshake - will_count=272, final=0, offset=256
+[4355000] Output Ctrl: active=1, valid=1, ready=1, count=272/6144, addr=17, plane=0, remaining=3824, pixels_xfer=16
+[4355000] Output Ctrl:   transfer_handshake - will_count=288, final=0, offset=272
+[4365000] Output Ctrl: active=1, valid=1, ready=1, count=288/6144, addr=18, plane=0, remaining=3808, pixels_xfer=16
+[4365000] Output Ctrl:   transfer_handshake - will_count=304, final=0, offset=288
+[4375000] Output Ctrl: active=1, valid=1, ready=1, count=304/6144, addr=19, plane=0, remaining=3792, pixels_xfer=16
+[4375000] Output Ctrl:   transfer_handshake - will_count=320, final=0, offset=304
+[4385000] Output Ctrl: active=1, valid=1, ready=1, count=320/6144, addr=20, plane=0, remaining=3776, pixels_xfer=16
+[4385000] Output Ctrl:   transfer_handshake - will_count=336, final=0, offset=320
+[4395000] Output Ctrl: active=1, valid=1, ready=1, count=336/6144, addr=21, plane=0, remaining=3760, pixels_xfer=16
+[4395000] Output Ctrl:   transfer_handshake - will_count=352, final=0, offset=336
+[4405000] Output Ctrl: active=1, valid=1, ready=1, count=352/6144, addr=22, plane=0, remaining=3744, pixels_xfer=16
+[4405000] Output Ctrl:   transfer_handshake - will_count=368, final=0, offset=352
+[4415000] Output Ctrl: active=1, valid=1, ready=1, count=368/6144, addr=23, plane=0, remaining=3728, pixels_xfer=16
+[4415000] Output Ctrl:   transfer_handshake - will_count=384, final=0, offset=368
+[4425000] Output Ctrl: active=1, valid=1, ready=1, count=384/6144, addr=24, plane=0, remaining=3712, pixels_xfer=16
+[4425000] Output Ctrl:   transfer_handshake - will_count=400, final=0, offset=384
+[4435000] Output Ctrl: active=1, valid=1, ready=1, count=400/6144, addr=25, plane=0, remaining=3696, pixels_xfer=16
+[4435000] Output Ctrl:   transfer_handshake - will_count=416, final=0, offset=400
+[4445000] Output Ctrl: active=1, valid=1, ready=1, count=416/6144, addr=26, plane=0, remaining=3680, pixels_xfer=16
+[4445000] Output Ctrl:   transfer_handshake - will_count=432, final=0, offset=416
+[4455000] Output Ctrl: active=1, valid=1, ready=1, count=432/6144, addr=27, plane=0, remaining=3664, pixels_xfer=16
+[4455000] Output Ctrl:   transfer_handshake - will_count=448, final=0, offset=432
+[4465000] Output Ctrl: active=1, valid=1, ready=1, count=448/6144, addr=28, plane=0, remaining=3648, pixels_xfer=16
+[4465000] Output Ctrl:   transfer_handshake - will_count=464, final=0, offset=448
+[4475000] Output Ctrl: active=1, valid=1, ready=1, count=464/6144, addr=29, plane=0, remaining=3632, pixels_xfer=16
+[4475000] Output Ctrl:   transfer_handshake - will_count=480, final=0, offset=464
+[4485000] Output Ctrl: active=1, valid=1, ready=1, count=480/6144, addr=30, plane=0, remaining=3616, pixels_xfer=16
+[4485000] Output Ctrl:   transfer_handshake - will_count=496, final=0, offset=480
+[4495000] Output Ctrl: active=1, valid=1, ready=1, count=496/6144, addr=31, plane=0, remaining=3600, pixels_xfer=16
+[4495000] Output Ctrl:   transfer_handshake - will_count=512, final=0, offset=496
+[4505000] Output Ctrl: active=1, valid=1, ready=1, count=512/6144, addr=32, plane=0, remaining=3584, pixels_xfer=16
+[4505000] Output Ctrl:   transfer_handshake - will_count=528, final=0, offset=512
+[4515000] Output Ctrl: active=1, valid=1, ready=1, count=528/6144, addr=33, plane=0, remaining=3568, pixels_xfer=16
+[4515000] Output Ctrl:   transfer_handshake - will_count=544, final=0, offset=528
+[4525000] Output Ctrl: active=1, valid=1, ready=1, count=544/6144, addr=34, plane=0, remaining=3552, pixels_xfer=16
+[4525000] Output Ctrl:   transfer_handshake - will_count=560, final=0, offset=544
+[4535000] Output Ctrl: active=1, valid=1, ready=1, count=560/6144, addr=35, plane=0, remaining=3536, pixels_xfer=16
+[4535000] Output Ctrl:   transfer_handshake - will_count=576, final=0, offset=560
+[4545000] Output Ctrl: active=1, valid=1, ready=1, count=576/6144, addr=36, plane=0, remaining=3520, pixels_xfer=16
+[4545000] Output Ctrl:   transfer_handshake - will_count=592, final=0, offset=576
+[4555000] Output Ctrl: active=1, valid=1, ready=1, count=592/6144, addr=37, plane=0, remaining=3504, pixels_xfer=16
+[4555000] Output Ctrl:   transfer_handshake - will_count=608, final=0, offset=592
+[4565000] Output Ctrl: active=1, valid=1, ready=1, count=608/6144, addr=38, plane=0, remaining=3488, pixels_xfer=16
+[4565000] Output Ctrl:   transfer_handshake - will_count=624, final=0, offset=608
+[4575000] Output Ctrl: active=1, valid=1, ready=1, count=624/6144, addr=39, plane=0, remaining=3472, pixels_xfer=16
+[4575000] Output Ctrl:   transfer_handshake - will_count=640, final=0, offset=624
+[4585000] Output Ctrl: active=1, valid=1, ready=1, count=640/6144, addr=40, plane=0, remaining=3456, pixels_xfer=16
+[4585000] Output Ctrl:   transfer_handshake - will_count=656, final=0, offset=640
+[4595000] Output Ctrl: active=1, valid=1, ready=1, count=656/6144, addr=41, plane=0, remaining=3440, pixels_xfer=16
+[4595000] Output Ctrl:   transfer_handshake - will_count=672, final=0, offset=656
+[4605000] Output Ctrl: active=1, valid=1, ready=1, count=672/6144, addr=42, plane=0, remaining=3424, pixels_xfer=16
+[4605000] Output Ctrl:   transfer_handshake - will_count=688, final=0, offset=672
+[4615000] Output Ctrl: active=1, valid=1, ready=1, count=688/6144, addr=43, plane=0, remaining=3408, pixels_xfer=16
+[4615000] Output Ctrl:   transfer_handshake - will_count=704, final=0, offset=688
+[4625000] Output Ctrl: active=1, valid=1, ready=1, count=704/6144, addr=44, plane=0, remaining=3392, pixels_xfer=16
+[4625000] Output Ctrl:   transfer_handshake - will_count=720, final=0, offset=704
+[4635000] Output Ctrl: active=1, valid=1, ready=1, count=720/6144, addr=45, plane=0, remaining=3376, pixels_xfer=16
+[4635000] Output Ctrl:   transfer_handshake - will_count=736, final=0, offset=720
+[4645000] Output Ctrl: active=1, valid=1, ready=1, count=736/6144, addr=46, plane=0, remaining=3360, pixels_xfer=16
+[4645000] Output Ctrl:   transfer_handshake - will_count=752, final=0, offset=736
+[4655000] Output Ctrl: active=1, valid=1, ready=1, count=752/6144, addr=47, plane=0, remaining=3344, pixels_xfer=16
+[4655000] Output Ctrl:   transfer_handshake - will_count=768, final=0, offset=752
+[4665000] Output Ctrl: active=1, valid=1, ready=1, count=768/6144, addr=48, plane=0, remaining=3328, pixels_xfer=16
+[4665000] Output Ctrl:   transfer_handshake - will_count=784, final=0, offset=768
+[4675000] Output Ctrl: active=1, valid=1, ready=1, count=784/6144, addr=49, plane=0, remaining=3312, pixels_xfer=16
+[4675000] Output Ctrl:   transfer_handshake - will_count=800, final=0, offset=784
+[4685000] Output Ctrl: active=1, valid=1, ready=1, count=800/6144, addr=50, plane=0, remaining=3296, pixels_xfer=16
+[4685000] Output Ctrl:   transfer_handshake - will_count=816, final=0, offset=800
+[4695000] Output Ctrl: active=1, valid=1, ready=1, count=816/6144, addr=51, plane=0, remaining=3280, pixels_xfer=16
+[4695000] Output Ctrl:   transfer_handshake - will_count=832, final=0, offset=816
+[4705000] Output Ctrl: active=1, valid=1, ready=1, count=832/6144, addr=52, plane=0, remaining=3264, pixels_xfer=16
+[4705000] Output Ctrl:   transfer_handshake - will_count=848, final=0, offset=832
+[4715000] Output Ctrl: active=1, valid=1, ready=1, count=848/6144, addr=53, plane=0, remaining=3248, pixels_xfer=16
+[4715000] Output Ctrl:   transfer_handshake - will_count=864, final=0, offset=848
+[4725000] Output Ctrl: active=1, valid=1, ready=1, count=864/6144, addr=54, plane=0, remaining=3232, pixels_xfer=16
+[4725000] Output Ctrl:   transfer_handshake - will_count=880, final=0, offset=864
+[4735000] Output Ctrl: active=1, valid=1, ready=1, count=880/6144, addr=55, plane=0, remaining=3216, pixels_xfer=16
+[4735000] Output Ctrl:   transfer_handshake - will_count=896, final=0, offset=880
+[4745000] Output Ctrl: active=1, valid=1, ready=1, count=896/6144, addr=56, plane=0, remaining=3200, pixels_xfer=16
+[4745000] Output Ctrl:   transfer_handshake - will_count=912, final=0, offset=896
+[4755000] Output Ctrl: active=1, valid=1, ready=1, count=912/6144, addr=57, plane=0, remaining=3184, pixels_xfer=16
+[4755000] Output Ctrl:   transfer_handshake - will_count=928, final=0, offset=912
+[4765000] Output Ctrl: active=1, valid=1, ready=1, count=928/6144, addr=58, plane=0, remaining=3168, pixels_xfer=16
+[4765000] Output Ctrl:   transfer_handshake - will_count=944, final=0, offset=928
+[4775000] Output Ctrl: active=1, valid=1, ready=1, count=944/6144, addr=59, plane=0, remaining=3152, pixels_xfer=16
+[4775000] Output Ctrl:   transfer_handshake - will_count=960, final=0, offset=944
+[4785000] Output Ctrl: active=1, valid=1, ready=1, count=960/6144, addr=60, plane=0, remaining=3136, pixels_xfer=16
+[4785000] Output Ctrl:   transfer_handshake - will_count=976, final=0, offset=960
+[4795000] Output Ctrl: active=1, valid=1, ready=1, count=976/6144, addr=61, plane=0, remaining=3120, pixels_xfer=16
+[4795000] Output Ctrl:   transfer_handshake - will_count=992, final=0, offset=976
+[4805000] Output Ctrl: active=1, valid=1, ready=1, count=992/6144, addr=62, plane=0, remaining=3104, pixels_xfer=16
+[4805000] Output Ctrl:   transfer_handshake - will_count=1008, final=0, offset=992
+[4815000] Output Ctrl: active=1, valid=1, ready=1, count=1008/6144, addr=63, plane=0, remaining=3088, pixels_xfer=16
+[4815000] Output Ctrl:   transfer_handshake - will_count=1024, final=0, offset=1008
+[4825000] Output Ctrl: active=1, valid=1, ready=1, count=1024/6144, addr=64, plane=0, remaining=3072, pixels_xfer=16
+[4825000] Output Ctrl:   transfer_handshake - will_count=1040, final=0, offset=1024
+[4835000] Output Ctrl: active=1, valid=1, ready=1, count=1040/6144, addr=65, plane=0, remaining=3056, pixels_xfer=16
+[4835000] Output Ctrl:   transfer_handshake - will_count=1056, final=0, offset=1040
+[4845000] Output Ctrl: active=1, valid=1, ready=1, count=1056/6144, addr=66, plane=0, remaining=3040, pixels_xfer=16
+[4845000] Output Ctrl:   transfer_handshake - will_count=1072, final=0, offset=1056
+[4855000] Output Ctrl: active=1, valid=1, ready=1, count=1072/6144, addr=67, plane=0, remaining=3024, pixels_xfer=16
+[4855000] Output Ctrl:   transfer_handshake - will_count=1088, final=0, offset=1072
+[4865000] Output Ctrl: active=1, valid=1, ready=1, count=1088/6144, addr=68, plane=0, remaining=3008, pixels_xfer=16
+[4865000] Output Ctrl:   transfer_handshake - will_count=1104, final=0, offset=1088
+[4875000] Output Ctrl: active=1, valid=1, ready=1, count=1104/6144, addr=69, plane=0, remaining=2992, pixels_xfer=16
+[4875000] Output Ctrl:   transfer_handshake - will_count=1120, final=0, offset=1104
+[4885000] Output Ctrl: active=1, valid=1, ready=1, count=1120/6144, addr=70, plane=0, remaining=2976, pixels_xfer=16
+[4885000] Output Ctrl:   transfer_handshake - will_count=1136, final=0, offset=1120
+[4895000] Output Ctrl: active=1, valid=1, ready=1, count=1136/6144, addr=71, plane=0, remaining=2960, pixels_xfer=16
+[4895000] Output Ctrl:   transfer_handshake - will_count=1152, final=0, offset=1136
+[4905000] Output Ctrl: active=1, valid=1, ready=1, count=1152/6144, addr=72, plane=0, remaining=2944, pixels_xfer=16
+[4905000] Output Ctrl:   transfer_handshake - will_count=1168, final=0, offset=1152
+[4915000] Output Ctrl: active=1, valid=1, ready=1, count=1168/6144, addr=73, plane=0, remaining=2928, pixels_xfer=16
+[4915000] Output Ctrl:   transfer_handshake - will_count=1184, final=0, offset=1168
+[4925000] Output Ctrl: active=1, valid=1, ready=1, count=1184/6144, addr=74, plane=0, remaining=2912, pixels_xfer=16
+[4925000] Output Ctrl:   transfer_handshake - will_count=1200, final=0, offset=1184
+[4935000] Output Ctrl: active=1, valid=1, ready=1, count=1200/6144, addr=75, plane=0, remaining=2896, pixels_xfer=16
+[4935000] Output Ctrl:   transfer_handshake - will_count=1216, final=0, offset=1200
+[4945000] Output Ctrl: active=1, valid=1, ready=1, count=1216/6144, addr=76, plane=0, remaining=2880, pixels_xfer=16
+[4945000] Output Ctrl:   transfer_handshake - will_count=1232, final=0, offset=1216
+[4955000] Output Ctrl: active=1, valid=1, ready=1, count=1232/6144, addr=77, plane=0, remaining=2864, pixels_xfer=16
+[4955000] Output Ctrl:   transfer_handshake - will_count=1248, final=0, offset=1232
+[4965000] Output Ctrl: active=1, valid=1, ready=1, count=1248/6144, addr=78, plane=0, remaining=2848, pixels_xfer=16
+[4965000] Output Ctrl:   transfer_handshake - will_count=1264, final=0, offset=1248
+[4975000] Output Ctrl: active=1, valid=1, ready=1, count=1264/6144, addr=79, plane=0, remaining=2832, pixels_xfer=16
+[4975000] Output Ctrl:   transfer_handshake - will_count=1280, final=0, offset=1264
+[4985000] Output Ctrl: active=1, valid=1, ready=1, count=1280/6144, addr=80, plane=0, remaining=2816, pixels_xfer=16
+[4985000] Output Ctrl:   transfer_handshake - will_count=1296, final=0, offset=1280
+[4995000] Output Ctrl: active=1, valid=1, ready=1, count=1296/6144, addr=81, plane=0, remaining=2800, pixels_xfer=16
+[4995000] Output Ctrl:   transfer_handshake - will_count=1312, final=0, offset=1296
+[5005000] Output Ctrl: active=1, valid=1, ready=1, count=1312/6144, addr=82, plane=0, remaining=2784, pixels_xfer=16
+[5005000] Output Ctrl:   transfer_handshake - will_count=1328, final=0, offset=1312
+[5015000] Output Ctrl: active=1, valid=1, ready=1, count=1328/6144, addr=83, plane=0, remaining=2768, pixels_xfer=16
+[5015000] Output Ctrl:   transfer_handshake - will_count=1344, final=0, offset=1328
+[5025000] Output Ctrl: active=1, valid=1, ready=1, count=1344/6144, addr=84, plane=0, remaining=2752, pixels_xfer=16
+[5025000] Output Ctrl:   transfer_handshake - will_count=1360, final=0, offset=1344
+[5035000] Output Ctrl: active=1, valid=1, ready=1, count=1360/6144, addr=85, plane=0, remaining=2736, pixels_xfer=16
+[5035000] Output Ctrl:   transfer_handshake - will_count=1376, final=0, offset=1360
+[5045000] Output Ctrl: active=1, valid=1, ready=1, count=1376/6144, addr=86, plane=0, remaining=2720, pixels_xfer=16
+[5045000] Output Ctrl:   transfer_handshake - will_count=1392, final=0, offset=1376
+[5055000] Output Ctrl: active=1, valid=1, ready=1, count=1392/6144, addr=87, plane=0, remaining=2704, pixels_xfer=16
+[5055000] Output Ctrl:   transfer_handshake - will_count=1408, final=0, offset=1392
+[5065000] Output Ctrl: active=1, valid=1, ready=1, count=1408/6144, addr=88, plane=0, remaining=2688, pixels_xfer=16
+[5065000] Output Ctrl:   transfer_handshake - will_count=1424, final=0, offset=1408
+[5075000] Output Ctrl: active=1, valid=1, ready=1, count=1424/6144, addr=89, plane=0, remaining=2672, pixels_xfer=16
+[5075000] Output Ctrl:   transfer_handshake - will_count=1440, final=0, offset=1424
+[5085000] Output Ctrl: active=1, valid=1, ready=1, count=1440/6144, addr=90, plane=0, remaining=2656, pixels_xfer=16
+[5085000] Output Ctrl:   transfer_handshake - will_count=1456, final=0, offset=1440
+[5095000] Output Ctrl: active=1, valid=1, ready=1, count=1456/6144, addr=91, plane=0, remaining=2640, pixels_xfer=16
+[5095000] Output Ctrl:   transfer_handshake - will_count=1472, final=0, offset=1456
+[5105000] Output Ctrl: active=1, valid=1, ready=1, count=1472/6144, addr=92, plane=0, remaining=2624, pixels_xfer=16
+[5105000] Output Ctrl:   transfer_handshake - will_count=1488, final=0, offset=1472
+[5115000] Output Ctrl: active=1, valid=1, ready=1, count=1488/6144, addr=93, plane=0, remaining=2608, pixels_xfer=16
+[5115000] Output Ctrl:   transfer_handshake - will_count=1504, final=0, offset=1488
+[5125000] Output Ctrl: active=1, valid=1, ready=1, count=1504/6144, addr=94, plane=0, remaining=2592, pixels_xfer=16
+[5125000] Output Ctrl:   transfer_handshake - will_count=1520, final=0, offset=1504
+[5135000] Output Ctrl: active=1, valid=1, ready=1, count=1520/6144, addr=95, plane=0, remaining=2576, pixels_xfer=16
+[5135000] Output Ctrl:   transfer_handshake - will_count=1536, final=0, offset=1520
+[5145000] Output Ctrl: active=1, valid=1, ready=1, count=1536/6144, addr=96, plane=0, remaining=2560, pixels_xfer=16
+[5145000] Output Ctrl:   transfer_handshake - will_count=1552, final=0, offset=1536
+[5155000] Output Ctrl: active=1, valid=1, ready=1, count=1552/6144, addr=97, plane=0, remaining=2544, pixels_xfer=16
+[5155000] Output Ctrl:   transfer_handshake - will_count=1568, final=0, offset=1552
+[5165000] Output Ctrl: active=1, valid=1, ready=1, count=1568/6144, addr=98, plane=0, remaining=2528, pixels_xfer=16
+[5165000] Output Ctrl:   transfer_handshake - will_count=1584, final=0, offset=1568
+[5175000] Output Ctrl: active=1, valid=1, ready=1, count=1584/6144, addr=99, plane=0, remaining=2512, pixels_xfer=16
+[5175000] Output Ctrl:   transfer_handshake - will_count=1600, final=0, offset=1584
+[5185000] Output Ctrl: active=1, valid=1, ready=1, count=1600/6144, addr=100, plane=0, remaining=2496, pixels_xfer=16
+[5185000] Output Ctrl:   transfer_handshake - will_count=1616, final=0, offset=1600
+[5195000] Output Ctrl: active=1, valid=1, ready=1, count=1616/6144, addr=101, plane=0, remaining=2480, pixels_xfer=16
+[5195000] Output Ctrl:   transfer_handshake - will_count=1632, final=0, offset=1616
+[5205000] Output Ctrl: active=1, valid=1, ready=1, count=1632/6144, addr=102, plane=0, remaining=2464, pixels_xfer=16
+[5205000] Output Ctrl:   transfer_handshake - will_count=1648, final=0, offset=1632
+[5215000] Output Ctrl: active=1, valid=1, ready=1, count=1648/6144, addr=103, plane=0, remaining=2448, pixels_xfer=16
+[5215000] Output Ctrl:   transfer_handshake - will_count=1664, final=0, offset=1648
+[5225000] Output Ctrl: active=1, valid=1, ready=1, count=1664/6144, addr=104, plane=0, remaining=2432, pixels_xfer=16
+[5225000] Output Ctrl:   transfer_handshake - will_count=1680, final=0, offset=1664
+[5235000] Output Ctrl: active=1, valid=1, ready=1, count=1680/6144, addr=105, plane=0, remaining=2416, pixels_xfer=16
+[5235000] Output Ctrl:   transfer_handshake - will_count=1696, final=0, offset=1680
+[5245000] Output Ctrl: active=1, valid=1, ready=1, count=1696/6144, addr=106, plane=0, remaining=2400, pixels_xfer=16
+[5245000] Output Ctrl:   transfer_handshake - will_count=1712, final=0, offset=1696
+[5255000] Output Ctrl: active=1, valid=1, ready=1, count=1712/6144, addr=107, plane=0, remaining=2384, pixels_xfer=16
+[5255000] Output Ctrl:   transfer_handshake - will_count=1728, final=0, offset=1712
+[5265000] Output Ctrl: active=1, valid=1, ready=1, count=1728/6144, addr=108, plane=0, remaining=2368, pixels_xfer=16
+[5265000] Output Ctrl:   transfer_handshake - will_count=1744, final=0, offset=1728
+[5275000] Output Ctrl: active=1, valid=1, ready=1, count=1744/6144, addr=109, plane=0, remaining=2352, pixels_xfer=16
+[5275000] Output Ctrl:   transfer_handshake - will_count=1760, final=0, offset=1744
+[5285000] Output Ctrl: active=1, valid=1, ready=1, count=1760/6144, addr=110, plane=0, remaining=2336, pixels_xfer=16
+[5285000] Output Ctrl:   transfer_handshake - will_count=1776, final=0, offset=1760
+[5295000] Output Ctrl: active=1, valid=1, ready=1, count=1776/6144, addr=111, plane=0, remaining=2320, pixels_xfer=16
+[5295000] Output Ctrl:   transfer_handshake - will_count=1792, final=0, offset=1776
+[5305000] Output Ctrl: active=1, valid=1, ready=1, count=1792/6144, addr=112, plane=0, remaining=2304, pixels_xfer=16
+[5305000] Output Ctrl:   transfer_handshake - will_count=1808, final=0, offset=1792
+[5315000] Output Ctrl: active=1, valid=1, ready=1, count=1808/6144, addr=113, plane=0, remaining=2288, pixels_xfer=16
+[5315000] Output Ctrl:   transfer_handshake - will_count=1824, final=0, offset=1808
+[5325000] Output Ctrl: active=1, valid=1, ready=1, count=1824/6144, addr=114, plane=0, remaining=2272, pixels_xfer=16
+[5325000] Output Ctrl:   transfer_handshake - will_count=1840, final=0, offset=1824
+[5335000] Output Ctrl: active=1, valid=1, ready=1, count=1840/6144, addr=115, plane=0, remaining=2256, pixels_xfer=16
+[5335000] Output Ctrl:   transfer_handshake - will_count=1856, final=0, offset=1840
+[5345000] Output Ctrl: active=1, valid=1, ready=1, count=1856/6144, addr=116, plane=0, remaining=2240, pixels_xfer=16
+[5345000] Output Ctrl:   transfer_handshake - will_count=1872, final=0, offset=1856
+[5355000] Output Ctrl: active=1, valid=1, ready=1, count=1872/6144, addr=117, plane=0, remaining=2224, pixels_xfer=16
+[5355000] Output Ctrl:   transfer_handshake - will_count=1888, final=0, offset=1872
+[5365000] Output Ctrl: active=1, valid=1, ready=1, count=1888/6144, addr=118, plane=0, remaining=2208, pixels_xfer=16
+[5365000] Output Ctrl:   transfer_handshake - will_count=1904, final=0, offset=1888
+[5375000] Output Ctrl: active=1, valid=1, ready=1, count=1904/6144, addr=119, plane=0, remaining=2192, pixels_xfer=16
+[5375000] Output Ctrl:   transfer_handshake - will_count=1920, final=0, offset=1904
+[5385000] Output Ctrl: active=1, valid=1, ready=1, count=1920/6144, addr=120, plane=0, remaining=2176, pixels_xfer=16
+[5385000] Output Ctrl:   transfer_handshake - will_count=1936, final=0, offset=1920
+[5395000] Output Ctrl: active=1, valid=1, ready=1, count=1936/6144, addr=121, plane=0, remaining=2160, pixels_xfer=16
+[5395000] Output Ctrl:   transfer_handshake - will_count=1952, final=0, offset=1936
+[5405000] Output Ctrl: active=1, valid=1, ready=1, count=1952/6144, addr=122, plane=0, remaining=2144, pixels_xfer=16
+[5405000] Output Ctrl:   transfer_handshake - will_count=1968, final=0, offset=1952
+[5415000] Output Ctrl: active=1, valid=1, ready=1, count=1968/6144, addr=123, plane=0, remaining=2128, pixels_xfer=16
+[5415000] Output Ctrl:   transfer_handshake - will_count=1984, final=0, offset=1968
+[5425000] Output Ctrl: active=1, valid=1, ready=1, count=1984/6144, addr=124, plane=0, remaining=2112, pixels_xfer=16
+[5425000] Output Ctrl:   transfer_handshake - will_count=2000, final=0, offset=1984
+[5435000] Output Ctrl: active=1, valid=1, ready=1, count=2000/6144, addr=125, plane=0, remaining=2096, pixels_xfer=16
+[5435000] Output Ctrl:   transfer_handshake - will_count=2016, final=0, offset=2000
+[5445000] Output Ctrl: active=1, valid=1, ready=1, count=2016/6144, addr=126, plane=0, remaining=2080, pixels_xfer=16
+[5445000] Output Ctrl:   transfer_handshake - will_count=2032, final=0, offset=2016
+[5455000] Output Ctrl: active=1, valid=1, ready=1, count=2032/6144, addr=127, plane=0, remaining=2064, pixels_xfer=16
+[5455000] Output Ctrl:   transfer_handshake - will_count=2048, final=0, offset=2032
+[5465000] Output Ctrl: active=1, valid=1, ready=1, count=2048/6144, addr=128, plane=0, remaining=2048, pixels_xfer=16
+[5465000] Output Ctrl:   transfer_handshake - will_count=2064, final=0, offset=2048
+[5475000] Output Ctrl: active=1, valid=1, ready=1, count=2064/6144, addr=129, plane=0, remaining=2032, pixels_xfer=16
+[5475000] Output Ctrl:   transfer_handshake - will_count=2080, final=0, offset=2064
+[5485000] Output Ctrl: active=1, valid=1, ready=1, count=2080/6144, addr=130, plane=0, remaining=2016, pixels_xfer=16
+[5485000] Output Ctrl:   transfer_handshake - will_count=2096, final=0, offset=2080
+[5495000] Output Ctrl: active=1, valid=1, ready=1, count=2096/6144, addr=131, plane=0, remaining=2000, pixels_xfer=16
+[5495000] Output Ctrl:   transfer_handshake - will_count=2112, final=0, offset=2096
+[5505000] Output Ctrl: active=1, valid=1, ready=1, count=2112/6144, addr=132, plane=0, remaining=1984, pixels_xfer=16
+[5505000] Output Ctrl:   transfer_handshake - will_count=2128, final=0, offset=2112
+[5515000] Output Ctrl: active=1, valid=1, ready=1, count=2128/6144, addr=133, plane=0, remaining=1968, pixels_xfer=16
+[5515000] Output Ctrl:   transfer_handshake - will_count=2144, final=0, offset=2128
+[5525000] Output Ctrl: active=1, valid=1, ready=1, count=2144/6144, addr=134, plane=0, remaining=1952, pixels_xfer=16
+[5525000] Output Ctrl:   transfer_handshake - will_count=2160, final=0, offset=2144
+[5535000] Output Ctrl: active=1, valid=1, ready=1, count=2160/6144, addr=135, plane=0, remaining=1936, pixels_xfer=16
+[5535000] Output Ctrl:   transfer_handshake - will_count=2176, final=0, offset=2160
+[5545000] Output Ctrl: active=1, valid=1, ready=1, count=2176/6144, addr=136, plane=0, remaining=1920, pixels_xfer=16
+[5545000] Output Ctrl:   transfer_handshake - will_count=2192, final=0, offset=2176
+[5555000] Output Ctrl: active=1, valid=1, ready=1, count=2192/6144, addr=137, plane=0, remaining=1904, pixels_xfer=16
+[5555000] Output Ctrl:   transfer_handshake - will_count=2208, final=0, offset=2192
+[5565000] Output Ctrl: active=1, valid=1, ready=1, count=2208/6144, addr=138, plane=0, remaining=1888, pixels_xfer=16
+[5565000] Output Ctrl:   transfer_handshake - will_count=2224, final=0, offset=2208
+[5575000] Output Ctrl: active=1, valid=1, ready=1, count=2224/6144, addr=139, plane=0, remaining=1872, pixels_xfer=16
+[5575000] Output Ctrl:   transfer_handshake - will_count=2240, final=0, offset=2224
+[5585000] Output Ctrl: active=1, valid=1, ready=1, count=2240/6144, addr=140, plane=0, remaining=1856, pixels_xfer=16
+[5585000] Output Ctrl:   transfer_handshake - will_count=2256, final=0, offset=2240
+[5595000] Output Ctrl: active=1, valid=1, ready=1, count=2256/6144, addr=141, plane=0, remaining=1840, pixels_xfer=16
+[5595000] Output Ctrl:   transfer_handshake - will_count=2272, final=0, offset=2256
+[5605000] Output Ctrl: active=1, valid=1, ready=1, count=2272/6144, addr=142, plane=0, remaining=1824, pixels_xfer=16
+[5605000] Output Ctrl:   transfer_handshake - will_count=2288, final=0, offset=2272
+[5615000] Output Ctrl: active=1, valid=1, ready=1, count=2288/6144, addr=143, plane=0, remaining=1808, pixels_xfer=16
+[5615000] Output Ctrl:   transfer_handshake - will_count=2304, final=0, offset=2288
+[5625000] Output Ctrl: active=1, valid=1, ready=1, count=2304/6144, addr=144, plane=0, remaining=1792, pixels_xfer=16
+[5625000] Output Ctrl:   transfer_handshake - will_count=2320, final=0, offset=2304
+[5635000] Output Ctrl: active=1, valid=1, ready=1, count=2320/6144, addr=145, plane=0, remaining=1776, pixels_xfer=16
+[5635000] Output Ctrl:   transfer_handshake - will_count=2336, final=0, offset=2320
+[5645000] Output Ctrl: active=1, valid=1, ready=1, count=2336/6144, addr=146, plane=0, remaining=1760, pixels_xfer=16
+[5645000] Output Ctrl:   transfer_handshake - will_count=2352, final=0, offset=2336
+[5655000] Output Ctrl: active=1, valid=1, ready=1, count=2352/6144, addr=147, plane=0, remaining=1744, pixels_xfer=16
+[5655000] Output Ctrl:   transfer_handshake - will_count=2368, final=0, offset=2352
+[5665000] Output Ctrl: active=1, valid=1, ready=1, count=2368/6144, addr=148, plane=0, remaining=1728, pixels_xfer=16
+[5665000] Output Ctrl:   transfer_handshake - will_count=2384, final=0, offset=2368
+[5675000] Output Ctrl: active=1, valid=1, ready=1, count=2384/6144, addr=149, plane=0, remaining=1712, pixels_xfer=16
+[5675000] Output Ctrl:   transfer_handshake - will_count=2400, final=0, offset=2384
+[5685000] Output Ctrl: active=1, valid=1, ready=1, count=2400/6144, addr=150, plane=0, remaining=1696, pixels_xfer=16
+[5685000] Output Ctrl:   transfer_handshake - will_count=2416, final=0, offset=2400
+[5695000] Output Ctrl: active=1, valid=1, ready=1, count=2416/6144, addr=151, plane=0, remaining=1680, pixels_xfer=16
+[5695000] Output Ctrl:   transfer_handshake - will_count=2432, final=0, offset=2416
+[5705000] Output Ctrl: active=1, valid=1, ready=1, count=2432/6144, addr=152, plane=0, remaining=1664, pixels_xfer=16
+[5705000] Output Ctrl:   transfer_handshake - will_count=2448, final=0, offset=2432
+[5715000] Output Ctrl: active=1, valid=1, ready=1, count=2448/6144, addr=153, plane=0, remaining=1648, pixels_xfer=16
+[5715000] Output Ctrl:   transfer_handshake - will_count=2464, final=0, offset=2448
+[5725000] Output Ctrl: active=1, valid=1, ready=1, count=2464/6144, addr=154, plane=0, remaining=1632, pixels_xfer=16
+[5725000] Output Ctrl:   transfer_handshake - will_count=2480, final=0, offset=2464
+[5735000] Output Ctrl: active=1, valid=1, ready=1, count=2480/6144, addr=155, plane=0, remaining=1616, pixels_xfer=16
+[5735000] Output Ctrl:   transfer_handshake - will_count=2496, final=0, offset=2480
+[5745000] Output Ctrl: active=1, valid=1, ready=1, count=2496/6144, addr=156, plane=0, remaining=1600, pixels_xfer=16
+[5745000] Output Ctrl:   transfer_handshake - will_count=2512, final=0, offset=2496
+[5755000] Output Ctrl: active=1, valid=1, ready=1, count=2512/6144, addr=157, plane=0, remaining=1584, pixels_xfer=16
+[5755000] Output Ctrl:   transfer_handshake - will_count=2528, final=0, offset=2512
+[5765000] Output Ctrl: active=1, valid=1, ready=1, count=2528/6144, addr=158, plane=0, remaining=1568, pixels_xfer=16
+[5765000] Output Ctrl:   transfer_handshake - will_count=2544, final=0, offset=2528
+[5775000] Output Ctrl: active=1, valid=1, ready=1, count=2544/6144, addr=159, plane=0, remaining=1552, pixels_xfer=16
+[5775000] Output Ctrl:   transfer_handshake - will_count=2560, final=0, offset=2544
+[5785000] Output Ctrl: active=1, valid=1, ready=1, count=2560/6144, addr=160, plane=0, remaining=1536, pixels_xfer=16
+[5785000] Output Ctrl:   transfer_handshake - will_count=2576, final=0, offset=2560
+[5795000] Output Ctrl: active=1, valid=1, ready=1, count=2576/6144, addr=161, plane=0, remaining=1520, pixels_xfer=16
+[5795000] Output Ctrl:   transfer_handshake - will_count=2592, final=0, offset=2576
+[5805000] Output Ctrl: active=1, valid=1, ready=1, count=2592/6144, addr=162, plane=0, remaining=1504, pixels_xfer=16
+[5805000] Output Ctrl:   transfer_handshake - will_count=2608, final=0, offset=2592
+[5815000] Output Ctrl: active=1, valid=1, ready=1, count=2608/6144, addr=163, plane=0, remaining=1488, pixels_xfer=16
+[5815000] Output Ctrl:   transfer_handshake - will_count=2624, final=0, offset=2608
+[5825000] Output Ctrl: active=1, valid=1, ready=1, count=2624/6144, addr=164, plane=0, remaining=1472, pixels_xfer=16
+[5825000] Output Ctrl:   transfer_handshake - will_count=2640, final=0, offset=2624
+[5835000] Output Ctrl: active=1, valid=1, ready=1, count=2640/6144, addr=165, plane=0, remaining=1456, pixels_xfer=16
+[5835000] Output Ctrl:   transfer_handshake - will_count=2656, final=0, offset=2640
+[5845000] Output Ctrl: active=1, valid=1, ready=1, count=2656/6144, addr=166, plane=0, remaining=1440, pixels_xfer=16
+[5845000] Output Ctrl:   transfer_handshake - will_count=2672, final=0, offset=2656
+[5855000] Output Ctrl: active=1, valid=1, ready=1, count=2672/6144, addr=167, plane=0, remaining=1424, pixels_xfer=16
+[5855000] Output Ctrl:   transfer_handshake - will_count=2688, final=0, offset=2672
+[5865000] Output Ctrl: active=1, valid=1, ready=1, count=2688/6144, addr=168, plane=0, remaining=1408, pixels_xfer=16
+[5865000] Output Ctrl:   transfer_handshake - will_count=2704, final=0, offset=2688
+[5875000] Output Ctrl: active=1, valid=1, ready=1, count=2704/6144, addr=169, plane=0, remaining=1392, pixels_xfer=16
+[5875000] Output Ctrl:   transfer_handshake - will_count=2720, final=0, offset=2704
+[5885000] Output Ctrl: active=1, valid=1, ready=1, count=2720/6144, addr=170, plane=0, remaining=1376, pixels_xfer=16
+[5885000] Output Ctrl:   transfer_handshake - will_count=2736, final=0, offset=2720
+[5895000] Output Ctrl: active=1, valid=1, ready=1, count=2736/6144, addr=171, plane=0, remaining=1360, pixels_xfer=16
+[5895000] Output Ctrl:   transfer_handshake - will_count=2752, final=0, offset=2736
+[5905000] Output Ctrl: active=1, valid=1, ready=1, count=2752/6144, addr=172, plane=0, remaining=1344, pixels_xfer=16
+[5905000] Output Ctrl:   transfer_handshake - will_count=2768, final=0, offset=2752
+[5915000] Output Ctrl: active=1, valid=1, ready=1, count=2768/6144, addr=173, plane=0, remaining=1328, pixels_xfer=16
+[5915000] Output Ctrl:   transfer_handshake - will_count=2784, final=0, offset=2768
+[5925000] Output Ctrl: active=1, valid=1, ready=1, count=2784/6144, addr=174, plane=0, remaining=1312, pixels_xfer=16
+[5925000] Output Ctrl:   transfer_handshake - will_count=2800, final=0, offset=2784
+[5935000] Output Ctrl: active=1, valid=1, ready=1, count=2800/6144, addr=175, plane=0, remaining=1296, pixels_xfer=16
+[5935000] Output Ctrl:   transfer_handshake - will_count=2816, final=0, offset=2800
+[5945000] Output Ctrl: active=1, valid=1, ready=1, count=2816/6144, addr=176, plane=0, remaining=1280, pixels_xfer=16
+[5945000] Output Ctrl:   transfer_handshake - will_count=2832, final=0, offset=2816
+[5955000] Output Ctrl: active=1, valid=1, ready=1, count=2832/6144, addr=177, plane=0, remaining=1264, pixels_xfer=16
+[5955000] Output Ctrl:   transfer_handshake - will_count=2848, final=0, offset=2832
+[5965000] Output Ctrl: active=1, valid=1, ready=1, count=2848/6144, addr=178, plane=0, remaining=1248, pixels_xfer=16
+[5965000] Output Ctrl:   transfer_handshake - will_count=2864, final=0, offset=2848
+[5975000] Output Ctrl: active=1, valid=1, ready=1, count=2864/6144, addr=179, plane=0, remaining=1232, pixels_xfer=16
+[5975000] Output Ctrl:   transfer_handshake - will_count=2880, final=0, offset=2864
+[5985000] Output Ctrl: active=1, valid=1, ready=1, count=2880/6144, addr=180, plane=0, remaining=1216, pixels_xfer=16
+[5985000] Output Ctrl:   transfer_handshake - will_count=2896, final=0, offset=2880
+[5995000] Output Ctrl: active=1, valid=1, ready=1, count=2896/6144, addr=181, plane=0, remaining=1200, pixels_xfer=16
+[5995000] Output Ctrl:   transfer_handshake - will_count=2912, final=0, offset=2896
+[6005000] Output Ctrl: active=1, valid=1, ready=1, count=2912/6144, addr=182, plane=0, remaining=1184, pixels_xfer=16
+[6005000] Output Ctrl:   transfer_handshake - will_count=2928, final=0, offset=2912
+[6015000] Output Ctrl: active=1, valid=1, ready=1, count=2928/6144, addr=183, plane=0, remaining=1168, pixels_xfer=16
+[6015000] Output Ctrl:   transfer_handshake - will_count=2944, final=0, offset=2928
+[6025000] Output Ctrl: active=1, valid=1, ready=1, count=2944/6144, addr=184, plane=0, remaining=1152, pixels_xfer=16
+[6025000] Output Ctrl:   transfer_handshake - will_count=2960, final=0, offset=2944
+[6035000] Output Ctrl: active=1, valid=1, ready=1, count=2960/6144, addr=185, plane=0, remaining=1136, pixels_xfer=16
+[6035000] Output Ctrl:   transfer_handshake - will_count=2976, final=0, offset=2960
+[6045000] Output Ctrl: active=1, valid=1, ready=1, count=2976/6144, addr=186, plane=0, remaining=1120, pixels_xfer=16
+[6045000] Output Ctrl:   transfer_handshake - will_count=2992, final=0, offset=2976
+[6055000] Output Ctrl: active=1, valid=1, ready=1, count=2992/6144, addr=187, plane=0, remaining=1104, pixels_xfer=16
+[6055000] Output Ctrl:   transfer_handshake - will_count=3008, final=0, offset=2992
+[6065000] Output Ctrl: active=1, valid=1, ready=1, count=3008/6144, addr=188, plane=0, remaining=1088, pixels_xfer=16
+[6065000] Output Ctrl:   transfer_handshake - will_count=3024, final=0, offset=3008
+[6075000] Output Ctrl: active=1, valid=1, ready=1, count=3024/6144, addr=189, plane=0, remaining=1072, pixels_xfer=16
+[6075000] Output Ctrl:   transfer_handshake - will_count=3040, final=0, offset=3024
+[6085000] Output Ctrl: active=1, valid=1, ready=1, count=3040/6144, addr=190, plane=0, remaining=1056, pixels_xfer=16
+[6085000] Output Ctrl:   transfer_handshake - will_count=3056, final=0, offset=3040
+[6095000] Output Ctrl: active=1, valid=1, ready=1, count=3056/6144, addr=191, plane=0, remaining=1040, pixels_xfer=16
+[6095000] Output Ctrl:   transfer_handshake - will_count=3072, final=0, offset=3056
+[6105000] Output Ctrl: active=1, valid=1, ready=1, count=3072/6144, addr=192, plane=0, remaining=1024, pixels_xfer=16
+[6105000] Output Ctrl:   transfer_handshake - will_count=3088, final=0, offset=3072
+[6115000] Output Ctrl: active=1, valid=1, ready=1, count=3088/6144, addr=193, plane=0, remaining=1008, pixels_xfer=16
+[6115000] Output Ctrl:   transfer_handshake - will_count=3104, final=0, offset=3088
+[6125000] Output Ctrl: active=1, valid=1, ready=1, count=3104/6144, addr=194, plane=0, remaining=992, pixels_xfer=16
+[6125000] Output Ctrl:   transfer_handshake - will_count=3120, final=0, offset=3104
+[6135000] Output Ctrl: active=1, valid=1, ready=1, count=3120/6144, addr=195, plane=0, remaining=976, pixels_xfer=16
+[6135000] Output Ctrl:   transfer_handshake - will_count=3136, final=0, offset=3120
+[6145000] Output Ctrl: active=1, valid=1, ready=1, count=3136/6144, addr=196, plane=0, remaining=960, pixels_xfer=16
+[6145000] Output Ctrl:   transfer_handshake - will_count=3152, final=0, offset=3136
+[6155000] Output Ctrl: active=1, valid=1, ready=1, count=3152/6144, addr=197, plane=0, remaining=944, pixels_xfer=16
+[6155000] Output Ctrl:   transfer_handshake - will_count=3168, final=0, offset=3152
+[6165000] Output Ctrl: active=1, valid=1, ready=1, count=3168/6144, addr=198, plane=0, remaining=928, pixels_xfer=16
+[6165000] Output Ctrl:   transfer_handshake - will_count=3184, final=0, offset=3168
+[6175000] Output Ctrl: active=1, valid=1, ready=1, count=3184/6144, addr=199, plane=0, remaining=912, pixels_xfer=16
+[6175000] Output Ctrl:   transfer_handshake - will_count=3200, final=0, offset=3184
+[6185000] Output Ctrl: active=1, valid=1, ready=1, count=3200/6144, addr=200, plane=0, remaining=896, pixels_xfer=16
+[6185000] Output Ctrl:   transfer_handshake - will_count=3216, final=0, offset=3200
+[6195000] Output Ctrl: active=1, valid=1, ready=1, count=3216/6144, addr=201, plane=0, remaining=880, pixels_xfer=16
+[6195000] Output Ctrl:   transfer_handshake - will_count=3232, final=0, offset=3216
+[6205000] Output Ctrl: active=1, valid=1, ready=1, count=3232/6144, addr=202, plane=0, remaining=864, pixels_xfer=16
+[6205000] Output Ctrl:   transfer_handshake - will_count=3248, final=0, offset=3232
+[6215000] Output Ctrl: active=1, valid=1, ready=1, count=3248/6144, addr=203, plane=0, remaining=848, pixels_xfer=16
+[6215000] Output Ctrl:   transfer_handshake - will_count=3264, final=0, offset=3248
+[6225000] Output Ctrl: active=1, valid=1, ready=1, count=3264/6144, addr=204, plane=0, remaining=832, pixels_xfer=16
+[6225000] Output Ctrl:   transfer_handshake - will_count=3280, final=0, offset=3264
+[6235000] Output Ctrl: active=1, valid=1, ready=1, count=3280/6144, addr=205, plane=0, remaining=816, pixels_xfer=16
+[6235000] Output Ctrl:   transfer_handshake - will_count=3296, final=0, offset=3280
+[6245000] Output Ctrl: active=1, valid=1, ready=1, count=3296/6144, addr=206, plane=0, remaining=800, pixels_xfer=16
+[6245000] Output Ctrl:   transfer_handshake - will_count=3312, final=0, offset=3296
+[6255000] Output Ctrl: active=1, valid=1, ready=1, count=3312/6144, addr=207, plane=0, remaining=784, pixels_xfer=16
+[6255000] Output Ctrl:   transfer_handshake - will_count=3328, final=0, offset=3312
+[6265000] Output Ctrl: active=1, valid=1, ready=1, count=3328/6144, addr=208, plane=0, remaining=768, pixels_xfer=16
+[6265000] Output Ctrl:   transfer_handshake - will_count=3344, final=0, offset=3328
+[6275000] Output Ctrl: active=1, valid=1, ready=1, count=3344/6144, addr=209, plane=0, remaining=752, pixels_xfer=16
+[6275000] Output Ctrl:   transfer_handshake - will_count=3360, final=0, offset=3344
+[6285000] Output Ctrl: active=1, valid=1, ready=1, count=3360/6144, addr=210, plane=0, remaining=736, pixels_xfer=16
+[6285000] Output Ctrl:   transfer_handshake - will_count=3376, final=0, offset=3360
+[6295000] Output Ctrl: active=1, valid=1, ready=1, count=3376/6144, addr=211, plane=0, remaining=720, pixels_xfer=16
+[6295000] Output Ctrl:   transfer_handshake - will_count=3392, final=0, offset=3376
+[6305000] Output Ctrl: active=1, valid=1, ready=1, count=3392/6144, addr=212, plane=0, remaining=704, pixels_xfer=16
+[6305000] Output Ctrl:   transfer_handshake - will_count=3408, final=0, offset=3392
+[6315000] Output Ctrl: active=1, valid=1, ready=1, count=3408/6144, addr=213, plane=0, remaining=688, pixels_xfer=16
+[6315000] Output Ctrl:   transfer_handshake - will_count=3424, final=0, offset=3408
+[6325000] Output Ctrl: active=1, valid=1, ready=1, count=3424/6144, addr=214, plane=0, remaining=672, pixels_xfer=16
+[6325000] Output Ctrl:   transfer_handshake - will_count=3440, final=0, offset=3424
+[6335000] Output Ctrl: active=1, valid=1, ready=1, count=3440/6144, addr=215, plane=0, remaining=656, pixels_xfer=16
+[6335000] Output Ctrl:   transfer_handshake - will_count=3456, final=0, offset=3440
+[6345000] Output Ctrl: active=1, valid=1, ready=1, count=3456/6144, addr=216, plane=0, remaining=640, pixels_xfer=16
+[6345000] Output Ctrl:   transfer_handshake - will_count=3472, final=0, offset=3456
+[6355000] Output Ctrl: active=1, valid=1, ready=1, count=3472/6144, addr=217, plane=0, remaining=624, pixels_xfer=16
+[6355000] Output Ctrl:   transfer_handshake - will_count=3488, final=0, offset=3472
+[6365000] Output Ctrl: active=1, valid=1, ready=1, count=3488/6144, addr=218, plane=0, remaining=608, pixels_xfer=16
+[6365000] Output Ctrl:   transfer_handshake - will_count=3504, final=0, offset=3488
+[6375000] Output Ctrl: active=1, valid=1, ready=1, count=3504/6144, addr=219, plane=0, remaining=592, pixels_xfer=16
+[6375000] Output Ctrl:   transfer_handshake - will_count=3520, final=0, offset=3504
+[6385000] Output Ctrl: active=1, valid=1, ready=1, count=3520/6144, addr=220, plane=0, remaining=576, pixels_xfer=16
+[6385000] Output Ctrl:   transfer_handshake - will_count=3536, final=0, offset=3520
+[6395000] Output Ctrl: active=1, valid=1, ready=1, count=3536/6144, addr=221, plane=0, remaining=560, pixels_xfer=16
+[6395000] Output Ctrl:   transfer_handshake - will_count=3552, final=0, offset=3536
+[6405000] Output Ctrl: active=1, valid=1, ready=1, count=3552/6144, addr=222, plane=0, remaining=544, pixels_xfer=16
+[6405000] Output Ctrl:   transfer_handshake - will_count=3568, final=0, offset=3552
+[6415000] Output Ctrl: active=1, valid=1, ready=1, count=3568/6144, addr=223, plane=0, remaining=528, pixels_xfer=16
+[6415000] Output Ctrl:   transfer_handshake - will_count=3584, final=0, offset=3568
+[6425000] Output Ctrl: active=1, valid=1, ready=1, count=3584/6144, addr=224, plane=0, remaining=512, pixels_xfer=16
+[6425000] Output Ctrl:   transfer_handshake - will_count=3600, final=0, offset=3584
+[6435000] Output Ctrl: active=1, valid=1, ready=1, count=3600/6144, addr=225, plane=0, remaining=496, pixels_xfer=16
+[6435000] Output Ctrl:   transfer_handshake - will_count=3616, final=0, offset=3600
+[6445000] Output Ctrl: active=1, valid=1, ready=1, count=3616/6144, addr=226, plane=0, remaining=480, pixels_xfer=16
+[6445000] Output Ctrl:   transfer_handshake - will_count=3632, final=0, offset=3616
+[6455000] Output Ctrl: active=1, valid=1, ready=1, count=3632/6144, addr=227, plane=0, remaining=464, pixels_xfer=16
+[6455000] Output Ctrl:   transfer_handshake - will_count=3648, final=0, offset=3632
+[6465000] Output Ctrl: active=1, valid=1, ready=1, count=3648/6144, addr=228, plane=0, remaining=448, pixels_xfer=16
+[6465000] Output Ctrl:   transfer_handshake - will_count=3664, final=0, offset=3648
+[6475000] Output Ctrl: active=1, valid=1, ready=1, count=3664/6144, addr=229, plane=0, remaining=432, pixels_xfer=16
+[6475000] Output Ctrl:   transfer_handshake - will_count=3680, final=0, offset=3664
+[6485000] Output Ctrl: active=1, valid=1, ready=1, count=3680/6144, addr=230, plane=0, remaining=416, pixels_xfer=16
+[6485000] Output Ctrl:   transfer_handshake - will_count=3696, final=0, offset=3680
+[6495000] Output Ctrl: active=1, valid=1, ready=1, count=3696/6144, addr=231, plane=0, remaining=400, pixels_xfer=16
+[6495000] Output Ctrl:   transfer_handshake - will_count=3712, final=0, offset=3696
+[6505000] Output Ctrl: active=1, valid=1, ready=1, count=3712/6144, addr=232, plane=0, remaining=384, pixels_xfer=16
+[6505000] Output Ctrl:   transfer_handshake - will_count=3728, final=0, offset=3712
+[6515000] Output Ctrl: active=1, valid=1, ready=1, count=3728/6144, addr=233, plane=0, remaining=368, pixels_xfer=16
+[6515000] Output Ctrl:   transfer_handshake - will_count=3744, final=0, offset=3728
+[6525000] Output Ctrl: active=1, valid=1, ready=1, count=3744/6144, addr=234, plane=0, remaining=352, pixels_xfer=16
+[6525000] Output Ctrl:   transfer_handshake - will_count=3760, final=0, offset=3744
+[6535000] Output Ctrl: active=1, valid=1, ready=1, count=3760/6144, addr=235, plane=0, remaining=336, pixels_xfer=16
+[6535000] Output Ctrl:   transfer_handshake - will_count=3776, final=0, offset=3760
+[6545000] Output Ctrl: active=1, valid=1, ready=1, count=3776/6144, addr=236, plane=0, remaining=320, pixels_xfer=16
+[6545000] Output Ctrl:   transfer_handshake - will_count=3792, final=0, offset=3776
+[6555000] Output Ctrl: active=1, valid=1, ready=1, count=3792/6144, addr=237, plane=0, remaining=304, pixels_xfer=16
+[6555000] Output Ctrl:   transfer_handshake - will_count=3808, final=0, offset=3792
+[6565000] Output Ctrl: active=1, valid=1, ready=1, count=3808/6144, addr=238, plane=0, remaining=288, pixels_xfer=16
+[6565000] Output Ctrl:   transfer_handshake - will_count=3824, final=0, offset=3808
+[6575000] Output Ctrl: active=1, valid=1, ready=1, count=3824/6144, addr=239, plane=0, remaining=272, pixels_xfer=16
+[6575000] Output Ctrl:   transfer_handshake - will_count=3840, final=0, offset=3824
+[6585000] Output Ctrl: active=1, valid=1, ready=1, count=3840/6144, addr=240, plane=0, remaining=256, pixels_xfer=16
+[6585000] Output Ctrl:   transfer_handshake - will_count=3856, final=0, offset=3840
+[6595000] Output Ctrl: active=1, valid=1, ready=1, count=3856/6144, addr=241, plane=0, remaining=240, pixels_xfer=16
+[6595000] Output Ctrl:   transfer_handshake - will_count=3872, final=0, offset=3856
+[6605000] Output Ctrl: active=1, valid=1, ready=1, count=3872/6144, addr=242, plane=0, remaining=224, pixels_xfer=16
+[6605000] Output Ctrl:   transfer_handshake - will_count=3888, final=0, offset=3872
+[6615000] Output Ctrl: active=1, valid=1, ready=1, count=3888/6144, addr=243, plane=0, remaining=208, pixels_xfer=16
+[6615000] Output Ctrl:   transfer_handshake - will_count=3904, final=0, offset=3888
+[6625000] Output Ctrl: active=1, valid=1, ready=1, count=3904/6144, addr=244, plane=0, remaining=192, pixels_xfer=16
+[6625000] Output Ctrl:   transfer_handshake - will_count=3920, final=0, offset=3904
+[6635000] Output Ctrl: active=1, valid=1, ready=1, count=3920/6144, addr=245, plane=0, remaining=176, pixels_xfer=16
+[6635000] Output Ctrl:   transfer_handshake - will_count=3936, final=0, offset=3920
+[6645000] Output Ctrl: active=1, valid=1, ready=1, count=3936/6144, addr=246, plane=0, remaining=160, pixels_xfer=16
+[6645000] Output Ctrl:   transfer_handshake - will_count=3952, final=0, offset=3936
+[6655000] Output Ctrl: active=1, valid=1, ready=1, count=3952/6144, addr=247, plane=0, remaining=144, pixels_xfer=16
+[6655000] Output Ctrl:   transfer_handshake - will_count=3968, final=0, offset=3952
+[6665000] Output Ctrl: active=1, valid=1, ready=1, count=3968/6144, addr=248, plane=0, remaining=128, pixels_xfer=16
+[6665000] Output Ctrl:   transfer_handshake - will_count=3984, final=0, offset=3968
+[6675000] Output Ctrl: active=1, valid=1, ready=1, count=3984/6144, addr=249, plane=0, remaining=112, pixels_xfer=16
+[6675000] Output Ctrl:   transfer_handshake - will_count=4000, final=0, offset=3984
+[6685000] Output Ctrl: active=1, valid=1, ready=1, count=4000/6144, addr=250, plane=0, remaining=96, pixels_xfer=16
+[6685000] Output Ctrl:   transfer_handshake - will_count=4016, final=0, offset=4000
+[6695000] Output Ctrl: active=1, valid=1, ready=1, count=4016/6144, addr=251, plane=0, remaining=80, pixels_xfer=16
+[6695000] Output Ctrl:   transfer_handshake - will_count=4032, final=0, offset=4016
+[6705000] Output Ctrl: active=1, valid=1, ready=1, count=4032/6144, addr=252, plane=0, remaining=64, pixels_xfer=16
+[6705000] Output Ctrl:   transfer_handshake - will_count=4048, final=0, offset=4032
+[6715000] Output Ctrl: active=1, valid=1, ready=1, count=4048/6144, addr=253, plane=0, remaining=48, pixels_xfer=16
+[6715000] Output Ctrl:   transfer_handshake - will_count=4064, final=0, offset=4048
+[6725000] Output Ctrl: active=1, valid=1, ready=1, count=4064/6144, addr=254, plane=0, remaining=32, pixels_xfer=16
+[6725000] Output Ctrl:   transfer_handshake - will_count=4080, final=0, offset=4064
+[6735000] Output Ctrl: active=1, valid=1, ready=1, count=4080/6144, addr=255, plane=0, remaining=16, pixels_xfer=16
+[6735000] Output Ctrl:   transfer_handshake - will_count=4096, final=0, offset=4080
+[6745000] Output Ctrl: active=1, valid=1, ready=1, count=4096/6144, addr=0, plane=1, remaining=1024, pixels_xfer=16
+[6745000] Output Ctrl:   transfer_handshake - will_count=4112, final=0, offset=0
+[6755000] Output Ctrl: active=1, valid=1, ready=1, count=4112/6144, addr=1, plane=1, remaining=1008, pixels_xfer=16
+[6755000] Output Ctrl:   transfer_handshake - will_count=4128, final=0, offset=16
+[6765000] Output Ctrl: active=1, valid=1, ready=1, count=4128/6144, addr=2, plane=1, remaining=992, pixels_xfer=16
+[6765000] Output Ctrl:   transfer_handshake - will_count=4144, final=0, offset=32
+[6775000] Output Ctrl: active=1, valid=1, ready=1, count=4144/6144, addr=3, plane=1, remaining=976, pixels_xfer=16
+[6775000] Output Ctrl:   transfer_handshake - will_count=4160, final=0, offset=48
+[6785000] Output Ctrl: active=1, valid=1, ready=1, count=4160/6144, addr=4, plane=1, remaining=960, pixels_xfer=16
+[6785000] Output Ctrl:   transfer_handshake - will_count=4176, final=0, offset=64
+[6795000] Output Ctrl: active=1, valid=1, ready=1, count=4176/6144, addr=5, plane=1, remaining=944, pixels_xfer=16
+[6795000] Output Ctrl:   transfer_handshake - will_count=4192, final=0, offset=80
+[6805000] Output Ctrl: active=1, valid=1, ready=1, count=4192/6144, addr=6, plane=1, remaining=928, pixels_xfer=16
+[6805000] Output Ctrl:   transfer_handshake - will_count=4208, final=0, offset=96
+[6815000] Output Ctrl: active=1, valid=1, ready=1, count=4208/6144, addr=7, plane=1, remaining=912, pixels_xfer=16
+[6815000] Output Ctrl:   transfer_handshake - will_count=4224, final=0, offset=112
+[6825000] Output Ctrl: active=1, valid=1, ready=1, count=4224/6144, addr=8, plane=1, remaining=896, pixels_xfer=16
+[6825000] Output Ctrl:   transfer_handshake - will_count=4240, final=0, offset=128
+[6835000] Output Ctrl: active=1, valid=1, ready=1, count=4240/6144, addr=9, plane=1, remaining=880, pixels_xfer=16
+[6835000] Output Ctrl:   transfer_handshake - will_count=4256, final=0, offset=144
+[6845000] Output Ctrl: active=1, valid=1, ready=1, count=4256/6144, addr=10, plane=1, remaining=864, pixels_xfer=16
+[6845000] Output Ctrl:   transfer_handshake - will_count=4272, final=0, offset=160
+[6855000] Output Ctrl: active=1, valid=1, ready=1, count=4272/6144, addr=11, plane=1, remaining=848, pixels_xfer=16
+[6855000] Output Ctrl:   transfer_handshake - will_count=4288, final=0, offset=176
+[6865000] Output Ctrl: active=1, valid=1, ready=1, count=4288/6144, addr=12, plane=1, remaining=832, pixels_xfer=16
+[6865000] Output Ctrl:   transfer_handshake - will_count=4304, final=0, offset=192
+[6875000] Output Ctrl: active=1, valid=1, ready=1, count=4304/6144, addr=13, plane=1, remaining=816, pixels_xfer=16
+[6875000] Output Ctrl:   transfer_handshake - will_count=4320, final=0, offset=208
+[6885000] Output Ctrl: active=1, valid=1, ready=1, count=4320/6144, addr=14, plane=1, remaining=800, pixels_xfer=16
+[6885000] Output Ctrl:   transfer_handshake - will_count=4336, final=0, offset=224
+[6895000] Output Ctrl: active=1, valid=1, ready=1, count=4336/6144, addr=15, plane=1, remaining=784, pixels_xfer=16
+[6895000] Output Ctrl:   transfer_handshake - will_count=4352, final=0, offset=240
+[6905000] Output Ctrl: active=1, valid=1, ready=1, count=4352/6144, addr=16, plane=1, remaining=768, pixels_xfer=16
+[6905000] Output Ctrl:   transfer_handshake - will_count=4368, final=0, offset=256
+[6915000] Output Ctrl: active=1, valid=1, ready=1, count=4368/6144, addr=17, plane=1, remaining=752, pixels_xfer=16
+[6915000] Output Ctrl:   transfer_handshake - will_count=4384, final=0, offset=272
+[6925000] Output Ctrl: active=1, valid=1, ready=1, count=4384/6144, addr=18, plane=1, remaining=736, pixels_xfer=16
+[6925000] Output Ctrl:   transfer_handshake - will_count=4400, final=0, offset=288
+[6935000] Output Ctrl: active=1, valid=1, ready=1, count=4400/6144, addr=19, plane=1, remaining=720, pixels_xfer=16
+[6935000] Output Ctrl:   transfer_handshake - will_count=4416, final=0, offset=304
+[6945000] Output Ctrl: active=1, valid=1, ready=1, count=4416/6144, addr=20, plane=1, remaining=704, pixels_xfer=16
+[6945000] Output Ctrl:   transfer_handshake - will_count=4432, final=0, offset=320
+[6955000] Output Ctrl: active=1, valid=1, ready=1, count=4432/6144, addr=21, plane=1, remaining=688, pixels_xfer=16
+[6955000] Output Ctrl:   transfer_handshake - will_count=4448, final=0, offset=336
+[6965000] Output Ctrl: active=1, valid=1, ready=1, count=4448/6144, addr=22, plane=1, remaining=672, pixels_xfer=16
+[6965000] Output Ctrl:   transfer_handshake - will_count=4464, final=0, offset=352
+[6975000] Output Ctrl: active=1, valid=1, ready=1, count=4464/6144, addr=23, plane=1, remaining=656, pixels_xfer=16
+[6975000] Output Ctrl:   transfer_handshake - will_count=4480, final=0, offset=368
+[6985000] Output Ctrl: active=1, valid=1, ready=1, count=4480/6144, addr=24, plane=1, remaining=640, pixels_xfer=16
+[6985000] Output Ctrl:   transfer_handshake - will_count=4496, final=0, offset=384
+[6995000] Output Ctrl: active=1, valid=1, ready=1, count=4496/6144, addr=25, plane=1, remaining=624, pixels_xfer=16
+[6995000] Output Ctrl:   transfer_handshake - will_count=4512, final=0, offset=400
+[7005000] Output Ctrl: active=1, valid=1, ready=1, count=4512/6144, addr=26, plane=1, remaining=608, pixels_xfer=16
+[7005000] Output Ctrl:   transfer_handshake - will_count=4528, final=0, offset=416
+[7015000] Output Ctrl: active=1, valid=1, ready=1, count=4528/6144, addr=27, plane=1, remaining=592, pixels_xfer=16
+[7015000] Output Ctrl:   transfer_handshake - will_count=4544, final=0, offset=432
+[7025000] Output Ctrl: active=1, valid=1, ready=1, count=4544/6144, addr=28, plane=1, remaining=576, pixels_xfer=16
+[7025000] Output Ctrl:   transfer_handshake - will_count=4560, final=0, offset=448
+[7035000] Output Ctrl: active=1, valid=1, ready=1, count=4560/6144, addr=29, plane=1, remaining=560, pixels_xfer=16
+[7035000] Output Ctrl:   transfer_handshake - will_count=4576, final=0, offset=464
+[7045000] Output Ctrl: active=1, valid=1, ready=1, count=4576/6144, addr=30, plane=1, remaining=544, pixels_xfer=16
+[7045000] Output Ctrl:   transfer_handshake - will_count=4592, final=0, offset=480
+[7055000] Output Ctrl: active=1, valid=1, ready=1, count=4592/6144, addr=31, plane=1, remaining=528, pixels_xfer=16
+[7055000] Output Ctrl:   transfer_handshake - will_count=4608, final=0, offset=496
+[7065000] Output Ctrl: active=1, valid=1, ready=1, count=4608/6144, addr=32, plane=1, remaining=512, pixels_xfer=16
+[7065000] Output Ctrl:   transfer_handshake - will_count=4624, final=0, offset=512
+[7075000] Output Ctrl: active=1, valid=1, ready=1, count=4624/6144, addr=33, plane=1, remaining=496, pixels_xfer=16
+[7075000] Output Ctrl:   transfer_handshake - will_count=4640, final=0, offset=528
+[7085000] Output Ctrl: active=1, valid=1, ready=1, count=4640/6144, addr=34, plane=1, remaining=480, pixels_xfer=16
+[7085000] Output Ctrl:   transfer_handshake - will_count=4656, final=0, offset=544
+[7095000] Output Ctrl: active=1, valid=1, ready=1, count=4656/6144, addr=35, plane=1, remaining=464, pixels_xfer=16
+[7095000] Output Ctrl:   transfer_handshake - will_count=4672, final=0, offset=560
+[7105000] Output Ctrl: active=1, valid=1, ready=1, count=4672/6144, addr=36, plane=1, remaining=448, pixels_xfer=16
+[7105000] Output Ctrl:   transfer_handshake - will_count=4688, final=0, offset=576
+[7115000] Output Ctrl: active=1, valid=1, ready=1, count=4688/6144, addr=37, plane=1, remaining=432, pixels_xfer=16
+[7115000] Output Ctrl:   transfer_handshake - will_count=4704, final=0, offset=592
+[7125000] Output Ctrl: active=1, valid=1, ready=1, count=4704/6144, addr=38, plane=1, remaining=416, pixels_xfer=16
+[7125000] Output Ctrl:   transfer_handshake - will_count=4720, final=0, offset=608
+[7135000] Output Ctrl: active=1, valid=1, ready=1, count=4720/6144, addr=39, plane=1, remaining=400, pixels_xfer=16
+[7135000] Output Ctrl:   transfer_handshake - will_count=4736, final=0, offset=624
+[7145000] Output Ctrl: active=1, valid=1, ready=1, count=4736/6144, addr=40, plane=1, remaining=384, pixels_xfer=16
+[7145000] Output Ctrl:   transfer_handshake - will_count=4752, final=0, offset=640
+[7155000] Output Ctrl: active=1, valid=1, ready=1, count=4752/6144, addr=41, plane=1, remaining=368, pixels_xfer=16
+[7155000] Output Ctrl:   transfer_handshake - will_count=4768, final=0, offset=656
+[7165000] Output Ctrl: active=1, valid=1, ready=1, count=4768/6144, addr=42, plane=1, remaining=352, pixels_xfer=16
+[7165000] Output Ctrl:   transfer_handshake - will_count=4784, final=0, offset=672
+[7175000] Output Ctrl: active=1, valid=1, ready=1, count=4784/6144, addr=43, plane=1, remaining=336, pixels_xfer=16
+[7175000] Output Ctrl:   transfer_handshake - will_count=4800, final=0, offset=688
+[7185000] Output Ctrl: active=1, valid=1, ready=1, count=4800/6144, addr=44, plane=1, remaining=320, pixels_xfer=16
+[7185000] Output Ctrl:   transfer_handshake - will_count=4816, final=0, offset=704
+[7195000] Output Ctrl: active=1, valid=1, ready=1, count=4816/6144, addr=45, plane=1, remaining=304, pixels_xfer=16
+[7195000] Output Ctrl:   transfer_handshake - will_count=4832, final=0, offset=720
+[7205000] Output Ctrl: active=1, valid=1, ready=1, count=4832/6144, addr=46, plane=1, remaining=288, pixels_xfer=16
+[7205000] Output Ctrl:   transfer_handshake - will_count=4848, final=0, offset=736
+[7215000] Output Ctrl: active=1, valid=1, ready=1, count=4848/6144, addr=47, plane=1, remaining=272, pixels_xfer=16
+[7215000] Output Ctrl:   transfer_handshake - will_count=4864, final=0, offset=752
+[7225000] Output Ctrl: active=1, valid=1, ready=1, count=4864/6144, addr=48, plane=1, remaining=256, pixels_xfer=16
+[7225000] Output Ctrl:   transfer_handshake - will_count=4880, final=0, offset=768
+[7235000] Output Ctrl: active=1, valid=1, ready=1, count=4880/6144, addr=49, plane=1, remaining=240, pixels_xfer=16
+[7235000] Output Ctrl:   transfer_handshake - will_count=4896, final=0, offset=784
+[7245000] Output Ctrl: active=1, valid=1, ready=1, count=4896/6144, addr=50, plane=1, remaining=224, pixels_xfer=16
+[7245000] Output Ctrl:   transfer_handshake - will_count=4912, final=0, offset=800
+[7255000] Output Ctrl: active=1, valid=1, ready=1, count=4912/6144, addr=51, plane=1, remaining=208, pixels_xfer=16
+[7255000] Output Ctrl:   transfer_handshake - will_count=4928, final=0, offset=816
+[7265000] Output Ctrl: active=1, valid=1, ready=1, count=4928/6144, addr=52, plane=1, remaining=192, pixels_xfer=16
+[7265000] Output Ctrl:   transfer_handshake - will_count=4944, final=0, offset=832
+[7275000] Output Ctrl: active=1, valid=1, ready=1, count=4944/6144, addr=53, plane=1, remaining=176, pixels_xfer=16
+[7275000] Output Ctrl:   transfer_handshake - will_count=4960, final=0, offset=848
+[7285000] Output Ctrl: active=1, valid=1, ready=1, count=4960/6144, addr=54, plane=1, remaining=160, pixels_xfer=16
+[7285000] Output Ctrl:   transfer_handshake - will_count=4976, final=0, offset=864
+[7295000] Output Ctrl: active=1, valid=1, ready=1, count=4976/6144, addr=55, plane=1, remaining=144, pixels_xfer=16
+[7295000] Output Ctrl:   transfer_handshake - will_count=4992, final=0, offset=880
+[7305000] Output Ctrl: active=1, valid=1, ready=1, count=4992/6144, addr=56, plane=1, remaining=128, pixels_xfer=16
+[7305000] Output Ctrl:   transfer_handshake - will_count=5008, final=0, offset=896
+[7315000] Output Ctrl: active=1, valid=1, ready=1, count=5008/6144, addr=57, plane=1, remaining=112, pixels_xfer=16
+[7315000] Output Ctrl:   transfer_handshake - will_count=5024, final=0, offset=912
+[7325000] Output Ctrl: active=1, valid=1, ready=1, count=5024/6144, addr=58, plane=1, remaining=96, pixels_xfer=16
+[7325000] Output Ctrl:   transfer_handshake - will_count=5040, final=0, offset=928
+[7335000] Output Ctrl: active=1, valid=1, ready=1, count=5040/6144, addr=59, plane=1, remaining=80, pixels_xfer=16
+[7335000] Output Ctrl:   transfer_handshake - will_count=5056, final=0, offset=944
+[7345000] Output Ctrl: active=1, valid=1, ready=1, count=5056/6144, addr=60, plane=1, remaining=64, pixels_xfer=16
+[7345000] Output Ctrl:   transfer_handshake - will_count=5072, final=0, offset=960
+[7355000] Output Ctrl: active=1, valid=1, ready=1, count=5072/6144, addr=61, plane=1, remaining=48, pixels_xfer=16
+[7355000] Output Ctrl:   transfer_handshake - will_count=5088, final=0, offset=976
+[7365000] Output Ctrl: active=1, valid=1, ready=1, count=5088/6144, addr=62, plane=1, remaining=32, pixels_xfer=16
+[7365000] Output Ctrl:   transfer_handshake - will_count=5104, final=0, offset=992
+[7375000] Output Ctrl: active=1, valid=1, ready=1, count=5104/6144, addr=63, plane=1, remaining=16, pixels_xfer=16
+[7375000] Output Ctrl:   transfer_handshake - will_count=5120, final=0, offset=1008
+[7385000] Output Ctrl: active=1, valid=1, ready=1, count=5120/6144, addr=0, plane=2, remaining=1024, pixels_xfer=16
+[7385000] Output Ctrl:   transfer_handshake - will_count=5136, final=0, offset=0
+[7395000] Output Ctrl: active=1, valid=1, ready=1, count=5136/6144, addr=1, plane=2, remaining=1008, pixels_xfer=16
+[7395000] Output Ctrl:   transfer_handshake - will_count=5152, final=0, offset=16
+[7405000] Output Ctrl: active=1, valid=1, ready=1, count=5152/6144, addr=2, plane=2, remaining=992, pixels_xfer=16
+[7405000] Output Ctrl:   transfer_handshake - will_count=5168, final=0, offset=32
+[7415000] Output Ctrl: active=1, valid=1, ready=1, count=5168/6144, addr=3, plane=2, remaining=976, pixels_xfer=16
+[7415000] Output Ctrl:   transfer_handshake - will_count=5184, final=0, offset=48
+[7425000] Output Ctrl: active=1, valid=1, ready=1, count=5184/6144, addr=4, plane=2, remaining=960, pixels_xfer=16
+[7425000] Output Ctrl:   transfer_handshake - will_count=5200, final=0, offset=64
+[7435000] Output Ctrl: active=1, valid=1, ready=1, count=5200/6144, addr=5, plane=2, remaining=944, pixels_xfer=16
+[7435000] Output Ctrl:   transfer_handshake - will_count=5216, final=0, offset=80
+[7445000] Output Ctrl: active=1, valid=1, ready=1, count=5216/6144, addr=6, plane=2, remaining=928, pixels_xfer=16
+[7445000] Output Ctrl:   transfer_handshake - will_count=5232, final=0, offset=96
+[7455000] Output Ctrl: active=1, valid=1, ready=1, count=5232/6144, addr=7, plane=2, remaining=912, pixels_xfer=16
+[7455000] Output Ctrl:   transfer_handshake - will_count=5248, final=0, offset=112
+[7465000] Output Ctrl: active=1, valid=1, ready=1, count=5248/6144, addr=8, plane=2, remaining=896, pixels_xfer=16
+[7465000] Output Ctrl:   transfer_handshake - will_count=5264, final=0, offset=128
+[7475000] Output Ctrl: active=1, valid=1, ready=1, count=5264/6144, addr=9, plane=2, remaining=880, pixels_xfer=16
+[7475000] Output Ctrl:   transfer_handshake - will_count=5280, final=0, offset=144
+[7485000] Output Ctrl: active=1, valid=1, ready=1, count=5280/6144, addr=10, plane=2, remaining=864, pixels_xfer=16
+[7485000] Output Ctrl:   transfer_handshake - will_count=5296, final=0, offset=160
+[7495000] Output Ctrl: active=1, valid=1, ready=1, count=5296/6144, addr=11, plane=2, remaining=848, pixels_xfer=16
+[7495000] Output Ctrl:   transfer_handshake - will_count=5312, final=0, offset=176
+[7505000] Output Ctrl: active=1, valid=1, ready=1, count=5312/6144, addr=12, plane=2, remaining=832, pixels_xfer=16
+[7505000] Output Ctrl:   transfer_handshake - will_count=5328, final=0, offset=192
+[7515000] Output Ctrl: active=1, valid=1, ready=1, count=5328/6144, addr=13, plane=2, remaining=816, pixels_xfer=16
+[7515000] Output Ctrl:   transfer_handshake - will_count=5344, final=0, offset=208
+[7525000] Output Ctrl: active=1, valid=1, ready=1, count=5344/6144, addr=14, plane=2, remaining=800, pixels_xfer=16
+[7525000] Output Ctrl:   transfer_handshake - will_count=5360, final=0, offset=224
+[7535000] Output Ctrl: active=1, valid=1, ready=1, count=5360/6144, addr=15, plane=2, remaining=784, pixels_xfer=16
+[7535000] Output Ctrl:   transfer_handshake - will_count=5376, final=0, offset=240
+[7545000] Output Ctrl: active=1, valid=1, ready=1, count=5376/6144, addr=16, plane=2, remaining=768, pixels_xfer=16
+[7545000] Output Ctrl:   transfer_handshake - will_count=5392, final=0, offset=256
+[7555000] Output Ctrl: active=1, valid=1, ready=1, count=5392/6144, addr=17, plane=2, remaining=752, pixels_xfer=16
+[7555000] Output Ctrl:   transfer_handshake - will_count=5408, final=0, offset=272
+[7565000] Output Ctrl: active=1, valid=1, ready=1, count=5408/6144, addr=18, plane=2, remaining=736, pixels_xfer=16
+[7565000] Output Ctrl:   transfer_handshake - will_count=5424, final=0, offset=288
+[7575000] Output Ctrl: active=1, valid=1, ready=1, count=5424/6144, addr=19, plane=2, remaining=720, pixels_xfer=16
+[7575000] Output Ctrl:   transfer_handshake - will_count=5440, final=0, offset=304
+[7585000] Output Ctrl: active=1, valid=1, ready=1, count=5440/6144, addr=20, plane=2, remaining=704, pixels_xfer=16
+[7585000] Output Ctrl:   transfer_handshake - will_count=5456, final=0, offset=320
+[7595000] Output Ctrl: active=1, valid=1, ready=1, count=5456/6144, addr=21, plane=2, remaining=688, pixels_xfer=16
+[7595000] Output Ctrl:   transfer_handshake - will_count=5472, final=0, offset=336
+[7605000] Output Ctrl: active=1, valid=1, ready=1, count=5472/6144, addr=22, plane=2, remaining=672, pixels_xfer=16
+[7605000] Output Ctrl:   transfer_handshake - will_count=5488, final=0, offset=352
+[7615000] Output Ctrl: active=1, valid=1, ready=1, count=5488/6144, addr=23, plane=2, remaining=656, pixels_xfer=16
+[7615000] Output Ctrl:   transfer_handshake - will_count=5504, final=0, offset=368
+[7625000] Output Ctrl: active=1, valid=1, ready=1, count=5504/6144, addr=24, plane=2, remaining=640, pixels_xfer=16
+[7625000] Output Ctrl:   transfer_handshake - will_count=5520, final=0, offset=384
+[7635000] Output Ctrl: active=1, valid=1, ready=1, count=5520/6144, addr=25, plane=2, remaining=624, pixels_xfer=16
+[7635000] Output Ctrl:   transfer_handshake - will_count=5536, final=0, offset=400
+[7645000] Output Ctrl: active=1, valid=1, ready=1, count=5536/6144, addr=26, plane=2, remaining=608, pixels_xfer=16
+[7645000] Output Ctrl:   transfer_handshake - will_count=5552, final=0, offset=416
+[7655000] Output Ctrl: active=1, valid=1, ready=1, count=5552/6144, addr=27, plane=2, remaining=592, pixels_xfer=16
+[7655000] Output Ctrl:   transfer_handshake - will_count=5568, final=0, offset=432
+[7665000] Output Ctrl: active=1, valid=1, ready=1, count=5568/6144, addr=28, plane=2, remaining=576, pixels_xfer=16
+[7665000] Output Ctrl:   transfer_handshake - will_count=5584, final=0, offset=448
+[7675000] Output Ctrl: active=1, valid=1, ready=1, count=5584/6144, addr=29, plane=2, remaining=560, pixels_xfer=16
+[7675000] Output Ctrl:   transfer_handshake - will_count=5600, final=0, offset=464
+[7685000] Output Ctrl: active=1, valid=1, ready=1, count=5600/6144, addr=30, plane=2, remaining=544, pixels_xfer=16
+[7685000] Output Ctrl:   transfer_handshake - will_count=5616, final=0, offset=480
+[7695000] Output Ctrl: active=1, valid=1, ready=1, count=5616/6144, addr=31, plane=2, remaining=528, pixels_xfer=16
+[7695000] Output Ctrl:   transfer_handshake - will_count=5632, final=0, offset=496
+[7705000] Output Ctrl: active=1, valid=1, ready=1, count=5632/6144, addr=32, plane=2, remaining=512, pixels_xfer=16
+[7705000] Output Ctrl:   transfer_handshake - will_count=5648, final=0, offset=512
+[7715000] Output Ctrl: active=1, valid=1, ready=1, count=5648/6144, addr=33, plane=2, remaining=496, pixels_xfer=16
+[7715000] Output Ctrl:   transfer_handshake - will_count=5664, final=0, offset=528
+[7725000] Output Ctrl: active=1, valid=1, ready=1, count=5664/6144, addr=34, plane=2, remaining=480, pixels_xfer=16
+[7725000] Output Ctrl:   transfer_handshake - will_count=5680, final=0, offset=544
+[7735000] Output Ctrl: active=1, valid=1, ready=1, count=5680/6144, addr=35, plane=2, remaining=464, pixels_xfer=16
+[7735000] Output Ctrl:   transfer_handshake - will_count=5696, final=0, offset=560
+[7745000] Output Ctrl: active=1, valid=1, ready=1, count=5696/6144, addr=36, plane=2, remaining=448, pixels_xfer=16
+[7745000] Output Ctrl:   transfer_handshake - will_count=5712, final=0, offset=576
+[7755000] Output Ctrl: active=1, valid=1, ready=1, count=5712/6144, addr=37, plane=2, remaining=432, pixels_xfer=16
+[7755000] Output Ctrl:   transfer_handshake - will_count=5728, final=0, offset=592
+[7765000] Output Ctrl: active=1, valid=1, ready=1, count=5728/6144, addr=38, plane=2, remaining=416, pixels_xfer=16
+[7765000] Output Ctrl:   transfer_handshake - will_count=5744, final=0, offset=608
+[7775000] Output Ctrl: active=1, valid=1, ready=1, count=5744/6144, addr=39, plane=2, remaining=400, pixels_xfer=16
+[7775000] Output Ctrl:   transfer_handshake - will_count=5760, final=0, offset=624
+[7785000] Output Ctrl: active=1, valid=1, ready=1, count=5760/6144, addr=40, plane=2, remaining=384, pixels_xfer=16
+[7785000] Output Ctrl:   transfer_handshake - will_count=5776, final=0, offset=640
+[7795000] Output Ctrl: active=1, valid=1, ready=1, count=5776/6144, addr=41, plane=2, remaining=368, pixels_xfer=16
+[7795000] Output Ctrl:   transfer_handshake - will_count=5792, final=0, offset=656
+[7805000] Output Ctrl: active=1, valid=1, ready=1, count=5792/6144, addr=42, plane=2, remaining=352, pixels_xfer=16
+[7805000] Output Ctrl:   transfer_handshake - will_count=5808, final=0, offset=672
+[7815000] Output Ctrl: active=1, valid=1, ready=1, count=5808/6144, addr=43, plane=2, remaining=336, pixels_xfer=16
+[7815000] Output Ctrl:   transfer_handshake - will_count=5824, final=0, offset=688
+[7825000] Output Ctrl: active=1, valid=1, ready=1, count=5824/6144, addr=44, plane=2, remaining=320, pixels_xfer=16
+[7825000] Output Ctrl:   transfer_handshake - will_count=5840, final=0, offset=704
+[7835000] Output Ctrl: active=1, valid=1, ready=1, count=5840/6144, addr=45, plane=2, remaining=304, pixels_xfer=16
+[7835000] Output Ctrl:   transfer_handshake - will_count=5856, final=0, offset=720
+[7845000] Output Ctrl: active=1, valid=1, ready=1, count=5856/6144, addr=46, plane=2, remaining=288, pixels_xfer=16
+[7845000] Output Ctrl:   transfer_handshake - will_count=5872, final=0, offset=736
+[7855000] Output Ctrl: active=1, valid=1, ready=1, count=5872/6144, addr=47, plane=2, remaining=272, pixels_xfer=16
+[7855000] Output Ctrl:   transfer_handshake - will_count=5888, final=0, offset=752
+[7865000] Output Ctrl: active=1, valid=1, ready=1, count=5888/6144, addr=48, plane=2, remaining=256, pixels_xfer=16
+[7865000] Output Ctrl:   transfer_handshake - will_count=5904, final=0, offset=768
+[7875000] Output Ctrl: active=1, valid=1, ready=1, count=5904/6144, addr=49, plane=2, remaining=240, pixels_xfer=16
+[7875000] Output Ctrl:   transfer_handshake - will_count=5920, final=0, offset=784
+[7885000] Output Ctrl: active=1, valid=1, ready=1, count=5920/6144, addr=50, plane=2, remaining=224, pixels_xfer=16
+[7885000] Output Ctrl:   transfer_handshake - will_count=5936, final=0, offset=800
+[7895000] Output Ctrl: active=1, valid=1, ready=1, count=5936/6144, addr=51, plane=2, remaining=208, pixels_xfer=16
+[7895000] Output Ctrl:   transfer_handshake - will_count=5952, final=0, offset=816
+[7905000] Output Ctrl: active=1, valid=1, ready=1, count=5952/6144, addr=52, plane=2, remaining=192, pixels_xfer=16
+[7905000] Output Ctrl:   transfer_handshake - will_count=5968, final=0, offset=832
+[7915000] Output Ctrl: active=1, valid=1, ready=1, count=5968/6144, addr=53, plane=2, remaining=176, pixels_xfer=16
+[7915000] Output Ctrl:   transfer_handshake - will_count=5984, final=0, offset=848
+[7925000] Output Ctrl: active=1, valid=1, ready=1, count=5984/6144, addr=54, plane=2, remaining=160, pixels_xfer=16
+[7925000] Output Ctrl:   transfer_handshake - will_count=6000, final=0, offset=864
+[7935000] Output Ctrl: active=1, valid=1, ready=1, count=6000/6144, addr=55, plane=2, remaining=144, pixels_xfer=16
+[7935000] Output Ctrl:   transfer_handshake - will_count=6016, final=0, offset=880
+[7945000] Output Ctrl: active=1, valid=1, ready=1, count=6016/6144, addr=56, plane=2, remaining=128, pixels_xfer=16
+[7945000] Output Ctrl:   transfer_handshake - will_count=6032, final=0, offset=896
+[7955000] Output Ctrl: active=1, valid=1, ready=1, count=6032/6144, addr=57, plane=2, remaining=112, pixels_xfer=16
+[7955000] Output Ctrl:   transfer_handshake - will_count=6048, final=0, offset=912
+[7965000] Output Ctrl: active=1, valid=1, ready=1, count=6048/6144, addr=58, plane=2, remaining=96, pixels_xfer=16
+[7965000] Output Ctrl:   transfer_handshake - will_count=6064, final=0, offset=928
+[7975000] Output Ctrl: active=1, valid=1, ready=1, count=6064/6144, addr=59, plane=2, remaining=80, pixels_xfer=16
+[7975000] Output Ctrl:   transfer_handshake - will_count=6080, final=0, offset=944
+[7985000] Output Ctrl: active=1, valid=1, ready=1, count=6080/6144, addr=60, plane=2, remaining=64, pixels_xfer=16
+[7985000] Output Ctrl:   transfer_handshake - will_count=6096, final=0, offset=960
+[7995000] Output Ctrl: active=1, valid=1, ready=1, count=6096/6144, addr=61, plane=2, remaining=48, pixels_xfer=16
+[7995000] Output Ctrl:   transfer_handshake - will_count=6112, final=0, offset=976
+[8005000] Output Ctrl: active=1, valid=1, ready=1, count=6112/6144, addr=62, plane=2, remaining=32, pixels_xfer=16
+[8005000] Output Ctrl:   transfer_handshake - will_count=6128, final=0, offset=992
+[8015000] Output Ctrl: active=1, valid=1, ready=1, count=6128/6144, addr=63, plane=2, remaining=16, pixels_xfer=16
+[8015000] Output Ctrl:   transfer_handshake - will_count=6144, final=0, offset=1008
+[8015000] Output Ctrl: Final transfer, count=6128->6144, total=6144, write_cycles=384
+Frame           0 decoded:        6160 pixels written
+Output complete at time 8025000
+[8025000] Output Ctrl: active=1, valid=1, ready=1, count=6128/6144, addr=63, plane=2, remaining=16, pixels_xfer=16
+[8025000] Output Ctrl:   transfer_handshake - will_count=6144, final=1, offset=1008
+[8025000] Output Ctrl: Frame complete (with valid) at count=6128, write_cycles=384
+Output completed at time 8025000
+[TIME 8035000] Decoder State:  6 ->  0
+  Busy: 0
+  Frames decoded:          1
+
+[Final] Checking decoder status...
+  Total frames decoded:          1
+  Error count:          0
+
+========================================
+Test Complete
+========================================
+tb_ivf_decode.v:375: $finish called at 10135000 (1ps)

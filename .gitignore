@@ -4,6 +4,10 @@ cmbuild
 .project
 .vscode
 .gitignore
+.yuv
+.log
+rtl/out
+rtl/output
 third_party/deps_cmake/
 third_party/tensorflow/
 TAGS

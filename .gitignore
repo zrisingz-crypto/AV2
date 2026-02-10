@@ -8,6 +8,7 @@ cmbuild
 .log
 rtl/out
 rtl/output
+cmake_build/
 third_party/deps_cmake/
 third_party/tensorflow/
 TAGS

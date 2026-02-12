@@ -213,13 +213,20 @@ always @(posedge clk or negedge rst_n) begin
                     coeff_addr <= 12'd0;
                     coeff_out <= coeffs[0];
                     coeff_valid <= 1'b1;
+                    $display("[TIME %0t] Coefficient decoder: Starting output, num_coeffs=%0d, last_nonzero=%0d", 
+                             $time, num_coeffs, last_nonzero_pos);
                 end else if (coeff_valid && coeff_ready && coeff_addr < num_coeffs-1) begin
                     coeff_addr <= coeff_addr + 1;
                     coeff_out <= coeffs[coeff_addr + 1];
                 end else if (coeff_valid && coeff_ready && coeff_addr >= num_coeffs-1) begin
                     coeff_valid <= 1'b0;
+                    coeffs_valid <= 1'b0;
+                    $display("[TIME %0t] Coefficient decoder: All %0d coefficients output, moving to DONE", 
+                             $time, num_coeffs);
+                    state <= DONE;
                 end
                 
+                // Also allow external ready signal to trigger completion
                 if (coeffs_ready) begin
                     coeffs_valid <= 1'b0;
                     state <= DONE;
@@ -257,7 +264,11 @@ always @(*) begin
         end
         
         OUTPUT: begin
-            if (coeffs_ready)
+            // Automatically transition to DONE after outputting all coefficients
+            // Don't wait for coeffs_ready - it's optional
+            if (coeff_valid && coeff_ready && coeff_addr >= num_coeffs-1)
+                state_next = DONE;
+            else if (coeffs_ready)
                 state_next = DONE;
         end
         

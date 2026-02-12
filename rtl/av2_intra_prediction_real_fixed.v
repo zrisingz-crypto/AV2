@@ -50,7 +50,8 @@ end
 // State machine
 localparam IDLE       = 2'd0;
 localparam PREDICTING = 2'd1;
-localparam DONE       = 2'd2;
+localparam OUTPUT     = 2'd2;  // New state to hold valid signal
+localparam DONE       = 2'd3;
 
 reg [1:0] state, state_next;
 
@@ -108,18 +109,24 @@ always @(posedge clk or negedge rst_n) begin
                     end else begin
                         // Done processing all pixels
                         valid <= 1'b1;
-                        done <= 1'b1;
-                        state <= DONE;
+                        state <= OUTPUT;
                     end
                 end
             end
             
-            DONE: begin
+            OUTPUT: begin
+                // Hold valid signal until ready is received
                 if (ready) begin
+                    $display("[TIME %0t] Intra prediction: Output consumed, moving to DONE", $time);
                     valid <= 1'b0;
-                    done <= 1'b0;
-                    state <= IDLE;
+                    done <= 1'b1;
+                    state <= DONE;
                 end
+            end
+            
+            DONE: begin
+                done <= 1'b0;
+                // Will transition to IDLE on next start
             end
         endcase
     end
@@ -136,14 +143,20 @@ always @(*) begin
         
         PREDICTING: begin
             if (row >= block_height)
-                state_next = DONE;
+                state_next = OUTPUT;
             else
                 state_next = PREDICTING;
         end
         
-        DONE: begin
+        OUTPUT: begin
+            // Wait for ready signal
             if (ready)
-                state_next = IDLE;
+                state_next = DONE;
+        end
+        
+        DONE: begin
+            // Transition to IDLE when start goes low
+            state_next = IDLE;
         end
         
         default: begin

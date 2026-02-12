@@ -45,6 +45,7 @@ module av2_tile_decoder_real #(
 localparam IDLE             = 4'd0;
 localparam PARSE_SB_HEADER  = 4'd1;  // 解析超级块头
 localparam ENTROPY_DECODE   = 4'd2;  // 熵解码
+localparam COEFF_WAIT       = 4'd9;  // 等待系数解码器完成
 localparam INVERSE_TX       = 4'd3;  // 逆变换
 localparam PREDICTION       = 4'd4;  // 预测
 localparam RECONSTRUCTION   = 4'd5;  // 重建
@@ -167,14 +168,21 @@ av2_coeff_decoder_real #(
 );
 
 // 将系数从系数解码器传输到内部存储器
-always @(posedge clk) begin
-    if (coeffs_valid && coeff_valid_temp) begin
-        coeff_ready_temp <= 1'b1;
-        if (coeff_addr_temp < num_coeffs_out) begin
-            decoded_coeffs[coeff_addr_temp] <= coeff_out_temp;
-        end
-    end else begin
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
         coeff_ready_temp <= 1'b0;
+    end else begin
+        // 当系数解码器输出有效系数时，接收并存储
+        if (coeffs_valid && coeff_valid_temp) begin
+            coeff_ready_temp <= 1'b1;  // 告诉系数解码器我们已经接收了这个系数
+            if (coeff_addr_temp < 4096) begin
+                decoded_coeffs[coeff_addr_temp] <= coeff_out_temp;
+                $display("[TIME %0t] Coeff transfer: addr=%0d, coeff=%0d, num_coeffs=%0d", 
+                         $time, coeff_addr_temp, coeff_out_temp, num_coeffs_out);
+            end
+        end else begin
+            coeff_ready_temp <= 1'b0;  // 重置ready信号
+        end
     end
 end
 
@@ -183,6 +191,7 @@ wire signed [15:0] residual_pixels[0:4095];
 wire               itx_valid;
 reg                itx_ready;
 wire               itx_done;
+reg                itx_valid_reg;  // Register to hold itx_valid state
 
 av2_inverse_transform_real_fixed #(
     .MAX_TX_SIZE(64),
@@ -298,11 +307,14 @@ always @(posedge clk or negedge rst_n) begin
         itx_ready <= 1'b1;  // Always ready for ITX
         intra_pred_ready <= 1'b1;  // Always ready for intra prediction
         local_entropy_ready <= 1'b1;
+        itx_valid_reg <= 1'b0;  // Reset itx_valid register
         
         for (k = 0; k < 4096; k = k + 1) begin
             pred_buffer[k] <= 10'd0;
         end
     end else begin
+        // Register itx_valid to hold it across state transitions
+        itx_valid_reg <= itx_valid;
         state <= state_next;
         
         case (state)
@@ -354,16 +366,45 @@ always @(posedge clk or negedge rst_n) begin
                 if (entropy_valid && entropy_ready) begin
                     $display("[TIME %0t] ENTROPY_DECODE: symbol=%0d", $time, entropy_symbol);
                 end
-                // Wait for entropy decoder to signal done
-                if (entropy_done) begin
-                    $display("[TIME %0t] ENTROPY_DECODE: Done, %0d symbols decoded", $time, bitstream_count);
+                
+                // Wait for both entropy and coefficient decoders to complete
+                if (entropy_done && coeffs_done) begin
+                    $display("[TIME %0t] ENTROPY_DECODE: Both done, %0d symbols, %0d coeffs, moving to COEFF_WAIT", 
+                             $time, bitstream_count, num_coeffs_out);
+                    coeffs_ready <= 1'b1;  // Tell coefficient decoder to proceed
+                    state <= COEFF_WAIT;
+                end
+            end
+            
+            COEFF_WAIT: begin
+                // Wait for coefficient decoder to acknowledge coeffs_ready and complete
+                $display("[TIME %0t] COEFF_WAIT: Waiting for coeff decoder, coeffs_done=%0d, coeffs_ready=%0d", 
+                         $time, coeffs_done, coeffs_ready);
+                
+                if (coeffs_done) begin
+                    $display("[TIME %0t] COEFF_WAIT: Coefficient decoder confirmed done, moving to INVERSE_TX", $time);
+                    coeffs_ready <= 1'b0;  // Clear the signal
+                end
+                
+                // Move to inverse transform after a brief wait
+                if (coeffs_ready) begin
+                    coeffs_ready <= 1'b0;
+                    state <= INVERSE_TX;
                 end
             end
             
             INVERSE_TX: begin
                 // Real inverse transform - convert coefficients to residuals
+                coeffs_ready <= 1'b0;  // Clear previous value
+                
                 if (itx_valid && itx_ready) begin
-                    $display("[TIME %0t] INVERSE_TX: Transform complete", $time);
+                    $display("[TIME %0t] INVERSE_TX: Transform complete, valid=%0d", $time, itx_valid);
+                end
+                
+                // Tell coefficient decoder it can proceed to DONE
+                if (itx_done) begin
+                    $display("[TIME %0t] INVERSE_TX: itx_done=%0d, itx_valid=%0d", $time, itx_done, itx_valid);
+                    coeffs_ready <= 1'b1;
                 end
             end
             
@@ -372,20 +413,40 @@ always @(posedge clk or negedge rst_n) begin
             end
             
             RECONSTRUCTION: begin
-                // Use intra prediction module output directly for reconstruction
-                $display("[TIME %0t] RECONSTRUCTION: Using intra prediction output", $time);
+                // Proper reconstruction: prediction + residual from inverse transform
+                $display("[TIME %0t] RECONSTRUCTION: Adding prediction + residual, itx_valid_reg=%0d, intra_pred_valid=%0d", 
+                         $time, itx_valid_reg, intra_pred_valid);
                 
-                // Use intra prediction module output directly for reconstruction
-                if (intra_pred_valid) begin
+                if (itx_valid_reg && intra_pred_valid) begin
                     for (k = 0; k < block_width * block_height; k = k + 1) begin
+                        reg [9:0] pred_val;
+                        reg signed [15:0] residual_val;
+                        reg [9:0] recon_val;
                         reg [15:0] frame_idx;
+                        
+                        pred_val = intra_pred_pixels[k];
+                        residual_val = residual_pixels[k];
+                        
+                        // Reconstruction: prediction + residual
+                        recon_val = pred_val + residual_val;
+                        
+                        // Clip to valid range [0, 1023]
+                        if (recon_val < 10'd0) begin
+                            recon_val = 10'd0;
+                        end else if (recon_val > 10'd1023) begin
+                            recon_val = 10'd1023;
+                        end
+                        
                         frame_idx = (block_y_coord + (k / block_width)) * frame_width + 
-                                     block_x_coord + (k % block_width);
+                                    block_x_coord + (k % block_width);
+                        
                         if (frame_idx < MAX_WIDTH * MAX_HEIGHT && frame_idx < 4096) begin
-                            recon_frame[frame_idx] <= intra_pred_pixels[k];
-                            // 调试信息：检查写入的像素值
+                            recon_frame[frame_idx] <= recon_val;
+                            
+                            // Debug: show reconstructed values
                             if (k < 4) begin
-                                $display("[TIME %0t] Write pixel[%0d] = %03d at index %0d", $time, k, intra_pred_pixels[k], frame_idx);
+                                $display("[TIME %0t] Reconstruct pixel[%0d]: pred=%03d, residual=%0d, recon=%03d at index %0d", 
+                                         $time, k, pred_val, residual_val, recon_val, frame_idx);
                             end
                         end
                     end
@@ -454,6 +515,7 @@ always @(posedge clk or negedge rst_n) begin
             end
             
             DONE: begin
+                coeffs_ready <= 1'b0;  // Reset for next block
                 recon_wr_en <= 1'b0;
                 tile_done <= 1'b1;
             end
@@ -480,9 +542,17 @@ always @(*) begin
         end
         
         ENTROPY_DECODE: begin
-            // Wait for entropy decoder to complete
-            if (entropy_done) begin
-                $display("[TIME %0t] ENTROPY_DECODE -> INVERSE_TX", $time);
+            // Wait for both entropy and coefficient decoders to complete
+            if (entropy_done && coeffs_done) begin
+                $display("[TIME %0t] ENTROPY_DECODE -> COEFF_WAIT", $time);
+                state_next = COEFF_WAIT;
+            end
+        end
+        
+        COEFF_WAIT: begin
+            // Wait for coefficient decoder to acknowledge and complete
+            if (coeffs_done) begin
+                $display("[TIME %0t] COEFF_WAIT -> INVERSE_TX", $time);
                 state_next = INVERSE_TX;
             end
         end

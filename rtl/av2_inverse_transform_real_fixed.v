@@ -43,7 +43,8 @@ localparam TX_IDTX       = 4'd7;
 localparam IDLE       = 2'd0;
 localparam ROW_TX     = 2'd1;
 localparam COL_TX     = 2'd2;
-localparam DONE       = 2'd3;
+localparam OUTPUT     = 2'd3;  // New state to hold valid signal
+localparam DONE       = 2'd4;
 
 reg [1:0] state, state_next;
 
@@ -107,7 +108,7 @@ always @(posedge clk or negedge rst_n) begin
                          $time, tx_width, tx_height, num_coeffs);
                 
                 // For now, implement a simplified 2D IDCT for 16x16 blocks
-                // This is a basic implementation - full implementation would use the complete IDCT matrix
+                // This is a basic implementation - full implementation would use complete IDCT matrix
                 
                 if (tx_width == 16 && tx_height == 16) begin
                     // Simplified 2D IDCT for 16x16 blocks
@@ -167,7 +168,16 @@ always @(posedge clk or negedge rst_n) begin
                 end
                 
                 valid <= 1'b1;
-                state <= DONE;
+                state <= OUTPUT;  // Go to OUTPUT state to hold valid signal
+            end
+            
+            OUTPUT: begin
+                // Hold valid signal until ready is received
+                if (ready) begin
+                    $display("[TIME %0t] Inverse transform: Output consumed, moving to DONE", $time);
+                    valid <= 1'b0;
+                    state <= DONE;
+                end
             end
             
             // Column transform is now integrated into ROW_TX state
@@ -176,7 +186,7 @@ always @(posedge clk or negedge rst_n) begin
             DONE: begin
                 valid <= 1'b0;
                 done <= 1'b1;
-                state <= IDLE;  // Don't wait for ready to avoid deadlock
+                // Stay in DONE state, will transition to IDLE on next start
             end
         endcase
     end
@@ -192,13 +202,19 @@ always @(*) begin
         end
         
         ROW_TX: begin
-            // Transform is done in one cycle for now
-            state_next = DONE;
+            // Transform is done in one cycle, then go to OUTPUT
+            state_next = OUTPUT;
+        end
+        
+        OUTPUT: begin
+            // Wait for ready signal
+            if (ready)
+                state_next = DONE;
         end
         
         DONE: begin
-            if (ready)
-                state_next = IDLE;
+            // Transition to IDLE when start goes low
+            state_next = IDLE;
         end
         
         default: begin

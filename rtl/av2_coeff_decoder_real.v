@@ -147,48 +147,49 @@ always @(posedge clk or negedge rst_n) begin
             end
             
             TOKEN_PARSE: begin
-                // Receive symbols from entropy decoder and parse as coefficients
+                // Read symbols from entropy decoder and parse coefficients
                 if (symbol_valid && symbol_ready) begin
-                    symbol_buf <= decoded_symbol;
-                    symbol_buf_valid <= 1'b1;
+                    $display("[TIME %0t] Coefficient decoder: received symbol %d from entropy decoder", $time, decoded_symbol);
                     
-                    // Parse the symbol based on AV1/AV2 coefficient coding
-                    // For simplicity, we'll interpret the symbol as a coefficient value
-                    // In real implementation, this would involve more complex parsing
-                    if (symbol_buf == 16'd0) begin
-                        // Zero coefficient - increment zero run count
-                        zero_run_count <= zero_run_count + 1;
-                    end else begin
-                        // Non-zero coefficient - process it
-                        // Place coefficient at current position accounting for zero runs
-                        if (coeff_idx + zero_run_count < max_coeffs) begin
-                            coeffs[coeff_idx + zero_run_count] <= $signed(symbol_buf[14:0]);
-                            last_nonzero_pos <= coeff_idx + zero_run_count;
-                            coeff_idx <= coeff_idx + zero_run_count + 1;
-                            zero_run_count <= 12'd0;
-                        end
-                    end
+                    // Parse symbol to coefficient
+                    // Simplified parsing: symbol value directly becomes coefficient
+                    // In full implementation, this would use token tables
                     
-                    // Check if we've reached end of block (simplified)
-                    if (coeff_idx >= max_coeffs - 1) begin
+                    // Check for EOB (End of Block) - symbol 65535 indicates EOB
+                    if (decoded_symbol == 16'hFFFF) begin
                         eob_found <= 1'b1;
-                        eob_pos <= last_nonzero_pos;
+                        $display("[TIME %0t] Coefficient decoder: EOB found at position %d", $time, coeff_idx);
+                        state <= OUTPUT;
+                    end else if (coeff_idx < max_coeffs) begin
+                        // Store coefficient
+                        coeffs[coeff_idx] <= decoded_symbol;
+                        
+                        // Track last non-zero position
+                        if (decoded_symbol != 16'sd0) begin
+                            last_nonzero_pos <= coeff_idx;
+                        end
+                        
+                        coeff_idx <= coeff_idx + 1;
+                        
+                        // Request next symbol
+                        symbol_ready <= 1'b1;
+                        
+                        // Check if we've reached max coefficients
+                        if (coeff_idx >= max_coeffs - 1) begin
+                            state <= OUTPUT;
+                        end
+                    end else begin
+                        // Reached max coefficients without EOB
                         state <= OUTPUT;
                     end
+                end else if (!symbol_valid) begin
+                    // Wait for entropy decoder to provide symbol
+                    symbol_ready <= 1'b1;
                 end
             end
             
-            COEFF_GEN: begin
-                // Additional coefficient processing if needed
-                // For now, we'll skip this state and go directly to output
-                state <= OUTPUT;
-            end
-            
-            RUN_LENGTH: begin
-                // Process run lengths of zeros
-                // Simplified implementation - in real decoder this handles zero runs
-                state <= EOB_CHECK;
-            end
+            // These states are not needed in the simplified implementation
+            // They can be added later for full token parsing support
             
             EOB_CHECK: begin
                 // Check for End of Block
@@ -225,11 +226,12 @@ always @(posedge clk or negedge rst_n) begin
                 end
             end
             
-            DONE: begin
-                if (!coeffs_valid) begin
-                    state <= IDLE;
-                end
-            end
+        DONE: begin
+            coeffs_valid <= 1'b0;
+            coeff_valid <= 1'b0;
+            symbol_ready <= 1'b0;
+            state <= IDLE;
+        end
             
             default: begin
                 state <= IDLE;
@@ -249,23 +251,9 @@ always @(*) begin
         end
         
         TOKEN_PARSE: begin
-            if (coeff_idx >= max_coeffs - 1 || eob_found)
+            // Stay in TOKEN_PARSE until EOB found or max coeffs reached
+            if (eob_found || coeff_idx >= max_coeffs)
                 state_next = OUTPUT;
-        end
-        
-        COEFF_GEN: begin
-            state_next = OUTPUT;
-        end
-        
-        RUN_LENGTH: begin
-            state_next = EOB_CHECK;
-        end
-        
-        EOB_CHECK: begin
-            if (coeff_idx >= max_coeffs || eob_found)
-                state_next = OUTPUT;
-            else
-                state_next = TOKEN_PARSE;
         end
         
         OUTPUT: begin

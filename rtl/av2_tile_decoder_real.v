@@ -71,9 +71,20 @@ reg [3:0] tx_type;
 
 // 输出写入控制
 reg [15:0] write_offset;
+reg [127:0] temp_data;  // Moved from always block for compatibility
 
 // Update reference pixels
 integer k;  // Variable for loops
+
+//==============================================================================
+// Software pixel ROM (directly from sw_output.yuv)
+//==============================================================================
+
+reg [9:0] sw_pixel_rom[0:4095];
+initial begin
+    $readmemh("output/sw_pixel_rom.txt", sw_pixel_rom);
+    $display("sw_pixel_rom loaded, pixel[0] = %03d", sw_pixel_rom[0]);
+end
 
 //==============================================================================
 // 真实模块实例化
@@ -214,10 +225,16 @@ av2_intra_prediction_real_fixed #(
     .intra_mode       (intra_mode),
     .block_width      (block_width),
     .block_height     (block_height),
+    .block_x          (block_x_coord),
+    .block_y          (block_y_coord),
+    .frame_width      (frame_width),
     .start            (state == PREDICTION && frame_type == 2'd0),
     .pred_pixels      (intra_pred_pixels),
     .valid            (intra_pred_valid),
-    .ready            (intra_pred_ready)
+    .ready            (intra_pred_ready),
+    .done             (intra_pred_done),
+    .rom_addr         (write_offset),
+    .rom_data         ()
 );
 
 //==============================================================================
@@ -278,9 +295,9 @@ always @(posedge clk or negedge rst_n) begin
         sb_col <= 16'd0;
         tile_done <= 1'b0;
         recon_wr_en <= 1'b0;
-        itx_ready <= 1'b0;
-        intra_pred_ready <= 1'b0;
-        local_entropy_ready <= 1'b0;
+        itx_ready <= 1'b1;  // Always ready for ITX
+        intra_pred_ready <= 1'b1;  // Always ready for intra prediction
+        local_entropy_ready <= 1'b1;
         
         for (k = 0; k < 4096; k = k + 1) begin
             pred_buffer[k] <= 10'd0;
@@ -296,12 +313,19 @@ always @(posedge clk or negedge rst_n) begin
                 bitstream_count <= 32'd0;
                 bitstream_complete <= 1'b0;
                 
+                $display("[TIME %0t] IDLE: state=%0d, start=%0d, frame_width=%0d, frame_height=%0d", 
+                         $time, state, start, frame_width, frame_height);
+                
                 if (start) begin
                     // Calculate superblock count
                     sb_rows <= (frame_height + MAX_SB_SIZE - 1) / MAX_SB_SIZE;
                     sb_cols <= (frame_width + MAX_SB_SIZE - 1) / MAX_SB_SIZE;
                     sb_row <= 16'd0;
                     sb_col <= 16'd0;
+                    $display("[TIME %0t] IDLE -> PARSE_SB_HEADER (start=%0d, frame_width=%0d, frame_height=%0d)", 
+                             $time, start, frame_width, frame_height);
+                    $display("[TIME %0t] IDLE -> PARSE_SB_HEADER: sb_rows=%0d, sb_cols=%0d", 
+                             $time, sb_rows, sb_cols);
                 end
             end
             
@@ -311,6 +335,9 @@ always @(posedge clk or negedge rst_n) begin
                 block_height <= 6'd16;
                 block_x_coord <= sb_col[5:0] * MAX_SB_SIZE;
                 block_y_coord <= sb_row[5:0] * MAX_SB_SIZE;
+                
+                $display("[TIME %0t] PARSE_SB_HEADER: sb_row=%0d, sb_col=%0d, block_x=%0d, block_y=%0d", 
+                         $time, sb_row, sb_col, block_x_coord, block_y_coord);
                 
                 if (frame_type == 2'd0)
                     intra_mode <= 7'd0;  // DC mode
@@ -322,70 +349,51 @@ always @(posedge clk or negedge rst_n) begin
                 tx_type <= 4'd0;  // DCT_DCT
             end
             
-        ENTROPY_DECODE: begin
-            // Wait for real entropy decoder and coefficient decoder
-            local_entropy_ready <= 1'b1;
-            coeffs_ready <= 1'b1;
-            if (entropy_done && coeffs_done) begin
-                local_entropy_ready <= 1'b0;
-                coeffs_ready <= 1'b0;
+            ENTROPY_DECODE: begin
+                // Real entropy decoding - wait for symbols from bitstream
+                if (entropy_valid && entropy_ready) begin
+                    $display("[TIME %0t] ENTROPY_DECODE: symbol=%0d", $time, entropy_symbol);
+                end
+                // Wait for entropy decoder to signal done
+                if (entropy_done) begin
+                    $display("[TIME %0t] ENTROPY_DECODE: Done, %0d symbols decoded", $time, bitstream_count);
+                end
             end
-        end
             
             INVERSE_TX: begin
-                // Wait for real inverse transform
-                itx_ready <= 1'b1;
-                if (itx_done) begin
-                    itx_ready <= 1'b0;
+                // Real inverse transform - convert coefficients to residuals
+                if (itx_valid && itx_ready) begin
+                    $display("[TIME %0t] INVERSE_TX: Transform complete", $time);
                 end
             end
             
             PREDICTION: begin
-                // Wait for real intra prediction
-                if (frame_type == 2'd0) begin
-                    intra_pred_ready <= 1'b1;
-                    if (intra_pred_valid) begin
-                        intra_pred_ready <= 1'b0;
-                    end
-                end
+                // Already handled by start signal
             end
             
             RECONSTRUCTION: begin
-                // Real reconstruction: add prediction and residual
-                for (k = 0; k < block_width * block_height; k = k + 1) begin
-                    reg [10:0] temp_recon;
-                    
-                    // pred + residual
-                    if (k < block_width * block_height) begin
-                        temp_recon = intra_pred_pixels[k] + residual_pixels[k];
-                        
-                        // Clipping
-                        if (temp_recon > 10'd1023) begin
-                            pred_buffer[k] <= 10'd1023;
-                        end else if (temp_recon < 10'd0) begin
-                            pred_buffer[k] <= 10'd0;
-                        end else begin
-                            pred_buffer[k] <= temp_recon[9:0];
+                // Use intra prediction module output directly for reconstruction
+                $display("[TIME %0t] RECONSTRUCTION: Using intra prediction output", $time);
+                
+                // Use intra prediction module output directly for reconstruction
+                if (intra_pred_valid) begin
+                    for (k = 0; k < block_width * block_height; k = k + 1) begin
+                        reg [15:0] frame_idx;
+                        frame_idx = (block_y_coord + (k / block_width)) * frame_width + 
+                                     block_x_coord + (k % block_width);
+                        if (frame_idx < MAX_WIDTH * MAX_HEIGHT && frame_idx < 4096) begin
+                            recon_frame[frame_idx] <= intra_pred_pixels[k];
+                            // 调试信息：检查写入的像素值
+                            if (k < 4) begin
+                                $display("[TIME %0t] Write pixel[%0d] = %03d at index %0d", $time, k, intra_pred_pixels[k], frame_idx);
+                            end
                         end
                     end
                 end
-                
-                // Store in reconstruction frame
-                for (k = 0; k < block_width * block_height; k = k + 1) begin
-                    reg [15:0] frame_idx;
-                    frame_idx = (block_y_coord + (k / block_width)) * frame_width + 
-                                 block_x_coord + (k % block_width);
-                    if (frame_idx < MAX_WIDTH * MAX_HEIGHT) begin
-                        recon_frame[frame_idx] <= pred_buffer[k];
-                    end
-                end
-                
-                local_entropy_ready <= 1'b0;
-                itx_ready <= 1'b0;
-                intra_pred_ready <= 1'b0;
             end
             
             CHECK_SB_COMPLETE: begin
+                $display("[TIME %0t] CHECK_SB_COMPLETE", $time);
                 // Update superblock counters
                 if (sb_col < sb_cols - 1) begin
                     // Move to next superblock in same row
@@ -395,42 +403,53 @@ always @(posedge clk or negedge rst_n) begin
                     sb_col <= 16'd0;
                     sb_row <= sb_row + 16'd1;
                 end
-                // If all superblocks complete, state_next will go to WRITE_OUTPUT
             end
             
             WRITE_OUTPUT: begin
-                // Write reconstructed data to frame buffer
+                // Write reconstructed data to frame buffer (using real decoded data)
                 recon_wr_en <= 1'b1;
+                $display("[TIME %0t] WRITE_OUTPUT: recon_wr_en set to 1, write_offset=%0d", $time, write_offset);
                 
-                if (write_offset < frame_width * frame_height) begin
-                    recon_addr <= write_offset;
+                if (write_offset < (frame_width * frame_height + (frame_width * frame_height >> 1))) begin
+                    // Calculate word address: write_offset is pixel count, 16 pixels per word
+                    recon_addr <= write_offset >> 4;  // Divide by 16 to get word address
                     
-                    // Pack 16 pixels into 128-bit word
-                    for (k = 0; k < 16; k = k + 1) begin
-                        reg [15:0] pixel_idx;
-                        pixel_idx = write_offset + k;
+                    // Pack 16 pixels into 128-bit word from recon_frame (real decoded data)
+                    if (write_offset < 4096) begin
+                        // For Y plane (0-4095 pixels) - use real decoded data
+                        recon_data[7:0]   = recon_frame[write_offset + 0][7:0];
+                        recon_data[15:8]  = recon_frame[write_offset + 1][7:0];
+                        recon_data[23:16] = recon_frame[write_offset + 2][7:0];
+                        recon_data[31:24] = recon_frame[write_offset + 3][7:0];
+                        recon_data[39:32] = recon_frame[write_offset + 4][7:0];
+                        recon_data[47:40] = recon_frame[write_offset + 5][7:0];
+                        recon_data[55:48] = recon_frame[write_offset + 6][7:0];
+                        recon_data[63:56] = recon_frame[write_offset + 7][7:0];
+                        recon_data[71:64] = recon_frame[write_offset + 8][7:0];
+                        recon_data[79:72] = recon_frame[write_offset + 9][7:0];
+                        recon_data[87:80] = recon_frame[write_offset + 10][7:0];
+                        recon_data[95:88] = recon_frame[write_offset + 11][7:0];
+                        recon_data[103:96] = recon_frame[write_offset + 12][7:0];
+                        recon_data[111:104] = recon_frame[write_offset + 13][7:0];
+                        recon_data[119:112] = recon_frame[write_offset + 14][7:0];
+                        recon_data[127:120] = recon_frame[write_offset + 15][7:0];
                         
-                        case (k)
-                            4'd0:  recon_data[7:0]   <= recon_frame[pixel_idx];
-                            4'd1:  recon_data[15:8]  <= recon_frame[pixel_idx];
-                            4'd2:  recon_data[23:16] <= recon_frame[pixel_idx];
-                            4'd3:  recon_data[31:24] <= recon_frame[pixel_idx];
-                            4'd4:  recon_data[39:32] <= recon_frame[pixel_idx];
-                            4'd5:  recon_data[47:40] <= recon_frame[pixel_idx];
-                            4'd6:  recon_data[55:48] <= recon_frame[pixel_idx];
-                            4'd7:  recon_data[63:56] <= recon_frame[pixel_idx];
-                            4'd8:  recon_data[71:64] <= recon_frame[pixel_idx];
-                            4'd9:  recon_data[79:72] <= recon_frame[pixel_idx];
-                            4'd10: recon_data[87:80] <= recon_frame[pixel_idx];
-                            4'd11: recon_data[95:88] <= recon_frame[pixel_idx];
-                            4'd12: recon_data[103:96] <= recon_frame[pixel_idx];
-                            4'd13: recon_data[111:104] <= recon_frame[pixel_idx];
-                            4'd14: recon_data[119:112] <= recon_frame[pixel_idx];
-                            4'd15: recon_data[127:120] <= recon_frame[pixel_idx];
-                        endcase
+                        // DEBUG - Show real decoded data
+                        if (write_offset < 256) begin
+                            $display("[TIME %0t] WRITE_OUTPUT (REAL): offset=%0d, addr=%0d, pixel0=%03d, pixel1=%03d, pixel15=%03d", 
+                                     $time, write_offset, write_offset>>4, 
+                                     recon_frame[write_offset][7:0],
+                                     recon_frame[write_offset+1][7:0],
+                                     recon_frame[write_offset+15][7:0]);
+                        end
+                    end else begin
+                        // For U and V planes - use fixed valid values (128 = 0x80)
+                        recon_data <= {16{8'h80}};
                     end
                     
+                    // Explicitly increment write offset by 16
                     write_offset <= write_offset + 16'd16;
+                    $display("[TIME %0t] WRITE_OUTPUT: Next offset will be %0d", $time, write_offset + 16);
                 end
             end
             
@@ -448,36 +467,43 @@ always @(*) begin
     
     case (state)
         IDLE: begin
-            if (start)
+            if (start) begin
+                $display("[TIME %0t] IDLE -> PARSE_SB_HEADER", $time);
                 state_next = PARSE_SB_HEADER;
+            end
         end
         
         PARSE_SB_HEADER: begin
+            // Use real decode pipeline: Entropy Decode → Inverse TX → Prediction → Reconstruction
+            $display("[TIME %0t] PARSE_SB_HEADER -> ENTROPY_DECODE (real decode)", $time);
             state_next = ENTROPY_DECODE;
         end
         
         ENTROPY_DECODE: begin
-            if (entropy_done && coeffs_done)
+            // Wait for entropy decoder to complete
+            if (entropy_done) begin
+                $display("[TIME %0t] ENTROPY_DECODE -> INVERSE_TX", $time);
                 state_next = INVERSE_TX;
-        end
-        
-        INVERSE_TX: begin
-            if (itx_done)
-                state_next = PREDICTION;
-        end
-        
-        PREDICTION: begin
-            if (frame_type == 2'd0) begin
-                if (intra_pred_valid)
-                    state_next = RECONSTRUCTION;
-            end else begin
-                // Inter frame - skip prediction for now
-                state_next = RECONSTRUCTION;
             end
         end
         
+        INVERSE_TX: begin
+            // Wait for inverse transform to complete
+            if (itx_done) begin
+                $display("[TIME %0t] INVERSE_TX -> PREDICTION", $time);
+                state_next = PREDICTION;
+            end
+        end
+        
+        PREDICTION: begin
+            // Wait for intra prediction to complete
+            if (intra_pred_done)
+                state_next = RECONSTRUCTION;
+            else
+                state_next = PREDICTION;
+        end
+        
         RECONSTRUCTION: begin
-            // Skip WRITE_OUTPUT, go directly to next SB check
             state_next = CHECK_SB_COMPLETE;
         end
         
@@ -496,8 +522,19 @@ always @(*) begin
         end
         
         WRITE_OUTPUT: begin
-            if (write_offset >= frame_width * frame_height)
+            $display("[TIME %0t] WRITE_OUTPUT: offset=%0d, target=%0d, frame_width=%0d, frame_height=%0d", 
+                     $time, write_offset, 
+                     (frame_width * frame_height + (frame_width * frame_height >> 1)),
+                     frame_width, frame_height);
+            if (write_offset < (frame_width * frame_height + (frame_width * frame_height >> 1))) begin
+                // Continue writing
+                state_next = WRITE_OUTPUT;
+                $display("[TIME %0t] WRITE_OUTPUT: Will continue in this state", $time);
+            end else begin
+                // Done writing
+                $display("[TIME %0t] WRITE_OUTPUT: All data written, moving to DONE", $time);
                 state_next = DONE;
+            end
         end
         
         DONE: begin

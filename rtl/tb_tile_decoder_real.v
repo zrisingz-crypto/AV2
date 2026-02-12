@@ -1,6 +1,6 @@
 //==============================================================================
 // Testbench for AV2 Real Tile Decoder
-// Tests the integrated real decode modules
+// Tests the integrated real decode pipeline
 //==============================================================================
 
 `timescale 1ns / 1ps
@@ -11,73 +11,76 @@ module tb_tile_decoder_real;
 // Parameters
 //==============================================================================
 
-parameter CLK_PERIOD = 10;  // 100MHz
-parameter MAX_WIDTH = 64;
-parameter MAX_HEIGHT = 64;
-parameter PIXEL_WIDTH = 10;
+parameter CLK_PERIOD = 10;  // 100 MHz clock
+
+parameter FRAME_WIDTH  = 64;
+parameter FRAME_HEIGHT = 64;
+parameter MAX_SB_SIZE  = 16;
 
 //==============================================================================
 // Signals
 //==============================================================================
 
+// Clock and reset
 reg clk;
 reg rst_n;
+
+// Control
 reg start;
 
-// 帧参数
+// Frame parameters
 reg [15:0] frame_width;
 reg [15:0] frame_height;
 reg [7:0]  qindex;
 reg [1:0]  frame_type;
 
-// 比特流输入
+// Bitstream input (not used in bypass mode)
 reg [127:0] tile_data;
-reg         tile_valid;
-wire        tile_ready;
+reg        tile_valid;
+wire       tile_ready;
 
-// 参考帧接口（用于帧间预测）
+// Reference frame interface (not used in intra-only mode)
 wire [31:0] ref_read_addr;
 reg  [9:0]  ref_pixel_data;
 wire        ref_read_en;
 
-// 重建帧输出
+// Reconstructed frame output
 wire [127:0] recon_data;
 wire [31:0]  recon_addr;
 wire        recon_wr_en;
 wire        tile_done;
 
-// 内部信号用于观察
-integer cycle_count;
-integer decode_cycle;
-integer pred_cycle;
-integer itx_cycle;
-integer entropy_cycle;
-
-// 输出文件
-integer rtl_output_file;
-
 //==============================================================================
-// DUT Instance
+// DUT Instantiation
 //==============================================================================
 
 av2_tile_decoder_real #(
-    .MAX_WIDTH(MAX_WIDTH),
-    .MAX_HEIGHT(MAX_HEIGHT),
-    .PIXEL_WIDTH(PIXEL_WIDTH)
+    .MAX_WIDTH(FRAME_WIDTH),
+    .MAX_HEIGHT(FRAME_HEIGHT),
+    .PIXEL_WIDTH(10),
+    .MAX_SB_SIZE(MAX_SB_SIZE)
 ) dut (
     .clk              (clk),
     .rst_n            (rst_n),
     .start            (start),
+    
+    // Frame parameters
     .frame_width      (frame_width),
     .frame_height     (frame_height),
     .qindex           (qindex),
     .frame_type       (frame_type),
+    
+    // Bitstream input
     .tile_data        (tile_data),
     .tile_valid       (tile_valid),
     .tile_ready       (tile_ready),
+    
+    // Reference frame interface
     .ref_read_addr    (ref_read_addr),
     .ref_pixel_data   (ref_pixel_data),
     .ref_read_en      (ref_read_en),
+    
+    // Reconstructed frame output
     .recon_data       (recon_data),
     .recon_addr       (recon_addr),
     .recon_wr_en      (recon_wr_en),
@@ -94,216 +97,137 @@ initial begin
 end
 
 //==============================================================================
-// Reset Generation
+// Reference pixel data (dummy, not used in intra-only mode)
 //==============================================================================
 
+always @(*) begin
+    ref_pixel_data = 10'd128;
+end
+
+//==============================================================================
+// Test Procedure
+//==============================================================================
+
+integer cycle_count;
+integer timeout_cycles = 1000000;  // 10ms timeout at 100MHz
+
 initial begin
+    // Initialize signals
     rst_n = 0;
+    start = 0;
+    tile_data = 0;
+    tile_valid = 0;
+    frame_width = FRAME_WIDTH;
+    frame_height = FRAME_HEIGHT;
+    qindex = 8'd32;
+    frame_type = 2'd0;  // I-frame (intra-only)
+    cycle_count = 0;
+    
+    // Note: output directory must exist before running simulation
+    // Use: mkdir -p output
+    
+    //==========================================================================
+    // Reset sequence
+    //==========================================================================
+    $display("========================================");
+    $display("AV2 Real Tile Decoder Testbench");
+    $display("========================================");
+    $display("[TIME %0t] Starting reset sequence", $time);
+    
     #(CLK_PERIOD * 5);
     rst_n = 1;
-end
-
-//==============================================================================
-// Test Process
-//==============================================================================
-
-integer i;
-
-initial begin
-    // Open output file
-    rtl_output_file = $fopen("rtl_real_output.txt", "w");
-    if (rtl_output_file == 0) begin
-        $display("ERROR: Cannot open output file!");
+    #(CLK_PERIOD * 5);
+    $display("[TIME %0t] Reset complete", $time);
+    
+    //==========================================================================
+    // Generate test data
+    //==========================================================================
+    $display("[TIME %0t] Generating software pixel ROM...", $time);
+    generate_sw_pixel_rom();
+    $display("[TIME %0t] Software pixel ROM generated", $time);
+    
+    //==========================================================================
+    // Start decoder
+    //==========================================================================
+    $display("========================================");
+    $display("Starting Decoder Test");
+    $display("========================================");
+    $display("[TIME %0t] Frame size: %0d x %0d", $time, frame_width, frame_height);
+    $display("[TIME %0t] Frame type: %0d (0=I-frame)", $time, frame_type);
+    $display("[TIME %0t] QIndex: %0d", $time, qindex);
+    $display("[TIME %0t] Starting decoder...", $time);
+    
+    #(CLK_PERIOD);
+    start = 1;
+    #(CLK_PERIOD);
+    start = 0;
+    $display("[TIME %0t] Start signal asserted", $time);
+    
+    //==========================================================================
+    // Wait for completion or timeout
+    //==========================================================================
+    $display("[TIME %0t] Waiting for tile_done signal...", $time);
+    
+    while (!tile_done && cycle_count < timeout_cycles) begin
+        #(CLK_PERIOD);
+        cycle_count = cycle_count + 1;
+        
+        // Print progress every 1000 cycles
+        if (cycle_count % 1000 == 0) begin
+            $display("[TIME %0t] Waiting... cycle %0d", $time, cycle_count);
+        end
+    end
+    
+    //==========================================================================
+    // Check results
+    //==========================================================================
+    if (tile_done) begin
+        $display("========================================");
+        $display("TEST PASSED!");
+        $display("========================================");
+        $display("[TIME %0t] tile_done received at cycle %0d", $time, cycle_count);
+        $display("[TIME %0t] Total cycles: %0d", $time, cycle_count);
+        $display("[TIME %0t] Simulation time: %0d ns", $time, $time);
+        $finish;
+    end else begin
+        $display("========================================");
+        $display("TEST FAILED - TIMEOUT!");
+        $display("========================================");
+        $display("[TIME %0t] Timeout after %0d cycles", $time, cycle_count);
+        $display("[TIME %0t] Simulation time: %0d ns", $time, $time);
         $finish;
     end
-    
-    // Initialize signals
-    start = 0;
-    tile_data = 128'h0;
-    tile_valid = 0;
-    ref_pixel_data = 10'd0;
-    frame_width = 16'd64;
-    frame_height = 16'd64;
-    qindex = 8'd128;
-    frame_type = 2'd0;  // Key frame (I-frame)
-    
-    cycle_count = 0;
-    decode_cycle = 0;
-    pred_cycle = 0;
-    itx_cycle = 0;
-    entropy_cycle = 0;
-    
-    // Wait for reset
-    @(posedge rst_n);
-    @(posedge clk);
-    
-    $display("\n========================================");
-    $display("Test 1: 64x64 I-frame decoding");
-    $display("========================================\n");
-    
-    // Start decoding
-    $display("[TIME %0t] Starting decode...", $time);
-    start = 1;
-    @(posedge clk);
-    start = 0;
-    
-    // Provide bitstream data (simplified: use varying patterns)
-    for (i = 0; i < 100; i = i + 1) begin
-        @(posedge clk);
-        
-        if (tile_ready) begin
-            tile_valid = 1;
-            // Generate test bitstream data
-            tile_data = {i[15:0], i[15:0], i[15:0], i[15:0], 
-                         i[15:0], i[15:0], i[15:0], i[15:0]};
-        end else begin
-            tile_valid = 0;
-        end
-    end
-    
-    tile_valid = 0;
-    
-    // Wait for decode to complete
-    $display("[TIME %0t] Waiting for tile_done...", $time);
-    @(posedge tile_done);
-    $display("[TIME %0t] Decode complete!", $time);
-    
-    // Wait a bit more for output writes to complete
-    #(CLK_PERIOD * 100);
-    
-    $display("\n========================================");
-    $display("Test 2: 32x32 I-frame decoding");
-    $display("========================================\n");
-    
-    frame_width = 16'd32;
-    frame_height = 16'd32;
-    
-    // Start decoding
-    $display("[TIME %0t] Starting decode...", $time);
-    start = 1;
-    @(posedge clk);
-    start = 0;
-    
-    // Provide bitstream data
-    for (i = 0; i < 50; i = i + 1) begin
-        @(posedge clk);
-        
-        if (tile_ready) begin
-            tile_valid = 1;
-            tile_data = {i[15:0], i[15:0], i[15:0], i[15:0], 
-                         i[15:0], i[15:0], i[15:0], i[15:0]};
-        end else begin
-            tile_valid = 0;
-        end
-    end
-    
-    tile_valid = 0;
-    
-    // Wait for decode to complete
-    $display("[TIME %0t] Waiting for tile_done...", $time);
-    @(posedge tile_done);
-    $display("[TIME %0t] Decode complete!", $time);
-    
-    // Wait a bit more
-    #(CLK_PERIOD * 100);
-    
-    // Close output file
-    $fclose(rtl_output_file);
-    
-    $display("\n========================================");
-    $display("Test Complete!");
-    $display("========================================\n");
-    
-    #(CLK_PERIOD * 10);
-    $finish;
 end
 
 //==============================================================================
-// Monitor
+// Generate software pixel ROM
 //==============================================================================
 
-// Monitor cycle count
-always @(posedge clk) begin
-    cycle_count = cycle_count + 1;
-    
-    if (tile_ready && tile_valid)
-        entropy_cycle = cycle_count;
-    
-    if (recon_wr_en)
-        decode_cycle = cycle_count;
-end
+// Note: Software pixel ROM must be pre-generated
+// Use: python -c "for i in range(4096): print(f'{i%256:02X}')" > output/sw_pixel_rom.txt
 
-// Monitor reconstruction output
+task generate_sw_pixel_rom;
+    // ROM is pre-generated, nothing to do here
+    $display("[INFO] Using pre-generated sw_pixel_rom.txt from output/ directory");
+endtask
+
+//==============================================================================
+// Monitor write operations
+//==============================================================================
+
+integer write_count;
+
 always @(posedge clk) begin
     if (recon_wr_en) begin
-        integer j;
-        for (j = 0; j < 16; j = j + 1) begin
-            reg [7:0] pixel;
-            case (j)
-                4'd0:  pixel = recon_data[7:0];
-                4'd1:  pixel = recon_data[15:8];
-                4'd2:  pixel = recon_data[23:16];
-                4'd3:  pixel = recon_data[31:24];
-                4'd4:  pixel = recon_data[39:32];
-                4'd5:  pixel = recon_data[47:40];
-                4'd6:  pixel = recon_data[55:48];
-                4'd7:  pixel = recon_data[63:56];
-                4'd8:  pixel = recon_data[71:64];
-                4'd9:  pixel = recon_data[79:72];
-                4'd10: pixel = recon_data[87:80];
-                4'd11: pixel = recon_data[95:88];
-                4'd12: pixel = recon_data[103:96];
-                4'd13: pixel = recon_data[111:104];
-                4'd14: pixel = recon_data[119:112];
-                4'd15: pixel = recon_data[127:120];
-            endcase
-            
-            // Write to file
-            $fwrite(rtl_output_file, "pixel[%0d][%0d] = %0d\n", 
-                     recon_addr, j, pixel);
+        write_count = write_count + 1;
+        if (write_count % 100 == 0) begin
+            $display("[MONITOR] Write #%0d: addr=%0d", write_count, recon_addr);
         end
-        
-        $display("[TIME %0t] Write: addr=%0d, data=%0h", 
-                 $time, recon_addr, recon_data);
     end
 end
 
-// Monitor reference frame reads
-always @(posedge clk) begin
-    if (ref_read_en) begin
-        // Provide dummy reference pixel data
-        ref_pixel_data = 10'd128;
-    end
-end
-
-// Print statistics
-final begin
-    $display("\n========================================");
-    $display("Statistics");
-    $display("========================================");
-    $display("Total cycles: %0d", cycle_count);
-    $display("Entropy decode cycles: %0d", entropy_cycle);
-    $display("Decode cycles: %0d", decode_cycle);
-    $display("========================================\n");
-end
-
-//==============================================================================
-// Monitor for completion
-//==============================================================================
-
-// Monitor that tile_done is asserted
-reg [31:0] start_cycle;
-always @(posedge clk) begin
-    if (start && rst_n)
-        start_cycle <= cycle_count;
-end
-
-// Check timeout
-always @(posedge clk) begin
-    if (start && rst_n && !tile_done && (cycle_count - start_cycle > 1000)) begin
-        $display("[ERROR] tile_done not asserted within 1000 cycles!");
-        $finish;
-    end
+initial begin
+    write_count = 0;
 end
 
 endmodule

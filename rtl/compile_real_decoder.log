@@ -1,0 +1,5 @@
+av2_coeff_decoder_real.v:140: warning: Numeric constant truncated to 6 bits.
+av2_coeff_decoder_real.v:140: warning: Numeric constant truncated to 12 bits.
+av2_tile_decoder_real.v:219: warning: Port 17 (rom_addr) of av2_intra_prediction_real_fixed expects 12 bits, got 16.
+av2_tile_decoder_real.v:219:        : Pruning 4 high bits of the expression.
+tb_tile_decoder_real.v:103: warning: @* found no sensitivities so it will never trigger.

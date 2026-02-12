@@ -183,7 +183,7 @@ always @(posedge clk or negedge rst_n) begin
 end
 wire tile_start_pulse = tile_start_pulse_r;
 
-av2_tile_decoder_complete #(
+av2_tile_decoder_real #(
     .MAX_WIDTH  (MAX_FRAME_WIDTH),
     .MAX_HEIGHT (MAX_FRAME_HEIGHT),
     .PIXEL_WIDTH(PIXEL_WIDTH),
